@@ -13,6 +13,7 @@ use App\Http\Controllers\Doctor\PatientController as DoctorPatientController;
 use App\Http\Controllers\Patient\AppointmentController as PatientAppointmentController;
 use App\Http\Controllers\Patient\DoctorController as PatientDoctorController;
 use App\Http\Controllers\AI\RecommendationController;
+use App\Http\Controllers\Payment\PaymentController; 
 
 /*
 |--------------------------------------------------------------------------
@@ -157,4 +158,13 @@ Route::fallback(function () {
         'success' => false,
         'message' => 'API endpoint not found'
     ], 404);
+});
+
+// Payment Routes
+Route::prefix('payments')->middleware(['auth:sanctum', 'role:patient'])->group(function () {
+    Route::post('/create-intent', [PaymentController::class, 'createPaymentIntent']);
+    Route::post('/confirm', [PaymentController::class, 'confirmPayment']);
+    Route::get('/{id}', [PaymentController::class, 'getPayment']);
+    Route::get('/', [PaymentController::class, 'getPatientPayments']);
+    Route::post('/{id}/refund', [PaymentController::class, 'refundPayment']);
 });
