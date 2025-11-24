@@ -1,0 +1,93 @@
+src/
+├── app/
+│   ├── core/
+│   │   ├── guards/
+│   │   │   ├── auth.guard.ts
+│   │   │   ├── admin.guard.ts
+│   │   │   ├── doctor.guard.ts
+│   │   │   └── patient.guard.ts
+│   │   ├── interceptors/
+│   │   │   ├── auth.interceptor.ts
+│   │   │   └── error.interceptor.ts
+│   │   ├── services/
+│   │   │   ├── auth.service.ts
+│   │   │   ├── api.service.ts
+│   │   │   ├── notification.service.ts
+│   │   │   └── storage.service.ts
+│   │   └── models/
+│   │       ├── user.model.ts
+│   │       ├── appointment.model.ts
+│   │       ├── doctor.model.ts
+│   │       └── api-response.model.ts
+│   │
+│   ├── shared/
+│   │   ├── components/
+│   │   │   ├── header/
+│   │   │   ├── footer/
+│   │   │   ├── loading-spinner/
+│   │   │   ├── confirmation-modal/
+│   │   │   └── calendar-view/
+│   │   ├── pipes/
+│   │   │   ├── time-format.pipe.ts
+│   │   │   ├── filter-doctors.pipe.ts
+│   │   │   └── safe-html.pipe.ts
+│   │   ├── directives/
+│   │   │   ├── click-outside.directive.ts
+│   │   │   └── role-based.directive.ts
+│   │   └── utils/
+│   │       ├── constants.ts
+│   │       ├── helpers.ts
+│   │       └── validators.ts
+│   │
+│   ├── modules/
+│   │   ├── auth/
+│   │   │   ├── login/
+│   │   │   ├── register/
+│   │   │   └── auth-routing.module.ts
+│   │   │
+│   │   ├── admin/
+│   │   │   ├── components/
+│   │   │   │   ├── dashboard/
+│   │   │   │   ├── user-management/
+│   │   │   │   ├── doctor-approval/
+│   │   │   │   └── system-reports/
+│   │   │   └── admin-routing.module.ts
+│   │   │
+│   │   ├── doctor/
+│   │   │   ├── components/
+│   │   │   │   ├── dashboard/
+│   │   │   │   ├── schedule-management/
+│   │   │   │   ├── appointment-management/
+│   │   │   │   ├── patient-records/
+│   │   │   │   └── medical-notes/
+│   │   │   └── doctor-routing.module.ts
+│   │   │
+│   │   ├── patient/
+│   │   │   ├── components/
+│   │   │   │   ├── dashboard/
+│   │   │   │   ├── doctor-search/
+│   │   │   │   ├── appointment-booking/
+│   │   │   │   ├── appointment-history/
+│   │   │   │   └── medical-records/
+│   │   │   └── patient-routing.module.ts
+│   │   │
+│   │   └── public/
+│   │       ├── home/
+│   │       ├── doctor-listing/
+│   │       └── public-routing.module.ts
+│   │
+│   ├── app-routing.module.ts
+│   ├── app.component.ts
+│   └── app.module.ts
+│
+├── assets/
+│   ├── images/
+│   ├── icons/
+│   └── styles/
+│       ├── _variables.scss
+│       ├── _mixins.scss
+│       └── _responsive.scss
+│
+└── environments/
+    ├── environment.ts
+    └── environment.prod.ts
