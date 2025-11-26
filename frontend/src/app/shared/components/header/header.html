@@ -1,1 +1,45 @@
-<p>header works!</p>
+<header class="medical-header">
+  <div class="main-bar  ">
+    <div class="container main-bar__content ">
+      <div class="brand">
+        <div class="brand__logo" aria-hidden="true">
+          <img src="assets/logo.png" height="40" alt="Medical Care Logo" />
+        </div>
+        <!-- <div class="brand__text">
+          <span class="brand__name">Medical Care</span>
+        </div> -->
+      </div>
+
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-label="Toggle navigation"
+        [attr.aria-expanded]="menuOpen()"
+        (click)="toggleMenu()"
+      >
+        <span class="menu-toggle__bars" aria-hidden="true"></span>
+      </button>
+
+      <div class="nav-wrap" [class.is-open]="menuOpen()">
+        <nav class="nav">
+          <a class="active" href="#">Home</a>
+          <a href="#">Doctors</a>
+          <a href="#">Patients</a>
+          <a href="#">Specialties</a>
+          <a href="#">Contact</a>
+        </nav>
+
+        <div class="actions">
+          <div class="search">
+            <svg viewBox="0 0 24 24" role="img">
+              <path d="M10.5 4a6.5 6.5 0 1 1-5.2 10.43l-1.63 1.63a1 1 0 0 1-1.42-1.42l1.63-1.63A6.5 6.5 0 0 1 10.5 4Zm0 2a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9Z" />
+            </svg>
+            <input type="search" placeholder="Search doctors, clinics, specialties" />
+          </div>
+          <button class="btn ghost">Sign In</button>
+          <button class="btn primary">Sign Up</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
