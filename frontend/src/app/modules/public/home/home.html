@@ -1,10 +1,306 @@
 <app-header></app-header>
 
-<main class="page-shell">
-  <section class="page-placeholder">
-    <div class="container">
-      <h1>Home</h1>
-      <p>Add your public home content here.</p>
+<main class="bg-slate-50 text-slate-900">
+  <!-- Hero -->
+  <section class="relative overflow-hidden bg-gradient-to-br from-sky-50 via-white to-slate-100">
+    <div class="pointer-events-none absolute inset-0">
+      <div class="absolute -left-6 top-10 h-48 w-48 rounded-full bg-sky-200/40 blur-3xl"></div>
+      <div class="absolute right-0 bottom-0 h-56 w-56 rounded-full bg-cyan-200/40 blur-3xl"></div>
+    </div>
+    <div class="relative mx-auto flex max-w-6xl flex-col-reverse gap-12 px-6 py-16 lg:flex-row lg:items-center lg:py-24">
+      <div class="space-y-8 lg:w-1/2">
+        <p class="text-xs font-semibold uppercase tracking-[0.4em] text-sky-600">Doccure</p>
+        <h1 class="text-4xl font-semibold leading-tight text-slate-900 sm:text-5xl">
+          Consult Best Doctors In Your Nearby Location.
+        </h1>
+        <p class="text-lg text-slate-600">
+          Search doctors by specialization, compare profiles, check live availability, and confirm your visit in seconds.
+        </p>
+
+        <form class="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-900/5">
+          <div class="grid gap-4 sm:grid-cols-2">
+            <label class="text-sm font-medium text-slate-500">
+              Select a location
+              <div class="mt-2 flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2">
+                <svg class="size-5 text-sky-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                  <path d="M12 22s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z" />
+                  <circle cx="12" cy="10" r="2.5" />
+                </svg>
+                <select class="w-full border-0 bg-transparent text-base font-semibold text-slate-900 focus:outline-none">
+                  <option *ngFor="let location of locations" [value]="location">{{ location }}</option>
+                </select>
+              </div>
+            </label>
+
+            <label class="text-sm font-medium text-slate-500">
+              Choose speciality
+              <div class="mt-2 flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2">
+                <svg class="size-5 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                  <path d="M12 21C12 21 4 15 4 9a4 4 0 0 1 7.07-2.83L12 7.1l.93-.93A4 4 0 0 1 20 9c0 6-8 12-8 12Z" />
+                </svg>
+                <input class="w-full border-0 bg-transparent text-base font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none" placeholder="Cardiologist" />
+              </div>
+            </label>
+          </div>
+
+          <div class="mt-6 flex flex-wrap gap-3">
+            <button type="button" class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-500/30 transition hover:scale-[1.01]">
+              Start a Consult
+            </button>
+            <button type="button" class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-900 transition hover:border-slate-300">
+              <svg class="mr-2 size-5 text-sky-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <circle cx="12" cy="12" r="10" />
+                <path d="m10 8 6 4-6 4V8Z" fill="currentColor" />
+              </svg>
+              Watch Demo
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="lg:w-1/2">
+        <div class="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-2xl shadow-slate-900/10 backdrop-blur">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-slate-500">Next available</p>
+              <p class="text-2xl font-semibold text-slate-900">Today · 02:30 PM</p>
+            </div>
+            <span class="rounded-full bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-600">Live</span>
+          </div>
+          <div class="mt-6 space-y-4">
+            <div class="flex items-center gap-4 rounded-2xl border border-slate-100 p-4">
+              <div class="flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-cyan-500 text-lg font-semibold text-white">DE</div>
+              <div>
+                <p class="text-base font-semibold text-slate-900">Darren Elder</p>
+                <p class="text-sm text-slate-500">Cardiologist</p>
+              </div>
+              <span class="ml-auto text-sm font-semibold text-slate-900">$0.00</span>
+            </div>
+            <div class="flex items-center gap-4 rounded-2xl border border-slate-100 p-4">
+              <div class="flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500 to-amber-500 text-lg font-semibold text-white">RP</div>
+              <div>
+                <p class="text-base font-semibold text-slate-900">Dr Ruby Perrin</p>
+                <p class="text-sm text-slate-500">Dentist</p>
+              </div>
+              <span class="ml-auto text-sm font-semibold text-slate-900">$200.00</span>
+            </div>
+            <div class="flex items-center gap-4 rounded-2xl border border-slate-100 p-4">
+              <div class="flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-lime-500 text-lg font-semibold text-white">ST</div>
+              <div>
+                <p class="text-base font-semibold text-slate-900">Saeed Tamer</p>
+                <p class="text-sm text-slate-500">Cardiologist</p>
+              </div>
+              <span class="ml-auto text-sm font-semibold text-slate-900">$0.00</span>
+            </div>
+          </div>
+          <div class="mt-6 flex items-center justify-between rounded-2xl bg-slate-100/80 px-4 py-3 text-sm font-medium text-slate-600">
+            <span>Keep me logged in</span>
+            <button type="button" class="text-sky-600">Login now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="relative mx-auto mt-10 grid max-w-5xl gap-4 px-6 sm:grid-cols-3">
+      <div *ngFor="let stat of heroStats" class="rounded-2xl border border-slate-200 bg-white/80 p-6 text-center shadow-lg shadow-slate-900/5">
+        <p class="text-3xl font-semibold text-slate-900">{{ stat.value }}</p>
+        <p class="mt-1 text-sm font-medium text-slate-500">{{ stat.label }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Specialities -->
+  <section class="py-16">
+    <div class="mx-auto max-w-6xl px-6">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.3em] text-sky-600">Specialities</p>
+          <h2 class="mt-3 text-3xl font-semibold text-slate-900">Browse care by speciality</h2>
+          <p class="mt-3 text-base text-slate-600">Cardiologist, Dentist, Laboratory, Neurology, Ophthalmology, Orthopedic</p>
+        </div>
+        <button class="text-sm font-semibold text-sky-600 hover:text-sky-700">See all specialities →</button>
+      </div>
+      <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <article *ngFor="let speciality of specialities" class="rounded-2xl border border-slate-100 bg-white p-6 shadow-lg shadow-slate-900/5 transition hover:-translate-y-1 hover:shadow-2xl">
+          <div class="flex size-12 items-center justify-center rounded-xl bg-gradient-to-br {{ speciality.accent }} text-lg font-semibold text-white">
+            {{ speciality.name.charAt(0) }}
+          </div>
+          <h3 class="mt-4 text-xl font-semibold text-slate-900">{{ speciality.name }}</h3>
+          <p class="mt-2 text-sm text-slate-500">{{ speciality.description }}</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Best Doctors -->
+  <section class="bg-white py-16">
+    <div class="mx-auto max-w-6xl px-6">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.3em] text-sky-600">Best Doctors</p>
+          <h2 class="mt-3 text-3xl font-semibold text-slate-900">Top-rated doctors near you</h2>
+        </div>
+        <div class="flex items-center gap-3 text-xl text-slate-300">
+          <button class="rounded-full border border-slate-200 px-3 py-1 text-slate-500 hover:text-slate-900" type="button">‹</button>
+          <button class="rounded-full border border-slate-200 px-3 py-1 text-slate-500 hover:text-slate-900" type="button">›</button>
+        </div>
+      </div>
+
+      <div class="mt-10 grid gap-6 md:grid-cols-3">
+        <article *ngFor="let doctor of doctors" class="flex flex-col rounded-2xl border border-slate-100 bg-slate-50/60 p-6 shadow-inner shadow-white/60">
+        <div class="flex items-center gap-4 border-b border-slate-100 pb-4">
+            <div class="flex size-14 items-center justify-center rounded-2xl bg-slate-900 text-lg font-semibold text-white">
+              {{ doctor.initials }}
+            </div>
+            <div>
+              <p class="text-lg font-semibold text-slate-900">{{ doctor.name }}</p>
+              <p class="text-sm text-slate-500">{{ doctor.specialty }}</p>
+            </div>
+          </div>
+          <div class="flex items-center justify-between py-4 text-sm text-slate-600">
+            <span class="font-semibold text-slate-900">{{ doctor.price }}</span>
+            <span class="flex items-center gap-1 text-amber-500">
+              ★ {{ doctor.rating }}
+              <span class="text-slate-400">({{ doctor.reviews }})</span>
+            </span>
+          </div>
+          <div class="mt-auto rounded-xl bg-white px-4 py-3 text-sm font-medium text-emerald-600">{{ doctor.availability }}</div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ + Stats -->
+  <section class="py-16">
+    <div class="mx-auto grid max-w-6xl gap-10 px-6 lg:grid-cols-2">
+      <div class="rounded-3xl border border-slate-100 bg-white p-10 shadow-2xl shadow-slate-900/5">
+        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-sky-600">Get Your Answer</p>
+        <h2 class="mt-4 text-3xl font-semibold text-slate-900">Frequently Asked Questions</h2>
+        <p class="mt-4 text-base text-slate-600">Everything you need to know to make the most of virtual healthcare.</p>
+        <div class="mt-8 grid gap-4 sm:grid-cols-2">
+          <div class="rounded-2xl bg-slate-50 px-6 py-4 text-center">
+            <p class="text-3xl font-semibold text-slate-900">95k+</p>
+            <p class="text-sm text-slate-500">Happy Patients</p>
+          </div>
+          <div class="rounded-2xl bg-slate-50 px-6 py-4 text-center">
+            <p class="text-3xl font-semibold text-slate-900">24/7</p>
+            <p class="text-sm text-slate-500">Care Coordination</p>
+          </div>
+        </div>
+      </div>
+      <div class="space-y-4">
+        <details *ngFor="let faq of faqs; let first = first" class="group rounded-2xl border border-slate-100 bg-white p-6 shadow-sm shadow-slate-900/5" [attr.open]="first ? true : null">
+          <summary class="flex cursor-pointer items-center justify-between gap-4 text-base font-semibold text-slate-900 marker:hidden">
+            {{ faq.question }}
+            <span class="rounded-full border border-slate-200 px-2 py-1 text-xs text-slate-500 transition group-open:rotate-45">+</span>
+          </summary>
+          <p class="mt-4 text-sm text-slate-600">{{ faq.answer }}</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="bg-white py-16">
+    <div class="mx-auto max-w-6xl px-6">
+      <div class="text-center">
+        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-sky-600">How it works</p>
+        <h2 class="mt-3 text-3xl font-semibold text-slate-900">4 easy steps to get your solution</h2>
+      </div>
+      <div class="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <article *ngFor="let step of steps; let idx = index" class="relative rounded-2xl border border-slate-100 bg-slate-50/60 p-6">
+          <span class="absolute -top-3 right-4 rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-600">0{{ idx + 1 }}</span>
+          <h3 class="text-xl font-semibold text-slate-900">{{ step.title }}</h3>
+          <p class="mt-3 text-sm text-slate-600">{{ step.description }}</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Articles -->
+  <section class="py-16">
+    <div class="mx-auto max-w-6xl px-6">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.3em] text-sky-600">Latest Articles</p>
+          <h2 class="mt-3 text-3xl font-semibold text-slate-900">Insights for smarter care</h2>
+        </div>
+        <button class="text-sm font-semibold text-sky-600 hover:text-sky-700">View all →</button>
+      </div>
+      <div class="mt-10 grid gap-6 md:grid-cols-2">
+        <article *ngFor="let article of articles" class="rounded-2xl border border-slate-100 bg-white p-6 shadow-lg shadow-slate-900/5">
+          <div class="text-sm font-medium text-slate-500">
+            {{ article.author }} · {{ article.date }}
+          </div>
+          <h3 class="mt-3 text-xl font-semibold text-slate-900">{{ article.title }}</h3>
+          <p class="mt-3 text-sm text-slate-600">{{ article.excerpt }}</p>
+          <button class="mt-4 text-sm font-semibold text-sky-600">Read more →</button>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="bg-gradient-to-br from-sky-50 to-white py-16">
+    <div class="mx-auto max-w-6xl px-6">
+      <div class="text-center">
+        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-sky-600">Testimonials</p>
+        <h2 class="mt-3 text-3xl font-semibold text-slate-900">What our clients say</h2>
+      </div>
+      <div class="mt-10 grid gap-6 md:grid-cols-3">
+        <article *ngFor="let testimonial of testimonials" class="flex flex-col rounded-2xl border border-slate-100 bg-white p-6 shadow-xl shadow-slate-900/5">
+          <p class="text-sm text-slate-600">“{{ testimonial.quote }}”</p>
+          <div class="mt-auto pt-6">
+            <p class="text-base font-semibold text-slate-900">{{ testimonial.name }}</p>
+            <p class="text-sm text-slate-500">{{ testimonial.location }}</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Partners + Newsletter -->
+  <section class="py-16">
+    <div class="mx-auto max-w-6xl space-y-12 px-6">
+      <div class="rounded-3xl border border-slate-100 bg-white p-8 shadow-lg shadow-slate-900/5">
+        <div class="flex flex-wrap items-center justify-between gap-6">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-sky-600">Our Partners</p>
+            <h2 class="mt-2 text-2xl font-semibold text-slate-900">Trusted by leading clinics worldwide</h2>
+          </div>
+          <div class="grid flex-1 gap-6 sm:grid-cols-3 lg:grid-cols-6">
+            <div *ngFor="let partner of partners" class="flex items-center justify-center rounded-2xl border border-slate-100 px-4 py-3 text-sm font-semibold text-slate-500">
+              {{ partner }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid gap-8 lg:grid-cols-2">
+        <div class="rounded-3xl bg-gradient-to-r from-sky-500 to-cyan-500 p-8 text-white shadow-2xl shadow-sky-500/40">
+          <h3 class="text-3xl font-semibold">Subscribe & Stay Updated from the Doccure</h3>
+          <p class="mt-4 text-sm text-white/80">
+            Tips, stories, and product updates to help you deliver delightful patient experiences.
+          </p>
+          <form class="mt-6 flex flex-col gap-3 sm:flex-row">
+            <input type="email" placeholder="Enter your email" class="w-full rounded-2xl border border-white/30 bg-white/20 px-4 py-3 text-sm text-white placeholder:text-white/60 focus:border-white focus:outline-none" />
+            <button type="submit" class="rounded-2xl bg-white px-6 py-3 text-sm font-semibold text-sky-600">
+              Send
+            </button>
+          </form>
+        </div>
+        <div class="rounded-3xl border border-slate-100 bg-white p-8 shadow-lg shadow-slate-900/5">
+          <h3 class="text-2xl font-semibold text-slate-900">Connect With Us</h3>
+          <p class="mt-4 text-sm text-slate-600">[email protected]</p>
+          <p class="text-sm text-slate-600">+1 66589 14556</p>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <button class="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Login</button>
+            <button class="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Register</button>
+            <button class="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Terms</button>
+            <button class="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Privacy</button>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 </main>
