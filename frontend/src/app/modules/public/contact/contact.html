@@ -1,0 +1,77 @@
+<section class="contact-hero">
+  <div class="container">
+    <h1>Contact Us</h1>
+    <p>We’re here to help you with any questions about appointments, doctors, or our services.</p>
+  </div>
+</section>
+
+<section class="contact-container container">
+  <!-- Contact Info -->
+  <div class="contact-info">
+    <h2>Get in Touch</h2>
+
+    <div class="info-item">
+      <i class="icon">📞</i>
+      <div>
+        <h4>Phone</h4>
+        <p>+20 100 000 0000</p>
+      </div>
+    </div>
+
+    <div class="info-item">
+      <i class="icon">📧</i>
+      <div>
+        <h4>Email</h4>
+        <p>support@medicalcare.com</p>
+      </div>
+    </div>
+
+    <div class="info-item">
+      <i class="icon">📍</i>
+      <div>
+        <h4>Address</h4>
+        <p>Cairo, Egypt</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact Form -->
+  <form class="contact-form" #f="ngForm" (ngSubmit)="onSubmit(f)" novalidate>
+    <h2>Send Us a Message</h2>
+
+    <!-- Name -->
+    <input type="text" name="name" placeholder="Your Name" [(ngModel)]="name" required #nameInput="ngModel" />
+    <div class="error" *ngIf="nameInput.invalid && f.submitted">
+      Name is required.
+    </div>
+
+    <!-- Phone -->
+    <input type="tel" name="phone" placeholder="Your Phone" [(ngModel)]="phone" required pattern="[0-9]{10}" #phoneInput="ngModel" />
+    <div class="error" *ngIf="phoneInput.invalid && f.submitted">
+     <span *ngIf="phoneInput.errors?.['required']">Phone is required.</span>
+     <span *ngIf="phoneInput.errors?.['pattern']">Please enter a valid 10-digit phone number.</span>
+    </div>
+
+
+    <!-- Email -->
+    <input type="email" name="email" placeholder="Your Email" [(ngModel)]="email" required email #emailInput="ngModel" />
+    <div class="error" *ngIf="emailInput.invalid && f.submitted">
+      <span *ngIf="emailInput.errors?.['required']">Email is required.</span>
+      <span *ngIf="emailInput.errors?.['email']">Please enter a valid email.</span>
+    </div>
+
+
+    <!-- Message -->
+    <textarea name="message" placeholder="Your Message" rows="5" [(ngModel)]="message" required #msgInput="ngModel"></textarea>
+    <div class="error" *ngIf="msgInput.invalid && f.submitted">
+      Message is required.
+    </div>
+
+    <button type="submit">Send Message</button>
+  </form>
+</section>
+
+<section class="map-section container">
+  <h2>Find Us</h2>
+  <div class="map-placeholder"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3426.156853238578!2d30.99935917558398!3d30.826270774539292!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14f7c9006c953031%3A0x657b1b2e39db545b!2sITI%20Tanta!5e0!3m2!1sen!2seg!4v1764221263189!5m2!1sen!2seg" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+</section>
