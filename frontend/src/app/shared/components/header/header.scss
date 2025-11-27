@@ -218,6 +218,56 @@ $border: rgba(#6ba3be, 0.35);
   margin-left: auto;
 }
 
+.auth-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.15rem 0.25rem;
+  border-radius: 999px;
+  background: rgba($primary, 0.06);
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 1.1rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+  }
+
+  &__btn--login {
+    color: white;
+    background: linear-gradient(135deg, $primary, $accent);
+    box-shadow: 0 10px 20px rgba($primary, 0.25);
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 28px rgba($primary, 0.35);
+    }
+  }
+
+  &__btn--register {
+    background: $nav;
+    color: white;
+
+    &:hover {
+      background: lighten($nav, 5%);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba($nav, 0.35);
+    }
+  }
+}
+
 .search {
   display: inline-flex;
   align-items: center;

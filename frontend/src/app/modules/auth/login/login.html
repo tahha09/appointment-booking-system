@@ -70,7 +70,9 @@
     <div class="p-7 sm:p-10 bg-transparent">
       <div class="mb-6">
         <div class="inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1">
-          <span class="h-2 w-2 rounded-full bg-brand-ice shadow-[0_0_10px_rgba(255,255,255,0.8)]"></span>
+          <span
+            class="h-2 w-2 rounded-full bg-brand-ice shadow-[0_0_10px_rgba(255,255,255,0.8)]"
+          ></span>
           <p class="text-[0.65rem] font-semibold tracking-[0.25em] uppercase text-white">
             Sign In
           </p>
@@ -85,7 +87,7 @@
           <label for="email" class="block text-sm font-medium text-white/90">Email</label>
           <div class="relative">
             <span
-              class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-200"
+              class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-brand-ice"
             >
               <svg class="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
                 <path
@@ -105,7 +107,7 @@
           <div class="min-h-[1.25rem]">
             <p
               *ngIf="form.get('email')?.touched && form.get('email')?.invalid"
-              class="text-xs text-red-500"
+              class="text-xs text-red-300"
             >
               Please enter a valid email address.
             </p>
@@ -116,7 +118,7 @@
           <label for="password" class="block text-sm font-medium text-white/90">Password</label>
           <div class="relative">
             <span
-              class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-200"
+              class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-brand-ice"
             >
               <svg class="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
                 <path
@@ -126,40 +128,42 @@
             </span>
             <input
               id="password"
-              type="password"
+              [type]="showPassword ? 'text' : 'password'"
               formControlName="password"
                 autocomplete="current-password"
                 class="block w-full rounded-2xl border border-white/40 bg-transparent pl-11 pr-4 py-3 text-sm outline-none transition focus:border-brand-teal focus:ring-2 focus:ring-brand-ice/60"
               placeholder="••••••••"
             />
           </div>
-          <div class="min-h-[1.25rem]">
-            <p
-              *ngIf="form.get('password')?.touched && form.get('password')?.invalid"
-              class="text-xs text-red-500"
-            >
-              Password must be at least 6 characters.
-            </p>
-          </div>
+            <div class="min-h-[1.25rem]">
+              <p
+                *ngIf="form.get('password')?.touched && form.get('password')?.invalid"
+                class="text-xs text-red-300"
+              >
+                Password must be at least 6 characters.
+              </p>
+            </div>
         </div>
 
-        <div class="flex items-center justify-between text-xs sm:text-sm">
-          <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+        <div class="flex items-center justify-start text-xs sm:text-sm">
+          <label
+            class="inline-flex items-center gap-3 rounded-xl border border-white/20 bg-white/5 px-3 py-2 cursor-pointer select-none"
+          >
             <input
               type="checkbox"
               formControlName="rememberMe"
-              class="h-4 w-4 rounded border-slate-300 text-brand-teal focus:ring-brand-teal-light"
+              class="h-4 w-4 rounded-md border-white/40 bg-transparent text-brand-ice focus:ring-brand-ice focus:ring-offset-0"
             />
-            <span class="text-white/80">Remember me</span>
+            <span class="flex flex-col leading-snug">
+              <span class="text-white/90 font-medium">Remember me</span>
+              <span class="text-[0.65rem] text-white/60">Keep me signed in on this device</span>
+            </span>
           </label>
-          <button type="button" class="text-brand-teal-light hover:text-brand-teal font-medium">
-            Forgot password?
-          </button>
         </div>
 
         <div
           *ngIf="apiError"
-          class="rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-xs text-red-600"
+          class="rounded-xl border border-red-400 bg-red-500/15 px-3 py-2 text-xs text-red-100"
         >
           {{ apiError }}
         </div>
