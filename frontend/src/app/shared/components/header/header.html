@@ -3,7 +3,7 @@
     <div class="container main-bar__content ">
       <div class="brand">
         <div class="brand__logo" aria-hidden="true">
-          <img src="assets/logo.png" height="40" alt="Medical Care Logo" />
+          <img src="assets/logo.png" alt="Medical Care Logo" />
         </div>
         <!-- <div class="brand__text">
           <span class="brand__name">Medical Care</span>
@@ -22,11 +22,12 @@
 
       <div class="nav-wrap" [class.is-open]="menuOpen()">
         <nav class="nav">
-          <a class="active" href="#">Home</a>
-          <a href="#">Doctors</a>
-          <a href="#">Patients</a>
+          <a routerLink="/" routerLinkActive="active">Home</a>
+          <a routerLink="/doctors" routerLinkActive="active">Doctors</a>
+          <a routerLink="/patients" routerLinkActive="active">Patients</a>
           <a routerLink="/specialties" routerLinkActive="active">Specialties</a>
           <a routerLink="/about-us" routerLinkActive="active">About Us</a>
+          <a href="#">Contact</a>
           <a routerLink="/contact" routerLinkActive="active">Contact</a>
         </nav>
 
