@@ -28,6 +28,8 @@ export class Register {
   apiError = '';
   showScrollTop = false;
   scrollProgress = 0;
+  showPassword = false;
+  showConfirmPassword = false;
 
   form = this.fb.group(
     {

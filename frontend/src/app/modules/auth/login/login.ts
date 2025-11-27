@@ -22,6 +22,7 @@ export class Login {
   apiError = '';
   showScrollTop = false;
   scrollProgress = 0;
+  showPassword = false;
 
   form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],

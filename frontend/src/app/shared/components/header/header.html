@@ -37,8 +37,26 @@
             </svg>
             <input type="search" placeholder="Search doctors, clinics, specialties" />
           </div>
-          <button class="btn ghost" routerLink="/login">Sign In</button>
-          <button class="btn primary" routerLink="/register">Sign Up</button>
+
+          <div class="auth-toggle">
+            <a routerLink="/login" class="auth-toggle__btn auth-toggle__btn--login">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M7 10V8a5 5 0 0 1 10 0v2h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2-2a3 3 0 0 1 6 0v2H9V8Zm3 4a1.75 1.75 0 0 1 .75 3.34V18a.75.75 0 0 1-1.5 0v-2.66A1.75 1.75 0 0 1 12 12Z"
+                />
+              </svg>
+              <span>Login</span>
+            </a>
+
+            <a routerLink="/register" class="auth-toggle__btn auth-toggle__btn--register">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M12 3a4 4 0 1 1-4 4 4 4 0 0 1 4-4Zm0 8c-3.87 0-7 2-7 4.5V18a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5C19 13 15.87 11 12 11Z"
+                />
+              </svg>
+              <span>Register</span>
+            </a>
+          </div>
         </div>
       </div>
     </div>
