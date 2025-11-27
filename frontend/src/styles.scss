@@ -41,3 +41,71 @@ body {
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* SweetAlert2 themed for auth pages */
+.app-auth-popup {
+  border-radius: 1.5rem !important;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5) !important;
+}
+
+.app-auth-popup-title {
+  font-weight: 600 !important;
+  letter-spacing: 0.06em;
+}
+
+.app-auth-popup-text {
+  font-size: 0.9rem !important;
+}
+
+.app-auth-confirm-btn,
+.app-auth-cancel-btn {
+  border-radius: 999px !important;
+  padding-inline: 1.5rem !important;
+  padding-block: 0.6rem !important;
+  font-size: 0.8rem !important;
+}
+
+.app-auth-confirm-btn {
+  background-color: #0a7075 !important;
+  color: #f9fafb !important;
+}
+
+.app-auth-confirm-btn:hover {
+  background-color: #032f30 !important;
+}
+
+.app-auth-cancel-btn {
+  background-color: transparent !important;
+  color: #e5f4f5 !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+}
+
+.app-auth-popup-show {
+  animation: auth-popup-fade-in 0.2s ease-out;
+}
+
+.app-auth-popup-hide {
+  animation: auth-popup-fade-out 0.18s ease-in forwards;
+}
+
+@keyframes auth-popup-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes auth-popup-fade-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(4px) scale(0.96);
+  }
+}
