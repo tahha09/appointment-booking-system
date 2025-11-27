@@ -1,0 +1,690 @@
+// Using the color palette from the provided design
+$primary: #0c969c;
+$accent: #0a7075;
+$dark: #031716;
+$nav: #032f30;
+$text: #031716;
+$muted: #6ba3be;
+$border: rgba(#6ba3be, 0.35);
+$light-bg: #f8fcfd;
+
+// About Us Page Styles
+.about-page {
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: $text;
+  overflow-x: hidden;
+  width: 100%;
+
+  // Override any global container styles for this page
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    width: 100%;
+    box-sizing: border-box;
+
+    @media (max-width: 768px) {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    @media (max-width: 480px) {
+      padding-left: 0.875rem;
+      padding-right: 0.875rem;
+    }
+  }
+}
+
+// Hero Section
+.about-hero {
+  background: linear-gradient(135deg, $nav 0%, $accent 100%);
+  padding: 4rem 0 5rem;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 40%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="rgba(255,255,255,0.03)"/></svg>');
+    background-size: 200px;
+    opacity: 0.5;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-content {
+    text-align: center;
+    max-width: 750px;
+    margin: 0 auto;
+
+    h1 {
+      font-size: 2.75rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 1.25rem;
+      line-height: 1.2;
+    }
+
+    p {
+      font-size: 1.15rem;
+      color: rgba(255, 255, 255, 0.95);
+      line-height: 1.7;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 3rem 0 4rem;
+
+    .hero-content h1 {
+      font-size: 2rem;
+    }
+
+    .hero-content p {
+      font-size: 1.05rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 2.5rem 0 3.5rem;
+
+    .hero-content h1 {
+      font-size: 1.75rem;
+    }
+
+    .hero-content p {
+      font-size: 1rem;
+    }
+  }
+}
+
+// About Section with Image and Content
+.about-content {
+  padding: 6rem 0;
+  background: white;
+
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+
+    @media (max-width: 968px) {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+
+    @media (max-width: 640px) {
+      gap: 2.5rem;
+    }
+  }
+
+  .content-images {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    position: relative;
+
+    .image-wrapper {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba($dark, 0.08);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 50px rgba($dark, 0.12);
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      &.large {
+        grid-row: span 2;
+        height: 100%;
+        min-height: 520px;
+      }
+
+      &.medium,
+      &.small {
+        height: 250px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+
+      .image-wrapper {
+        &.large {
+          min-height: 320px;
+        }
+        
+        &.medium,
+        &.small {
+          height: 240px;
+        }
+      }
+    }
+  }
+
+  .content-text {
+    padding: 0 1.5rem;
+
+    .subtitle {
+      color: $primary;
+      font-weight: 600;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    h2 {
+      font-size: 2.5rem;
+      color: $dark;
+      margin-bottom: 1.75rem;
+      font-weight: 700;
+      line-height: 1.3;
+
+      @media (max-width: 768px) {
+        font-size: 2rem;
+      }
+
+      @media (max-width: 640px) {
+        font-size: 1.75rem;
+      }
+    }
+
+    p {
+      color: #5f6368;
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+      font-size: 1.05rem;
+
+      &:last-of-type {
+        margin-bottom: 2.5rem;
+      }
+
+      @media (max-width: 640px) {
+        font-size: 1rem;
+        line-height: 1.75;
+      }
+    }
+
+    .emergency-contact {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      background: linear-gradient(135deg, rgba($primary, 0.06), rgba($accent, 0.04));
+      padding: 1.75rem;
+      border-radius: 16px;
+      border-left: 4px solid $primary;
+      box-shadow: 0 5px 20px rgba($primary, 0.08);
+
+      .contact-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, $primary, $accent);
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        box-shadow: 0 8px 25px rgba($primary, 0.25);
+
+        svg {
+          width: 26px;
+          height: 26px;
+          fill: white;
+        }
+      }
+
+      .contact-info {
+        h4 {
+          font-size: 1rem;
+          color: $dark;
+          margin: 0 0 0.4rem 0;
+          font-weight: 600;
+        }
+
+        a {
+          font-size: 1.5rem;
+          color: $dark;
+          font-weight: 700;
+          text-decoration: none;
+          transition: color 0.2s ease;
+
+          &:hover {
+            color: $primary;
+          }
+        }
+      }
+
+      @media (max-width: 640px) {
+        padding: 1.5rem;
+        gap: 1.25rem;
+
+        .contact-icon {
+          width: 55px;
+          height: 55px;
+
+          svg {
+            width: 22px;
+            height: 22px;
+          }
+        }
+
+        .contact-info {
+          h4 {
+            font-size: 0.95rem;
+          }
+
+          a {
+            font-size: 1.3rem;
+          }
+        }
+      }
+    }
+
+    @media (max-width: 968px) {
+      padding: 0;
+    }
+  }
+}
+
+// Features/Services Section
+.about-features {
+  padding: 6rem 0;
+  background: $light-bg;
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+
+    .subtitle {
+      color: $primary;
+      font-weight: 600;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.75rem;
+    }
+
+    h2 {
+      font-size: 2.5rem;
+      color: $dark;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      color: lighten($text, 20%);
+      max-width: 650px;
+      margin: 0 auto;
+      line-height: 1.7;
+      font-size: 1.1rem;
+    }
+
+    @media (max-width: 768px) {
+      margin-bottom: 3rem;
+
+      h2 {
+        font-size: 2rem;
+      }
+
+      p {
+        font-size: 1.05rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      margin-bottom: 2.5rem;
+
+      h2 {
+        font-size: 1.75rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.5rem;
+
+    @media (max-width: 968px) {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+    }
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+      gap: 1.75rem;
+    }
+  }
+
+  .feature-card {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+    text-align: center;
+
+    &:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 50px rgba($primary, 0.15);
+    }
+
+    .feature-icon {
+      width: 75px;
+      height: 75px;
+      background: linear-gradient(135deg, rgba($primary, 0.1), rgba($accent, 0.1));
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 1.75rem;
+      font-size: 2.25rem;
+      color: $primary;
+    }
+
+    h3 {
+      font-size: 1.35rem;
+      color: $dark;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    p {
+      color: lighten($text, 20%);
+      line-height: 1.7;
+      margin: 0;
+      font-size: 1.05rem;
+    }
+
+    @media (max-width: 640px) {
+      padding: 2rem 1.75rem;
+
+      .feature-icon {
+        width: 65px;
+        height: 65px;
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+      }
+
+      h3 {
+        font-size: 1.2rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+// Team Section
+.about-team {
+  padding: 6rem 0;
+  background: white;
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+
+    .subtitle {
+      color: $primary;
+      font-weight: 600;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.75rem;
+    }
+
+    h2 {
+      font-size: 2.5rem;
+      color: $dark;
+      font-weight: 700;
+    }
+
+    @media (max-width: 768px) {
+      margin-bottom: 3rem;
+
+      h2 {
+        font-size: 2rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      margin-bottom: 2.5rem;
+
+      h2 {
+        font-size: 1.75rem;
+      }
+    }
+  }
+
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2.5rem;
+
+    @media (max-width: 968px) {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+    }
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+      gap: 1.75rem;
+    }
+  }
+
+  .team-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 50px rgba($primary, 0.15);
+
+      .team-image img {
+        transform: scale(1.08);
+      }
+    }
+
+    .team-image {
+      width: 100%;
+      height: 270px;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba($primary, 0.1), rgba($accent, 0.1));
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+      }
+    }
+
+    .team-info {
+      padding: 1.75rem;
+      text-align: center;
+
+      h4 {
+        font-size: 1.2rem;
+        color: $dark;
+        margin-bottom: 0.35rem;
+        font-weight: 600;
+      }
+
+      .specialty {
+        color: $primary;
+        font-size: 0.95rem;
+        margin-bottom: 1.25rem;
+        font-weight: 500;
+      }
+
+      .social-links {
+        display: flex;
+        justify-content: center;
+        gap: 0.65rem;
+
+        a {
+          width: 38px;
+          height: 38px;
+          border-radius: 50%;
+          background: rgba($primary, 0.08);
+          display: grid;
+          place-items: center;
+          color: $primary;
+          text-decoration: none;
+          transition: all 0.25s ease;
+
+          &:hover {
+            background: $primary;
+            color: white;
+            transform: translateY(-3px);
+          }
+
+          svg {
+            width: 16px;
+            height: 16px;
+          }
+        }
+      }
+    }
+
+    @media (max-width: 640px) {
+      .team-image {
+        height: 240px;
+      }
+
+      .team-info {
+        padding: 1.5rem;
+
+        h4 {
+          font-size: 1.1rem;
+        }
+
+        .specialty {
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+}
+
+// CTA Section
+.about-cta {
+  padding: 5rem 0;
+  background: linear-gradient(135deg, $nav, $accent);
+  color: white;
+
+  .cta-content {
+    text-align: center;
+    max-width: 750px;
+    margin: 0 auto;
+
+    h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+    }
+
+    p {
+      font-size: 1.15rem;
+      margin-bottom: 2.5rem;
+      opacity: 0.95;
+      line-height: 1.7;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 1.25rem;
+      justify-content: center;
+      flex-wrap: wrap;
+
+      .btn {
+        padding: 0.875rem 2.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+        font-size: 1.05rem;
+
+        &.primary {
+          background: white;
+          color: $primary;
+          border: 2px solid white;
+
+          &:hover {
+            background: transparent;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+          }
+        }
+
+        &.outline {
+          background: transparent;
+          color: white;
+          border: 2px solid white;
+
+          &:hover {
+            background: white;
+            color: $primary;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+          }
+        }
+
+        @media (max-width: 640px) {
+          padding: 0.75rem 2rem;
+          font-size: 1rem;
+        }
+      }
+    }
+
+    @media (max-width: 768px) {
+      h2 {
+        font-size: 2rem;
+      }
+
+      p {
+        font-size: 1.05rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h2 {
+        font-size: 1.75rem;
+      }
+
+      p {
+        font-size: 1rem;
+        margin-bottom: 2rem;
+      }
+    }
+  }
+}
