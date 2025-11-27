@@ -124,8 +124,14 @@ $border: rgba(#6ba3be, 0.35);
 .main-bar {
   padding: 1rem 0;
   background: white;
-  border-bottom: 1px solid $border;
+  border-bottom: 4px solid $border;
   position: relative;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+
+  &:hover {
+    border-bottom-color: $primary;
+    box-shadow: 0 6px 18px rgba($primary, 0.15);
+  }
 
   &__content {
     display: flex;
@@ -169,7 +175,7 @@ $border: rgba(#6ba3be, 0.35);
     text-overflow: ellipsis;
   }
   &__logo {
-    width: 140px;
+    width: 90px;
     max-width: 35vw;
 
   }
