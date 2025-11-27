@@ -1,308 +1,415 @@
-
-
-<main class="bg-slate-50 text-slate-900">
+<main class="bg-[#032F30] text-white">
   <!-- Hero -->
-  <section class="relative overflow-hidden bg-gradient-to-br from-sky-50 via-white to-slate-100">
-    <div class="pointer-events-none absolute inset-0">
-      <div class="absolute -left-6 top-10 h-48 w-48 rounded-full bg-sky-200/40 blur-3xl"></div>
-      <div class="absolute right-0 bottom-0 h-56 w-56 rounded-full bg-cyan-200/40 blur-3xl"></div>
-    </div>
-    <div class="relative mx-auto flex max-w-6xl flex-col-reverse gap-12 px-6 py-16 lg:flex-row lg:items-center lg:py-24">
-      <div class="space-y-8 lg:w-1/2">
-        <p class="text-xs font-semibold uppercase tracking-[0.4em] text-sky-600">Doccure</p>
-        <h1 class="text-4xl font-semibold leading-tight text-slate-900 sm:text-5xl">
-          Consult Best Doctors In Your Nearby Location.
+  <section class="relative overflow-hidden bg-cover bg-center fade-in"
+    style="background-image: linear-gradient(135deg, rgba(3, 47, 48, 0.85), rgba(12, 150, 156, 0.68)), url('assets/bg-hero.jpg');">
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-[#031716]/40 to-[#031716]/75 animate-float "></div>
+
+    <div class="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:py-24">
+      <div class="space-y-6 animate-fade-up">
+        <div
+          class="inline-flex items-center gap-2 rounded-full bg-[#0A7075]/20 px-4 py-2 text-sm font-semibold text-[#6BA3BE] ring-1 ring-[#0C969C]/40">
+          Seamless care, online and in clinic
+        </div>
+        <h1 class="text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
+          Medical Care
         </h1>
-        <p class="text-lg text-slate-600">
-          Search doctors by specialization, compare profiles, check live availability, and confirm your visit in seconds.
+        <p class="max-w-2xl text-base text-[#E5F4F6] sm:text-lg">
+          Discover specialists, compare reviews, and secure a slot in minutes. Our concierge keeps your follow-ups and
+          reminders on track.
         </p>
 
-        <form class="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-900/5">
-          <div class="grid gap-4 sm:grid-cols-2">
-            <label class="text-sm font-medium text-slate-500">
-              Select a location
-              <div class="mt-2 flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2">
-                <svg class="size-5 text-sky-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-                  <path d="M12 22s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z" />
-                  <circle cx="12" cy="10" r="2.5" />
-                </svg>
-                <select class="w-full border-0 bg-transparent text-base font-semibold text-slate-900 focus:outline-none">
-                  <option *ngFor="let location of locations" [value]="location">{{ location }}</option>
-                </select>
-              </div>
+        <div
+          class="rounded-3xl bg-white/10 p-5 shadow-2xl ring-1 ring-white/10 backdrop-blur animate-fade-up animation-delay-200">
+          <div class="grid gap-4 md:grid-cols-3">
+            <label
+              class="flex items-center gap-3 rounded-2xl bg-[#032F30]/50 px-4 py-3 ring-1 ring-[#0C969C]/30 focus-within:ring-2 focus-within:ring-[#0C969C]">
+              <span class="text-xs font-semibold text-[#6BA3BE]">Search</span>
+              <input type="text" placeholder="Doctor, clinic, condition"
+                class="w-full bg-transparent text-sm text-white placeholder:text-[#6BA3BE] outline-none" />
             </label>
-
-            <label class="text-sm font-medium text-slate-500">
-              Choose speciality
-              <div class="mt-2 flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2">
-                <svg class="size-5 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-                  <path d="M12 21C12 21 4 15 4 9a4 4 0 0 1 7.07-2.83L12 7.1l.93-.93A4 4 0 0 1 20 9c0 6-8 12-8 12Z" />
-                </svg>
-                <input class="w-full border-0 bg-transparent text-base font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none" placeholder="Cardiologist" />
-              </div>
+            <label
+              class="flex items-center gap-3 rounded-2xl bg-[#032F30]/50 px-4 py-3 ring-1 ring-[#0C969C]/30 focus-within:ring-2 focus-within:ring-[#0C969C]">
+              <span class="text-xs font-semibold text-[#6BA3BE]">Location</span>
+              <input type="text" placeholder="City or pin code"
+                class="w-full bg-transparent text-sm text-white placeholder:text-[#6BA3BE] outline-none" />
+            </label>
+            <label
+              class="flex items-center gap-3 rounded-2xl bg-[#032F30]/50 px-4 py-3 ring-1 ring-[#0C969C]/30 focus-within:ring-2 focus-within:ring-[#0C969C]">
+              <span class="text-xs font-semibold text-[#6BA3BE]">When</span>
+              <input type="text" placeholder="Today, Tomorrow, Weekend"
+                class="w-full bg-transparent text-sm text-white placeholder:text-[#6BA3BE] outline-none" />
             </label>
           </div>
-
-          <div class="mt-6 flex flex-wrap gap-3">
-            <button type="button" class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-500/30 transition hover:scale-[1.01]">
-              Start a Consult
-            </button>
-            <button type="button" class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-900 transition hover:border-slate-300">
-              <svg class="mr-2 size-5 text-sky-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-                <circle cx="12" cy="12" r="10" />
-                <path d="m10 8 6 4-6 4V8Z" fill="currentColor" />
-              </svg>
-              Watch Demo
+          <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex flex-wrap gap-2 text-xs font-semibold text-[#6BA3BE]">
+              <span class="rounded-full bg-[#0C969C] px-3 py-2 text-[#031716]">In-clinic visit</span>
+              <span class="rounded-full bg-white/15 px-3 py-2 text-white">Instant booking</span>
+            </div>
+            <button
+              class="inline-flex items-center justify-center rounded-full bg-[#0C969C] px-6 py-3 text-sm font-semibold text-[#031716] shadow-lg shadow-[#0C969C]/30 transition hover:-translate-y-0.5 hover:bg-[#6BA3BE]">
+              Find doctors
             </button>
           </div>
-        </form>
-      </div>
+        </div>
 
-      <div class="lg:w-1/2">
-        <div class="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-2xl shadow-slate-900/10 backdrop-blur">
-          <div class="flex items-center justify-between">
+        <div class="flex flex-wrap gap-4 text-sm">
+          <div class="flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3 ring-1 ring-white/10">
+            <span
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-[#0C969C]/30 text-lg font-bold text-[#6BA3BE]">4.8</span>
             <div>
-              <p class="text-sm text-slate-500">Next available</p>
-              <p class="text-2xl font-semibold text-slate-900">Today · 02:30 PM</p>
-            </div>
-            <span class="rounded-full bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-600">Live</span>
-          </div>
-          <div class="mt-6 space-y-4">
-            <div class="flex items-center gap-4 rounded-2xl border border-slate-100 p-4">
-              <div class="flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-cyan-500 text-lg font-semibold text-white">DE</div>
-              <div>
-                <p class="text-base font-semibold text-slate-900">Darren Elder</p>
-                <p class="text-sm text-slate-500">Cardiologist</p>
-              </div>
-              <span class="ml-auto text-sm font-semibold text-slate-900">$0.00</span>
-            </div>
-            <div class="flex items-center gap-4 rounded-2xl border border-slate-100 p-4">
-              <div class="flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500 to-amber-500 text-lg font-semibold text-white">RP</div>
-              <div>
-                <p class="text-base font-semibold text-slate-900">Dr Ruby Perrin</p>
-                <p class="text-sm text-slate-500">Dentist</p>
-              </div>
-              <span class="ml-auto text-sm font-semibold text-slate-900">$200.00</span>
-            </div>
-            <div class="flex items-center gap-4 rounded-2xl border border-slate-100 p-4">
-              <div class="flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-lime-500 text-lg font-semibold text-white">ST</div>
-              <div>
-                <p class="text-base font-semibold text-slate-900">Saeed Tamer</p>
-                <p class="text-sm text-slate-500">Cardiologist</p>
-              </div>
-              <span class="ml-auto text-sm font-semibold text-slate-900">$0.00</span>
+              <div class="font-semibold">150k+ verified reviews</div>
+              <div class="text-[#CFE9EC]">Real patient feedback</div>
             </div>
           </div>
-          <div class="mt-6 flex items-center justify-between rounded-2xl bg-slate-100/80 px-4 py-3 text-sm font-medium text-slate-600">
-            <span>Keep me logged in</span>
-            <button type="button" class="text-sky-600">Login now</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="relative mx-auto mt-10 grid max-w-5xl gap-4 px-6 sm:grid-cols-3">
-      <div *ngFor="let stat of heroStats" class="rounded-2xl border border-slate-200 bg-white/80 p-6 text-center shadow-lg shadow-slate-900/5">
-        <p class="text-3xl font-semibold text-slate-900">{{ stat.value }}</p>
-        <p class="mt-1 text-sm font-medium text-slate-500">{{ stat.label }}</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Specialities -->
-  <section class="py-16">
-    <div class="mx-auto max-w-6xl px-6">
-      <div class="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-[0.3em] text-sky-600">Specialities</p>
-          <h2 class="mt-3 text-3xl font-semibold text-slate-900">Browse care by speciality</h2>
-          <p class="mt-3 text-base text-slate-600">Cardiologist, Dentist, Laboratory, Neurology, Ophthalmology, Orthopedic</p>
-        </div>
-        <button class="text-sm font-semibold text-sky-600 hover:text-sky-700">See all specialities →</button>
-      </div>
-      <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <article *ngFor="let speciality of specialities" class="rounded-2xl border border-slate-100 bg-white p-6 shadow-lg shadow-slate-900/5 transition hover:-translate-y-1 hover:shadow-2xl">
-          <div class="flex size-12 items-center justify-center rounded-xl bg-gradient-to-br {{ speciality.accent }} text-lg font-semibold text-white">
-            {{ speciality.name.charAt(0) }}
-          </div>
-          <h3 class="mt-4 text-xl font-semibold text-slate-900">{{ speciality.name }}</h3>
-          <p class="mt-2 text-sm text-slate-500">{{ speciality.description }}</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- Best Doctors -->
-  <section class="bg-white py-16">
-    <div class="mx-auto max-w-6xl px-6">
-      <div class="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-[0.3em] text-sky-600">Best Doctors</p>
-          <h2 class="mt-3 text-3xl font-semibold text-slate-900">Top-rated doctors near you</h2>
-        </div>
-        <div class="flex items-center gap-3 text-xl text-slate-300">
-          <button class="rounded-full border border-slate-200 px-3 py-1 text-slate-500 hover:text-slate-900" type="button">‹</button>
-          <button class="rounded-full border border-slate-200 px-3 py-1 text-slate-500 hover:text-slate-900" type="button">›</button>
-        </div>
-      </div>
-
-      <div class="mt-10 grid gap-6 md:grid-cols-3">
-        <article *ngFor="let doctor of doctors" class="flex flex-col rounded-2xl border border-slate-100 bg-slate-50/60 p-6 shadow-inner shadow-white/60">
-        <div class="flex items-center gap-4 border-b border-slate-100 pb-4">
-            <div class="flex size-14 items-center justify-center rounded-2xl bg-slate-900 text-lg font-semibold text-white">
-              {{ doctor.initials }}
-            </div>
+          <div class="flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3 ring-1 ring-white/10">
+            <span
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-[#032F30] text-sm font-semibold text-[#6BA3BE]">24/7</span>
             <div>
-              <p class="text-lg font-semibold text-slate-900">{{ doctor.name }}</p>
-              <p class="text-sm text-slate-500">{{ doctor.specialty }}</p>
+              <div class="font-semibold">Care concierge</div>
+              <div class="text-[#CFE9EC]">Follow-ups and reminders</div>
             </div>
-          </div>
-          <div class="flex items-center justify-between py-4 text-sm text-slate-600">
-            <span class="font-semibold text-slate-900">{{ doctor.price }}</span>
-            <span class="flex items-center gap-1 text-amber-500">
-              ★ {{ doctor.rating }}
-              <span class="text-slate-400">({{ doctor.reviews }})</span>
-            </span>
-          </div>
-          <div class="mt-auto rounded-xl bg-white px-4 py-3 text-sm font-medium text-emerald-600">{{ doctor.availability }}</div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- FAQ + Stats -->
-  <section class="py-16">
-    <div class="mx-auto grid max-w-6xl gap-10 px-6 lg:grid-cols-2">
-      <div class="rounded-3xl border border-slate-100 bg-white p-10 shadow-2xl shadow-slate-900/5">
-        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-sky-600">Get Your Answer</p>
-        <h2 class="mt-4 text-3xl font-semibold text-slate-900">Frequently Asked Questions</h2>
-        <p class="mt-4 text-base text-slate-600">Everything you need to know to make the most of virtual healthcare.</p>
-        <div class="mt-8 grid gap-4 sm:grid-cols-2">
-          <div class="rounded-2xl bg-slate-50 px-6 py-4 text-center">
-            <p class="text-3xl font-semibold text-slate-900">95k+</p>
-            <p class="text-sm text-slate-500">Happy Patients</p>
-          </div>
-          <div class="rounded-2xl bg-slate-50 px-6 py-4 text-center">
-            <p class="text-3xl font-semibold text-slate-900">24/7</p>
-            <p class="text-sm text-slate-500">Care Coordination</p>
           </div>
         </div>
       </div>
-      <div class="space-y-4">
-        <details *ngFor="let faq of faqs; let first = first" class="group rounded-2xl border border-slate-100 bg-white p-6 shadow-sm shadow-slate-900/5" [attr.open]="first ? true : null">
-          <summary class="flex cursor-pointer items-center justify-between gap-4 text-base font-semibold text-slate-900 marker:hidden">
-            {{ faq.question }}
-            <span class="rounded-full border border-slate-200 px-2 py-1 text-xs text-slate-500 transition group-open:rotate-45">+</span>
-          </summary>
-          <p class="mt-4 text-sm text-slate-600">{{ faq.answer }}</p>
-        </details>
+    </div>
+  </section>
+
+  <!-- -------------------------- -->
+
+  <!-- Highlights -->
+  <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 fade-in">
+    <div class="grid gap-6 md:grid-cols-3">
+      <div class="rounded-2xl bg-[#032F30] p-5 shadow-lg ring-1 ring-[#0C969C]/30 animate-fade-up">
+        <div class="text-sm font-semibold uppercase tracking-wide text-[#6BA3BE]">01</div>
+        <h3 class="mt-2 text-xl font-semibold">Search with intent</h3>
+        <p class="mt-2 text-sm text-[#CFE9EC]">Filter by specialty, language, insurance, and distance to find the right
+          match.</p>
+      </div>
+      <div
+        class="rounded-2xl bg-gradient-to-br from-[#0A7075] to-[#0C969C] p-5 shadow-lg ring-1 ring-[#6BA3BE]/20 animate-fade-up animation-delay-200">
+        <div class="text-sm font-semibold uppercase tracking-wide text-[#031716]">02</div>
+        <h3 class="mt-2 text-xl font-semibold text-[#031716]">Compare and confirm</h3>
+        <p class="mt-2 text-sm text-[#032F30]">Transparent fees, verified reviews, and real-time availability before you
+          book.</p>
+      </div>
+      <div class="rounded-2xl bg-[#274D60] p-5 shadow-lg ring-1 ring-[#6BA3BE]/20 animate-fade-up animation-delay-400">
+        <div class="text-sm font-semibold uppercase tracking-wide text-[#6BA3BE]">03</div>
+        <h3 class="mt-2 text-xl font-semibold">Visit</h3>
+        <p class="mt-2 text-sm text-[#D6E9F0]">Join glide into clinic visits with zero paperwork.</p>
       </div>
     </div>
   </section>
 
-  <!-- How it works -->
-  <section class="bg-white py-16">
-    <div class="mx-auto max-w-6xl px-6">
-      <div class="text-center">
-        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-sky-600">How it works</p>
-        <h2 class="mt-3 text-3xl font-semibold text-slate-900">4 easy steps to get your solution</h2>
-      </div>
-      <div class="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <article *ngFor="let step of steps; let idx = index" class="relative rounded-2xl border border-slate-100 bg-slate-50/60 p-6">
-          <span class="absolute -top-3 right-4 rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-600">0{{ idx + 1 }}</span>
-          <h3 class="text-xl font-semibold text-slate-900">{{ step.title }}</h3>
-          <p class="mt-3 text-sm text-slate-600">{{ step.description }}</p>
-        </article>
-      </div>
-    </div>
-  </section>
 
-  <!-- Articles -->
-  <section class="py-16">
-    <div class="mx-auto max-w-6xl px-6">
-      <div class="flex flex-wrap items-center justify-between gap-4">
+  <!-- ------------------------------ -->
+
+
+  <section class="relative overflow-hidden py-16 fade-in">
+    <div class="absolute inset-0 bg-gradient-to-br from-[#031716] via-[#032F30]/85 to-[#0A7075]"></div>
+    <div class="absolute -left-20 top-10 h-48 w-48 rounded-full bg-[#0C969C]/30 blur-3xl"></div>
+    <div class="absolute -right-24 bottom-6 h-56 w-56 rounded-full bg-[#6BA3BE]/20 blur-3xl"></div>
+
+    <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 animate-fade-up">
+      <div class="flex items-center justify-between gap-4">
         <div>
-          <p class="text-xs font-semibold uppercase tracking-[0.3em] text-sky-600">Latest Articles</p>
-          <h2 class="mt-3 text-3xl font-semibold text-slate-900">Insights for smarter care</h2>
+          <p class="text-sm font-semibold uppercase tracking-[0.2em] text-[#6BA3BE]">Trusted Experts</p>
+          <h2 class="mt-2 text-3xl font-bold sm:text-4xl">Best Doctors</h2>
+          <p class="mt-2 max-w-2xl text-sm text-[#CFE9EC]">Handpicked specialists with outstanding patient outcomes,
+            fast response times, and warm bedside manners.</p>
         </div>
-        <button class="text-sm font-semibold text-sky-600 hover:text-sky-700">View all →</button>
+        <button
+          class="hidden rounded-full bg-[#0C969C] px-4 py-2 text-sm font-semibold text-[#031716] shadow-lg shadow-[#0C969C]/30 transition hover:-translate-y-0.5 hover:bg-[#6BA3BE] sm:inline-flex">
+          See all
+        </button>
       </div>
-      <div class="mt-10 grid gap-6 md:grid-cols-2">
-        <article *ngFor="let article of articles" class="rounded-2xl border border-slate-100 bg-white p-6 shadow-lg shadow-slate-900/5">
-          <div class="text-sm font-medium text-slate-500">
-            {{ article.author }} · {{ article.date }}
+
+      <div class="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <article
+          class="group overflow-hidden rounded-3xl bg-[#031716]/70 p-6 shadow-2xl ring-1 ring-[#0C969C]/30 backdrop-blur transition duration-300 hover:-translate-y-1 hover:ring-[#0C969C]/50 animate-fade-up">
+          <div class="relative h-40 overflow-hidden rounded-2xl">
+            <img src="assets/doctor1.jpg" alt="doctor1"
+              class="h-full w-full object-cover transition duration-300 group-hover:scale-105">
+            <span
+              class="absolute left-3 top-3 rounded-full bg-[#0A7075]/90 px-3 py-1 text-xs font-semibold text-white shadow-lg shadow-[#0A7075]/40">Cardiology</span>
           </div>
-          <h3 class="mt-3 text-xl font-semibold text-slate-900">{{ article.title }}</h3>
-          <p class="mt-3 text-sm text-slate-600">{{ article.excerpt }}</p>
-          <button class="mt-4 text-sm font-semibold text-sky-600">Read more →</button>
+          <div class="mt-5 flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-semibold">Dr. John Doe</h3>
+              <p class="text-sm text-[#6BA3BE]">10 yrs • 1.2k patients</p>
+            </div>
+            <span class="rounded-full bg-[#032F30] px-3 py-1 text-xs font-semibold text-[#6BA3BE]">4.9 ★</span>
+          </div>
+          <p class="mt-3 text-sm text-[#CFE9EC]">Known for quick diagnostics and structured follow-ups that keep
+            recovery smooth.</p>
+          <div class="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
+            <span class="rounded-full bg-[#0C969C]/20 px-3 py-1 text-[#6BA3BE]"> In-clinic</span>
+            <span class="rounded-full bg-[#0A7075]/30 px-3 py-1 text-white">Same-day slots</span>
+          </div>
+          <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <button
+              class="flex-1 rounded-full bg-[#0C969C] px-4 py-2 text-sm font-semibold text-[#031716] shadow-lg shadow-[#0C969C]/30 transition hover:-translate-y-0.5 hover:bg-[#6BA3BE]">Book
+              appointment</button>
+            <button
+              class="flex-1 rounded-full border border-[#0C969C]/40 px-4 py-2 text-sm font-semibold text-[#6BA3BE] transition hover:-translate-y-0.5 hover:border-[#0C969C] hover:text-white">View
+              profile</button>
+          </div>
+        </article>
+
+        <article
+          class="group overflow-hidden rounded-3xl bg-[#031716]/70 p-6 shadow-2xl ring-1 ring-[#0C969C]/30 backdrop-blur transition duration-300 hover:-translate-y-1 hover:ring-[#0C969C]/50 animate-fade-up animation-delay-200">
+          <div class="relative h-40 overflow-hidden rounded-2xl">
+            <img src="assets/doctor1.jpg" alt="doctor2"
+              class="h-full w-full object-cover transition duration-300 group-hover:scale-105">
+            <span
+              class="absolute left-3 top-3 rounded-full bg-[#0C969C] px-3 py-1 text-xs font-semibold text-[#031716] shadow-lg shadow-[#0C969C]/40">Dermatology</span>
+          </div>
+          <div class="mt-5 flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-semibold">Dr. Leila Singh</h3>
+              <p class="text-sm text-[#6BA3BE]">8 yrs • 900 patients</p>
+            </div>
+            <span class="rounded-full bg-[#032F30] px-3 py-1 text-xs font-semibold text-[#6BA3BE]">4.8 ★</span>
+          </div>
+          <p class="mt-3 text-sm text-[#CFE9EC]">Expert in chronic skin conditions with a gentle, education-first
+            approach.</p>
+          <div class="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
+            <span class="rounded-full bg-[#0A7075]/30 px-3 py-1 text-white">Patch testing</span>
+            <span class="rounded-full bg-[#274D60]/70 px-3 py-1 text-[#CFE9EC]">Weekend clinics</span>
+          </div>
+          <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <button
+              class="flex-1 rounded-full bg-[#0C969C] px-4 py-2 text-sm font-semibold text-[#031716] shadow-lg shadow-[#0C969C]/30 transition hover:-translate-y-0.5 hover:bg-[#6BA3BE]">Book
+              appointment</button>
+            <button
+              class="flex-1 rounded-full border border-[#0C969C]/40 px-4 py-2 text-sm font-semibold text-[#6BA3BE] transition hover:-translate-y-0.5 hover:border-[#0C969C] hover:text-white">View
+              profile</button>
+          </div>
+        </article>
+
+        <article
+          class="group overflow-hidden rounded-3xl bg-[#031716]/70 p-6 shadow-2xl ring-1 ring-[#0C969C]/30 backdrop-blur transition duration-300 hover:-translate-y-1 hover:ring-[#0C969C]/50 animate-fade-up animation-delay-400">
+          <div class="relative h-40 overflow-hidden rounded-2xl">
+            <img src="assets/doctor1.jpg" alt="doctor3"
+              class="h-full w-full object-cover transition duration-300 group-hover:scale-105">
+            <span
+              class="absolute left-3 top-3 rounded-full bg-[#274D60] px-3 py-1 text-xs font-semibold text-[#CFE9EC] shadow-lg shadow-[#274D60]/40">Orthopedics</span>
+          </div>
+          <div class="mt-5 flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-semibold">Dr. Omar Khalid</h3>
+              <p class="text-sm text-[#6BA3BE]">12 yrs • 1.5k patients</p>
+            </div>
+            <span class="rounded-full bg-[#032F30] px-3 py-1 text-xs font-semibold text-[#6BA3BE]">5.0 ★</span>
+          </div>
+          <p class="mt-3 text-sm text-[#CFE9EC]">Focuses on mobility-first recovery plans with transparent outcomes and
+            timelines.</p>
+          <div class="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
+            <span class="rounded-full bg-[#0C969C]/20 px-3 py-1 text-[#6BA3BE]">Rehab guided</span>
+            <span class="rounded-full bg-[#0A7075]/30 px-3 py-1 text-white">Minimal wait</span>
+          </div>
+          <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <button
+              class="flex-1 rounded-full bg-[#0C969C] px-4 py-2 text-sm font-semibold text-[#031716] shadow-lg shadow-[#0C969C]/30 transition hover:-translate-y-0.5 hover:bg-[#6BA3BE]">Book
+              appointment</button>
+            <button
+              class="flex-1 rounded-full border border-[#0C969C]/40 px-4 py-2 text-sm font-semibold text-[#6BA3BE] transition hover:-translate-y-0.5 hover:border-[#0C969C] hover:text-white">View
+              profile</button>
+          </div>
         </article>
       </div>
     </div>
   </section>
 
-  <!-- Testimonials -->
-  <section class="bg-gradient-to-br from-sky-50 to-white py-16">
-    <div class="mx-auto max-w-6xl px-6">
-      <div class="text-center">
-        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-sky-600">Testimonials</p>
-        <h2 class="mt-3 text-3xl font-semibold text-slate-900">What our clients say</h2>
-      </div>
-      <div class="mt-10 grid gap-6 md:grid-cols-3">
-        <article *ngFor="let testimonial of testimonials" class="flex flex-col rounded-2xl border border-slate-100 bg-white p-6 shadow-xl shadow-slate-900/5">
-          <p class="text-sm text-slate-600">“{{ testimonial.quote }}”</p>
-          <div class="mt-auto pt-6">
-            <p class="text-base font-semibold text-slate-900">{{ testimonial.name }}</p>
-            <p class="text-sm text-slate-500">{{ testimonial.location }}</p>
-          </div>
-        </article>
-      </div>
-    </div>
-  </section>
+  <!-- --------------------------- -->
+  <div class="elementor-widget-container fade-in">
+    <section class="relative overflow-hidden py-16">
+      <div class="absolute inset-0 bg-gradient-to-br from-[#031716] via-[#032F30]/85 to-[#0A7075]"></div>
+      <div class="absolute -left-20 top-12 h-48 w-48 rounded-full bg-[#0C969C]/25 blur-3xl"></div>
+      <div class="absolute -right-12 bottom-6 h-56 w-56 rounded-full bg-[#6BA3BE]/20 blur-3xl"></div>
 
-  <!-- Partners + Newsletter -->
-  <section class="py-16">
-    <div class="mx-auto max-w-6xl space-y-12 px-6">
-      <div class="rounded-3xl border border-slate-100 bg-white p-8 shadow-lg shadow-slate-900/5">
-        <div class="flex flex-wrap items-center justify-between gap-6">
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-sky-600">Our Partners</p>
-            <h2 class="mt-2 text-2xl font-semibold text-slate-900">Trusted by leading clinics worldwide</h2>
+      <div
+        class="relative mx-auto flex max-w-6xl flex-col gap-10 px-4 sm:px-6 lg:flex-row lg:items-center lg:px-8 animate-fade-up">
+        <div class="flex-1 space-y-4">
+          <div class="grid grid-cols-2 gap-4 sm:grid-cols-2">
+            <div
+              class="col-span-2 overflow-hidden rounded-[28px] border border-[#0C969C]/30 bg-[#031716]/70 shadow-2xl ring-1 ring-[#032F30]">
+              <img decoding="async"
+                src="https://doccure-wp.dreamstechnologies.com/wp-content/uploads/2025/01/book-01-1.jpg"
+                alt="Clinic hallway" class="h-full w-full object-cover">
+            </div>
+            <div
+              class="overflow-hidden rounded-[20px] border border-[#0C969C]/30 bg-[#032F30]/70 shadow-xl ring-1 ring-[#032F30]">
+              <img decoding="async"
+                src="https://doccure-wp.dreamstechnologies.com/wp-content/uploads/2025/01/book-02-1.jpg"
+                alt="Doctor consultation" class="h-full w-full object-cover">
+            </div>
+            <div
+              class="overflow-hidden rounded-[20px] border border-[#0C969C]/30 bg-[#032F30]/70 shadow-xl ring-1 ring-[#032F30]">
+              <img decoding="async"
+                src="https://doccure-wp.dreamstechnologies.com/wp-content/uploads/2025/01/book-03-1.jpg"
+                alt="Patient care" class="h-full w-full object-cover">
+            </div>
           </div>
-          <div class="grid flex-1 gap-6 sm:grid-cols-3 lg:grid-cols-6">
-            <div *ngFor="let partner of partners" class="flex items-center justify-center rounded-2xl border border-slate-100 px-4 py-3 text-sm font-semibold text-slate-500">
-              {{ partner }}
+        </div>
+
+        <div class="flex-1 space-y-6">
+          <div class="space-y-2">
+            <span
+              class="inline-flex items-center gap-2 rounded-full bg-[#0A7075]/25 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#6BA3BE] ring-1 ring-[#0C969C]/40">Why
+              book with us</span>
+            <h2 class="text-3xl font-bold sm:text-4xl">We understand your unique needs and deliver care</h2>
+            <p class="max-w-2xl text-sm text-[#CFE9EC]">As a trusted healthcare provider, we promote wellness beyond the
+              clinic through outreach, fairs, and education.</p>
+          </div>
+
+          <div class="space-y-3">
+            <div
+              class="rounded-2xl border border-[#0C969C]/30 bg-[#031716]/70 p-4 shadow-lg ring-1 ring-[#032F30] animate-fade-up">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#6BA3BE]">01</p>
+                  <h3 class="text-lg font-semibold">Our Vision</h3>
+                </div>
+                <!-- <span class="rounded-full bg-[#032F30] px-3 py-1 text-xs font-semibold text-[#6BA3BE]">Open</span> -->
+              </div>
+              <p class="mt-2 text-sm text-[#CFE9EC]">We envision a community where everyone accesses high-quality care
+                and the resources to live healthy, fulfilling lives.</p>
+            </div>
+            <div
+              class="rounded-2xl border border-[#0C969C]/30 bg-[#032F30]/80 p-4 shadow-lg ring-1 ring-[#032F30] animate-fade-up animation-delay-200">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#6BA3BE]">02</p>
+                  <h3 class="text-lg font-semibold">Our Mission</h3>
+                </div>
+                <!-- <span class="rounded-full bg-[#031716] px-3 py-1 text-xs font-semibold text-[#6BA3BE]">Open</span> -->
+              </div>
+              <p class="mt-2 text-sm text-[#CFE9EC]">We expand access by pairing trusted clinicians with transparent
+                guidance, so every patient moves forward confidently.</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="grid gap-8 lg:grid-cols-2">
-        <div class="rounded-3xl bg-gradient-to-r from-sky-500 to-cyan-500 p-8 text-white shadow-2xl shadow-sky-500/40">
-          <h3 class="text-3xl font-semibold">Subscribe & Stay Updated from the Doccure</h3>
-          <p class="mt-4 text-sm text-white/80">
-            Tips, stories, and product updates to help you deliver delightful patient experiences.
-          </p>
-          <form class="mt-6 flex flex-col gap-3 sm:flex-row">
-            <input type="email" placeholder="Enter your email" class="w-full rounded-2xl border border-white/30 bg-white/20 px-4 py-3 text-sm text-white placeholder:text-white/60 focus:border-white focus:outline-none" />
-            <button type="submit" class="rounded-2xl bg-white px-6 py-3 text-sm font-semibold text-sky-600">
-              Send
-            </button>
-          </form>
+      <div class="relative mx-auto mt-12 max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div
+            class="group rounded-2xl border border-[#0C969C]/30 bg-[#031716]/70 p-5 shadow-xl ring-1 ring-[#032F30] transition hover:-translate-y-1 hover:border-[#0C969C]/50 hover:ring-[#0C969C]/40 animate-fade-up">
+            <div class="flex items-center gap-3">
+              <span
+                class="flex h-10 w-10 items-center justify-center rounded-full bg-[#0C969C]/25 text-sm font-semibold text-[#6BA3BE]">01</span>
+              <h4 class="text-base font-semibold">Search for Doctors</h4>
+            </div>
+            <p class="mt-3 text-sm text-[#CFE9EC]">Filter by specialization, location, availability, and insurance for
+              the right fit.</p>
+          </div>
+
+          <div
+            class="group rounded-2xl border border-[#0C969C]/30 bg-[#032F30]/80 p-5 shadow-xl ring-1 ring-[#032F30] transition hover:-translate-y-1 hover:border-[#0C969C]/50 hover:ring-[#0C969C]/40 animate-fade-up animation-delay-200">
+            <div class="flex items-center gap-3">
+              <span
+                class="flex h-10 w-10 items-center justify-center rounded-full bg-[#0A7075]/30 text-sm font-semibold text-white">02</span>
+              <h4 class="text-base font-semibold">Check Doctor Profile</h4>
+            </div>
+            <p class="mt-3 text-sm text-[#CFE9EC]">Explore experience, languages, patient reviews, and verified
+              credentials.</p>
+          </div>
+
+          <div
+            class="group rounded-2xl border border-[#0C969C]/30 bg-[#031716]/70 p-5 shadow-xl ring-1 ring-[#032F30] transition hover:-translate-y-1 hover:border-[#0C969C]/50 hover:ring-[#0C969C]/40 animate-fade-up animation-delay-400">
+            <div class="flex items-center gap-3">
+              <span
+                class="flex h-10 w-10 items-center justify-center rounded-full bg-[#0C969C]/20 text-sm font-semibold text-[#6BA3BE]">03</span>
+              <h4 class="text-base font-semibold">Schedule Appointment</h4>
+            </div>
+            <p class="mt-3 text-sm text-[#CFE9EC]">Pick a convenient slot, confirm instantly, and get reminders.</p>
+          </div>
+
+          <div
+            class="group rounded-2xl border border-[#0C969C]/30 bg-[#032F30]/80 p-5 shadow-xl ring-1 ring-[#032F30] transition hover:-translate-y-1 hover:border-[#0C969C]/50 hover:ring-[#0C969C]/40 animate-fade-up animation-delay-600">
+            <div class="flex items-center gap-3">
+              <span
+                class="flex h-10 w-10 items-center justify-center rounded-full bg-[#274D60]/70 text-sm font-semibold text-[#CFE9EC]">04</span>
+              <h4 class="text-base font-semibold">Get Your Solution</h4>
+            </div>
+            <p class="mt-3 text-sm text-[#CFE9EC]">In clinic and leave with a clear, personalized plan.</p>
+          </div>
         </div>
-        <div class="rounded-3xl border border-slate-100 bg-white p-8 shadow-lg shadow-slate-900/5">
-          <h3 class="text-2xl font-semibold text-slate-900">Connect With Us</h3>
-          <p class="mt-4 text-sm text-slate-600">[email protected]</p>
-          <p class="text-sm text-slate-600">+1 66589 14556</p>
-          <div class="mt-6 flex flex-wrap gap-3">
-            <button class="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Login</button>
-            <button class="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Register</button>
-            <button class="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Terms</button>
-            <button class="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Privacy</button>
+      </div>
+    </section>
+  </div>
+
+
+  <section class="relative overflow-hidden py-16 fade-in">
+    <div class="absolute inset-0 bg-gradient-to-br from-[#031716] via-[#032F30]/90 to-[#0A7075]"></div>
+    <div class="absolute -left-24 top-12 h-40 w-40 rounded-full bg-[#0C969C]/25 blur-3xl"></div>
+    <div class="absolute bottom-0 right-6 h-48 w-48 rounded-full bg-[#6BA3BE]/20 blur-3xl"></div>
+
+    <div class="relative mx-auto flex max-w-6xl flex-col gap-10 px-4 sm:px-6 lg:flex-row lg:items-center lg:px-8">
+      <div class="relative flex-1">
+        <div class="absolute -left-6 -top-6 h-16 w-16 rounded-full bg-[#0A7075]/30 blur-2xl"></div>
+        <div
+          class="overflow-hidden rounded-[28px] border border-[#0C969C]/30 bg-[#031716]/70 shadow-2xl ring-1 ring-[#032F30]">
+          <img src="assets/doctor.jpg" alt="How it works illustration" class="h-full w-full object-cover">
+        </div>
+      </div>
+
+      <div class="flex-1 space-y-6">
+        <div class="space-y-2">
+          <span
+            class="inline-flex items-center gap-2 rounded-full bg-[#0A7075]/25 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#6BA3BE] ring-1 ring-[#0C969C]/40">How
+            it works</span>
+          <h2 class="text-3xl font-bold sm:text-4xl">4 easy steps to get your solution</h2>
+          <p class="max-w-2xl text-sm text-[#CFE9EC]">Move from search to solution quickly with a guided flow built for
+            clarity and speed.</p>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div
+            class="group rounded-2xl border border-[#0C969C]/25 bg-[#031716]/70 p-5 shadow-xl ring-1 ring-[#032F30]/80 transition hover:-translate-y-1 hover:border-[#0C969C]/50 hover:ring-[#0C969C]/40">
+            <div class="flex items-center gap-3">
+              <span
+                class="flex h-10 w-10 items-center justify-center rounded-full bg-[#0C969C]/25 text-sm font-semibold text-[#6BA3BE]">01</span>
+              <h5 class="text-lg font-semibold">Search doctor</h5>
+            </div>
+            <p class="mt-3 text-sm text-[#CFE9EC]">Filter by specialization, location, insurance, and availability to
+              find the right expert.</p>
+          </div>
+
+          <div
+            class="group rounded-2xl border border-[#0C969C]/25 bg-[#032F30]/80 p-5 shadow-xl ring-1 ring-[#032F30]/80 transition hover:-translate-y-1 hover:border-[#0C969C]/50 hover:ring-[#0C969C]/40">
+            <div class="flex items-center gap-3">
+              <span
+                class="flex h-10 w-10 items-center justify-center rounded-full bg-[#0A7075]/30 text-sm font-semibold text-white">02</span>
+              <h5 class="text-lg font-semibold">Check profile</h5>
+            </div>
+            <p class="mt-3 text-sm text-[#CFE9EC]">Review experience, languages, patient feedback, and real-time slot
+              visibility.</p>
+          </div>
+
+          <div
+            class="group rounded-2xl border border-[#0C969C]/25 bg-[#031716]/70 p-5 shadow-xl ring-1 ring-[#032F30]/80 transition hover:-translate-y-1 hover:border-[#0C969C]/50 hover:ring-[#0C969C]/40">
+            <div class="flex items-center gap-3">
+              <span
+                class="flex h-10 w-10 items-center justify-center rounded-full bg-[#0C969C]/20 text-sm font-semibold text-[#6BA3BE]">03</span>
+              <h5 class="text-lg font-semibold">Schedule appointment</h5>
+            </div>
+            <p class="mt-3 text-sm text-[#CFE9EC]">Pick a slot that works, confirm instantly, and get reminders synced
+              to your calendar.</p>
+          </div>
+
+          <div
+            class="group rounded-2xl border border-[#0C969C]/25 bg-[#032F30]/80 p-5 shadow-xl ring-1 ring-[#032F30]/80 transition hover:-translate-y-1 hover:border-[#0C969C]/50 hover:ring-[#0C969C]/40">
+            <div class="flex items-center gap-3">
+              <span
+                class="flex h-10 w-10 items-center justify-center rounded-full bg-[#274D60]/70 text-sm font-semibold text-[#CFE9EC]">04</span>
+              <h5 class="text-lg font-semibold">Get your solution</h5>
+            </div>
+            <p class="mt-3 text-sm text-[#CFE9EC]">In clinic, and leave with a clear,
+              personalized care plan.</p>
           </div>
         </div>
       </div>
     </div>
   </section>
 </main>
-
-

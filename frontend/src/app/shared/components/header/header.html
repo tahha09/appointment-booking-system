@@ -22,11 +22,11 @@
 
       <div class="nav-wrap" [class.is-open]="menuOpen()">
         <nav class="nav">
-          <a class="active" href="#">Home</a>
-          <a href="#">Doctors</a>
-          <a href="#">Patients</a>
+          <a routerLink="/" routerLinkActive="active">Home</a>
+          <a routerLink="/doctors" routerLinkActive="active">Doctors</a>
+          <a routerLink="/patients" routerLinkActive="active">Patients</a>
           <a routerLink="/specialties" routerLinkActive="active">Specialties</a>
-          <a href="#">Contact</a>
+          <a routerLink="/contact" routerLinkActive="active">Contact</a>
         </nav>
 
         <div class="actions">
