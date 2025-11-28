@@ -7,6 +7,7 @@ Backend (backend/laravel):
 - artisan
 - composer.json
 - composer.lock
+- package-lock.json
 - package.json
 - phpunit.xml
 - README.md
@@ -36,6 +37,8 @@ Backend (backend/laravel):
       - Patient/
         - AppointmentController.php
         - DoctorController.php
+      - Payment/
+        - PaymentController.php
     - Middleware/
       - Cors.php
       - RoleMiddleware.php
@@ -65,6 +68,7 @@ Backend (backend/laravel):
     - MedicalNote.php
     - Notification.php
     - Patient.php
+    - Payment.php
     - Schedule.php
     - Specialization.php
     - User.php
@@ -76,6 +80,7 @@ Backend (backend/laravel):
     - AIService.php
     - AppointmentService.php
     - NotificationService.php
+    - PaymentService.php
     - ReportService.php
     - ScheduleService.php
   - Traits/
@@ -120,11 +125,14 @@ Backend (backend/laravel):
     - 2025_11_24_195924_create_notifications_table.php
     - 2025_11_24_195944_create_holidays_table.php
     - 2025_11_24_204259_create_personal_access_tokens_table.php
+    - 2025_11_24_215811_create_payments_table.php
+    - 2025_11_24_215831_add_payment_fields_to_appointments_table.php
   - seeders/
     - AppointmentSeeder.php
     - DatabaseSeeder.php
     - DoctorSeeder.php
     - PatientSeeder.php
+    - PaymentSeeder.php
     - ScheduleSeeder.php
     - SpecializationSeeder.php
     - UserSeeder.php
@@ -173,13 +181,23 @@ Frontend (frontend):
 - angular.json
 - package-lock.json
 - package.json
+- postcss.config.js
 - README.md
 - structure.txt
+- tailwind.config.js
 - tsconfig.app.json
 - tsconfig.json
 - tsconfig.spec.json
 - public/
   - favicon.ico
+  - assets/
+    - bg-hero.jpg
+    - doctor.jpg
+    - doctor1.jpg
+    - health1.jpeg
+    - health2.jpeg
+    - health3.jpeg
+    - logo.png
 - src/
   - index.html
   - main.ts
@@ -209,6 +227,12 @@ Frontend (frontend):
         - auth.ts
         - notification.spec.ts
         - notification.ts
+        - specialization.spec.ts
+        - specialization.ts
+    - models/
+      - doctor.ts
+      - specialization.model.spec.ts
+      - specialization.model.ts
     - modules/
       - admin/
         - admin-module.ts
@@ -295,6 +319,10 @@ Frontend (frontend):
           - doctor-listing.scss
           - doctor-listing.spec.ts
           - doctor-listing.ts
+        - specializations/
+          - specializations.html
+          - specializations.scss
+          - specializations.ts
     - shared/
       - shared-module.ts
       - components/
