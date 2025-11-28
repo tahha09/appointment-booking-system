@@ -9,4 +9,8 @@ export const routes: Routes = [
     path: '',
     loadChildren: () => import('./modules/auth/auth-module').then((m) => m.AuthModule),
   },
+  {
+    path: 'patient',
+    loadChildren: () => import('./modules/patient/patient-module').then((m) => m.PatientModule),
+  },
 ];
