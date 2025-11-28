@@ -14,6 +14,7 @@ use App\Http\Controllers\Patient\AppointmentController as PatientAppointmentCont
 use App\Http\Controllers\Patient\DoctorController as PatientDoctorController;
 use App\Http\Controllers\AI\RecommendationController;
 use App\Http\Controllers\Payment\PaymentController;
+use App\Http\Controllers\Patient\SpecializationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,7 +34,11 @@ Route::post('/register', [RegisterController::class, 'register']);
 Route::get('/doctors', [PatientDoctorController::class, 'indexPublic']);
 Route::get('/doctors/{id}', [PatientDoctorController::class, 'showPublic']);
 Route::get('/doctors/{id}/availability', [PatientDoctorController::class, 'availabilityPublic']);
-Route::get('/specializations', function () {return \App\Models\Specialization::all();});
+
+Route::get('/specializations', [SpecializationController::class, 'index']);
+Route::get('/specializations/filter-list', [SpecializationController::class, 'filterList']);
+Route::get('/specializations/{id}', [SpecializationController::class, 'show']);
+
 
 // Test route
 Route::get('/test', function () {
