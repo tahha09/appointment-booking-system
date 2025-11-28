@@ -1,0 +1,110 @@
+<main class="patient-profile">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="patient-profile__form">
+    <section class="patient-profile__header">
+      <div class="patient-profile__avatar">
+        <span class="patient-profile__avatar-initials">
+          {{ getInitials(displayName || 'P') }}
+        </span>
+      </div>
+      <div class="patient-profile__header-info">
+        <h1>{{ displayName }}</h1>
+        <p class="patient-profile__role">Patient</p>
+        <p class="patient-profile__subtitle">
+          Manage your personal details and health information.
+        </p>
+      </div>
+    </section>
+
+    <section class="patient-profile__content">
+      <div class="patient-profile__card">
+        <h2>Personal Information</h2>
+        <div class="patient-profile__grid">
+          <div class="patient-profile__field">
+            <span class="patient-profile__label">Full name</span>
+            <input
+              type="text"
+              formControlName="fullName"
+              class="patient-profile__input"
+              placeholder="Your full name"
+            />
+          </div>
+          <div class="patient-profile__field">
+            <span class="patient-profile__label">Email</span>
+            <input
+              type="email"
+              formControlName="email"
+              class="patient-profile__input patient-profile__input--readonly"
+              placeholder="you@example.com"
+              readonly
+            />
+          </div>
+          <div class="patient-profile__field">
+            <span class="patient-profile__label">Phone</span>
+            <input
+              type="text"
+              formControlName="phone"
+              class="patient-profile__input"
+              placeholder="+1 (555) 123-4567"
+            />
+          </div>
+          <div class="patient-profile__field">
+            <span class="patient-profile__label">Date of birth</span>
+            <input
+              type="date"
+              formControlName="dateOfBirth"
+              class="patient-profile__input"
+            />
+          </div>
+          <div class="patient-profile__field patient-profile__field--full">
+            <span class="patient-profile__label">Address</span>
+            <input
+              type="text"
+              formControlName="address"
+              class="patient-profile__input"
+              placeholder="Your address"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="patient-profile__card">
+        <h2>Medical Overview</h2>
+        <div class="patient-profile__grid patient-profile__grid--two">
+          <div class="patient-profile__field">
+            <span class="patient-profile__label">Blood type</span>
+            <input
+              type="text"
+              formControlName="bloodType"
+              class="patient-profile__input"
+              placeholder="e.g. O+"
+            />
+          </div>
+          <div class="patient-profile__field">
+            <span class="patient-profile__label">Chronic conditions</span>
+            <input
+              type="text"
+              formControlName="chronicConditions"
+              class="patient-profile__input"
+              placeholder="e.g. Hypertension"
+            />
+          </div>
+          <div class="patient-profile__field patient-profile__field--full">
+            <span class="patient-profile__label">Allergies</span>
+            <textarea
+              rows="2"
+              formControlName="allergies"
+              class="patient-profile__textarea"
+              placeholder="List any allergies you have"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="patient-profile__actions">
+      <button type="submit" class="patient-profile__save-btn">
+        Save changes
+      </button>
+    </div>
+  </form>
+</main>

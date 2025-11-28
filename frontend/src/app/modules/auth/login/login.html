@@ -171,7 +171,7 @@
         <button
           type="submit"
           [disabled]="isSubmitting"
-          class="inline-flex w-full items-center justify-center rounded-2xl bg-brand-teal px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-teal/40 transition hover:bg-brand-forest disabled:cursor-not-allowed disabled:opacity-70"
+          class="inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-brand-teal via-brand-ice to-brand-teal px-4 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-brand-teal/50 transition hover:from-brand-ice hover:via-brand-teal hover:to-brand-forest disabled:cursor-not-allowed disabled:opacity-70"
         >
           <span *ngIf="!isSubmitting">Login</span>
           <span *ngIf="isSubmitting">Signing in...</span>

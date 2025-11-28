@@ -30,6 +30,7 @@ export class Register {
   scrollProgress = 0;
   showPassword = false;
   showConfirmPassword = false;
+  selectedImagePreview: string | null = null;
 
   form = this.fb.group(
     {
@@ -90,14 +91,34 @@ export class Register {
     requestAnimationFrame(animate);
   }
 
+  onProfileImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) {
+      return;
+    }
+
+    const file = input.files[0];
+    if (!file.type.startsWith('image/')) {
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      this.selectedImagePreview = result;
+      // We only persist this after successful registration via Auth service.
+    };
+    reader.readAsDataURL(file);
+  }
+
   onSubmit(): void {
     if (this.form.invalid || this.isSubmitting) {
       this.form.markAllAsTouched();
       return;
     }
 
-    const { email, password } = this.form.value;
-    if (!email || !password) {
+    const { fullName, email, password, role } = this.form.value;
+    if (!fullName || !email || !password || !role) {
       this.form.markAllAsTouched();
       return;
     }
@@ -105,27 +126,38 @@ export class Register {
     this.isSubmitting = true;
     this.apiError = '';
 
-    this.auth.register({ email, password }).subscribe({
-      next: () => {
-        this.isSubmitting = false;
-        this.notification
-          .success('Account created', 'Your profile has been created successfully.', {
-            showCancelButton: true,
-            confirmButtonText: 'Go to login',
-            cancelButtonText: 'Stay here',
-          })
-          .then((result) => {
-            if (result.isConfirmed) {
-              this.router.navigateByUrl('/login');
-            }
-          });
-      },
-      error: (error) => {
-        this.isSubmitting = false;
-        this.apiError =
-          error?.error?.error || 'Registration failed. Please check your details and try again.';
-        this.notification.error('Registration failed', this.apiError);
-      },
-    });
+    this.auth
+      .register({
+        fullName,
+        email,
+        password,
+        role,
+      })
+      .subscribe({
+        next: () => {
+          if (this.selectedImagePreview) {
+            this.auth.setProfileImage(this.selectedImagePreview);
+          }
+
+          this.isSubmitting = false;
+          this.notification
+            .success('Account created', 'Your profile has been created successfully.', {
+              showCancelButton: true,
+              confirmButtonText: 'Go to login',
+              cancelButtonText: 'Stay here',
+            })
+            .then((result) => {
+              if (result.isConfirmed) {
+                this.router.navigateByUrl('/login');
+              }
+            });
+        },
+        error: (error) => {
+          this.isSubmitting = false;
+          this.apiError =
+            error?.error?.error || 'Registration failed. Please check your details and try again.';
+          this.notification.error('Registration failed', this.apiError);
+        },
+      });
   }
 }

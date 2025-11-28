@@ -209,6 +209,42 @@
           </div>
         </div>
 
+        <div class="space-y-2">
+          <p class="text-xs font-medium text-white/80">Profile image (optional)</p>
+          <div class="flex items-center gap-3">
+            <div
+              class="h-12 w-12 rounded-full overflow-hidden border border-white/40 bg-white/10 flex items-center justify-center"
+            >
+              <ng-container *ngIf="selectedImagePreview; else noImage">
+                <img
+                  [src]="selectedImagePreview"
+                  alt="Profile preview"
+                  class="h-full w-full object-cover"
+                />
+              </ng-container>
+              <ng-template #noImage>
+                <span class="text-[0.6rem] text-white/70 px-1 text-center">No image</span>
+              </ng-template>
+            </div>
+            <label
+              class="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-3 py-2 text-xs text-white/80 cursor-pointer hover:bg-white/20 transition"
+            >
+              <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M12 5a1 1 0 0 1 1 1v6.59l2.3-2.3a1 1 0 0 1 1.4 1.42l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.42L11 12.59V6a1 1 0 0 1 1-1Zm-7 9a1 1 0 0 1 1 1 5 5 0 0 0 10 0 1 1 0 0 1 2 0 7 7 0 0 1-14 0 1 1 0 0 1 1-1Z"
+                />
+              </svg>
+              <span>Upload image</span>
+              <input
+                type="file"
+                accept="image/*"
+                class="hidden"
+                (change)="onProfileImageSelected($event)"
+              />
+            </label>
+          </div>
+        </div>
+
         <div class="space-y-3">
           <p class="text-xs font-medium text-white/80">Register as</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -260,7 +296,7 @@
         <button
           type="submit"
           [disabled]="isSubmitting"
-          class="inline-flex w-full items-center justify-center rounded-2xl bg-brand-teal px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-teal/40 transition hover:bg-brand-forest disabled:cursor-not-allowed disabled:opacity-70"
+          class="inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-brand-ice via-brand-teal to-brand-forest px-4 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-brand-teal/50 transition hover:from-brand-teal hover:via-brand-forest hover:to-brand-deep disabled:cursor-not-allowed disabled:opacity-70"
         >
           <span *ngIf="!isSubmitting">Create account</span>
           <span *ngIf="isSubmitting">Creating account...</span>
