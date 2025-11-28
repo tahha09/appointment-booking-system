@@ -3,7 +3,7 @@ import { Doctor, DoctorResponse, DoctorsListResponse } from '../../../models/doc
 import { DoctorService } from '../../../core/services/doctor';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-
+import { ChangeDetectorRef } from '@angular/core';
 @Component({
   selector: 'app-doctor-listing',
   standalone: true,
@@ -17,7 +17,12 @@ export class DoctorListing implements OnInit {
   loading: boolean = true;
   error: string = '';
 
-  constructor(private doctorService: DoctorService, private router: Router) {
+  constructor(
+    private doctorService: DoctorService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+
+  ) {
 
   };
 
@@ -47,6 +52,7 @@ export class DoctorListing implements OnInit {
         }
 
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         this.error = 'Failed to load doctors. Please try again later.';
@@ -80,18 +86,7 @@ export class DoctorListing implements OnInit {
 
   // Method to view doctor details
   viewDoctorDetails(doctor: Doctor): void {
-    console.log('Viewing details for:', doctor.user.name);
-    // Navigate to doctor details page
     this.router.navigate(['/doctors', doctor.id]);
-
-    // Or you can show a modal with details:
-    // this.openDoctorDetailsModal(doctor);
-  }
-
-  // Optional: Method to open doctor details in a modal
-  openDoctorDetailsModal(doctor: Doctor): void {
-    // You can implement a modal service here
-    console.log('Opening details modal for:', doctor.user.name);
   }
 
 }
