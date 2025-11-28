@@ -6,11 +6,12 @@ import { Services } from './services/services';
 import { Specialties } from './specialties/specialties';
 import { AboutUs } from './about-us/about-us';
 import { Contact } from './contact/contact';
-
+import { DoctorListing } from './doctor-listing/doctor-listing';
 
 
 const routes: Routes = [
   { path: '', component: Home },
+  {path: 'doctors' ,component:DoctorListing},
   {path: 'services', component: Services},
   { path: 'specialties', component: Specialties},
   { path: 'about-us', component: AboutUs},

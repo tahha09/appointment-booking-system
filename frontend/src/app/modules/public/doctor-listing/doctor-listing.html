@@ -1,4 +1,166 @@
-<app-header></app-header>
+<div class="min-h-screen bg-[#031716] py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header Section -->
+    <div class="text-center mb-6">
+      <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#0A7075] to-[#0C969C] rounded-full mb-6 shadow-2xl">
+        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        </svg>
+      </div>
+      <h1 class="text-4xl md:text-5xl font-bold text-[#6BA3BE] mb-4 bg-gradient-to-r from-[#6BA3BE] to-[#0C969C] bg-clip-text text-transparent">
+        Our Medical Specialists
+      </h1>
+      <p class="text-lg md:text-xl text-[#0C969C] max-w-3xl mx-auto leading-relaxed">
+        Discover our team of experienced healthcare professionals dedicated to providing you with exceptional medical care and personalized treatment.
+      </p>
+    </div>
 
+    <!-- Stats Bar -->
+    <div class="flex flex-wrap justify-center gap-6 mb-6">
+      <div class="flex items-center space-x-3 bg-[#032F30] px-4 py-2 rounded-full border border-[#0A7075]">
+        <div class="w-3 h-3 bg-[#0A7075] rounded-full animate-pulse"></div>
+        <span class="text-[#6BA3BE] text-sm font-medium">{{ doctors.length }} Specialists</span>
+      </div>
+      <div class="flex items-center space-x-3 bg-[#032F30] px-4 py-2 rounded-full border border-[#0C969C]">
+        <div class="w-3 h-3 bg-[#0C969C] rounded-full animate-pulse"></div>
+        <span class="text-[#6BA3BE] text-sm font-medium">24/7 Available</span>
+      </div>
+      <div class="flex items-center space-x-3 bg-[#032F30] px-4 py-2 rounded-full border border-[#274D60]">
+        <div class="w-3 h-3 bg-[#274D60] rounded-full animate-pulse"></div>
+        <span class="text-[#6BA3BE] text-sm font-medium">Online Booking</span>
+      </div>
+    </div>
 
-<app-footer></app-footer>
+    <!-- Loading State -->
+    <div *ngIf="loading" class="flex flex-col items-center justify-center py-20 space-y-6">
+      <div class="relative">
+        <div class="w-16 h-16 border-4 border-[#0A7075] border-t-transparent rounded-full animate-spin"></div>
+        <div class="absolute inset-0 w-16 h-16 border-4 border-[#0C969C] border-b-transparent rounded-full animate-spin animation-delay-500"></div>
+      </div>
+      <div class="text-center">
+        <p class="text-lg text-[#6BA3BE] font-medium mb-2">Loading Specialists</p>
+        <p class="text-sm text-[#0C969C]">Please wait while we fetch the best medical professionals for you</p>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="flex items-center justify-center py-12">
+      <div class="bg-gradient-to-br from-[#032F30] to-[#274D60] border border-[#0A7075] rounded-2xl p-8 max-w-md text-center shadow-2xl">
+        <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-[#6BA3BE] mb-3">Connection Issue</h3>
+        <p class="text-[#0C969C] mb-6">{{ error }}</p>
+        <button (click)="loadDoctors()"
+          class="bg-gradient-to-r from-[#0A7075] to-[#0C969C] hover:from-[#0C969C] hover:to-[#0A7075] text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg">
+          Try Again
+        </button>
+      </div>
+    </div>
+
+    <!-- Doctors Grid - Simplified Cards -->
+    <div *ngIf="!loading && !error && doctors.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div *ngFor="let doctor of doctors"
+        class="group bg-gradient-to-br from-[#032F30] to-[#1a3d4d] rounded-2xl shadow-2xl overflow-hidden border border-[#0A7075] hover:border-[#0C969C] transition-all duration-500 hover:shadow-3xl hover:shadow-[#0A7075]/30 transform hover:-translate-y-2">
+
+        <!-- Card Header -->
+        <div class="p-6 border-b border-[#0A7075] bg-gradient-to-r from-[#0A7075]/10 to-[#0C969C]/5">
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <h3 class="text-xl font-bold text-[#6BA3BE] mb-2">{{ doctor.user.name }}</h3>
+              <p class="text-[#0C969C] font-semibold text-sm">{{ doctor.specialization.name }}</p>
+            </div>
+            <div class="bg-gradient-to-br from-[#0A7075] to-[#0C969C] text-white rounded-xl w-12 h-12 flex items-center justify-center shadow-lg">
+              <span class="text-sm font-bold">MD</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Content -->
+        <div class="p-6 space-y-4">
+          <!-- Rating -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <div class="flex items-center space-x-1">
+                <span *ngFor="let star of getStarRating(doctor.rating)" class="text-lg">
+                  <span *ngIf="star === 1" class="text-yellow-400">★</span>
+                  <span *ngIf="star === 0.5" class="text-yellow-400">½</span>
+                  <span *ngIf="star === 0" class="text-gray-600">☆</span>
+                </span>
+              </div>
+              <span class="text-[#6BA3BE] font-bold">{{ doctor.rating }}</span>
+            </div>
+            <span class="bg-[#274D60] text-[#6BA3BE] px-3 py-1 rounded-full text-xs font-medium">
+              {{ doctor.experience_years }}+ years
+            </span>
+          </div>
+
+          <!-- Quick Info -->
+          <div class="space-y-2">
+            <div class="flex items-center text-[#0C969C] text-sm">
+              <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+              </svg>
+              <span>{{ doctor.user.phone }}</span>
+            </div>
+            <div class="flex items-center text-[#0C969C] text-sm">
+              <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+              </svg>
+              <span class="truncate">{{ doctor.user.address }}</span>
+            </div>
+          </div>
+
+          <!-- Consultation Fee -->
+          <div class="bg-[#031716] rounded-lg p-3 border border-[#274D60]">
+            <div class="flex justify-between items-center">
+              <span class="text-[#0C969C] text-sm">Consultation Fee</span>
+              <span class="text-[#6BA3BE] font-bold text-lg">${{ doctor.consultation_fee }}</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex space-x-3 pt-2">
+            <button
+              (click)="bookAppointment(doctor)"
+              class="flex-1 bg-gradient-to-r from-[#0A7075] to-[#0C969C] hover:from-[#0C969C] hover:to-[#0A7075] text-white py-3 px-4 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+              <span class="text-sm">Book Now</span>
+            </button>
+            <button
+              (click)="viewDoctorDetails(doctor)"
+              class="bg-gradient-to-r from-[#274D60] to-[#032F30] hover:from-[#2a5a70] hover:to-[#274D60] text-[#6BA3BE] p-3 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && !error && doctors.length === 0" class="flex items-center justify-center py-20">
+      <div class="bg-gradient-to-br from-[#032F30] to-[#274D60] rounded-2xl p-12 max-w-2xl text-center border border-[#0A7075] shadow-2xl">
+        <div class="w-24 h-24 bg-gradient-to-br from-[#0A7075] to-[#0C969C] rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <h3 class="text-2xl font-bold text-[#6BA3BE] mb-4">No Specialists Available</h3>
+        <p class="text-[#0C969C] text-lg mb-8 leading-relaxed">
+          We're currently updating our specialist listings to bring you the best healthcare professionals. Please check back soon for available appointments.
+        </p>
+        <button (click)="loadDoctors()"
+          class="bg-gradient-to-r from-[#0A7075] to-[#0C969C] hover:from-[#0C969C] hover:to-[#0A7075] text-white px-8 py-3 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 shadow-lg">
+          Refresh List
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
