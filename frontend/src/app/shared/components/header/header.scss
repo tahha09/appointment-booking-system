@@ -487,6 +487,13 @@ $border: rgba(#6ba3be, 0.35);
       object-fit: cover;
       display: block;
     }
+
+    &-initials {
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: $dark;
+    }
   }
 
   &__chevron {

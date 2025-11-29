@@ -33,7 +33,28 @@ export class Header {
   }
 
   protected get avatarUrl(): string {
-    return this.auth.getProfileImage() || 'assets/user-placeholder.png';
+    return this.auth.getProfileImage() || '';
+  }
+
+  protected get avatarInitials(): string {
+    const name = this.auth.getUserName() || '';
+    const parts = name
+      .trim()
+      .split(/\s+/)
+      .filter((part) => !!part);
+
+    if (parts.length === 0) {
+      return 'U';
+    }
+
+    if (parts.length === 1) {
+      return parts[0][0].toUpperCase();
+    }
+
+    const firstInitial = parts[0][0];
+    const lastInitial = parts[parts.length - 1][0];
+
+    return (firstInitial + lastInitial).toUpperCase();
   }
 
   protected logout(): void {
