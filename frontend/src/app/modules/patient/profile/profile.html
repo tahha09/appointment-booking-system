@@ -19,9 +19,23 @@
         <h1>{{ displayName }}</h1>
         <p class="patient-profile__role">Patient</p>
         <p class="patient-profile__subtitle">
-          Manage your personal details and health information.
+          Manage your personal details and account settings.
         </p>
+        <label class="patient-profile__upload-btn">
+          <input
+            type="file"
+            accept="image/*"
+            class="patient-profile__upload-input"
+            (change)="onProfileImageSelected($event)"
+          />
+          Change photo
+        </label>
       </div>
+    </section>
+
+    <section *ngIf="isLoading" class="patient-profile__status patient-profile__status--loading">
+      <div class="patient-profile__spinner"></div>
+      <p>Loading your profile...</p>
     </section>
 
     <section class="patient-profile__content">
@@ -36,6 +50,12 @@
               class="patient-profile__input"
               placeholder="Your full name"
             />
+            <span
+              class="patient-profile__error"
+              *ngIf="form.get('fullName')?.touched && form.get('fullName')?.invalid"
+            >
+              Please enter your full name.
+            </span>
           </div>
           <div class="patient-profile__field">
             <span class="patient-profile__label">Email</span>
@@ -46,6 +66,12 @@
               placeholder="you@example.com"
               readonly
             />
+            <span
+              class="patient-profile__error"
+              *ngIf="form.get('email')?.touched && form.get('email')?.invalid"
+            >
+              Please enter a valid email address.
+            </span>
           </div>
           <div class="patient-profile__field">
             <span class="patient-profile__label">Phone</span>
@@ -53,7 +79,7 @@
               type="text"
               formControlName="phone"
               class="patient-profile__input"
-              placeholder="+1 (555) 123-4567"
+              placeholder="+20 123 456 7890"
             />
           </div>
           <div class="patient-profile__field">
@@ -77,74 +103,41 @@
       </div>
 
       <div class="patient-profile__card">
-        <h2>Medical Overview</h2>
-        <div class="patient-profile__grid patient-profile__grid--two">
-          <div class="patient-profile__field">
-            <span class="patient-profile__label">Blood type</span>
-            <select formControlName="bloodType" class="patient-profile__input">
-              <option value="">Select blood type</option>
-              <option *ngFor="let type of bloodTypes" [value]="type">
-                {{ type }}
-              </option>
-            </select>
-          </div>
+        <h2>Security</h2>
 
-          <div class="patient-profile__field">
-            <span class="patient-profile__label">Chronic conditions</span>
-            <select
-              class="patient-profile__input"
-              (change)="onChronicSelect($event)"
-            >
-              <option value="">Select condition</option>
-              <option *ngFor="let condition of chronicConditionOptions" [value]="condition">
-                {{ condition }}
-              </option>
-            </select>
-            <div class="patient-profile__chips" *ngIf="chronicSelected.length">
-              <span
-                class="patient-profile__chip"
-                *ngFor="let condition of chronicSelected"
-              >
-                <span class="patient-profile__chip-label">{{ condition }}</span>
-                <button
-                  type="button"
-                  class="patient-profile__chip-remove"
-                  (click)="removeChronic(condition)"
-                  aria-label="Remove condition"
-                >
-                  x
-                </button>
-              </span>
-            </div>
+        <div class="patient-profile__security-row">
+          <div class="patient-profile__security-main">
+            <span class="patient-profile__security-label">Password</span>
+            <p class="patient-profile__security-text">
+              Use a strong, unique password to help keep your account secure.
+            </p>
           </div>
-
-          <div class="patient-profile__field patient-profile__field--full">
-            <span class="patient-profile__label">Allergies</span>
-            <select
-              class="patient-profile__input"
-              (change)="onAllergySelect($event)"
+          <div class="patient-profile__security-actions">
+            <button
+              type="button"
+              class="patient-profile__change-password-btn"
+              (click)="openPasswordModal()"
             >
-              <option value="">Select allergy</option>
-              <option *ngFor="let allergy of allergyOptions" [value]="allergy">
-                {{ allergy }}
-              </option>
-            </select>
-            <div class="patient-profile__chips" *ngIf="allergySelected.length">
-              <span
-                class="patient-profile__chip"
-                *ngFor="let allergy of allergySelected"
-              >
-                <span class="patient-profile__chip-label">{{ allergy }}</span>
-                <button
-                  type="button"
-                  class="patient-profile__chip-remove"
-                  (click)="removeAllergy(allergy)"
-                  aria-label="Remove allergy"
-                >
-                  x
-                </button>
-              </span>
-            </div>
+              Change password
+            </button>
+          </div>
+        </div>
+
+        <div class="patient-profile__danger-row">
+          <div class="patient-profile__danger-main">
+            <span class="patient-profile__danger-label">Delete account</span>
+            <p class="patient-profile__danger-text">
+              Permanently remove your account and all associated data. This action cannot be undone.
+            </p>
+          </div>
+          <div class="patient-profile__security-actions">
+            <button
+              type="button"
+              class="patient-profile__delete-account-btn"
+              (click)="openDeleteModal()"
+            >
+              Delete account
+            </button>
           </div>
         </div>
       </div>
@@ -154,10 +147,197 @@
       <button
         type="submit"
         class="patient-profile__save-btn"
-        [disabled]="form.pristine || form.invalid"
+        [disabled]="form.invalid || isLoading || isSaving || !form.dirty"
       >
-        Save changes
+        <span *ngIf="!isSaving">Save changes</span>
+        <span *ngIf="isSaving">Saving...</span>
       </button>
     </div>
   </form>
+
+  <div
+    class="patient-profile__modal-backdrop"
+    *ngIf="showPasswordModal"
+  >
+    <div class="patient-profile__modal">
+      <h3 class="patient-profile__modal-title">Change password</h3>
+      <form [formGroup]="passwordForm" (ngSubmit)="onPasswordSubmit()">
+        <div class="patient-profile__field patient-profile__field--full">
+          <span class="patient-profile__label">Current password</span>
+          <div class="patient-profile__input-wrapper">
+            <input
+              [type]="showCurrentPassword ? 'text' : 'password'"
+              formControlName="currentPassword"
+              class="patient-profile__input"
+              autocomplete="current-password"
+              placeholder="Enter your current password"
+            />
+            <button
+              type="button"
+              class="patient-profile__toggle-password"
+              (click)="showCurrentPassword = !showCurrentPassword"
+              aria-label="Toggle current password visibility"
+            >
+              <svg class="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M12 5c-4.5 0-8.3 2.9-9.5 7 1.2 4.1 5 7 9.5 7s8.3-2.9 9.5-7c-1.2-4.1-5-7-9.5-7Zm0 2c3.1 0 5.8 1.8 7 5-1.2 3.2-3.9 5-7 5s-5.8-1.8-7-5c1.2-3.2 3.9-5 7-5Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"
+                />
+              </svg>
+            </button>
+          </div>
+          <span
+            class="patient-profile__error"
+            *ngIf="passwordForm.get('currentPassword')?.touched && passwordForm.get('currentPassword')?.invalid"
+          >
+            Current password is required.
+          </span>
+        </div>
+
+        <div class="patient-profile__grid patient-profile__grid--two patient-profile__modal-grid">
+          <div class="patient-profile__field">
+            <span class="patient-profile__label">New password</span>
+            <div class="patient-profile__input-wrapper">
+              <input
+                [type]="showNewPassword ? 'text' : 'password'"
+                formControlName="newPassword"
+                class="patient-profile__input"
+                autocomplete="new-password"
+                placeholder="New password"
+              />
+              <button
+                type="button"
+                class="patient-profile__toggle-password"
+                (click)="showNewPassword = !showNewPassword"
+                aria-label="Toggle new password visibility"
+              >
+                <svg class="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M12 5c-4.5 0-8.3 2.9-9.5 7 1.2 4.1 5 7 9.5 7s8.3-2.9 9.5-7c-1.2-4.1-5-7-9.5-7Zm0 2c3.1 0 5.8 1.8 7 5-1.2 3.2-3.9 5-7 5s-5.8-1.8-7-5c1.2-3.2 3.9-5 7-5Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"
+                  />
+                </svg>
+              </button>
+            </div>
+            <span
+              class="patient-profile__error"
+              *ngIf="passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.invalid"
+            >
+              Password must be at least 6 characters.
+            </span>
+          </div>
+
+          <div class="patient-profile__field">
+            <span class="patient-profile__label">Confirm new password</span>
+            <div class="patient-profile__input-wrapper">
+              <input
+                [type]="showConfirmNewPassword ? 'text' : 'password'"
+                formControlName="confirmNewPassword"
+                class="patient-profile__input"
+                autocomplete="new-password"
+                placeholder="Confirm new password"
+              />
+              <button
+                type="button"
+                class="patient-profile__toggle-password"
+                (click)="showConfirmNewPassword = !showConfirmNewPassword"
+                aria-label="Toggle confirm password visibility"
+              >
+                <svg class="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M12 5c-4.5 0-8.3 2.9-9.5 7 1.2 4.1 5 7 9.5 7s8.3-2.9 9.5-7c-1.2-4.1-5-7-9.5-7Zm0 2c3.1 0 5.8 1.8 7 5-1.2 3.2-3.9 5-7 5s-5.8-1.8-7-5c1.2-3.2 3.9-5 7-5Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="patient-profile__modal-actions">
+          <button
+            type="button"
+            class="patient-profile__modal-btn patient-profile__modal-btn--secondary"
+            (click)="closePasswordModal()"
+            [disabled]="isPasswordSaving"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="patient-profile__modal-btn patient-profile__modal-btn--primary"
+            [disabled]="passwordForm.invalid || isPasswordSaving"
+          >
+            <span *ngIf="!isPasswordSaving">Update password</span>
+            <span *ngIf="isPasswordSaving">Updating...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div
+    class="patient-profile__modal-backdrop"
+    *ngIf="showDeleteModal"
+  >
+    <div class="patient-profile__modal patient-profile__modal--danger">
+      <h3 class="patient-profile__modal-title">Delete account</h3>
+      <p class="patient-profile__danger-text">
+        This action cannot be undone. All your appointments and data associated with this account
+        will be permanently removed.
+      </p>
+      <form [formGroup]="deleteForm" (ngSubmit)="onDeleteAccountSubmit()">
+        <div class="patient-profile__field patient-profile__field--full">
+          <span class="patient-profile__label">Current password</span>
+          <div class="patient-profile__input-wrapper">
+            <input
+              [type]="showDeletePassword ? 'text' : 'password'"
+              formControlName="password"
+              class="patient-profile__input"
+              autocomplete="current-password"
+              placeholder="Enter your current password to confirm"
+            />
+            <button
+              type="button"
+              class="patient-profile__toggle-password"
+              (click)="showDeletePassword = !showDeletePassword"
+              aria-label="Toggle delete password visibility"
+            >
+              <svg class="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M12 5c-4.5 0-8.3 2.9-9.5 7 1.2 4.1 5 7 9.5 7s8.3-2.9 9.5-7c-1.2-4.1-5-7-9.5-7Zm0 2c3.1 0 5.8 1.8 7 5-1.2 3.2-3.9 5-7 5s-5.8-1.8-7-5c1.2-3.2 3.9-5 7-5Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"
+                />
+              </svg>
+            </button>
+          </div>
+          <span
+            class="patient-profile__error"
+            *ngIf="deleteForm.get('password')?.touched && deleteForm.get('password')?.invalid"
+          >
+            Password is required to delete your account.
+          </span>
+        </div>
+
+        <div class="patient-profile__modal-actions">
+          <button
+            type="button"
+            class="patient-profile__modal-btn patient-profile__modal-btn--secondary"
+            (click)="closeDeleteModal()"
+            [disabled]="isDeletingAccount"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="patient-profile__modal-btn patient-profile__modal-btn--danger"
+            [disabled]="deleteForm.invalid || isDeletingAccount"
+          >
+            <span *ngIf="!isDeletingAccount">Delete account</span>
+            <span *ngIf="isDeletingAccount">Deleting...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </main>

@@ -87,7 +87,18 @@ export class Login {
           .success('Login successful', 'You are now logged in.', {
             confirmButtonText: 'Go to dashboard',
           })
-          .then(() => this.router.navigateByUrl('/'));
+          .then(() => {
+            const role = this.auth.getRole();
+            if (role === 'patient') {
+              this.router.navigateByUrl('/patient/profile');
+            } else if (role === 'doctor') {
+              this.router.navigateByUrl('/doctor/dashboard');
+            } else if (role === 'admin') {
+              this.router.navigateByUrl('/admin/dashboard');
+            } else {
+              this.router.navigateByUrl('/');
+            }
+          });
       },
       error: (error) => {
         this.isSubmitting = false;

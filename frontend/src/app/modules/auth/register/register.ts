@@ -132,23 +132,25 @@ export class Register {
         email,
         password,
         role,
+        profileImage: this.selectedImagePreview ?? null,
       })
       .subscribe({
         next: () => {
-          if (this.selectedImagePreview) {
-            this.auth.setProfileImage(this.selectedImagePreview);
-          }
-
           this.isSubmitting = false;
           this.notification
-            .success('Account created', 'Your profile has been created successfully.', {
-              showCancelButton: true,
-              confirmButtonText: 'Go to login',
-              cancelButtonText: 'Stay here',
+            .success('Account created', 'You are now logged in.', {
+              confirmButtonText: 'Continue',
             })
-            .then((result) => {
-              if (result.isConfirmed) {
-                this.router.navigateByUrl('/login');
+            .then(() => {
+              const userRole = this.auth.getRole();
+              if (userRole === 'patient') {
+                this.router.navigateByUrl('/patient/profile');
+              } else if (userRole === 'doctor') {
+                this.router.navigateByUrl('/doctor/dashboard');
+              } else if (userRole === 'admin') {
+                this.router.navigateByUrl('/admin/dashboard');
+              } else {
+                this.router.navigateByUrl('/');
               }
             });
         },
