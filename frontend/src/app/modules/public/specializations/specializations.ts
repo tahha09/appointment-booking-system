@@ -5,6 +5,9 @@ import { HttpClient, HttpClientModule, HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { Header } from "../../../shared/components/header/header";
+import { Footer } from "../../../shared/components/footer/footer";
+
 
 interface Specialization {
   id: number;
@@ -46,7 +49,7 @@ interface FilterListResponse {
 @Component({
   selector: 'app-specializations',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, HttpClientModule ,Header,Footer],
   templateUrl: './specializations.html',
   styleUrls: ['./specializations.scss']
 })

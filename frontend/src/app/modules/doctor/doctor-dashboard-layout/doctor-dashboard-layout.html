@@ -1,0 +1,86 @@
+<div
+  class="min-h-screen flex bg-gradient-to-br from-[#032f30] via-[#0c969c] to-[#274d60] text-slate-50"
+>
+  <aside
+    class="w-64 bg-[#031716]/95 backdrop-blur sticky top-0 h-screen flex-shrink-0 flex flex-col gap-6 p-6 shadow-2xl border-r border-[#6ba3be]/30"
+  >
+    <div class=" items-center gap-3 border-bottom pb-4 mb-4 border-5 border-white/10 flex flex-col">
+      <div class="logo">
+        <img src="assets/logo.png" alt="Logo" class="w-40 object-contain" />
+      </div>
+      <div class="text-xl font-bold tracking-wide">Doctor Dashboard</div>
+    </div>
+
+    <nav class="flex flex-col gap-2 text-sm font-semibold">
+      <a
+        class="px-3 py-2 rounded-xl border border-transparent text-slate-100/90 hover:border-[#0c969c]/50 hover:bg-white/5 transition flex items-center gap-2"
+        routerLink="/doctor/overview"
+        routerLinkActive="border-[#0c969c] bg-white/10 text-white shadow"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        Today's Overview
+      </a>
+      <a
+        class="px-3 py-2 rounded-xl border border-transparent text-slate-100/90 hover:border-[#0c969c]/50 hover:bg-white/5 transition flex items-center gap-2"
+        routerLink="/doctor/patients"
+        routerLinkActive="border-[#0c969c] bg-white/10 text-white shadow"
+      >
+        Patients Management
+      </a>
+      <a
+        class="px-3 py-2 rounded-xl border border-transparent text-slate-100/90 hover:border-[#0c969c]/50 hover:bg-white/5 transition flex items-center gap-2"
+        routerLink="/doctor/my-appointments"
+        routerLinkActive="border-[#0c969c] bg-white/10 text-white shadow"
+      >
+        My Appointments
+      </a>
+      <a
+        class="px-3 py-2 rounded-xl border border-transparent text-slate-100/90 hover:border-[#0c969c]/50 hover:bg-white/5 transition flex items-center gap-2"
+        routerLink="/doctor/schedule"
+        routerLinkActive="border-[#0c969c] bg-white/10 text-white shadow"
+      >
+        Schedule
+      </a>
+      <a
+        class="px-3 py-2 rounded-xl border border-transparent text-slate-100/90 hover:border-[#0c969c]/50 hover:bg-white/5 transition flex items-center gap-2"
+        routerLink="/doctor/financial-performance"
+        routerLinkActive="border-[#0c969c] bg-white/10 text-white shadow"
+      >
+        Financial Performance
+      </a>
+    </nav>
+  </aside>
+
+  <main class="flex-1 p-6 flex flex-col gap-4">
+    <div
+      class="w-full rounded-2xl border border-[#6ba3be]/40 bg-white/5 backdrop-blur px-6 py-5 shadow-xl flex flex-wrap items-center justify-between gap-4"
+    >
+      <div>
+        <p class="uppercase tracking-[0.2em] text-xs text-[#6ba3be]">Welcome back</p>
+        <h1 class="text-2xl font-bold text-slate-50">Hello, Dr. Name</h1>
+        <p class="text-sm text-slate-200/80">Here's what's on your list today.</p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          class="w-11 h-11 rounded-xl border border-[#6ba3be]/50 bg-white/10 text-slate-50 grid place-items-center hover:border-[#0c969c] hover:shadow-lg transition"
+          aria-label="Notifications"
+        >
+          <svg class="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+            <path
+              d="M12 3a6 6 0 0 0-6 6v3.51l-.8 1.6A1 1 0 0 0 6.09 16h11.82a1 1 0 0 0 .89-1.49l-.8-1.6V9a6 6 0 0 0-6-6Zm0 18a2.75 2.75 0 0 0 2.7-2h-5.4A2.75 2.75 0 0 0 12 21Z"
+            />
+          </svg>
+        </button>
+
+      </div>
+    </div>
+
+    <section
+      class="flex-1 w-full rounded-2xl border border-[#6ba3be]/30 bg-white/5 backdrop-blur p-6 shadow-xl"
+    >
+      <router-outlet></router-outlet>
+    </section>
+  </main>
+</div>

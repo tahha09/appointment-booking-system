@@ -1,3 +1,4 @@
+<app-header></app-header>
 <div class="min-h-screen bg-gradient-to-br from-[#031716] via-[#032F30] to-[#0A7075] relative overflow-x-hidden">
   <!-- Floating circles background decoration -->
   <div class="absolute top-0 right-0 w-2/5 h-full opacity-30 pointer-events-none"
@@ -8,12 +9,12 @@
   <section class="about-hero relative overflow-hidden py-16 md:py-20 fade-in bg-cover bg-center bg-no-repeat"
     style="background-image: linear-gradient(135deg, rgba(3, 47, 48, 0.85), rgba(12, 150, 156, 0.68)), url('assets/bg-hero.jpg');">
     <div class="absolute inset-0 bg-gradient-to-b from-transparent via-[#031716]/40 to-[#031716]/75 animate-float"></div>
-    
+
     <!-- Background decoration -->
-    <div class="absolute top-0 right-0 w-2/5 h-full opacity-30" 
+    <div class="absolute top-0 right-0 w-2/5 h-full opacity-30"
          style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 100 100&quot;><circle cx=&quot;50&quot; cy=&quot;50&quot; r=&quot;40&quot; fill=&quot;rgba(255,255,255,0.03)&quot;/></svg>'); background-size: 200px;">
     </div>
-    
+
     <div class="container mx-auto px-4 md:px-6 relative z-10">
       <div class="hero-content text-center max-w-3xl mx-auto animate-fade-up">
         <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-5">Contact Us</h1>
@@ -27,14 +28,14 @@
     <div class="absolute inset-0 bg-gradient-to-br from-[#031716] via-[#032F30]/85 to-[#0A7075]"></div>
     <div class="absolute -left-20 top-10 h-48 w-48 rounded-full bg-[#0C969C]/30 blur-3xl"></div>
     <div class="absolute -right-24 bottom-6 h-56 w-56 rounded-full bg-[#6BA3BE]/20 blur-3xl"></div>
-    
+
     <div class="container mx-auto px-4 md:px-6 relative z-10">
       <div class="content-grid grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-16 items-start animate-fade-up">
         <!-- Contact Info - Left Side (2 columns) -->
         <div class="lg:col-span-2">
           <span class="subtitle text-[#6BA3BE] font-semibold text-sm uppercase tracking-wider mb-2 block">Get in touch</span>
           <h2 class="text-2xl md:text-3xl font-bold text-white mb-8">Have Any Question?</h2>
-          
+
           <!-- Address -->
           <div class="flex items-start gap-4 bg-[#031716]/70 p-6 rounded-2xl border border-[#0C969C]/30 mb-4 hover:border-[#0C969C]/50 hover:bg-[#031716]/90 transition-all duration-300 backdrop-blur group">
             <div class="w-12 h-12 bg-gradient-to-br from-[#0c969c]/20 to-[#0a7075]/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-gradient-to-br group-hover:from-[#0c969c]/30 group-hover:to-[#0a7075]/30">
@@ -80,18 +81,18 @@
         <div class="lg:col-span-3">
           <div class="bg-[#031716]/70 p-8 rounded-2xl border border-[#0C969C]/30 shadow-2xl backdrop-blur">
             <h2 class="text-2xl font-semibold text-white mb-6">Send Us a Message</h2>
-            
+
             <form class="space-y-6" #f="ngForm" (ngSubmit)="onSubmit(f)" novalidate>
               <!-- Name and Email Row -->
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label class="block text-sm font-medium text-white mb-2">Name</label>
-                  <input 
-                    type="text" 
-                    name="name" 
-                    placeholder="Your Name" 
-                    [(ngModel)]="name" 
-                    required 
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="Your Name"
+                    [(ngModel)]="name"
+                    required
                     #nameInput="ngModel"
                     class="w-full px-4 py-3 bg-[#032F30]/50 border border-[#0C969C]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0c969c] focus:border-transparent transition-all text-white placeholder-gray-400"
                   />
@@ -101,13 +102,13 @@
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-white mb-2">Email</label>
-                  <input 
-                    type="email" 
-                    name="email" 
-                    placeholder="Your Email" 
-                    [(ngModel)]="email" 
-                    required 
-                    email 
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Your Email"
+                    [(ngModel)]="email"
+                    required
+                    email
                     #emailInput="ngModel"
                     class="w-full px-4 py-3 bg-[#032F30]/50 border border-[#0C969C]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0c969c] focus:border-transparent transition-all text-white placeholder-gray-400"
                   />
@@ -121,13 +122,13 @@
               <!-- Phone -->
               <div>
                 <label class="block text-sm font-medium text-white mb-2">Phone Number</label>
-                <input 
-                  type="tel" 
-                  name="phone" 
-                  placeholder="Your Phone" 
-                  [(ngModel)]="phone" 
-                  required 
-                  pattern="^(010|011|012|015)[0-9]{8}$" 
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="Your Phone"
+                  [(ngModel)]="phone"
+                  required
+                  pattern="^(010|011|012|015)[0-9]{8}$"
                   #phoneInput="ngModel"
                   class="w-full px-4 py-3 bg-[#032F30]/50 border border-[#0C969C]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0c969c] focus:border-transparent transition-all text-white placeholder-gray-400"
                 />
@@ -140,12 +141,12 @@
               <!-- Message -->
               <div>
                 <label class="block text-sm font-medium text-white mb-2">Message</label>
-                <textarea 
-                  name="message" 
-                  placeholder="Your Message" 
-                  rows="5" 
-                  [(ngModel)]="message" 
-                  required 
+                <textarea
+                  name="message"
+                  placeholder="Your Message"
+                  rows="5"
+                  [(ngModel)]="message"
+                  required
                   #msgInput="ngModel"
                   class="w-full px-4 py-3 bg-[#032F30]/50 border border-[#0C969C]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0c969c] focus:border-transparent transition-all text-white placeholder-gray-400 resize-none"
                 ></textarea>
@@ -154,8 +155,8 @@
                 </div>
               </div>
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 class="px-8 py-4 bg-gradient-to-r from-[#0c969c] to-[#0a7075] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 hover:shadow-[#0c969c]/25"
               >
                 Send Message
@@ -172,20 +173,20 @@
     <div class="absolute inset-0 bg-gradient-to-br from-[#031716] via-[#032F30]/85 to-[#0A7075]"></div>
     <div class="absolute -left-20 top-12 h-48 w-48 rounded-full bg-[#0C969C]/25 blur-3xl"></div>
     <div class="absolute -right-12 bottom-6 h-56 w-56 rounded-full bg-[#6BA3BE]/20 blur-3xl"></div>
-    
+
     <div class="container mx-auto px-4 md:px-6 relative z-10">
       <div class="section-header text-center mb-12 animate-fade-up">
         <h2 class="text-2xl md:text-3xl font-bold text-white">Find Us</h2>
       </div>
-      
+
       <div class="rounded-2xl overflow-hidden shadow-2xl border border-[#0C969C]/30 backdrop-blur animate-fade-up">
-        <iframe 
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3426.156853238578!2d30.99935917558398!3d30.826270774539292!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14f7c9006c953031%3A0x657b1b2e39db545b!2sITI%20Tanta!5e0!3m2!1sen!2seg!4v1764221263189!5m2!1sen!2seg" 
-          width="100%" 
-          height="450" 
-          style="border:0;" 
-          allowfullscreen="" 
-          loading="lazy" 
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3426.156853238578!2d30.99935917558398!3d30.826270774539292!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14f7c9006c953031%3A0x657b1b2e39db545b!2sITI%20Tanta!5e0!3m2!1sen!2seg!4v1764221263189!5m2!1sen!2seg"
+          width="100%"
+          height="450"
+          style="border:0;"
+          allowfullscreen=""
+          loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
           class="w-full h-96 md:h-[450px]"
         ></iframe>
@@ -193,3 +194,4 @@
     </div>
   </section>
 </div>
+<app-footer></app-footer>
