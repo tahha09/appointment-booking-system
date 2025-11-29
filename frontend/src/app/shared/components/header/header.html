@@ -5,9 +5,9 @@
         <div class="brand__logo" aria-hidden="true">
           <img src="assets/logo.png" alt="Medical Care Logo" />
         </div>
-        <!-- <div class="brand__text">
+        <div class="brand__text">
           <span class="brand__name">Medical Care</span>
-        </div> -->
+        </div>
       </div>
 
       <button
@@ -22,7 +22,13 @@
 
       <div class="nav-wrap" [class.is-open]="menuOpen()">
         <nav class="nav">
-          <a routerLink="/" routerLinkActive="active">Home</a>
+          <a
+            routerLink="/"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
+            Home
+          </a>
           <a routerLink="/services" routerLinkActive="active">Services</a>
           <a routerLink="/doctors" routerLinkActive="active">Doctors</a>
           <a routerLink="/specialties" routerLinkActive="active">Specialties</a>
@@ -31,12 +37,6 @@
         </nav>
 
         <div class="actions">
-          <div class="search">
-            <svg viewBox="0 0 24 24" role="img">
-              <path d="M10.5 4a6.5 6.5 0 1 1-5.2 10.43l-1.63 1.63a1 1 0 0 1-1.42-1.42l1.63-1.63A6.5 6.5 0 0 1 10.5 4Zm0 2a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9Z" />
-            </svg>
-            <input type="search" placeholder="Search doctors, clinics, specialties" />
-          </div>
 
           <ng-container *ngIf="isLoggedIn(); else guestActions">
             <div class="user-menu">

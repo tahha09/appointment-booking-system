@@ -1,15 +1,41 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
-import { Dashboard as DoctorDashboard } from './dashboard/dashboard';
+import { DoctorDashboardLayout } from './doctor-dashboard-layout/doctor-dashboard-layout';
+import { DoctorOverview } from './overview/overview';
+import { PatientsManagement } from './patients-management/patients-management';
+import { MyAppointments } from './my-appointments/my-appointments';
+import { Schedule } from './schedule/schedule';
+import { FinancialPerformance } from './financial-performance/financial-performance';
 
-const routes: Routes = [
-  { path: 'dashboard', component: DoctorDashboard },
+const doctorRoutes: Routes = [
+  {
+    path: '',
+    component: DoctorDashboardLayout,
+    children: [
+      { path: '', redirectTo: 'overview', pathMatch: 'full' },
+      { path: 'overview', component: DoctorOverview },
+      { path: 'patients', component: PatientsManagement },
+      { path: 'my-appointments', component: MyAppointments },
+      { path: 'schedule', component: Schedule },
+      { path: 'financial-performance', component: FinancialPerformance },
+    ],
+  },
 ];
 
 @NgModule({
-  declarations: [],
-  imports: [CommonModule, RouterModule.forChild(routes), DoctorDashboard],
-  exports: [RouterModule],
+  declarations: [
+    DoctorDashboardLayout,
+    DoctorOverview,
+    PatientsManagement,
+    MyAppointments,
+    Schedule,
+    FinancialPerformance
+  ],
+  imports: [
+    CommonModule,
+    RouterModule.forChild(doctorRoutes)
+  ],
+  exports: [RouterModule]
 })
 export class DoctorModule {}

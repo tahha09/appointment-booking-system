@@ -1,0 +1,54 @@
+<div class="admin-dashboard">
+  <!-- Fixed Sidebar -->
+  <div class="sidebar">
+    <div class="logo">
+      <h2>MedAdmin</h2>
+    </div>
+
+    <nav>
+      <button
+        routerLink="system-overview"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: false }">
+        <i>📊</i>
+        <span>System Overview</span>
+      </button>
+
+      <button
+        routerLink="user-management"
+        routerLinkActive="active">
+        <i>👥</i>
+        <span>User Management</span>
+      </button>
+
+      <button
+        routerLink="appointments"
+        routerLinkActive="active">
+        <i>📅</i>
+        <span>Appointments</span>
+      </button>
+
+      <button
+        routerLink="appointments-analytics"
+        routerLinkActive="active">
+        <i>📈</i>
+        <span>Appointments Analytics</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <h2>Hello {{ adminName }}</h2>
+    </div>
+
+    <!-- Page Content (Routing Area) -->
+    <div class="page-content">
+      <div class="page-container">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  </div>
+</div>

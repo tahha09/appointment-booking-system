@@ -1,15 +1,38 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
-import { Dashboard as AdminDashboard } from './dashboard/dashboard';
+import { AdminDashboard } from './admin-dashboard/admin-dashboard';
+import { SystemOverview } from './system-overview/system-overview';
+import { UserManagement } from './user-management/user-management';
+import { AppointmentsAdmin } from './appointments-admin/appointments-admin';
+import { AppointmentsAnalytics } from './appointments-analytics/appointments-analytics';
 
-const routes: Routes = [
-  { path: 'dashboard', component: AdminDashboard },
+const adminRoutes: Routes = [
+  {
+    path: '',
+    component: AdminDashboard,
+    children: [
+      { path: '', redirectTo: 'system-overview', pathMatch: 'full' },
+      { path: 'system-overview', component: SystemOverview },
+      { path: 'user-management', component: UserManagement },
+      { path: 'appointments', component: AppointmentsAdmin },
+      { path: 'appointments-analytics', component: AppointmentsAnalytics }
+    ]
+  }
 ];
 
 @NgModule({
-  declarations: [],
-  imports: [CommonModule, RouterModule.forChild(routes), AdminDashboard],
-  exports: [RouterModule],
+  declarations: [
+    AdminDashboard,
+    SystemOverview,
+    UserManagement,
+    AppointmentsAdmin,
+    AppointmentsAnalytics
+  ],
+  imports: [
+    CommonModule,
+    RouterModule.forChild(adminRoutes)
+  ],
+  exports: [RouterModule]
 })
 export class AdminModule {}

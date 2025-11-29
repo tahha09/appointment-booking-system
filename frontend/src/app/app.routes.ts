@@ -25,4 +25,12 @@ export const routes: Routes = [
     loadChildren: () => import('./modules/admin/admin-module').then((m) => m.AdminModule),
     canActivate: [authGuard],
   },
+  {
+    path: 'admin',
+    loadChildren: () => import('./modules/admin/admin-module').then(m => m.AdminModule)
+  },
+  {
+    path: 'doctor',
+    loadChildren: () => import('./modules/doctor/doctor-module').then(m => m.DoctorModule)
+  }
 ];

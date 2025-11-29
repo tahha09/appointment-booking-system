@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Schema;
 use Laravel\Sanctum\Sanctum;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +24,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Limit default string length for older MySQL versions (prevents "Specified key was too long")
+        Schema::defaultStringLength(191);
+
         // Define gates for role-based authorization
         Gate::define('admin', function ($user) {
             return $user->role === 'admin';

@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
+import { Header } from "../../../shared/components/header/header";
+import { Footer } from "../../../shared/components/footer/footer";
 
 @Component({
   selector: 'app-contact',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Header, Footer],
   templateUrl: './contact.html',
   styleUrl: './contact.scss',
 })

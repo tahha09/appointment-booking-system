@@ -3,10 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DoctorService } from '../../../core/services/doctor';
 import { Doctor } from '../../../models/doctor';
+import { Header } from "../../../shared/components/header/header";
+import { Footer } from '../../../shared/components/footer/footer';
 @Component({
   selector: 'app-doctor-details',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, Header,Footer],
   templateUrl: './doctor-details.html',
   styleUrls: ['./doctor-details.scss']
 })

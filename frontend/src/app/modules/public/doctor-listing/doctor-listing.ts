@@ -4,10 +4,13 @@ import { DoctorService } from '../../../core/services/doctor';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ChangeDetectorRef } from '@angular/core';
+import { he } from 'date-fns/locale';
+import { Header } from "../../../shared/components/header/header";
+import { Footer } from "../../../shared/components/footer/footer";
 @Component({
   selector: 'app-doctor-listing',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,Header,Footer],
   templateUrl: './doctor-listing.html',
   styleUrls: ['./doctor-listing.scss']
 })
