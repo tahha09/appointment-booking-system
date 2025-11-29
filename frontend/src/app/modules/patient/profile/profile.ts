@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
 import { Notification } from '../../../core/services/notification';
 
@@ -15,105 +16,92 @@ export class PatientProfile implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(Auth);
   private readonly notification = inject(Notification);
+  private readonly router = inject(Router);
 
   profileImage: string | null = null;
-
-  bloodTypes: string[] = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Unknown'];
-
-  chronicConditionOptions: string[] = [
-    'Hypertension',
-    'Diabetes',
-    'Asthma',
-    'Heart disease',
-    'Kidney disease',
-    'Arthritis',
-    'High cholesterol',
-    'Chronic lung disease (COPD)',
-    'Thyroid disorder',
-    'Depression or anxiety',
-    'Obesity',
-    'Autoimmune disease',
-    'Liver disease',
-    'Stroke (history)',
-    'Migraine',
-    'Cancer (history)',
-    'None',
-  ];
-
-  allergyOptions: string[] = [
-    'No allergies',
-    'Penicillin',
-    'Peanuts',
-    'Shellfish',
-    'Milk / dairy',
-    'Eggs',
-    'Soy',
-    'Insect stings',
-    'NSAIDs (e.g. ibuprofen)',
-    'Tree nuts',
-    'Fish',
-    'Wheat / gluten',
-    'Pollen',
-    'Dust mites',
-    'Animal dander',
-    'Latex',
-    'Other',
-  ];
-
-  chronicSelected: string[] = [];
-  allergySelected: string[] = [];
+  private selectedImageDataUrl: string | null = null;
+  isLoading = true;
+  isSaving = false;
+  showPasswordModal = false;
+  isPasswordSaving = false;
+  showCurrentPassword = false;
+  showNewPassword = false;
+  showConfirmNewPassword = false;
+  showDeleteModal = false;
+  isDeletingAccount = false;
+  showDeletePassword = false;
 
   form = this.fb.group({
     fullName: this.fb.control('', {
       nonNullable: true,
       validators: [Validators.required, Validators.minLength(3)],
     }),
-    email: this.fb.control({ value: '', disabled: true }),
+    email: this.fb.control('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.email],
+    }),
     phone: this.fb.control(''),
     dateOfBirth: this.fb.control(''),
     address: this.fb.control(''),
-    bloodType: this.fb.control(''),
-    allergies: this.fb.control<string[]>([]),
-    chronicConditions: this.fb.control<string[]>([]),
+  });
+
+  passwordForm = this.fb.group({
+    currentPassword: this.fb.control('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    newPassword: this.fb.control('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.minLength(6)],
+    }),
+    confirmNewPassword: this.fb.control('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+  });
+
+  deleteForm = this.fb.group({
+    password: this.fb.control('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
   });
 
   ngOnInit(): void {
-    this.profileImage = this.auth.getProfileImage();
+    this.auth.getPatientProfile().subscribe({
+      next: (profile) => {
+        this.profileImage = profile.profileImage;
 
-    const profile = this.auth.getCurrentUserProfile();
+        this.form.patchValue({
+          fullName: profile.fullName,
+          email: profile.email,
+          phone: profile.phone,
+          dateOfBirth: profile.dateOfBirth || '',
+          address: profile.address,
+        });
 
-    if (profile) {
-      const chronicValues = this.parseMulti(profile.chronicConditions);
-      const allergyValues = this.parseMulti(profile.allergies);
+        this.form.get('email')?.disable({ emitEvent: false });
+        this.isLoading = false;
+      },
+      error: (error) => {
+        const message =
+          error?.error?.error ||
+          'Failed to load profile. Using example data instead.';
 
-      this.form.patchValue({
-        fullName: profile.fullName,
-        email: profile.email,
-        phone: profile.phone,
-        dateOfBirth: profile.dateOfBirth,
-        address: profile.address,
-        bloodType: profile.bloodType,
-        allergies: allergyValues,
-        chronicConditions: chronicValues,
-      });
+        this.notification.error('Profile load failed', message);
 
-      this.chronicSelected = chronicValues;
-      this.allergySelected = allergyValues;
-    } else {
-      this.form.patchValue({
-        fullName: 'John Doe',
-        email: 'john.doe@example.com',
-        phone: '+1 (555) 123-4567',
-        dateOfBirth: '1990-05-20',
-        address: '123 Health Street, Wellness City',
-        bloodType: 'O+',
-        allergies: ['Peanuts', 'Penicillin'],
-        chronicConditions: ['Hypertension'],
-      });
+        this.form.patchValue({
+          fullName: 'John Doe',
+          email: 'john.doe@example.com',
+          phone: '+1 (555) 123-4567',
+          dateOfBirth: '1990-05-20',
+          address: '123 Health Street, Wellness City',
+        });
 
-      this.chronicSelected = ['Hypertension'];
-      this.allergySelected = ['Peanuts', 'Penicillin'];
-    }
+        this.form.get('email')?.disable({ emitEvent: false });
+        this.isLoading = false;
+      },
+    });
   }
 
   get displayName(): string {
@@ -121,12 +109,44 @@ export class PatientProfile implements OnInit {
   }
 
   getInitials(name: string): string {
-    return name
-      .split(' ')
-      .filter((part) => part)
-      .map((part) => part[0])
-      .join('')
-      .toUpperCase();
+    const parts = name
+      .trim()
+      .split(/\s+/)
+      .filter((part) => !!part);
+
+    if (parts.length === 0) {
+      return '';
+    }
+
+    if (parts.length === 1) {
+      return parts[0][0].toUpperCase();
+    }
+
+    const firstInitial = parts[0][0];
+    const lastInitial = parts[parts.length - 1][0];
+
+    return (firstInitial + lastInitial).toUpperCase();
+  }
+
+  onProfileImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) {
+      return;
+    }
+
+    const file = input.files[0];
+    if (!file.type.startsWith('image/')) {
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      this.selectedImageDataUrl = result;
+      this.profileImage = result;
+      this.form.markAsDirty();
+    };
+    reader.readAsDataURL(file);
   }
 
   onSubmit(): void {
@@ -137,84 +157,139 @@ export class PatientProfile implements OnInit {
 
     const raw = this.form.getRawValue();
 
-    const bloodType = raw.bloodType || '';
-    const chronicConditions = Array.isArray(raw.chronicConditions)
-      ? raw.chronicConditions.join(', ')
-      : raw.chronicConditions || '';
+    this.isSaving = true;
 
-    const allergies = Array.isArray(raw.allergies)
-      ? raw.allergies.join(', ')
-      : raw.allergies || '';
+    this.auth
+      .updatePatientProfile({
+        fullName: raw.fullName || '',
+        email: raw.email || '',
+        phone: raw.phone || '',
+        dateOfBirth: raw.dateOfBirth || '',
+        address: raw.address || '',
+        profileImage: this.selectedImageDataUrl,
+      })
+      .subscribe({
+        next: () => {
+          this.isSaving = false;
+          this.notification.success('Profile updated', 'Your details have been saved.');
+          this.form.markAsPristine();
+        },
+        error: (error) => {
+          this.isSaving = false;
+          const message =
+            error?.error?.error ||
+            'Failed to update profile. Please check your details and try again.';
+          this.notification.error('Update failed', message);
+        },
+      });
+  }
 
-    this.auth.updateCurrentUserProfile({
-      fullName: raw.fullName || '',
-      phone: raw.phone || '',
-      dateOfBirth: raw.dateOfBirth || '',
-      address: raw.address || '',
-      bloodType,
-      allergies,
-      chronicConditions,
+  openPasswordModal(): void {
+    this.passwordForm.reset({
+      currentPassword: '',
+      newPassword: '',
+      confirmNewPassword: '',
     });
-
-    this.notification.success('Profile updated', 'Your details have been saved.');
+    this.showPasswordModal = true;
   }
 
-  private parseMulti(value: string | null | undefined): string[] {
-    if (!value) {
-      return [];
-    }
-    return value
-      .split(',')
-      .map((v) => v.trim())
-      .filter((v) => !!v);
-  }
-
-  private getSelectedArray(controlName: 'chronicConditions' | 'allergies'): string[] {
-    const control = this.form.get(controlName);
-    const value = control?.value;
-    return Array.isArray(value) ? value : [];
-  }
-
-  private updateMulti(controlName: 'chronicConditions' | 'allergies', option: string): void {
-    const selected = this.getSelectedArray(controlName);
-    const exists = selected.includes(option);
-    const next = exists ? selected.filter((v) => v !== option) : [...selected, option];
-    this.form.get(controlName)?.setValue(next);
-
-    if (controlName === 'chronicConditions') {
-      this.chronicSelected = next;
-    } else {
-      this.allergySelected = next;
-    }
-
-    this.form.markAsDirty();
-  }
-
-  removeChronic(option: string): void {
-    this.updateMulti('chronicConditions', option);
-  }
-
-  removeAllergy(option: string): void {
-    this.updateMulti('allergies', option);
-  }
-
-  onChronicSelect(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    const value = select.value;
-    if (!value) {
+  closePasswordModal(): void {
+    if (this.isPasswordSaving) {
       return;
     }
-    this.updateMulti('chronicConditions', value);
-    select.value = '';
+    this.showPasswordModal = false;
   }
 
-  onAllergySelect(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    const value = select.value;
-    if (!value) {
+  onPasswordSubmit(): void {
+    if (this.passwordForm.invalid || this.isPasswordSaving) {
+      this.passwordForm.markAllAsTouched();
       return;
     }
-    this.updateMulti('allergies', value);
-    select.value = '';
+
+    const pwd = this.passwordForm.getRawValue();
+
+    if (pwd.newPassword !== pwd.confirmNewPassword) {
+      this.notification.error(
+        'Update failed',
+        'New password and confirmation do not match.',
+      );
+      return;
+    }
+
+    const profile = this.form.getRawValue();
+
+    this.isPasswordSaving = true;
+
+    this.auth
+      .updatePatientProfile({
+        fullName: profile.fullName || '',
+        email: profile.email || '',
+        phone: profile.phone || '',
+        dateOfBirth: profile.dateOfBirth || '',
+        address: profile.address || '',
+        currentPassword: pwd.currentPassword || '',
+        newPassword: pwd.newPassword || '',
+        confirmNewPassword: pwd.confirmNewPassword || '',
+        profileImage: this.selectedImageDataUrl,
+      })
+      .subscribe({
+        next: () => {
+          this.isPasswordSaving = false;
+          this.showPasswordModal = false;
+          this.passwordForm.reset({
+            currentPassword: '',
+            newPassword: '',
+            confirmNewPassword: '',
+          });
+          this.notification.success('Password updated', 'Your password has been changed.');
+        },
+        error: (error) => {
+          this.isPasswordSaving = false;
+          const message =
+            error?.error?.error ||
+            'Failed to update password. Please check your details and try again.';
+          this.notification.error('Update failed', message);
+        },
+      });
+  }
+
+  openDeleteModal(): void {
+    this.deleteForm.reset({
+      password: '',
+    });
+    this.showDeleteModal = true;
+  }
+
+  closeDeleteModal(): void {
+    if (this.isDeletingAccount) {
+      return;
+    }
+    this.showDeleteModal = false;
+  }
+
+  onDeleteAccountSubmit(): void {
+    if (this.deleteForm.invalid || this.isDeletingAccount) {
+      this.deleteForm.markAllAsTouched();
+      return;
+    }
+
+    const { password } = this.deleteForm.getRawValue();
+    this.isDeletingAccount = true;
+
+    this.auth.deleteAccount(password || '').subscribe({
+      next: () => {
+        this.isDeletingAccount = false;
+        this.showDeleteModal = false;
+        this.notification.success('Account deleted', 'Your account has been deleted.');
+        this.router.navigateByUrl('/login');
+      },
+      error: (error) => {
+        this.isDeletingAccount = false;
+        const message =
+          error?.error?.error ||
+          'Failed to delete account. Please check your password and try again.';
+        this.notification.error('Delete failed', message);
+      },
+    });
   }
 }

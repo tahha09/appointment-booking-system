@@ -118,6 +118,7 @@
 
 .patient-profile__input,
 .patient-profile__textarea {
+  width: 100%;
   border-radius: 0.9rem;
   border: 1px solid rgba(107, 163, 190, 0.5);
   background: rgba(3, 31, 32, 0.8);
@@ -211,6 +212,276 @@
   cursor: not-allowed;
   box-shadow: none;
   transform: none;
+}
+
+.patient-profile__status {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.9rem;
+  color: #cfe9ec;
+}
+
+.patient-profile__status--loading {
+  color: #e5f4f6;
+}
+
+.patient-profile__spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 2px solid rgba(207, 233, 236, 0.3);
+  border-top-color: #0c969c;
+  animation: patient-profile-spin 0.7s linear infinite;
+}
+
+.patient-profile__error {
+  font-size: 0.75rem;
+  color: #f97373;
+}
+
+.patient-profile__upload-btn {
+  margin-top: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(107, 163, 190, 0.6);
+  background: rgba(3, 31, 32, 0.9);
+  color: #e5f4f6;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.patient-profile__upload-btn:hover {
+  background: rgba(3, 47, 48, 0.95);
+  border-color: #0c969c;
+  transform: translateY(-0.5px);
+}
+
+.patient-profile__upload-input {
+  display: none;
+}
+
+.patient-profile__security-text {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #cfe9ec;
+}
+
+.patient-profile__change-password-btn {
+  border-radius: 999px;
+  border: 1px solid rgba(107, 163, 190, 0.7);
+  background: rgba(3, 31, 32, 0.95);
+  color: #e5f4f6;
+  padding: 0.5rem 1.3rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease,
+    box-shadow 0.15s ease;
+}
+
+.patient-profile__change-password-btn:hover {
+  background: rgba(3, 47, 48, 0.98);
+  border-color: #0c969c;
+  transform: translateY(-0.5px);
+  box-shadow: 0 10px 22px rgba(12, 150, 156, 0.3);
+}
+
+.patient-profile__delete-account-btn {
+  margin-top: 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(248, 113, 113, 0.8);
+  background: rgba(127, 29, 29, 0.15);
+  color: #fecaca;
+  padding: 0.45rem 1.3rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease,
+    box-shadow 0.15s ease, color 0.15s ease;
+}
+
+.patient-profile__delete-account-btn:hover {
+  background: rgba(127, 29, 29, 0.3);
+  border-color: #f87171;
+  color: #fee2e2;
+  transform: translateY(-0.5px);
+  box-shadow: 0 10px 22px rgba(127, 29, 29, 0.4);
+}
+
+.patient-profile__security-row,
+.patient-profile__danger-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.patient-profile__security-row + .patient-profile__danger-row {
+  margin-top: 1.25rem;
+  padding-top: 1.1rem;
+  border-top: 1px dashed rgba(248, 113, 113, 0.4);
+}
+
+.patient-profile__security-main,
+.patient-profile__danger-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.patient-profile__security-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #e5f4f6;
+  margin-bottom: 0.2rem;
+}
+
+.patient-profile__danger-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #fecaca;
+  margin-bottom: 0.2rem;
+}
+
+.patient-profile__danger-text {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #fecaca;
+}
+
+.patient-profile__security-actions {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.patient-profile__input-wrapper {
+  position: relative;
+}
+
+.patient-profile__modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 40;
+}
+
+.patient-profile__modal {
+  width: 100%;
+  max-width: 460px;
+  background: rgba(3, 31, 32, 0.98);
+  border-radius: 1.25rem;
+  padding: 1.5rem 1.8rem;
+  border: 1px solid rgba(107, 163, 190, 0.8);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+}
+
+.patient-profile__modal-title {
+  margin: 0 0 1rem;
+  font-size: 1.15rem;
+}
+
+.patient-profile__modal-grid {
+  margin-top: 0.75rem;
+}
+
+.patient-profile__modal-actions {
+  margin-top: 1.2rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.patient-profile__modal-btn {
+  border-radius: 999px;
+  padding: 0.45rem 1.2rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease,
+    box-shadow 0.15s ease, color 0.15s ease;
+}
+
+.patient-profile__modal-btn--secondary {
+  background: transparent;
+  color: #cfe9ec;
+  border-color: rgba(107, 163, 190, 0.6);
+}
+
+.patient-profile__modal-btn--secondary:hover {
+  background: rgba(3, 31, 32, 0.95);
+  border-color: #0c969c;
+}
+
+.patient-profile__modal-btn--primary {
+  background: linear-gradient(135deg, #0c969c, #0a7075);
+  color: #f9fafb;
+  box-shadow: 0 10px 24px rgba(12, 150, 156, 0.45);
+}
+
+.patient-profile__modal-btn--primary:hover {
+  transform: translateY(-0.5px);
+  box-shadow: 0 14px 30px rgba(12, 150, 156, 0.55);
+}
+
+.patient-profile__modal-btn--danger {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  color: #fef2f2;
+  box-shadow: 0 10px 24px rgba(185, 28, 28, 0.55);
+}
+
+.patient-profile__modal-btn--danger:hover {
+  transform: translateY(-0.5px);
+  box-shadow: 0 14px 30px rgba(185, 28, 28, 0.7);
+}
+
+.patient-profile__modal-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.patient-profile__toggle-password {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #6ba3be;
+  cursor: pointer;
+  z-index: 1;
+  transition: color 0.15s ease;
+}
+
+.patient-profile__toggle-password:hover {
+  color: #0c969c;
+}
+
+@keyframes patient-profile-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 960px) {

@@ -37,13 +37,13 @@
         <div class="mt-4 space-y-3 text-sm text-white/80">
           <div class="flex items-center gap-3">
             <span class="flex h-7 w-7 items-center justify-center rounded-full bg-white/10">
-              ✓
+              �o"
             </span>
             <p>24/7 appointment booking and reminders.</p>
           </div>
           <div class="flex items-center gap-3">
             <span class="flex h-7 w-7 items-center justify-center rounded-full bg-white/10">
-              ✓
+              �o"
             </span>
             <p>Secure access to lab results and reports.</p>
           </div>
@@ -51,7 +51,7 @@
       </div>
 
       <div class="relative z-10 mt-10">
-        <p class="text-xs text-white/70">Don’t have an account?</p>
+        <p class="text-xs text-white/70">Don�?Tt have an account?</p>
         <a
           routerLink="/register"
           class="mt-3 inline-flex items-center text-sm font-medium text-white gap-2"
@@ -99,8 +99,8 @@
               id="email"
               type="email"
               formControlName="email"
-                autocomplete="email"
-                class="block w-full rounded-2xl border border-white/40 bg-transparent pl-11 pr-4 py-3 text-sm outline-none transition focus:border-brand-teal focus:ring-2 focus:ring-brand-ice/60"
+              autocomplete="email"
+              class="block w-full rounded-2xl border border-white/40 bg-transparent pl-11 pr-4 py-3 text-sm outline-none transition focus:border-brand-teal focus:ring-2 focus:ring-brand-ice/60"
               placeholder="you@example.com"
             />
           </div>
@@ -130,19 +130,31 @@
               id="password"
               [type]="showPassword ? 'text' : 'password'"
               formControlName="password"
-                autocomplete="current-password"
-                class="block w-full rounded-2xl border border-white/40 bg-transparent pl-11 pr-4 py-3 text-sm outline-none transition focus:border-brand-teal focus:ring-2 focus:ring-brand-ice/60"
-              placeholder="••••••••"
+              autocomplete="current-password"
+              class="block w-full rounded-2xl border border-white/40 bg-transparent pl-11 pr-11 py-3 text-sm outline-none transition focus:border-brand-teal focus:ring-2 focus:ring-brand-ice/60"
+              placeholder="�?��?��?��?��?��?��?��?�"
             />
+            <button
+              type="button"
+              class="absolute inset-y-0 right-0 flex items-center pr-3 text-brand-ice/80 hover:text-white transition"
+              (click)="showPassword = !showPassword"
+              aria-label="Toggle password visibility"
+            >
+              <svg class="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M12 5c-4.5 0-8.3 2.9-9.5 7 1.2 4.1 5 7 9.5 7s8.3-2.9 9.5-7c-1.2-4.1-5-7-9.5-7Zm0 2c3.1 0 5.8 1.8 7 5-1.2 3.2-3.9 5-7 5s-5.8-1.8-7-5c1.2-3.2 3.9-5 7-5Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"
+                />
+              </svg>
+            </button>
           </div>
-            <div class="min-h-[1.25rem]">
-              <p
-                *ngIf="form.get('password')?.touched && form.get('password')?.invalid"
-                class="text-xs text-red-300"
-              >
-                Password must be at least 6 characters.
-              </p>
-            </div>
+          <div class="min-h-[1.25rem]">
+            <p
+              *ngIf="form.get('password')?.touched && form.get('password')?.invalid"
+              class="text-xs text-red-300"
+            >
+              Password must be at least 6 characters.
+            </p>
+          </div>
         </div>
 
         <div class="flex items-center justify-start text-xs sm:text-sm">
@@ -206,7 +218,7 @@
         </div>
 
         <p class="pt-4 text-center text-xs text-white/80">
-          Don’t have an account?
+          Don�?Tt have an account?
           <a
             routerLink="/register"
             class="font-semibold text-brand-ice hover:text-white"
@@ -218,27 +230,3 @@
     </div>
   </div>
 
-  <button
-    type="button"
-    class="fixed bottom-6 right-6 z-50"
-    *ngIf="showScrollTop"
-    (click)="scrollToTop()"
-    aria-label="Scroll to top"
-  >
-      <div
-        class="h-11 w-11 rounded-full flex items-center justify-center border border-white/60 shadow-xl backdrop-blur-md"
-      [ngStyle]="{
-        'background-image':
-          'conic-gradient(#0C969C ' + scrollProgress + '%, rgba(15,23,42,0.9) 0)'
-      }"
-      >
-        <div
-          class="h-8 w-8 rounded-full flex items-center justify-center bg-white text-brand-teal shadow-[0_0_14px_rgba(255,255,255,0.9)]"
-        >
-          <svg class="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 5L5 12h4v7h6v-7h4z" fill="currentColor" />
-          </svg>
-        </div>
-      </div>
-  </button>
-</div>

@@ -15,6 +15,9 @@ class Patient extends Model
         'emergency_contact',
         'insurance_info',
         'medical_history',
+        'blood_type',
+        'allergies',
+        'chronic_conditions',
     ];
 
     // Relationships
