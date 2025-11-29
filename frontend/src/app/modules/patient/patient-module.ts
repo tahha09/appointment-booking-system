@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { PatientProfile } from './profile/profile';
 import { Dashboard } from './dashboard/dashboard';
+import { authGuard } from '../../core/guards/auth-guard';
 
 const routes: Routes = [
-  { path: 'dashboard', component: Dashboard },
-  { path: 'profile', component: PatientProfile },
+  { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
+  { path: 'profile', component: PatientProfile, canActivate: [authGuard] },
 ];
 
 

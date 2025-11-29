@@ -12,6 +12,7 @@ use App\Http\Controllers\Doctor\ScheduleController;
 use App\Http\Controllers\Doctor\PatientController as DoctorPatientController;
 use App\Http\Controllers\Patient\AppointmentController as PatientAppointmentController;
 use App\Http\Controllers\Patient\DoctorController as PatientDoctorController;
+use App\Http\Controllers\Patient\ProfileController as PatientProfileController;
 use App\Http\Controllers\AI\RecommendationController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Patient\SpecializationController;
@@ -112,6 +113,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('patient')->middleware('role:patient')->group(function () {
         // Dashboard
         Route::get('/dashboard', [PatientAppointmentController::class, 'dashboard']);
+
+        // Profile
+        Route::get('/profile', [PatientProfileController::class, 'show']);
+        Route::put('/profile', [PatientProfileController::class, 'update']);
+        Route::delete('/account', [PatientProfileController::class, 'destroy']);
 
         // Doctor Search & Listing
         Route::get('/doctors', [PatientDoctorController::class, 'index']);
