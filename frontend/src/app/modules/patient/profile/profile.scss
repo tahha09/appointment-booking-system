@@ -39,6 +39,14 @@
   letter-spacing: 0.06em;
 }
 
+.patient-profile__avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
 .patient-profile__header-info h1 {
   font-size: 1.75rem;
   margin: 0;
@@ -127,6 +135,43 @@
   background: rgba(3, 47, 48, 0.95);
 }
 
+.patient-profile__input--multi {
+  min-height: 2.5rem;
+}
+
+.patient-profile__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.4rem;
+}
+
+.patient-profile__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(12, 150, 156, 0.18);
+  border: 1px solid rgba(107, 163, 190, 0.5);
+  font-size: 0.75rem;
+  color: #e5f4f6;
+}
+
+.patient-profile__chip-remove {
+  border: none;
+  background: transparent;
+  color: #cfe9ec;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  font-size: 0.85rem;
+}
+
+.patient-profile__chip-remove:hover {
+  color: #f97373;
+}
+
 .patient-profile__input--readonly {
   opacity: 0.7;
   cursor: not-allowed;
@@ -159,6 +204,13 @@
 .patient-profile__save-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 16px 32px rgba(12, 150, 156, 0.45);
+}
+
+.patient-profile__save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
 }
 
 @media (max-width: 960px) {

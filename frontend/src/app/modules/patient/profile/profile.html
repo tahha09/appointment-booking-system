@@ -2,9 +2,18 @@
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="patient-profile__form">
     <section class="patient-profile__header">
       <div class="patient-profile__avatar">
-        <span class="patient-profile__avatar-initials">
-          {{ getInitials(displayName || 'P') }}
-        </span>
+        <ng-container *ngIf="profileImage; else initialsAvatar">
+          <img
+            [src]="profileImage"
+            alt="Patient avatar"
+            class="patient-profile__avatar-img"
+          />
+        </ng-container>
+        <ng-template #initialsAvatar>
+          <span class="patient-profile__avatar-initials">
+            {{ getInitials(displayName || 'P') }}
+          </span>
+        </ng-template>
       </div>
       <div class="patient-profile__header-info">
         <h1>{{ displayName }}</h1>
@@ -72,37 +81,81 @@
         <div class="patient-profile__grid patient-profile__grid--two">
           <div class="patient-profile__field">
             <span class="patient-profile__label">Blood type</span>
-            <input
-              type="text"
-              formControlName="bloodType"
-              class="patient-profile__input"
-              placeholder="e.g. O+"
-            />
+            <select formControlName="bloodType" class="patient-profile__input">
+              <option value="">Select blood type</option>
+              <option *ngFor="let type of bloodTypes" [value]="type">
+                {{ type }}
+              </option>
+            </select>
           </div>
+
           <div class="patient-profile__field">
             <span class="patient-profile__label">Chronic conditions</span>
-            <input
-              type="text"
-              formControlName="chronicConditions"
+            <select
               class="patient-profile__input"
-              placeholder="e.g. Hypertension"
-            />
+              (change)="onChronicSelect($event)"
+            >
+              <option value="">Select condition</option>
+              <option *ngFor="let condition of chronicConditionOptions" [value]="condition">
+                {{ condition }}
+              </option>
+            </select>
+            <div class="patient-profile__chips" *ngIf="chronicSelected.length">
+              <span
+                class="patient-profile__chip"
+                *ngFor="let condition of chronicSelected"
+              >
+                <span class="patient-profile__chip-label">{{ condition }}</span>
+                <button
+                  type="button"
+                  class="patient-profile__chip-remove"
+                  (click)="removeChronic(condition)"
+                  aria-label="Remove condition"
+                >
+                  x
+                </button>
+              </span>
+            </div>
           </div>
+
           <div class="patient-profile__field patient-profile__field--full">
             <span class="patient-profile__label">Allergies</span>
-            <textarea
-              rows="2"
-              formControlName="allergies"
-              class="patient-profile__textarea"
-              placeholder="List any allergies you have"
-            ></textarea>
+            <select
+              class="patient-profile__input"
+              (change)="onAllergySelect($event)"
+            >
+              <option value="">Select allergy</option>
+              <option *ngFor="let allergy of allergyOptions" [value]="allergy">
+                {{ allergy }}
+              </option>
+            </select>
+            <div class="patient-profile__chips" *ngIf="allergySelected.length">
+              <span
+                class="patient-profile__chip"
+                *ngFor="let allergy of allergySelected"
+              >
+                <span class="patient-profile__chip-label">{{ allergy }}</span>
+                <button
+                  type="button"
+                  class="patient-profile__chip-remove"
+                  (click)="removeAllergy(allergy)"
+                  aria-label="Remove allergy"
+                >
+                  x
+                </button>
+              </span>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
     <div class="patient-profile__actions">
-      <button type="submit" class="patient-profile__save-btn">
+      <button
+        type="submit"
+        class="patient-profile__save-btn"
+        [disabled]="form.pristine || form.invalid"
+      >
         Save changes
       </button>
     </div>
