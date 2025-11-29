@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SystemReports } from './system-reports';
+import { SystemOverview } from './system-overview';
 
-describe('SystemReports', () => {
-  let component: SystemReports;
-  let fixture: ComponentFixture<SystemReports>;
+describe('SystemOverview', () => {
+  let component: SystemOverview;
+  let fixture: ComponentFixture<SystemOverview>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SystemReports]
+      imports: [SystemOverview]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(SystemReports);
+    fixture = TestBed.createComponent(SystemOverview);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

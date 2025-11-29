@@ -1,0 +1,284 @@
+.admin-dashboard {
+  display: flex;
+  height: 100vh;
+  background-color: #f8fafc;
+
+  // Fixed Sidebar
+  .sidebar {
+    width: 280px;
+    background: linear-gradient(180deg, #031716 0%, #032F30 100%);
+    color: white;
+    padding: 0;
+    box-shadow: 4px 0 20px rgba(3, 23, 22, 0.3);
+    position: fixed;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    border-right: 1px solid #0A7075;
+
+    .logo {
+      padding: 30px 25px;
+      border-bottom: 1px solid #0A7075;
+      background: rgba(3, 47, 48, 0.8);
+
+      h2 {
+        margin: 0;
+        color: #6BA3BE;
+        font-size: 1.6rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        &::before {
+          content: "⚕️";
+          font-size: 1.8rem;
+        }
+      }
+    }
+
+    nav {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 25px 15px;
+
+      button {
+        background: transparent;
+        border: none;
+        color: #a0bcc4;
+        padding: 16px 20px;
+        text-align: left;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 15px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border: 1px solid transparent;
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          height: 100%;
+          width: 4px;
+          background: #0A7075;
+          transform: scaleY(0);
+          transition: transform 0.3s ease;
+        }
+
+        &:hover {
+          background: rgba(10, 112, 117, 0.15);
+          color: #6BA3BE;
+          border-color: #0A7075;
+          transform: translateX(5px);
+
+          &::before {
+            transform: scaleY(1);
+          }
+        }
+
+        &.active {
+          background: linear-gradient(135deg, #0A7075 0%, #0C969C 100%);
+          color: white;
+          border-color: #0C969C;
+          box-shadow: 0 4px 15px rgba(10, 112, 117, 0.3);
+
+          &::before {
+            transform: scaleY(1);
+            background: #6BA3BE;
+          }
+        }
+
+        i {
+          width: 20px;
+          text-align: center;
+          font-size: 1.2rem;
+        }
+      }
+    }
+  }
+
+  // Main Content Area
+  .main-content {
+    flex: 1;
+    margin-left: 280px; // Match sidebar width
+    display: flex;
+    flex-direction: column;
+    background: #f8fafc;
+
+    // Top Bar
+    .top-bar {
+      background: linear-gradient(135deg, #ffffff 0%, #f1f9ff 100%);
+      padding: 25px 40px;
+      box-shadow: 0 2px 25px rgba(39, 77, 96, 0.1);
+      border-bottom: 1px solid #e1f5fe;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+
+      h2 {
+        margin: 0;
+        color: #032F30;
+        font-size: 1.9rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #032F30 0%, #0A7075 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+
+        &::after {
+          content: '';
+          display: block;
+          width: 60px;
+          height: 4px;
+          background: linear-gradient(90deg, #0A7075, #0C969C);
+          border-radius: 2px;
+          margin-top: 8px;
+        }
+      }
+    }
+
+    // Page Content Area
+    .page-content {
+      flex: 1;
+      padding: 35px;
+      overflow-y: auto;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f9ff 50%, #e8f4f8 100%);
+
+      // Style for the routed components
+      .page-container {
+        background: linear-gradient(135deg, #ffffff 0%, #f7fdff 100%);
+        border-radius: 16px;
+        padding: 35px;
+        box-shadow:
+          0 4px 25px rgba(39, 77, 96, 0.1),
+          0 1px 3px rgba(39, 77, 96, 0.08);
+        min-height: 500px;
+        border: 1px solid #e1f5fe;
+        position: relative;
+
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 4px;
+          background: linear-gradient(90deg, #0A7075, #0C969C, #6BA3BE);
+          border-radius: 16px 16px 0 0;
+        }
+      }
+    }
+  }
+}
+
+// Custom scrollbar for the page content
+.page-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.page-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.page-content::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #0A7075, #0C969C);
+  border-radius: 4px;
+}
+
+.page-content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #032F30, #0A7075);
+}
+
+// Responsive Design
+@media (max-width: 1024px) {
+  .admin-dashboard {
+    .sidebar {
+      width: 240px;
+    }
+
+    .main-content {
+      margin-left: 240px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-dashboard {
+    .sidebar {
+      width: 70px;
+      transform: translateX(0);
+      transition: transform 0.3s ease;
+
+      .logo h2,
+      nav button span {
+        display: none;
+      }
+
+      .logo {
+        padding: 20px;
+        text-align: center;
+      }
+
+      nav {
+        padding: 20px 10px;
+
+        button {
+          justify-content: center;
+          padding: 15px;
+          gap: 0;
+
+          i {
+            font-size: 1.4rem;
+          }
+        }
+      }
+
+      &:hover {
+        width: 240px;
+
+        .logo h2,
+        nav button span {
+          display: flex;
+        }
+
+        nav button {
+          justify-content: flex-start;
+          padding: 16px 20px;
+          gap: 15px;
+        }
+      }
+    }
+
+    .main-content {
+      margin-left: 70px;
+    }
+  }
+}
+
+// Animation for router transitions
+router-outlet + * {
+  display: block;
+  animation: slideFadeIn 0.4s ease-out;
+}
+
+@keyframes slideFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
