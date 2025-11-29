@@ -24,16 +24,16 @@ const doctorRoutes: Routes = [
 ];
 
 @NgModule({
-  declarations: [
+  declarations: [], // Empty declarations since all components are standalone
+  imports: [
+    CommonModule,
+    // Import all standalone components
     DoctorDashboardLayout,
     DoctorOverview,
     PatientsManagement,
     MyAppointments,
     Schedule,
-    FinancialPerformance
-  ],
-  imports: [
-    CommonModule,
+    FinancialPerformance,
     RouterModule.forChild(doctorRoutes)
   ],
   exports: [RouterModule]

@@ -90,11 +90,11 @@ export class Login {
           .then(() => {
             const role = this.auth.getRole();
             if (role === 'patient') {
-              this.router.navigateByUrl('/patient/profile');
+              this.router.navigateByUrl('/patient');
             } else if (role === 'doctor') {
-              this.router.navigateByUrl('/doctor/dashboard');
+              this.router.navigateByUrl('/doctor');
             } else if (role === 'admin') {
-              this.router.navigateByUrl('/admin/dashboard');
+              this.router.navigateByUrl('/admin');
             } else {
               this.router.navigateByUrl('/');
             }
