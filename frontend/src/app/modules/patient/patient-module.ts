@@ -25,8 +25,10 @@ const routes: Routes = [
 ];
 
 @NgModule({
+  declarations: [], // Empty declarations since all components are standalone
   imports: [
     CommonModule,
+    // Import all standalone components
     Layout,
     Dashboard,
     PatientProfile,
