@@ -106,7 +106,7 @@
             (click)="viewMedicalHistory(patient)"
             class="px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-xl border border-[#5ea4ff]/40 text-[#9cc7ff] hover:text-white hover:border-[#5ea4ff]/80 bg-[#5ea4ff]/10 hover:bg-[#5ea4ff]/20 font-semibold transition shadow-sm shadow-black/30"
           >
-            Medical History
+            Medical Records
           </button>
 
           <button
@@ -238,7 +238,7 @@ x
       (click)="$event.stopPropagation()"
     >
       <div class="flex items-center justify-between mb-6 gap-4">
-        <h3 class="text-xl sm:text-2xl font-bold text-white truncate">Medical History - {{ selectedPatient?.user?.name }}</h3>
+        <h3 class="text-xl sm:text-2xl font-bold text-white truncate">Medical Records - {{ selectedPatient?.user?.name }}</h3>
         <button
           (click)="closeMedicalHistoryModal()"
           class="w-8 h-8 rounded-full bg-red-500/20 text-red-300 hover:bg-red-500/30 transition flex items-center justify-center flex-shrink-0"
@@ -248,7 +248,7 @@ x
       </div>
 
       <div *ngIf="medicalHistory.length === 0" class="text-center py-8">
-        <p class="text-[#6ba3be]">No medical history available.</p>
+        <p class="text-[#6ba3be]">No medical records available.</p>
       </div>
 
       <div *ngIf="medicalHistory.length > 0" class="space-y-3 sm:space-y-4">

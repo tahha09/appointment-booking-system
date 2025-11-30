@@ -19,6 +19,7 @@ $border: rgba(#6ba3be, 0.35);
   margin: 0 auto;
   padding: 0 1.25rem;
   width: 100%;
+
 }
 
 .medical-header {
@@ -26,12 +27,14 @@ $border: rgba(#6ba3be, 0.35);
   font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
   box-shadow: 0 1px 0 $border;
   box-sizing: border-box;
+
 }
 
 .top-bar {
   background: linear-gradient(90deg, $nav, $accent);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   font-size: 0.9rem;
+
 
   &__content {
     display: flex;
@@ -40,6 +43,7 @@ $border: rgba(#6ba3be, 0.35);
     gap: 1rem;
     padding: 0.6rem 0;
     flex-wrap: wrap;
+
   }
 
   &__contact {
@@ -47,6 +51,7 @@ $border: rgba(#6ba3be, 0.35);
     align-items: center;
     gap: 0.6rem;
     flex-wrap: wrap;
+
   }
 
   &__links {
@@ -54,6 +59,7 @@ $border: rgba(#6ba3be, 0.35);
     align-items: center;
     gap: 0.75rem;
     flex-wrap: wrap;
+
   }
 }
 
@@ -66,6 +72,7 @@ $border: rgba(#6ba3be, 0.35);
   width: 1px;
   background: rgba(255, 255, 255, 0.25);
   margin: 0 0.35rem;
+
 }
 
 .pill {
@@ -82,6 +89,7 @@ $border: rgba(#6ba3be, 0.35);
     color: white;
     border-color: rgba(255, 255, 255, 0.2);
   }
+
 }
 
 .social {
@@ -112,14 +120,14 @@ $border: rgba(#6ba3be, 0.35);
   }
 }
 
-.top-bar a {
-  color: white;
-  text-decoration: none;
-  transition: color 0.2s ease;
-  &:hover {
-    color: white;
-  }
-}
+// .top-bar a {
+//   color: white;
+//   text-decoration: none;
+//   transition: color 0.2s ease;
+//   &:hover {
+//     color: white;
+//   }
+// }
 
 .main-bar {
   display: flex;
@@ -139,7 +147,7 @@ $border: rgba(#6ba3be, 0.35);
     display: flex;
     align-items: center;
     justify-content: space-evenly;
-    gap: 1.25rem;
+    gap: 6rem;
     flex-wrap: wrap;
   }
 }
@@ -196,6 +204,7 @@ $border: rgba(#6ba3be, 0.35);
   align-items: center;
   gap: 1.4rem;
   justify-content: center;
+  padding: 0 2rem;
   a {
     color: $dark;
     text-decoration: none;
