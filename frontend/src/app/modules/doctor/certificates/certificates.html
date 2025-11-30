@@ -1,0 +1,281 @@
+<div class="space-y-6 text-slate-50">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <h2 class="text-2xl font-bold">My Certificates</h2>
+    <button
+      (click)="openAddModal()"
+      class="px-6 py-2 rounded-xl bg-[#0c969c] text-white font-semibold hover:bg-[#0a7075] transition"
+    >
+      + Add Certificate
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="flex items-center justify-center py-20">
+    <div class="text-center">
+      <div class="w-16 h-16 border-4 border-[#0c969c] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+      <p class="text-teal-200">Loading certificates...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="rounded-2xl border border-red-500/40 bg-red-500/10 p-4">
+    <p class="text-red-300">{{ error }}</p>
+  </div>
+
+  <!-- Certificates Grid -->
+  <div *ngIf="!loading && !error" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div *ngIf="certificates.length === 0" class="col-span-full rounded-2xl border border-[#6ba3be]/40 bg-white/5 backdrop-blur p-8 text-center">
+      <p class="text-teal-200 text-lg">No certificates added yet.</p>
+    </div>
+
+    <div *ngFor="let certificate of certificates" class="rounded-2xl border border-[#6ba3be]/40 bg-white/5 backdrop-blur p-6 shadow-lg hover:border-[#0c969c]/50 transition">
+      <div class="space-y-4">
+        <h3 class="text-xl font-bold text-white">{{ certificate.title }}</h3>
+
+        <div *ngIf="certificate.issuing_organization" class="text-sm text-teal-200">
+          <strong>Organization:</strong> {{ certificate.issuing_organization }}
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 text-sm">
+          <div>
+            <span class="text-teal-200">Issue Date:</span>
+            <p class="text-white">{{ formatDate(certificate.issue_date) }}</p>
+          </div>
+          <div>
+            <span class="text-teal-200">Expiry Date:</span>
+            <p class="text-white">{{ formatDate(certificate.expiry_date) }}</p>
+          </div>
+        </div>
+
+        <div *ngIf="certificate.description" class="text-sm text-white">
+          <p class="line-clamp-3">{{ certificate.description }}</p>
+        </div>
+
+        <div *ngIf="certificate.images && certificate.images.length > 0" class="space-y-3">
+          <div class="relative w-full h-44 overflow-hidden rounded-xl border border-[#6ba3be]/30">
+            <ng-container *ngIf="getCurrentImagePath(certificate) as activeImage">
+              <img
+                [src]="getImageUrl(activeImage)"
+                [alt]="certificate.title"
+                class="w-full h-full object-cover transition-opacity duration-300"
+              />
+            </ng-container>
+            <button
+              *ngIf="certificate.images.length > 1"
+              type="button"
+              (click)="changeSlide(certificate, -1)"
+              class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/60 transition"
+              aria-label="Previous image"
+            >
+              ‹
+            </button>
+            <button
+              *ngIf="certificate.images.length > 1"
+              type="button"
+              (click)="changeSlide(certificate, 1)"
+              class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/60 transition"
+              aria-label="Next image"
+            >›
+            </button>
+          </div>
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-teal-200">
+            <span>
+              {{ getImageIndex(certificate) + 1 }} / {{ certificate.images.length }}
+            </span>
+            <div class="flex gap-1 justify-center sm:justify-end">
+              <span
+                *ngFor="let image of certificate.images; let i = index"
+                class="h-2 w-2 rounded-full transition-all duration-300"
+                [ngClass]="getImageIndex(certificate) === i ? 'bg-[#0c969c] scale-110' : 'bg-white/30'"
+              ></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-2 pt-4 border-t border-[#6ba3be]/30">
+          <button
+            (click)="openEditModal(certificate)"
+            class="flex-1 px-4 py-2 rounded-xl border border-blue-500/40 text-blue-200 bg-blue-500/10 font-semibold hover:bg-blue-500/20 transition text-sm"
+          >
+            Edit
+          </button>
+          <button
+            (click)="confirmDelete(certificate)"
+            class="flex-1 px-4 py-2 rounded-xl border border-red-500/40 text-red-200 bg-red-500/10 font-semibold hover:bg-red-500/20 transition text-sm"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div
+    *ngIf="showAddModal || showEditModal"
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+    (click)="closeModals()"
+  >
+    <div
+      class="bg-[#032f30] rounded-2xl border border-[#6ba3be]/40 p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-2xl font-bold text-white">{{ showEditModal ? 'Edit' : 'Add' }} Certificate</h3>
+        <button
+          (click)="closeModals()"
+          class="w-8 h-8 rounded-full bg-red-500/20 text-red-300 hover:bg-red-500/30 transition flex items-center justify-center"
+        >
+          x
+        </button>
+      </div>
+
+      <form (ngSubmit)="submitForm()" class="space-y-4">
+        <div>
+          <label class="block text-sm font-semibold text-teal-200 mb-2">Title *</label>
+          <input
+            type="text"
+            [(ngModel)]="formData.title"
+            name="title"
+            required
+            class="w-full px-4 py-2 rounded-xl bg-[#031716] border border-[#6ba3be]/40 text-white focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-teal-200 mb-2">Description</label>
+          <textarea
+            [(ngModel)]="formData.description"
+            name="description"
+            rows="4"
+            class="w-full px-4 py-2 rounded-xl bg-[#031716] border border-[#6ba3be]/40 text-white focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+          ></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-teal-200 mb-2">Issuing Organization</label>
+            <input
+              type="text"
+              [(ngModel)]="formData.issuing_organization"
+              name="issuing_organization"
+              class="w-full px-4 py-2 rounded-xl bg-[#031716] border border-[#6ba3be]/40 text-white focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-teal-200 mb-2">Issue Date</label>
+            <input
+              type="date"
+              [(ngModel)]="formData.issue_date"
+              name="issue_date"
+              class="w-full px-4 py-2 rounded-xl bg-[#031716] border border-[#6ba3be]/40 text-white focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-teal-200 mb-2">Expiry Date</label>
+            <input
+              type="date"
+              [(ngModel)]="formData.expiry_date"
+              name="expiry_date"
+              class="w-full px-4 py-2 rounded-xl bg-[#031716] border border-[#6ba3be]/40 text-white focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-teal-200 mb-2">Images</label>
+          <input
+            type="file"
+            (change)="onImageSelect($event)"
+            multiple
+            accept="image/*"
+            class="w-full px-4 py-2 rounded-xl bg-[#031716] border border-[#6ba3be]/40 text-white focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+          />
+        </div>
+
+        <!-- Existing Images (Edit Mode) -->
+        <div *ngIf="showEditModal && existingImages.length > 0" class="space-y-2">
+          <label class="block text-sm font-semibold text-teal-200">Existing Images</label>
+          <div class="grid grid-cols-3 gap-2">
+            <div *ngFor="let image of existingImages" class="relative">
+              <img [src]="getImageUrl(image)" alt="Certificate" class="w-full h-24 object-cover rounded-lg" />
+              <button
+                type="button"
+                (click)="removeExistingImage(image)"
+                class="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center text-xs"
+              >
+                x
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- New Image Previews -->
+        <div *ngIf="imagePreviews.length > 0" class="space-y-2">
+          <label class="block text-sm font-semibold text-teal-200">New Images</label>
+          <div class="grid grid-cols-3 gap-2">
+            <div *ngFor="let preview of imagePreviews; let i = index" class="relative">
+              <img [src]="preview" alt="Preview" class="w-full h-24 object-cover rounded-lg" />
+              <button
+                type="button"
+                (click)="removeNewImage(i)"
+                class="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center text-xs"
+              >
+                x
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-4 pt-4">
+          <button
+            type="submit"
+            [disabled]="submitting"
+            class="flex-1 px-6 py-2 rounded-xl bg-[#0c969c] text-white font-semibold hover:bg-[#0a7075] transition disabled:opacity-50"
+          >
+            {{ submitting ? 'Saving...' : (showEditModal ? 'Update' : 'Create') }}
+          </button>
+          <button
+            type="button"
+            (click)="closeModals()"
+            class="px-6 py-2 rounded-xl border border-[#6ba3be]/40 text-teal-200 hover:bg-white/5 transition"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div
+    *ngIf="showDeleteConfirm"
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+    (click)="closeModals()"
+  >
+    <div
+      class="bg-[#032f30] rounded-2xl border border-[#6ba3be]/40 p-6 max-w-md w-full"
+      (click)="$event.stopPropagation()"
+    >
+      <h3 class="text-xl font-bold text-white mb-4">Delete Certificate</h3>
+      <p class="text-teal-200 mb-6">Are you sure you want to delete "{{ selectedCertificate?.title }}"? This action cannot be undone.</p>
+      <div class="flex gap-4">
+        <button
+          (click)="deleteCertificate()"
+          class="flex-1 px-6 py-2 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition"
+        >
+          Delete
+        </button>
+        <button
+          (click)="closeModals()"
+          class="flex-1 px-6 py-2 rounded-xl border border-[#6ba3be]/40 text-teal-200 hover:bg-white/5 transition"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

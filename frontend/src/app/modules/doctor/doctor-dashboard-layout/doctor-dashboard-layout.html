@@ -1,24 +1,26 @@
-<div
-  class="min-h-screen flex bg-gradient-to-br from-[#032f30] via-[#0c969c] to-[#274d60] text-slate-50"
+﻿<div
+  class="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-[#032f30] via-[#0c969c] to-[#274d60] text-slate-50"
 >
+  <!-- Mobile menu toggle (checkbox used for pure-CSS toggle via Tailwind peer utilities) -->
+  <input id="mobile-menu" type="checkbox" class="peer hidden" />
   <aside
-    class="w-64 bg-[#031716]/95 backdrop-blur sticky top-0 h-screen flex-shrink-0 flex flex-col gap-6 p-6 shadow-2xl border-r border-[#6ba3be]/30"
+    class="fixed inset-y-0 left-0 z-50 w-64 transform -translate-x-full peer-checked:translate-x-0 transition-transform duration-300 bg-[#031716]/95 backdrop-blur md:translate-x-0 md:w-64 md:flex md:sticky md:top-0 md:h-screen flex-shrink-0 flex flex-col gap-6 p-4 sm:p-6 shadow-2xl border-b md:border-b-0 md:border-r border-[#6ba3be]/30"
   >
-    <div class=" items-center gap-3 border-bottom pb-4 mb-4 border-5 border-white/10 flex flex-col">
+    <div class="items-center gap-3 border-bottom pb-4 mb-4 border-5 border-white/10 flex flex-col">
       <div class="logo">
-        <img src="assets/logo.png" alt="Logo" class="w-40 object-contain" />
+        <img src="assets/logo.png" alt="Logo" class="w-32 sm:w-40 object-contain" />
       </div>
-      <div class="text-xl font-bold tracking-wide">Doctor Dashboard</div>
+      <div class="text-lg sm:text-xl font-bold tracking-wide text-center">Doctor Dashboard</div>
     </div>
 
-    <nav class="flex flex-col gap-2 text-sm font-semibold">
+    <nav class="flex flex-col gap-2 text-xs sm:text-sm font-semibold overflow-y-auto">
       <a
         class="px-3 py-2 rounded-xl border border-transparent text-slate-100/90 hover:border-[#0c969c]/50 hover:bg-white/5 transition flex items-center gap-2"
         routerLink="/doctor/overview"
         routerLinkActive="border-[#0c969c] bg-white/10 text-white shadow"
         [routerLinkActiveOptions]="{ exact: true }"
       >
-        Today's Overview
+        Today''s Overview
       </a>
       <a
         class="px-3 py-2 rounded-xl border border-transparent text-slate-100/90 hover:border-[#0c969c]/50 hover:bg-white/5 transition flex items-center gap-2"
@@ -48,23 +50,42 @@
       >
         Financial Performance
       </a>
+      <a
+        class="px-3 py-2 rounded-xl border border-transparent text-slate-100/90 hover:border-[#0c969c]/50 hover:bg-white/5 transition flex items-center gap-2"
+        routerLink="/doctor/certificates"
+        routerLinkActive="border-[#0c969c] bg-white/10 text-white shadow"
+      >
+        Certificates
+      </a>
     </nav>
   </aside>
 
-  <main class="flex-1 p-6 flex flex-col gap-4">
+  <!-- Overlay for mobile when menu is open -->
+  <label for="mobile-menu" class="fixed inset-0 bg-black/40 z-40 hidden peer-checked:block md:hidden" aria-hidden="true"></label>
+
+  <main class="flex-1 p-3 sm:p-4 md:p-6 flex flex-col gap-3 sm:gap-4 w-full md:w-auto overflow-hidden">
     <div
-      class="w-full rounded-2xl border border-[#6ba3be]/40 bg-white/5 backdrop-blur px-6 py-5 shadow-xl flex flex-wrap items-center justify-between gap-4"
+      class="w-full rounded-2xl border border-[#6ba3be]/40 bg-white/5 backdrop-blur px-4 sm:px-6 py-4 sm:py-5 shadow-xl flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center justify-between gap-3 sm:gap-4"
     >
-      <div>
-        <p class="uppercase tracking-[0.2em] text-xs text-[#6ba3be]">Welcome back</p>
-        <h1 class="text-2xl font-bold text-slate-50">Hello, Dr. Name</h1>
-        <p class="text-sm text-slate-200/80">Here's what's on your list today.</p>
+      <!-- Hamburger button (visible on small screens) -->
+      <label for="mobile-menu" class="mr-2 md:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl border border-[#6ba3be]/50 bg-white/10 text-slate-50 hover:bg-white/5 hover:shadow-lg transition" aria-label="Toggle menu">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12h18M3 6h18M3 18h18" />
+        </svg>
+      </label>
+
+      <div class="flex-1 min-w-0">
+        <p class="uppercase tracking-[0.2em] text-xs text-[#6ba3be]">Welcome</p>
+        <h1 class="text-xl sm:text-2xl font-bold text-slate-50 truncate">
+          Hello, Dr. {{ doctorName || '...' }}
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-200/80">Here''s what''s on your list today.</p>
       </div>
 
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-3 flex-shrink-0">
         <button
           type="button"
-          class="w-11 h-11 rounded-xl border border-[#6ba3be]/50 bg-white/10 text-slate-50 grid place-items-center hover:border-[#0c969c] hover:shadow-lg transition"
+          class="w-10 sm:w-11 h-10 sm:h-11 rounded-xl border border-[#6ba3be]/50 bg-white/10 text-slate-50 grid place-items-center hover:border-[#0c969c] hover:shadow-lg transition"
           aria-label="Notifications"
         >
           <svg class="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
@@ -73,12 +94,11 @@
             />
           </svg>
         </button>
-
       </div>
     </div>
 
     <section
-      class="flex-1 w-full rounded-2xl border border-[#6ba3be]/30 bg-white/5 backdrop-blur p-6 shadow-xl"
+      class="flex-1 w-full rounded-2xl border border-[#6ba3be]/30 bg-white/5 backdrop-blur p-4 sm:p-6 shadow-xl overflow-y-auto"
     >
       <router-outlet></router-outlet>
     </section>

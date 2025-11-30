@@ -19,7 +19,7 @@
           reminders on track.
         </p>
 
-        <div
+        <!-- <div
           class="rounded-3xl bg-white/10 p-5 shadow-2xl ring-1 ring-white/10 backdrop-blur animate-fade-up animation-delay-200">
           <div class="grid gap-4 md:grid-cols-3">
             <label
@@ -51,7 +51,7 @@
               Find doctors
             </button>
           </div>
-        </div>
+        </div> -->
 
         <div class="flex flex-wrap gap-4 text-sm">
           <div class="flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3 ring-1 ring-white/10">
@@ -125,98 +125,67 @@
       </div>
 
       <div class="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <article
-          class="group overflow-hidden rounded-3xl bg-[#031716]/70 p-6 shadow-2xl ring-1 ring-[#0C969C]/30 backdrop-blur transition duration-300 hover:-translate-y-1 hover:ring-[#0C969C]/50 animate-fade-up">
-          <div class="relative h-40 overflow-hidden rounded-2xl">
-            <img src="assets/doctor1.jpg" alt="doctor1"
-              class="h-full w-full object-cover transition duration-300 group-hover:scale-105">
-            <span
-              class="absolute left-3 top-3 rounded-full bg-[#0A7075]/90 px-3 py-1 text-xs font-semibold text-white shadow-lg shadow-[#0A7075]/40">Cardiology</span>
+        <ng-container *ngIf="loadingTopDoctors; else doctorsList">
+          <div class="col-span-full text-sm text-[#CFE9EC]/90">Loading top doctors...</div>
+        </ng-container>
+        <ng-template #doctorsList>
+          <div *ngIf="errorTopDoctors" class="col-span-full text-sm text-red-200">
+            {{ errorTopDoctors }}
           </div>
-          <div class="mt-5 flex items-center justify-between">
-            <div>
-              <h3 class="text-lg font-semibold">Dr. John Doe</h3>
-              <p class="text-sm text-[#6BA3BE]">10 yrs • 1.2k patients</p>
+          <div *ngIf="!errorTopDoctors && !topDoctors.length" class="col-span-full text-sm text-[#CFE9EC]/90">
+            No doctors found.
+          </div>
+          <article
+            *ngFor="let doc of topDoctors; let i = index; trackBy: trackByDoctor"
+            class="group overflow-hidden rounded-3xl bg-[#031716]/70 p-6 shadow-2xl ring-1 ring-[#0C969C]/30 backdrop-blur transition duration-300 hover:-translate-y-1 hover:ring-[#0C969C]/50 animate-fade-up"
+            [ngClass]="{'animation-delay-200': i === 1, 'animation-delay-400': i === 2}"
+          >
+            <div class="relative h-40 overflow-hidden rounded-2xl">
+              <img
+                [src]="doc?.user?.profile_image || 'assets/doctor1.jpg'"
+                [alt]="doc?.user?.name || 'Doctor'"
+                class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+              />
+              <span
+                class="absolute left-3 top-3 rounded-full bg-[#0A7075]/90 px-3 py-1 text-xs font-semibold text-white shadow-lg shadow-[#0A7075]/40"
+              >
+                {{ doc?.specialization?.name || 'Specialist' }}
+              </span>
             </div>
-            <span class="rounded-full bg-[#032F30] px-3 py-1 text-xs font-semibold text-[#6BA3BE]">4.9 ★</span>
-          </div>
-          <p class="mt-3 text-sm text-[#CFE9EC]">Known for quick diagnostics and structured follow-ups that keep
-            recovery smooth.</p>
-          <div class="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
-            <span class="rounded-full bg-[#0C969C]/20 px-3 py-1 text-[#6BA3BE]"> In-clinic</span>
-            <span class="rounded-full bg-[#0A7075]/30 px-3 py-1 text-white">Same-day slots</span>
-          </div>
-          <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <button
-              class="flex-1 rounded-full bg-[#0C969C] px-4 py-2 text-sm font-semibold text-[#031716] shadow-lg shadow-[#0C969C]/30 transition hover:-translate-y-0.5 hover:bg-[#6BA3BE]">Book
-              appointment</button>
-            <button
-              class="flex-1 rounded-full border border-[#0C969C]/40 px-4 py-2 text-sm font-semibold text-[#6BA3BE] transition hover:-translate-y-0.5 hover:border-[#0C969C] hover:text-white">View
-              profile</button>
-          </div>
-        </article>
-
-        <article
-          class="group overflow-hidden rounded-3xl bg-[#031716]/70 p-6 shadow-2xl ring-1 ring-[#0C969C]/30 backdrop-blur transition duration-300 hover:-translate-y-1 hover:ring-[#0C969C]/50 animate-fade-up animation-delay-200">
-          <div class="relative h-40 overflow-hidden rounded-2xl">
-            <img src="assets/doctor1.jpg" alt="doctor2"
-              class="h-full w-full object-cover transition duration-300 group-hover:scale-105">
-            <span
-              class="absolute left-3 top-3 rounded-full bg-[#0C969C] px-3 py-1 text-xs font-semibold text-[#031716] shadow-lg shadow-[#0C969C]/40">Dermatology</span>
-          </div>
-          <div class="mt-5 flex items-center justify-between">
-            <div>
-              <h3 class="text-lg font-semibold">Dr. Leila Singh</h3>
-              <p class="text-sm text-[#6BA3BE]">8 yrs • 900 patients</p>
+            <div class="mt-5 flex items-center justify-between">
+              <div>
+                <h3 class="text-lg font-semibold">{{ doc?.user?.name || 'Doctor' }}</h3>
+                <p class="text-sm text-[#6BA3BE]">
+                  {{ doc?.experience_years || '—' }} yrs • Fee: {{ doc?.consultation_fee || '—' }}
+                </p>
+              </div>
+              <span class="rounded-full bg-[#032F30] px-3 py-1 text-xs font-semibold text-[#6BA3BE]">
+                {{ doc?.rating || '—' }} ★
+              </span>
             </div>
-            <span class="rounded-full bg-[#032F30] px-3 py-1 text-xs font-semibold text-[#6BA3BE]">4.8 ★</span>
-          </div>
-          <p class="mt-3 text-sm text-[#CFE9EC]">Expert in chronic skin conditions with a gentle, education-first
-            approach.</p>
-          <div class="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
-            <span class="rounded-full bg-[#0A7075]/30 px-3 py-1 text-white">Patch testing</span>
-            <span class="rounded-full bg-[#274D60]/70 px-3 py-1 text-[#CFE9EC]">Weekend clinics</span>
-          </div>
-          <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <button
-              class="flex-1 rounded-full bg-[#0C969C] px-4 py-2 text-sm font-semibold text-[#031716] shadow-lg shadow-[#0C969C]/30 transition hover:-translate-y-0.5 hover:bg-[#6BA3BE]">Book
-              appointment</button>
-            <button
-              class="flex-1 rounded-full border border-[#0C969C]/40 px-4 py-2 text-sm font-semibold text-[#6BA3BE] transition hover:-translate-y-0.5 hover:border-[#0C969C] hover:text-white">View
-              profile</button>
-          </div>
-        </article>
-
-        <article
-          class="group overflow-hidden rounded-3xl bg-[#031716]/70 p-6 shadow-2xl ring-1 ring-[#0C969C]/30 backdrop-blur transition duration-300 hover:-translate-y-1 hover:ring-[#0C969C]/50 animate-fade-up animation-delay-400">
-          <div class="relative h-40 overflow-hidden rounded-2xl">
-            <img src="assets/doctor1.jpg" alt="doctor3"
-              class="h-full w-full object-cover transition duration-300 group-hover:scale-105">
-            <span
-              class="absolute left-3 top-3 rounded-full bg-[#274D60] px-3 py-1 text-xs font-semibold text-[#CFE9EC] shadow-lg shadow-[#274D60]/40">Orthopedics</span>
-          </div>
-          <div class="mt-5 flex items-center justify-between">
-            <div>
-              <h3 class="text-lg font-semibold">Dr. Omar Khalid</h3>
-              <p class="text-sm text-[#6BA3BE]">12 yrs • 1.5k patients</p>
+            <p class="mt-3 text-sm text-[#CFE9EC] line-clamp-2">
+              {{ doc?.biography || 'Experienced specialist with a patient-first approach.' }}
+            </p>
+            <div class="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
+              <span class="rounded-full bg-[#0C969C]/20 px-3 py-1 text-[#6BA3BE]">
+                {{ doc?.specialization?.name || 'Clinic' }}
+              </span>
+              <span class="rounded-full bg-[#0A7075]/30 px-3 py-1 text-white">Top rated</span>
             </div>
-            <span class="rounded-full bg-[#032F30] px-3 py-1 text-xs font-semibold text-[#6BA3BE]">5.0 ★</span>
-          </div>
-          <p class="mt-3 text-sm text-[#CFE9EC]">Focuses on mobility-first recovery plans with transparent outcomes and
-            timelines.</p>
-          <div class="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
-            <span class="rounded-full bg-[#0C969C]/20 px-3 py-1 text-[#6BA3BE]">Rehab guided</span>
-            <span class="rounded-full bg-[#0A7075]/30 px-3 py-1 text-white">Minimal wait</span>
-          </div>
-          <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <button
-              class="flex-1 rounded-full bg-[#0C969C] px-4 py-2 text-sm font-semibold text-[#031716] shadow-lg shadow-[#0C969C]/30 transition hover:-translate-y-0.5 hover:bg-[#6BA3BE]">Book
-              appointment</button>
-            <button
-              class="flex-1 rounded-full border border-[#0C969C]/40 px-4 py-2 text-sm font-semibold text-[#6BA3BE] transition hover:-translate-y-0.5 hover:border-[#0C969C] hover:text-white">View
-              profile</button>
-          </div>
-        </article>
+            <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <button
+                class="flex-1 rounded-full bg-[#0C969C] px-4 py-2 text-sm font-semibold text-[#031716] shadow-lg shadow-[#0C969C]/30 transition hover:-translate-y-0.5 hover:bg-[#6BA3BE]"
+              >
+                Book appointment
+              </button>
+              <button
+                class="flex-1 rounded-full border border-[#0C969C]/40 px-4 py-2 text-sm font-semibold text-[#6BA3BE] transition hover:-translate-y-0.5 hover:border-[#0C969C] hover:text-white"
+              >
+                View profile
+              </button>
+            </div>
+          </article>
+        </ng-template>
       </div>
     </div>
   </section>

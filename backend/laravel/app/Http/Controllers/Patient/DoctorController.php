@@ -57,6 +57,32 @@ class DoctorController extends Controller
         }
     }
 
+    /**
+     * Public method - get top rated doctors (no auth required)
+     */
+    public function topRated(Request $request)
+    {
+        try {
+            $limit = (int) $request->get('limit', 5);
+            $doctors = Doctor::with(['user', 'specialization'])
+                ->where('is_approved', true)
+                ->orderByDesc('rating')
+                ->take($limit)
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Top rated doctors retrieved successfully',
+                'data' => DoctorResource::collection($doctors),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     // Public method - get single doctor (no auth required)
     public function showPublic($id)
     {
