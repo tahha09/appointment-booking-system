@@ -1,36 +1,45 @@
-<div class="h-screen flex flex-col bg-gray-50">
+<div class="h-screen flex flex-col" style="background: linear-gradient(135deg, #cef5f0 0%, #e0f2fe 100%)">
   
-  <header class="bg-white border-b border-gray-200 shadow-sm">
-    <div class="px-6 py-4">
+  <header class="relative border-b shadow-sm sticky top-0 z-40" style="background: linear-gradient(135deg, rgba(236, 236, 236, 0.98) 0%, rgba(73, 199, 184, 0.8) 100%); backdrop-filter: blur(10px); border-color: #698091">
+    <div class="px-3 sm:px-6 py-3 sm:py-4">
       <div class="flex items-center justify-between">
         
-        <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-2 sm:space-x-4">
           
           <button 
             (click)="toggleSidebar()"
-            class="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+            class="p-2 rounded-lg transition-colors duration-200" 
+            style="color: #0A7075; background: rgba(10, 112, 117, 0.1)"
           >
-            <svg class="w-5 h-5" style="color: #0A7075" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
             </svg>
           </button>
 
           <!-- Logo -->
           <div class="flex items-center space-x-3">
-            <span class="text-xl font-bold" style="color: #0A7075">MedBook</span>
+            <span class="text-lg sm:text-xl font-bold" style="color: #0A7075">MedBook</span>
           </div>
         </div>
 
-        <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-2 sm:space-x-4">
           
           <!-- Book Appointment Button -->
-          <button class="text-white px-4 py-2 rounded-lg hover:bg-[#0C969C] transition-colors duration-200 text-sm font-medium" style="background-color: #0A7075">
+          <button class="hidden sm:flex text-white px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium" 
+                  style="background-color: #0A7075">
             Book New Appointment
           </button>
           
+          <!-- Mobile Book Button (Icon Only) -->
+          <button class="sm:hidden p-2 rounded-lg transition-colors duration-200" style="color: #0A7075; background: rgba(10, 112, 117, 0.1)">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+          </button>
+          
           <!-- Notification Bell -->
-          <button class="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
-            <svg class="w-5 h-5" style="color: #0A7075" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button class="p-2 rounded-lg transition-colors duration-200" style="color: #0A7075; background: rgba(10, 112, 117, 0.1)">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
              d="M10.5 3.75a6 6 0 00-6 6v2.25l-2 2v3h16v-3l-2-2V9.75a6 6 0 00-6-6z"/>
             </svg>
@@ -40,52 +49,68 @@
           <div class="relative">
             <button 
               (click)="toggleUserDropdown()"
-              class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+              class="flex items-center space-x-2 p-2 rounded-lg transition-colors duration-200"
+              style="background: rgba(10, 112, 117, 0.1)"
             >
               <!-- User Avatar -->
-              <div class="h-8 w-8 rounded-full flex items-center justify-center text-white text-sm font-semibold" style="background-color: #0A7075">
-                U
+              <div class="h-8 w-8 rounded-full flex items-center justify-center text-white text-sm font-semibold overflow-hidden" style="background-color: #0A7075">
+                @if (userAvatar && !avatarLoadError) {
+                <img 
+                  [src]="userAvatar" 
+                  [alt]="userName"
+                  class="w-full h-full object-cover"
+                  (error)="handleAvatarError()"
+                /> }
+
+                @if (!userAvatar || avatarLoadError) {
+                  <span>{{ userInitial }}</span>
+                }
               </div>
-              <span class="text-sm font-medium" style="color: #031716">User Name</span>
-              <svg class="w-4 h-4" style="color: #0A7075" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span class="hidden md:block text-sm font-medium" style="color: #031716">{{ userName }}</span>
+              <svg class="w-4 h-4 hidden md:block" style="color: #0A7075" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
               </svg>
             </button>
 
             <div 
               *ngIf="isUserDropdownOpen"
-              class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
+              class="absolute right-0 mt-2 w-48 rounded-lg shadow-lg border py-1 z-50"
+              style="background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px); border-color: #e0f2fe"
             >
-              <a 
-                routerLink="/patient/profile"
-                (click)="closeUserDropdown()"
-                class="flex items-center px-4 py-2 text-sm hover:bg-gray-100 transition-colors duration-200" style="color: #031716"
+              <button 
+                (click)="goToProfile()"
+                class="flex items-center px-4 py-2 text-sm transition-colors duration-200 w-full text-left" 
+                style="color: #031716"
               >
                 <svg class="w-4 h-4 mr-2" style="color: #0A7075" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                 </svg>
                 Profile
-              </a>
+              </button>
 
-              <a 
-                routerLink="/"
-                (click)="closeUserDropdown()"
-                class="flex items-center px-4 py-2 text-sm hover:bg-gray-100 transition-colors duration-200" style="color: #031716"
+              <button 
+                (click)="goToHome()"
+                class="flex items-center px-4 py-2 text-sm transition-colors duration-200 w-full text-left" 
+                style="color: #031716"
               >
                 <svg class="w-4 h-4 mr-2" style="color: #0A7075" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                 </svg>
                 Home
-              </a>
+              </button>
 
-              <div class="border-t border-gray-200 my-1"></div>
+              <div class="border-t my-1" style="border-color: #e0f2fe"></div>
 
-              <a href="#" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition-colors duration-200">
+              <button 
+                (click)="logout()"
+                class="flex items-center px-4 py-2 text-sm transition-colors duration-200 w-full text-left"
+                style="color: #dc2626"
+              >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                 </svg>
                 Logout
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -97,18 +122,23 @@
     
     <!-- Sidebar -->
     <aside 
-      [class.w-64]="!isSidebarCollapsed"
-      [class.w-16]="isSidebarCollapsed"
-      class="bg-white border-r border-gray-200 transition-all duration-300 overflow-hidden"
-    >
+  [class.w-64]="!isSidebarCollapsed"
+  [class.w-16]="isSidebarCollapsed"
+  class="transition-all duration-300 overflow-hidden"
+  style="background: linear-gradient(135deg, rgba(236, 236, 236, 0.98) 0%, rgba(73, 199, 184, 0.8) 100%); backdrop-filter: blur(10px); border-color: #9eb6c7"
+>
       <nav class="p-4 space-y-1">
         
         <!-- Dashboard Link -->
         <a 
           routerLink="/patient/dashboard" 
-          routerLinkActive="bg-[#6BA3BE] bg-opacity-10 border-l-4"
-          class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200 border-l-4 border-transparent"
-          [style]="{'color': '#031716', 'border-color': router.isActive('/patient/dashboard', false) ? '#0A7075' : 'transparent'}"
+          routerLinkActive="border-l-4"
+          class="flex items-center space-x-3 p-3 rounded-lg transition-colors duration-200 border-l-4 border-transparent"
+          [style]="{
+            'color': '#031716', 
+            'border-color': router.isActive('/patient/dashboard', false) ? '#0A7075' : 'transparent',
+            'background': router.isActive('/patient/dashboard', false) ? 'rgba(107, 163, 190, 0.1)' : 'transparent'
+          }"
         >
           <svg class="w-5 h-5 flex-shrink-0" style="color: #0A7075" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
@@ -119,9 +149,13 @@
         <!-- My Appointments Link -->
         <a 
           routerLink="/patient/my-appointments" 
-          routerLinkActive="bg-[#6BA3BE] bg-opacity-10 border-l-4"
-          class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200 border-l-4 border-transparent"
-          [style]="{'color': '#031716', 'border-color': router.isActive('/patient/appointments', false) ? '#0A7075' : 'transparent'}"
+          routerLinkActive="border-l-4"
+          class="flex items-center space-x-3 p-3 rounded-lg transition-colors duration-200 border-l-4 border-transparent"
+          [style]="{
+            'color': '#031716', 
+            'border-color': router.isActive('/patient/my-appointments', false) ? '#0A7075' : 'transparent',
+            'background': router.isActive('/patient/my-appointments', false) ? 'rgba(107, 163, 190, 0.1)' : 'transparent'
+          }"
         >
           <svg class="w-5 h-5 flex-shrink-0" style="color: #0A7075" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -132,9 +166,13 @@
         <!-- Medical History Link -->
         <a 
           routerLink="/patient/medical-history" 
-          routerLinkActive="bg-[#6BA3BE] bg-opacity-10 border-l-4"
-          class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200 border-l-4 border-transparent"
-          [style]="{'color': '#031716', 'border-color': router.isActive('/patient/medical-history', false) ? '#0A7075' : 'transparent'}"
+          routerLinkActive="border-l-4"
+          class="flex items-center space-x-3 p-3 rounded-lg transition-colors duration-200 border-l-4 border-transparent"
+          [style]="{
+            'color': '#031716', 
+            'border-color': router.isActive('/patient/medical-history', false) ? '#0A7075' : 'transparent',
+            'background': router.isActive('/patient/medical-history', false) ? 'rgba(107, 163, 190, 0.1)' : 'transparent'
+          }"
         >
           <svg class="w-5 h-5 flex-shrink-0" style="color: #0A7075" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -145,9 +183,13 @@
         <!-- Prescriptions Link -->
         <a 
           routerLink="/patient/prescriptions" 
-          routerLinkActive="bg-[#6BA3BE] bg-opacity-10 border-l-4"
-          class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200 border-l-4 border-transparent"
-          [style]="{'color': '#031716', 'border-color': router.isActive('/patient/prescriptions', false) ? '#0A7075' : 'transparent'}"
+          routerLinkActive="border-l-4"
+          class="flex items-center space-x-3 p-3 rounded-lg transition-colors duration-200 border-l-4 border-transparent"
+          [style]="{
+            'color': '#031716', 
+            'border-color': router.isActive('/patient/prescriptions', false) ? '#0A7075' : 'transparent',
+            'background': router.isActive('/patient/prescriptions', false) ? 'rgba(107, 163, 190, 0.1)' : 'transparent'
+          }"
         >
           <svg class="w-5 h-5 flex-shrink-0" style="color: #0A7075" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
@@ -159,11 +201,12 @@
 
     <!-- Main Content Area -->
     <main 
-      [class.ml-16]="isSidebarCollapsed"
-      [class.ml-64]="!isSidebarCollapsed"
-      class="flex-1 transition-all duration-300 overflow-auto bg-gray-50"
-    >
-      <router-outlet></router-outlet>
-    </main>
+  class="flex-1 transition-all duration-300 overflow-auto flex justify-center"
+  style="background: linear-gradient(135deg, #d2fcf7 0%, #e0f2fe 100%)"
+>
+  <div class="w-full max-w-[1600px] px-4 sm:px-6 lg:px-8">
+    <router-outlet></router-outlet>
+  </div>
+</main>
   </div>
 </div>

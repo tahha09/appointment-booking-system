@@ -19,9 +19,11 @@ const routes: Routes = [
       { path: 'my-appointments', component: MyAppointments },
       { path: 'medical-history', component: MedicalHistory },
       { path: 'prescriptions', component: Prescriptions },
-      { path: 'profile', component: PatientProfile },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+      
     ]
-  }
+  },
+  { path: 'profile', component: PatientProfile },
 ];
 
 @NgModule({
