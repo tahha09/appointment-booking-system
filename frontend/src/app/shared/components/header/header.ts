@@ -2,6 +2,7 @@ import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
+
 @Component({
   selector: 'app-header',
   standalone: true,
@@ -32,6 +33,14 @@ export class Header {
     return this.auth.isPatient();
   }
 
+  protected isDoctor(): boolean {
+    return this.auth.isDoctor();
+  }
+
+  protected isAdmin(): boolean {
+    return this.auth.isAdmin();
+  }
+
   protected get avatarUrl(): string {
     return this.auth.getProfileImage() || 'assets/default-avatar.png';
   }
@@ -44,11 +53,42 @@ export class Header {
 
   protected goToDashboard(): void {
     this.userMenuOpen.set(false);
-    this.router.navigateByUrl('/patient/dashboard');
+
+    const userRole = this.auth.getUserRole();
+
+    const dashboardRoutes: { [key: string]: string } = {
+      'patient': '/patient',
+      'doctor': '/doctor',
+      'admin': '/admin'
+    };
+
+    const route = dashboardRoutes[userRole];
+
+    if (route) {
+      this.router.navigateByUrl(route);
+    } else {
+      console.warn('Unknown user role or no dashboard defined for role:', userRole);
+      this.router.navigateByUrl('/');
+    }
   }
 
   protected goToProfile(): void {
     this.userMenuOpen.set(false);
-    this.router.navigateByUrl('/patient/profile');
+
+    const userRole = this.auth.getUserRole();
+
+    const profileRoutes: { [key: string]: string } = {
+      'patient': '/patient/profile',
+      'doctor': '/doctor/profile',
+      'admin': '/admin/profile'
+    };
+
+    const route = profileRoutes[userRole];
+
+    if (route) {
+      this.router.navigateByUrl(route);
+    } else {
+      this.router.navigateByUrl('/patient/profile'); // Default fallback
+    }
   }
 }
