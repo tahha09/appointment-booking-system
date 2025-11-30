@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\AppointmentController as AdminAppointmentControll
 use App\Http\Controllers\Doctor\AppointmentController as DoctorAppointmentController;
 use App\Http\Controllers\Doctor\ScheduleController;
 use App\Http\Controllers\Doctor\PatientController as DoctorPatientController;
+use App\Http\Controllers\Doctor\OverviewController;
 use App\Http\Controllers\Patient\AppointmentController as PatientAppointmentController;
 use App\Http\Controllers\Patient\DoctorController as PatientDoctorController;
 use App\Http\Controllers\Patient\ProfileController as PatientProfileController;
@@ -33,12 +34,15 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
 
 Route::get('/doctors', [PatientDoctorController::class, 'indexPublic']);
+Route::get('/doctors/top-rated', [PatientDoctorController::class, 'topRated']);
 Route::get('/doctors/{id}', [PatientDoctorController::class, 'showPublic']);
 Route::get('/doctors/{id}/availability', [PatientDoctorController::class, 'availabilityPublic']);
 
 Route::get('/specializations', [SpecializationController::class, 'index']);
 Route::get('/specializations/filter-list', [SpecializationController::class, 'filterList']);
 Route::get('/specializations/{id}', [SpecializationController::class, 'show']);
+
+
 
 
 // Test route
@@ -83,10 +87,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     // Doctor Routes
-    Route::prefix('doctor')->middleware('role:doctor')->group(function () {
+    Route::prefix('doctor')->group(function () {
         // Dashboard
         Route::get('/dashboard', [DoctorAppointmentController::class, 'dashboard']);
-
+        Route::get('/overview/patient-counts', [OverviewController::class, 'patientCounts']);
         // Appointments
         Route::get('/appointments', [DoctorAppointmentController::class, 'index']);
         Route::get('/appointments/{id}', [DoctorAppointmentController::class, 'show']);
@@ -107,6 +111,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/patients', [DoctorPatientController::class, 'index']);
         Route::get('/patients/{id}', [DoctorPatientController::class, 'show']);
         Route::get('/patients/{id}/appointments', [DoctorPatientController::class, 'patientAppointments']);
+        Route::post('/patients/{id}/block', [DoctorPatientController::class, 'block']);
+        Route::post('/patients/{id}/unblock', [DoctorPatientController::class, 'unblock']);
+        
+        // Certificates
+        Route::get('/certificates', [\App\Http\Controllers\Doctor\CertificateController::class, 'index']);
+        Route::post('/certificates', [\App\Http\Controllers\Doctor\CertificateController::class, 'store']);
+        Route::get('/certificates/{id}', [\App\Http\Controllers\Doctor\CertificateController::class, 'show']);
+        Route::put('/certificates/{id}', [\App\Http\Controllers\Doctor\CertificateController::class, 'update']);
+        Route::delete('/certificates/{id}', [\App\Http\Controllers\Doctor\CertificateController::class, 'destroy']);
     });
 
     // Patient Routes

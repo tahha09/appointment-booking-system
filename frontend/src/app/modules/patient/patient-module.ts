@@ -11,8 +11,8 @@ import { authGuard } from '../../core/guards/auth-guard';
 
 const routes: Routes = [
   {
-    path: '', 
-    component: Layout, 
+    path: '',
+    component: Layout,
     canActivate: [authGuard],
     children: [
       { path: 'dashboard', component: Dashboard },
@@ -25,16 +25,14 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [
+  imports: [
+    CommonModule,
     Layout,
     Dashboard,
     PatientProfile,
     MyAppointments,
     MedicalHistory,
-    Prescriptions
-  ],
-  imports: [
-    CommonModule,
+    Prescriptions,
     RouterModule.forChild(routes)
   ],
   exports: [RouterModule]

@@ -7,6 +7,7 @@ import { PatientsManagement } from './patients-management/patients-management';
 import { MyAppointments } from './my-appointments/my-appointments';
 import { Schedule } from './schedule/schedule';
 import { FinancialPerformance } from './financial-performance/financial-performance';
+import { Certificates } from './certificates/certificates';
 
 const doctorRoutes: Routes = [
   {
@@ -19,21 +20,21 @@ const doctorRoutes: Routes = [
       { path: 'my-appointments', component: MyAppointments },
       { path: 'schedule', component: Schedule },
       { path: 'financial-performance', component: FinancialPerformance },
+      { path: 'certificates', component: Certificates },
     ],
   },
 ];
 
 @NgModule({
-  declarations: [
+  imports: [
+    CommonModule,
     DoctorDashboardLayout,
     DoctorOverview,
     PatientsManagement,
     MyAppointments,
     Schedule,
-    FinancialPerformance
-  ],
-  imports: [
-    CommonModule,
+    FinancialPerformance,
+    Certificates,
     RouterModule.forChild(doctorRoutes)
   ],
   exports: [RouterModule]

@@ -18,4 +18,8 @@ export class DoctorService {
   getDoctorById(id: number): Observable<DoctorResponse> {
     return this.http.get<DoctorResponse>(`${this.apiUrl}/${id}`);
   }
+
+  getTopDoctors(limit: number): Observable<DoctorResponse> {
+    return this.http.get<DoctorResponse>(`${this.apiUrl}/top-rated?limit=${limit}`);
+  }
 }

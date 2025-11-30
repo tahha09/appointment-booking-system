@@ -1,6 +1,267 @@
-<div class="space-y-6 text-slate-50">
-  <h2 class="text-2xl font-bold">Patients Management</h2>
-  <div class="grid gap-3 md:grid-cols-2">
+﻿<div class="space-y-4 sm:space-y-6 text-slate-50">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <h2 class="text-xl sm:text-2xl font-bold">Patients Management</h2>
+  </div>
 
+  <!-- Filters -->
+  <div class="rounded-2xl border border-[#6ba3be]/40 bg-white/5 backdrop-blur p-4 sm:p-5 shadow-lg">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+      <div>
+        <label class="block text-xs sm:text-sm font-semibold text-[#6ba3be] mb-2">Search</label>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          placeholder="Search by name or email..."
+          class="w-full px-3 sm:px-4 py-2 text-sm rounded-xl bg-[#032f30] border border-[#6ba3be]/40 text-white focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+        />
+      </div>
+
+      <div>
+        <label class="block text-xs sm:text-sm font-semibold text-[#6ba3be] mb-2">Blocked Status</label>
+        <select
+          [(ngModel)]="blockedFilter"
+          class="w-full px-3 sm:px-4 py-2 text-sm rounded-xl bg-[#032f30] border border-[#6ba3be]/40 text-white focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+        >
+          <option value="all">All Patients</option>
+          <option value="true">Blocked</option>
+          <option value="false">Not Blocked</option>
+        </select>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-end gap-2 sm:col-span-2 lg:col-span-1">
+        <button
+          (click)="applyFilters()"
+          class="flex-1 px-4 py-2 text-sm rounded-xl bg-[#0c969c] text-white font-semibold hover:bg-[#0a7075] transition"
+        >
+          Apply
+        </button>
+        <button
+          (click)="resetFilters()"
+          class="px-4 py-2 text-sm rounded-xl border border-[#6ba3be]/40 text-[#6ba3be] hover:bg-white/5 transition"
+        >
+          Reset
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="flex items-center justify-center py-20">
+    <div class="text-center">
+      <div class="w-16 h-16 border-4 border-[#0c969c] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+      <p class="text-[#6ba3be]">Loading patients...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="rounded-2xl border border-red-500/40 bg-red-500/10 p-4">
+    <p class="text-red-300">{{ error }}</p>
+  </div>
+
+  <!-- Patients List -->
+  <div *ngIf="!loading && !error" class="space-y-3 sm:space-y-4">
+    <div *ngIf="patients.length === 0" class="rounded-2xl border border-[#6ba3be]/40 bg-white/5 backdrop-blur p-6 sm:p-8 text-center">
+      <p class="text-[#6ba3be] text-base sm:text-lg">No patients found.</p>
+    </div>
+
+    <div *ngFor="let patient of patients" class="rounded-2xl border border-white/10  text-white/90 shadow-xl shadow-black/30 p-4 sm:p-6 transition">
+      <div class="flex flex-col lg:flex-row gap-4 sm:gap-6">
+        <!-- Patient Info -->
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start gap-3 sm:gap-4">
+            <div class="w-12 sm:w-16 h-12 sm:h-16 rounded-full bg-[#032f30] border-2 border-[#0c969c]/50 overflow-hidden flex-shrink-0">
+              <img
+                [src]="patient.user?.profile_image || 'assets/default-avatar.png'"
+                [alt]="patient.user?.name"
+                class="w-full h-full object-cover"
+              />
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1 flex-wrap">
+                <h3 class="text-lg sm:text-xl font-bold text-white truncate">{{ patient.user?.name || 'Unknown Patient' }}</h3>
+                <span *ngIf="patient.is_blocked" class="px-2 py-1 rounded-full text-xs font-semibold bg-red-500/20 text-red-300 border border-red-500/30">
+                  Blocked
+                </span>
+              </div>
+              <p class="text-xs sm:text-sm text-[#6ba3be] mb-1 truncate">{{ patient.user?.email }}</p>
+              <p class="text-xs sm:text-sm text-[#6ba3be] truncate">{{ patient.user?.phone }}</p>
+              <div *ngIf="patient.blood_type" class="mt-2">
+                <span class="text-xs text-[#6ba3be]">Blood Type: </span>
+                <span class="text-white text-xs sm:text-sm">{{ patient.blood_type }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-col gap-2 sm:w-auto">
+          <button
+            (click)="viewPatientDetails(patient)"
+            class="px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-xl border border-white/20 text-white/90 hover:text-white hover:border-white/60 bg-white/10 hover:bg-white/15 font-semibold transition shadow-sm shadow-black/30"
+          >
+            View Details
+          </button>
+
+          <button
+            (click)="viewMedicalHistory(patient)"
+            class="px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-xl border border-[#5ea4ff]/40 text-[#9cc7ff] hover:text-white hover:border-[#5ea4ff]/80 bg-[#5ea4ff]/10 hover:bg-[#5ea4ff]/20 font-semibold transition shadow-sm shadow-black/30"
+          >
+            Medical History
+          </button>
+
+          <button
+            *ngIf="!patient.is_blocked"
+            (click)="blockPatient(patient.id)"
+            [disabled]="blockingPatient === patient.id"
+            class="px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-xl border border-[#f87171]/40 text-[#fca5a5] hover:text-white hover:border-[#f87171]/80 bg-[#f87171]/10 hover:bg-[#f87171]/20 font-semibold transition shadow-sm shadow-black/30 disabled:opacity-50"
+          >
+            {{ blockingPatient === patient.id ? 'Blocking...' : 'Block Patient' }}
+          </button>
+
+          <button
+            *ngIf="patient.is_blocked"
+            (click)="unblockPatient(patient.id)"
+            [disabled]="blockingPatient === patient.id"
+            class="px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-xl border border-[#6ee7b7]/40 text-[#a7f3d0] hover:text-white hover:border-[#6ee7b7]/80 bg-[#6ee7b7]/10 hover:bg-[#6ee7b7]/20 font-semibold transition shadow-sm shadow-black/30 disabled:opacity-50"
+          >
+            {{ blockingPatient === patient.id ? 'Unblocking...' : 'Unblock Patient' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="pagination && pagination.last_page > 1" class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mt-6 flex-wrap">
+      <button
+        (click)="goToPage(pagination!.current_page - 1)"
+        [disabled]="pagination!.current_page === 1"
+        class="px-4 py-2 text-sm rounded-xl border border-[#6ba3be]/40 text-[#6ba3be] hover:bg-white/5 transition disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
+      >
+        Previous
+      </button>
+
+      <span class="text-[#6ba3be] text-sm">
+        Page {{ pagination!.current_page }} of {{ pagination!.last_page }}
+      </span>
+
+      <button
+        (click)="goToPage(pagination!.current_page + 1)"
+        [disabled]="pagination!.current_page === pagination!.last_page"
+        class="px-4 py-2 text-sm rounded-xl border border-[#6ba3be]/40 text-[#6ba3be] hover:bg-white/5 transition disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+
+  <!-- Patient Details Modal -->
+  <div
+    *ngIf="showPatientModal"
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4"
+    (click)="closePatientModal()"
+  >
+    <div
+      class="bg-[#032f30] rounded-2xl border border-[#6ba3be]/40 p-4 sm:p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="flex items-center justify-between mb-6 gap-4">
+        <h3 class="text-xl sm:text-2xl font-bold text-white truncate">Patient Details</h3>
+        <button
+          (click)="closePatientModal()"
+          class="w-8 h-8 rounded-full bg-red-500/20 text-red-300 hover:bg-red-500/30 transition flex items-center justify-center flex-shrink-0"
+        >
+x
+        </button>
+      </div>
+
+      <div *ngIf="selectedPatient" class="space-y-4">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div class="w-20 h-20 rounded-full bg-[#031716] border-2 border-[#0c969c]/50 overflow-hidden flex-shrink-0">
+            <img
+              [src]="selectedPatient.user?.profile_image || 'assets/default-avatar.png'"
+              [alt]="selectedPatient.user?.name"
+              class="w-full h-full object-cover"
+            />
+          </div>
+          <div class="flex-1 min-w-0">
+            <h4 class="text-lg sm:text-xl font-bold text-white truncate">{{ selectedPatient.user?.name }}</h4>
+            <p class="text-xs sm:text-sm text-[#6ba3be] truncate">{{ selectedPatient.user?.email }}</p>
+            <p class="text-xs sm:text-sm text-[#6ba3be] truncate">{{ selectedPatient.user?.phone }}</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-[#6ba3be]/30">
+          <div>
+            <span class="text-xs sm:text-sm text-[#6ba3be]">Date of Birth:</span>
+            <p class="text-white text-sm">{{ formatDate(selectedPatient.user?.date_of_birth) }}</p>
+          </div>
+          <div>
+            <span class="text-xs sm:text-sm text-[#6ba3be]">Address:</span>
+            <p class="text-white text-sm">{{ selectedPatient.user?.address || 'N/A' }}</p>
+          </div>
+          <div>
+            <span class="text-xs sm:text-sm text-[#6ba3be]">Blood Type:</span>
+            <p class="text-white text-sm">{{ selectedPatient.blood_type || 'N/A' }}</p>
+          </div>
+          <div>
+            <span class="text-xs sm:text-sm text-[#6ba3be]">Emergency Contact:</span>
+            <p class="text-white text-sm">{{ selectedPatient.emergency_contact || 'N/A' }}</p>
+          </div>
+        </div>
+
+        <div *ngIf="selectedPatient.allergies" class="pt-4 border-t border-[#6ba3be]/30">
+          <span class="text-xs sm:text-sm text-[#6ba3be]">Allergies:</span>
+          <p class="text-white text-sm mt-1">{{ selectedPatient.allergies }}</p>
+        </div>
+
+        <div *ngIf="selectedPatient.chronic_conditions" class="pt-4 border-t border-[#6ba3be]/30">
+          <span class="text-xs sm:text-sm text-[#6ba3be]">Chronic Conditions:</span>
+          <p class="text-white text-sm mt-1">{{ selectedPatient.chronic_conditions }}</p>
+        </div>
+
+        <div *ngIf="selectedPatient.medical_history" class="pt-4 border-t border-[#6ba3be]/30">
+          <span class="text-xs sm:text-sm text-[#6ba3be]">Medical History:</span>
+          <p class="text-white text-sm mt-1">{{ selectedPatient.medical_history }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Medical History Modal -->
+  <div
+    *ngIf="showMedicalHistoryModal"
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4"
+    (click)="closeMedicalHistoryModal()"
+  >
+    <div
+      class="bg-[#032f30] rounded-2xl border border-[#6ba3be]/40 p-4 sm:p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="flex items-center justify-between mb-6 gap-4">
+        <h3 class="text-xl sm:text-2xl font-bold text-white truncate">Medical History - {{ selectedPatient?.user?.name }}</h3>
+        <button
+          (click)="closeMedicalHistoryModal()"
+          class="w-8 h-8 rounded-full bg-red-500/20 text-red-300 hover:bg-red-500/30 transition flex items-center justify-center flex-shrink-0"
+        >
+          x
+        </button>
+      </div>
+
+      <div *ngIf="medicalHistory.length === 0" class="text-center py-8">
+        <p class="text-[#6ba3be]">No medical history available.</p>
+      </div>
+
+      <div *ngIf="medicalHistory.length > 0" class="space-y-3 sm:space-y-4">
+        <div *ngFor="let appointment of medicalHistory" class="rounded-xl border border-[#6ba3be]/30 bg-white/5 p-3 sm:p-4">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 gap-2">
+            <span class="text-xs sm:text-sm text-[#6ba3be]">{{ formatDate(appointment.appointment_date) }}</span>
+            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+              {{ appointment.status }}
+            </span>
+          </div>
+          <p class="text-xs sm:text-sm text-white mb-2">{{ appointment.notes || 'No notes' }}</p>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
