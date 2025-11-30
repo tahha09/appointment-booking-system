@@ -1,6 +1,6 @@
-<div class="h-screen flex flex-col" style="background: linear-gradient(135deg, #b6e7e1 0%, #e0f2fe 100%)">
+<div class="h-screen flex flex-col" style="background: linear-gradient(135deg, #cef5f0 0%, #e0f2fe 100%)">
   
-  <header class="relative border-b shadow-sm sticky top-0 z-40" style="background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border-color: #e0f2fe">
+  <header class="relative border-b shadow-sm sticky top-0 z-40" style="background: linear-gradient(135deg, rgba(236, 236, 236, 0.98) 0%, rgba(73, 199, 184, 0.8) 100%); backdrop-filter: blur(10px); border-color: #698091">
     <div class="px-3 sm:px-6 py-3 sm:py-4">
       <div class="flex items-center justify-between">
         
@@ -122,11 +122,11 @@
     
     <!-- Sidebar -->
     <aside 
-      [class.w-64]="!isSidebarCollapsed"
-      [class.w-16]="isSidebarCollapsed"
-      class="transition-all duration-300 overflow-hidden"
-      style="background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); border-color: #e0f2fe"
-    >
+  [class.w-64]="!isSidebarCollapsed"
+  [class.w-16]="isSidebarCollapsed"
+  class="transition-all duration-300 overflow-hidden"
+  style="background: linear-gradient(135deg, rgba(236, 236, 236, 0.98) 0%, rgba(73, 199, 184, 0.8) 100%); backdrop-filter: blur(10px); border-color: #9eb6c7"
+>
       <nav class="p-4 space-y-1">
         
         <!-- Dashboard Link -->
@@ -201,11 +201,12 @@
 
     <!-- Main Content Area -->
     <main 
-      [class.ml-16]="isSidebarCollapsed"
-      [class.ml-64]="!isSidebarCollapsed"
-      class="flex-1 transition-all duration-300 overflow-auto"
-    >
-      <router-outlet></router-outlet>
-    </main>
+  class="flex-1 transition-all duration-300 overflow-auto flex justify-center"
+  style="background: linear-gradient(135deg, #d2fcf7 0%, #e0f2fe 100%)"
+>
+  <div class="w-full max-w-[1600px] px-4 sm:px-6 lg:px-8">
+    <router-outlet></router-outlet>
+  </div>
+</main>
   </div>
 </div>
