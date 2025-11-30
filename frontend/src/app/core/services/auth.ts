@@ -201,7 +201,16 @@ export class Auth {
   }
 
   getProfileImage(): string | null {
-    return this.profileImage;
+    const profileImage = this.profileImage;
+  
+    if (!profileImage) {
+      return null;
+    }
+    if (profileImage.startsWith('http')) {
+    return profileImage;
+  } else {
+    return `http://localhost:8000/storage/${profileImage}`;
+  }
   }
 
   getUserName(): string | null {
