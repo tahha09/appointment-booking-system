@@ -7,7 +7,6 @@ import { Footer } from '../../../shared/components/footer/footer';
 import { Doctor, DoctorResponse } from '../../../models/doctor';
 import { DoctorService } from '../../../core/services/doctor';
 
-
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -72,5 +71,4 @@ export class Home implements OnInit {
     }
     this.router.navigate(['/doctors', doctor.id]);
   }
-
-  }
+}
