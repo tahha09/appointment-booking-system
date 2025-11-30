@@ -181,14 +181,46 @@ export class Auth {
 
   setRole(role: string): void {
     this.role = role;
+    localStorage.setItem(this.roleKey, role);
   }
 
   getRole(): string | null {
     return this.role;
   }
 
+  // NEW: Get user role with fallback to token parsing
+  getUserRole(): string {
+    // First check the stored role in localStorage/service
+    if (this.role) {
+      return this.role;
+    }
+
+    // Fallback: try to get from JWT token
+    const token = this.getToken();
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.role || 'patient';
+      } catch (error) {
+        console.error('Error parsing token:', error);
+      }
+    }
+
+    return 'patient'; // Default fallback
+  }
+
+  // NEW: Check if user is a doctor
+  isDoctor(): boolean {
+    return this.getUserRole() === 'doctor';
+  }
+
+  // NEW: Check if user is an admin
+  isAdmin(): boolean {
+    return this.getUserRole() === 'admin';
+  }
+
   isPatient(): boolean {
-    return this.getRole() === 'patient';
+    return this.getUserRole() === 'patient';
   }
 
   setProfileImage(url: string | null): void {
