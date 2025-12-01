@@ -1,6 +1,6 @@
 <div class="h-screen flex flex-col" style="background: linear-gradient(135deg, #cef5f0 0%, #e0f2fe 100%)">
   
-  <header class="relative border-b shadow-sm sticky top-0 z-40" style="background: linear-gradient(135deg, rgba(236, 236, 236, 0.98) 0%, rgba(73, 199, 184, 0.8) 100%); backdrop-filter: blur(10px); border-color: #698091">
+  <header class="relative border-b shadow-sm sticky top-0 z-40" style="background: linear-gradient(135deg, #032f30 0%, #0c969c 50%, #274d60 100%); backdrop-filter: blur(10px); border-color: #698091">
     <div class="px-3 sm:px-6 py-3 sm:py-4">
       <div class="flex items-center justify-between">
         
@@ -9,7 +9,9 @@
           <button 
             (click)="toggleSidebar()"
             class="p-2 rounded-lg transition-colors duration-200" 
-            style="color: #0A7075; background: rgba(10, 112, 117, 0.1)"
+            style="color: #ffffff; background: rgba(255, 255, 255, 0.2)"
+            onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'" 
+            onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
@@ -18,7 +20,7 @@
 
           <!-- Logo -->
           <div class="flex items-center space-x-3">
-            <span class="text-lg sm:text-xl font-bold" style="color: #0A7075">MedBook</span>
+            <span class="text-lg sm:text-xl font-bold" style="color: #ffffff">MedBook</span>
           </div>
         </div>
 
@@ -26,7 +28,9 @@
           
           <!-- Book Appointment Button -->
           <button class="hidden sm:flex text-white px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium" 
-                  style="background-color: #0A7075">
+                  style="background-color: #167277"
+                  onmouseover="this.style.backgroundColor='#0c969c'; this.style.transform='translateY(-2px)'" 
+                  onmouseout="this.style.backgroundColor='#167277'; this.style.transform='translateY(0)'">
             Book New Appointment
           </button>
           
@@ -38,7 +42,9 @@
           </button>
           
           <!-- Notification Bell -->
-          <button class="p-2 rounded-lg transition-colors duration-200" style="color: #0A7075; background: rgba(10, 112, 117, 0.1)">
+          <button class="p-2 rounded-lg transition-colors duration-200" style="color: #ffffff; background: rgba(255, 255, 255, 0.2)"
+          onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'" 
+          onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
              d="M10.5 3.75a6 6 0 00-6 6v2.25l-2 2v3h16v-3l-2-2V9.75a6 6 0 00-6-6z"/>
@@ -50,7 +56,9 @@
             <button 
               (click)="toggleUserDropdown()"
               class="flex items-center space-x-2 p-2 rounded-lg transition-colors duration-200"
-              style="background: rgba(10, 112, 117, 0.1)"
+              style="background: rgba(60, 240, 250, 0.1)"
+              onmouseover="this.style.background='rgba(255, 255, 255, 0.2)'" 
+              onmouseout="this.style.background='rgba(255, 255, 255, 0.1)'"
             >
               <!-- User Avatar -->
               <div class="h-8 w-8 rounded-full flex items-center justify-center text-white text-sm font-semibold overflow-hidden" style="background-color: #0A7075">
@@ -66,8 +74,8 @@
                   <span>{{ userInitial }}</span>
                 }
               </div>
-              <span class="hidden md:block text-sm font-medium" style="color: #031716">{{ userName }}</span>
-              <svg class="w-4 h-4 hidden md:block" style="color: #0A7075" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span class="hidden md:block text-sm font-medium" style="color: #ffffff">{{ userName }}</span>
+              <svg class="w-4 h-4 hidden md:block" style="color: #2fccd4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
               </svg>
             </button>
@@ -125,7 +133,7 @@
   [class.w-64]="!isSidebarCollapsed"
   [class.w-16]="isSidebarCollapsed"
   class="transition-all duration-300 overflow-hidden"
-  style="background: linear-gradient(135deg, rgba(236, 236, 236, 0.98) 0%, rgba(73, 199, 184, 0.8) 100%); backdrop-filter: blur(10px); border-color: #9eb6c7"
+  style="background: linear-gradient(135deg,#032f30 0%, #0c969c 50%, #274d60 100%); backdrop-filter: blur(10px); border-color: #9eb6c7"
 >
       <nav class="p-4 space-y-1">
         
@@ -135,12 +143,12 @@
           routerLinkActive="border-l-4"
           class="flex items-center space-x-3 p-3 rounded-lg transition-colors duration-200 border-l-4 border-transparent"
           [style]="{
-            'color': '#031716', 
+            'color': '#ffffff', 
             'border-color': router.isActive('/patient/dashboard', false) ? '#0A7075' : 'transparent',
             'background': router.isActive('/patient/dashboard', false) ? 'rgba(107, 163, 190, 0.1)' : 'transparent'
           }"
         >
-          <svg class="w-5 h-5 flex-shrink-0" style="color: #0A7075" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 flex-shrink-0" style="color: #ffffff" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
           </svg>
           <span [class.hidden]="isSidebarCollapsed" class="font-medium">Dashboard</span>
@@ -152,12 +160,12 @@
           routerLinkActive="border-l-4"
           class="flex items-center space-x-3 p-3 rounded-lg transition-colors duration-200 border-l-4 border-transparent"
           [style]="{
-            'color': '#031716', 
+            'color': '#ffffff', 
             'border-color': router.isActive('/patient/my-appointments', false) ? '#0A7075' : 'transparent',
             'background': router.isActive('/patient/my-appointments', false) ? 'rgba(107, 163, 190, 0.1)' : 'transparent'
           }"
         >
-          <svg class="w-5 h-5 flex-shrink-0" style="color: #0A7075" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 flex-shrink-0" style="color: #ffffff" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
           </svg>
           <span [class.hidden]="isSidebarCollapsed" class="font-medium">My Appointments</span>
@@ -169,12 +177,12 @@
           routerLinkActive="border-l-4"
           class="flex items-center space-x-3 p-3 rounded-lg transition-colors duration-200 border-l-4 border-transparent"
           [style]="{
-            'color': '#031716', 
+            'color': '#ffffff', 
             'border-color': router.isActive('/patient/medical-history', false) ? '#0A7075' : 'transparent',
             'background': router.isActive('/patient/medical-history', false) ? 'rgba(107, 163, 190, 0.1)' : 'transparent'
           }"
         >
-          <svg class="w-5 h-5 flex-shrink-0" style="color: #0A7075" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 flex-shrink-0" style="color: #ffffff" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
           <span [class.hidden]="isSidebarCollapsed" class="font-medium">Medical History</span>
@@ -186,12 +194,12 @@
           routerLinkActive="border-l-4"
           class="flex items-center space-x-3 p-3 rounded-lg transition-colors duration-200 border-l-4 border-transparent"
           [style]="{
-            'color': '#031716', 
+            'color': '#ffffff', 
             'border-color': router.isActive('/patient/prescriptions', false) ? '#0A7075' : 'transparent',
             'background': router.isActive('/patient/prescriptions', false) ? 'rgba(107, 163, 190, 0.1)' : 'transparent'
           }"
         >
-          <svg class="w-5 h-5 flex-shrink-0" style="color: #0A7075" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 flex-shrink-0" style="color: #ffffff" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
           </svg>
           <span [class.hidden]="isSidebarCollapsed" class="font-medium">Prescriptions</span>
