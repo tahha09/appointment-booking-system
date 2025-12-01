@@ -4,11 +4,13 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
 import { Notification } from '../../../core/services/notification';
+import { Header } from '../../../shared/components/header/header';
+import { Footer } from '../../../shared/components/footer/footer';
 
 @Component({
   selector: 'app-patient-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, Header, Footer],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })
@@ -43,7 +45,20 @@ export class PatientProfile implements OnInit {
     phone: this.fb.control(''),
     dateOfBirth: this.fb.control(''),
     address: this.fb.control(''),
+    bloodType: this.fb.control(''),
   });
+
+  bloodTypeOptions = [
+    { value: '', label: 'Select blood type' },
+    { value: 'A+', label: 'A+' },
+    { value: 'A-', label: 'A-' },
+    { value: 'B+', label: 'B+' },
+    { value: 'B-', label: 'B-' },
+    { value: 'AB+', label: 'AB+' },
+    { value: 'AB-', label: 'AB-' },
+    { value: 'O+', label: 'O+' },
+    { value: 'O-', label: 'O-' },
+  ];
 
   passwordForm = this.fb.group({
     currentPassword: this.fb.control('', {
@@ -78,30 +93,46 @@ export class PatientProfile implements OnInit {
           phone: profile.phone,
           dateOfBirth: profile.dateOfBirth || '',
           address: profile.address,
+          bloodType: profile.bloodType || '',
         });
 
         this.form.get('email')?.disable({ emitEvent: false });
         this.isLoading = false;
       },
       error: (error) => {
+        this.isLoading = false;
+
+        // Handle 401 Unauthorized - session expired
+        if (error?.status === 401) {
+          this.handleUnauthorized();
+          return;
+        }
+
         const message =
           error?.error?.error ||
-          'Failed to load profile. Using example data instead.';
+          error?.error?.message ||
+          'Failed to load profile.';
 
         this.notification.error('Profile load failed', message);
-
-        this.form.patchValue({
-          fullName: 'John Doe',
-          email: 'john.doe@example.com',
-          phone: '+1 (555) 123-4567',
-          dateOfBirth: '1990-05-20',
-          address: '123 Health Street, Wellness City',
-        });
-
-        this.form.get('email')?.disable({ emitEvent: false });
-        this.isLoading = false;
       },
     });
+  }
+
+  /**
+   * Handle unauthorized access - redirect to login
+   */
+  private handleUnauthorized(): void {
+    this.notification.error(
+      'Session Expired',
+      'Your session has expired. Please log in again.'
+    );
+
+    setTimeout(() => {
+      this.auth.logout();
+      this.router.navigate(['/login'], {
+        queryParams: { returnUrl: '/patient/profile' },
+      });
+    }, 1500);
   }
 
   get displayName(): string {
@@ -166,6 +197,7 @@ export class PatientProfile implements OnInit {
         phone: raw.phone || '',
         dateOfBirth: raw.dateOfBirth || '',
         address: raw.address || '',
+        bloodType: raw.bloodType || null,
         profileImage: this.selectedImageDataUrl,
       })
       .subscribe({
@@ -176,8 +208,15 @@ export class PatientProfile implements OnInit {
         },
         error: (error) => {
           this.isSaving = false;
+          
+          if (error?.status === 401) {
+            this.handleUnauthorized();
+            return;
+          }
+
           const message =
             error?.error?.error ||
+            error?.error?.message ||
             'Failed to update profile. Please check your details and try again.';
           this.notification.error('Update failed', message);
         },
@@ -227,6 +266,7 @@ export class PatientProfile implements OnInit {
         phone: profile.phone || '',
         dateOfBirth: profile.dateOfBirth || '',
         address: profile.address || '',
+        bloodType: profile.bloodType || null,
         currentPassword: pwd.currentPassword || '',
         newPassword: pwd.newPassword || '',
         confirmNewPassword: pwd.confirmNewPassword || '',
@@ -245,8 +285,15 @@ export class PatientProfile implements OnInit {
         },
         error: (error) => {
           this.isPasswordSaving = false;
+          
+          if (error?.status === 401) {
+            this.handleUnauthorized();
+            return;
+          }
+
           const message =
             error?.error?.error ||
+            error?.error?.message ||
             'Failed to update password. Please check your details and try again.';
           this.notification.error('Update failed', message);
         },
@@ -285,8 +332,15 @@ export class PatientProfile implements OnInit {
       },
       error: (error) => {
         this.isDeletingAccount = false;
+        
+        if (error?.status === 401) {
+          this.handleUnauthorized();
+          return;
+        }
+
         const message =
           error?.error?.error ||
+          error?.error?.message ||
           'Failed to delete account. Please check your password and try again.';
         this.notification.error('Delete failed', message);
       },

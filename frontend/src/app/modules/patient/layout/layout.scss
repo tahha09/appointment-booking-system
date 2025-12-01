@@ -1,0 +1,299 @@
+// Dark theme for patient dashboard layout
+.patient-layout {
+    min-height: 100vh;
+    background: radial-gradient(circle at top, rgba(12, 150, 156, 0.12), transparent),
+        #031716;
+    color: #e5f4f6;
+}
+
+// Main content area styling
+.patient-layout__content {
+    background: transparent;
+}
+
+// Enhanced Header styling with glassmorphism
+.patient-header {
+    background: linear-gradient(180deg, rgba(3, 47, 48, 0.95), rgba(3, 31, 32, 0.85));
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(107, 163, 190, 0.25);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4),
+                0 1px 0 rgba(12, 150, 156, 0.1) inset;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.patient-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(12, 150, 156, 0.3), transparent);
+}
+
+.patient-header__logo {
+    background: linear-gradient(135deg, #0c969c, #0a7075);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.patient-header__button {
+    background: rgba(12, 150, 156, 0.15);
+    color: #0c969c;
+    border: 1px solid rgba(12, 150, 156, 0.3);
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.patient-header__button:hover {
+    background: rgba(12, 150, 156, 0.25);
+    border-color: rgba(12, 150, 156, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(12, 150, 156, 0.3);
+}
+
+.patient-header__book-btn {
+    background: linear-gradient(135deg, #0c969c, #0a7075);
+    color: #f9fafb;
+    border-radius: 0.75rem;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(12, 150, 156, 0.35);
+    transition: all 0.2s ease;
+}
+
+.patient-header__book-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(12, 150, 156, 0.45);
+}
+
+.patient-header__avatar {
+    background: linear-gradient(135deg, #0c969c, #0a7075);
+    box-shadow: 0 4px 16px rgba(12, 150, 156, 0.5),
+                0 0 0 2px rgba(12, 150, 156, 0.2);
+    border: 2px solid rgba(229, 244, 246, 0.2);
+    transition: all 0.3s ease;
+}
+
+.patient-header__avatar:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(12, 150, 156, 0.6),
+                0 0 0 3px rgba(12, 150, 156, 0.3);
+}
+
+.patient-header__dropdown {
+    background: linear-gradient(180deg, rgba(3, 47, 48, 0.98), rgba(3, 31, 32, 0.95));
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(107, 163, 190, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(12, 150, 156, 0.1) inset;
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.patient-header__dropdown-item {
+    color: #e5f4f6;
+    transition: all 0.2s ease;
+}
+
+.patient-header__dropdown-item:hover {
+    background: linear-gradient(90deg, rgba(12, 150, 156, 0.2), rgba(12, 150, 156, 0.1));
+    color: #0c969c;
+    padding-left: 1.25rem;
+    transform: translateX(4px);
+}
+
+.patient-header__dropdown-item:active {
+    background: rgba(12, 150, 156, 0.25);
+}
+
+// Enhanced Sidebar styling
+.patient-sidebar {
+    background: linear-gradient(180deg, rgba(3, 47, 48, 0.95), rgba(3, 31, 32, 0.9));
+    border-right: 1px solid rgba(107, 163, 190, 0.25);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    position: relative;
+}
+
+.patient-sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(12, 150, 156, 0.3), transparent);
+}
+
+.patient-sidebar__item {
+    color: #cfe9ec;
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.patient-sidebar__item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    background: linear-gradient(90deg, rgba(12, 150, 156, 0.2), transparent);
+    transition: width 0.3s ease;
+}
+
+.patient-sidebar__item:hover {
+    background: rgba(12, 150, 156, 0.12);
+    color: #0c969c;
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(12, 150, 156, 0.2);
+}
+
+.patient-sidebar__item:hover::before {
+    width: 4px;
+}
+
+.patient-sidebar__item--active {
+    background: linear-gradient(90deg, rgba(12, 150, 156, 0.25), rgba(12, 150, 156, 0.1));
+    color: #0c969c;
+    border-left: 3px solid #0c969c;
+    box-shadow: 0 2px 12px rgba(12, 150, 156, 0.25);
+}
+
+.patient-sidebar__item--active::before {
+    width: 4px;
+}
+
+.patient-sidebar__icon {
+    color: #6ba3be;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.patient-sidebar__item:hover .patient-sidebar__icon,
+.patient-sidebar__item--active .patient-sidebar__icon {
+    color: #0c969c;
+    transform: scale(1.1);
+}
+
+// Scrollbar styling
+.patient-layout *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.patient-layout *::-webkit-scrollbar-track {
+    background: rgba(3, 31, 32, 0.8);
+    border-radius: 5px;
+}
+
+.patient-layout *::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #0c969c, #0a7075);
+    border-radius: 5px;
+    border: 2px solid rgba(3, 31, 32, 0.8);
+    transition: background 0.2s ease;
+}
+
+.patient-layout *::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #10b5bc, #0c969c);
+    box-shadow: 0 0 6px rgba(12, 150, 156, 0.6);
+}
+
+// Mobile sidebar overlay
+.patient-sidebar-overlay {
+    background: rgba(3, 23, 22, 0.8);
+    backdrop-filter: blur(4px);
+}
+
+// Animations
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.patient-sidebar--mobile {
+    animation: slideIn 0.3s ease-out;
+}
+
+// Sidebar collapse/expand indicator
+.patient-sidebar {
+    &::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 2px;
+        height: 40%;
+        background: linear-gradient(180deg, transparent, rgba(12, 150, 156, 0.3), transparent);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    &:hover::after {
+        opacity: 1;
+    }
+}
+
+// Enhanced sidebar navigation spacing
+.patient-sidebar nav {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(12, 150, 156, 0.3) transparent;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+    .patient-header {
+        padding: 0.75rem 1rem;
+    }
+
+    .patient-sidebar {
+        width: 280px;
+        position: fixed;
+        left: 0;
+        top: 64px;
+        height: calc(100vh - 64px);
+        z-index: 30;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .patient-sidebar:not(.hidden) {
+        transform: translateX(0);
+    }
+}
+
+@media (max-width: 640px) {
+    .patient-header__logo {
+        font-size: 1.125rem;
+    }
+
+    .patient-sidebar {
+        width: 260px;
+    }
+}

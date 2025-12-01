@@ -18,6 +18,7 @@ class UpdateProfileRequest extends FormRequest
             'phone' => 'nullable|string|max:255',
             'dateOfBirth' => 'nullable|date',
             'address' => 'nullable|string',
+            'bloodType' => 'nullable|string|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
             'currentPassword' => 'nullable|string',
             'newPassword' => 'nullable|string|min:6',
             'confirmNewPassword' => 'nullable|string|same:newPassword',

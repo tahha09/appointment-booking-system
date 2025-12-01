@@ -1,1 +1,376 @@
-<p>medical-history works!</p>
+<div class="patient-profile">
+  <!-- Enhanced Header Section -->
+  <div class="patient-profile__header mb-6">
+    <div class="patient-profile__header-content">
+      <div class="patient-profile__avatar">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <div class="patient-profile__avatar-glow"></div>
+      </div>
+      <div class="patient-profile__header-info">
+        <div class="patient-profile__header-title-wrapper">
+          <h1>Medical History</h1>
+          <div class="patient-profile__header-badge">
+            <mat-icon class="text-sm">medical_services</mat-icon>
+            <span>Health Records</span>
+          </div>
+        </div>
+        <p class="patient-profile__role">Comprehensive Health Records Management</p>
+        <p class="patient-profile__subtitle">
+          Track and manage your chronic conditions, allergies, surgeries, medications, and family health history in one secure place.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="patient-profile__content">
+    <!-- Form Section -->
+    <div class="patient-profile__card">
+      <h2>{{ editingId ? "Edit Record" : "Add New Record" }}</h2>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="patient-profile__form mt-4">
+
+        <!-- Chronic Diseases -->
+        <div class="patient-profile__field relative">
+          <span class="patient-profile__label">Chronic Diseases</span>
+          <div class="patient-profile__input-wrapper">
+            <div class="patient-profile__input patient-profile__input--multi cursor-pointer"
+              (click)="toggleDropdown('chronic_diseases')">
+              <span class="text-gray-400">Select conditions...</span>
+            </div>
+
+            <div class="patient-profile__chips mt-2" *ngIf="form.get('chronic_diseases')?.value?.length > 0">
+              <span *ngFor="let item of form.get('chronic_diseases')?.value" class="patient-profile__chip">
+                {{ item }}
+                <button type="button" class="patient-profile__chip-remove"
+                  (click)="removeSelection('chronic_diseases', item); $event.stopPropagation()">
+                  <mat-icon class="text-xs h-3 w-3 flex items-center justify-center">close</mat-icon>
+                </button>
+              </span>
+            </div>
+
+            <!-- Dropdown -->
+            <div *ngIf="openDropdown === 'chronic_diseases'"
+              class="absolute z-50 w-full mt-1 bg-[#031f20] border border-[#0c969c] rounded-xl shadow-xl max-h-60 overflow-auto">
+              <div *ngFor="let option of chronicDiseasesOptions"
+                class="px-4 py-2 hover:bg-[#0c969c]/20 cursor-pointer text-[#e5f4f6] flex items-center justify-between"
+                (click)="toggleSelection('chronic_diseases', option)">
+                <span>{{ option }}</span>
+                <mat-icon *ngIf="isSelected('chronic_diseases', option)" class="text-[#0c969c] text-sm">check</mat-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Allergies -->
+        <div class="patient-profile__field relative">
+          <span class="patient-profile__label">Allergies</span>
+          <div class="patient-profile__input-wrapper">
+            <div class="patient-profile__input patient-profile__input--multi cursor-pointer"
+              (click)="toggleDropdown('allergies')">
+              <span class="text-gray-400">Select allergies...</span>
+            </div>
+
+            <div class="patient-profile__chips mt-2" *ngIf="form.get('allergies')?.value?.length > 0">
+              <span *ngFor="let item of form.get('allergies')?.value" class="patient-profile__chip">
+                {{ item }}
+                <button type="button" class="patient-profile__chip-remove"
+                  (click)="removeSelection('allergies', item); $event.stopPropagation()">
+                  <mat-icon class="text-xs h-3 w-3 flex items-center justify-center">close</mat-icon>
+                </button>
+              </span>
+            </div>
+
+            <div *ngIf="openDropdown === 'allergies'"
+              class="absolute z-50 w-full mt-1 bg-[#031f20] border border-[#0c969c] rounded-xl shadow-xl max-h-60 overflow-auto">
+              <div *ngFor="let option of allergiesOptions"
+                class="px-4 py-2 hover:bg-[#0c969c]/20 cursor-pointer text-[#e5f4f6] flex items-center justify-between"
+                (click)="toggleSelection('allergies', option)">
+                <span>{{ option }}</span>
+                <mat-icon *ngIf="isSelected('allergies', option)" class="text-[#0c969c] text-sm">check</mat-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Surgeries -->
+        <div class="patient-profile__field relative">
+          <span class="patient-profile__label">Surgeries</span>
+          <div class="patient-profile__input-wrapper">
+            <div class="patient-profile__input patient-profile__input--multi cursor-pointer"
+              (click)="toggleDropdown('surgeries')">
+              <span class="text-gray-400">Select surgeries...</span>
+            </div>
+
+            <div class="patient-profile__chips mt-2" *ngIf="form.get('surgeries')?.value?.length > 0">
+              <span *ngFor="let item of form.get('surgeries')?.value" class="patient-profile__chip">
+                {{ item }}
+                <button type="button" class="patient-profile__chip-remove"
+                  (click)="removeSelection('surgeries', item); $event.stopPropagation()">
+                  <mat-icon class="text-xs h-3 w-3 flex items-center justify-center">close</mat-icon>
+                </button>
+              </span>
+            </div>
+
+            <div *ngIf="openDropdown === 'surgeries'"
+              class="absolute z-50 w-full mt-1 bg-[#031f20] border border-[#0c969c] rounded-xl shadow-xl max-h-60 overflow-auto">
+              <div *ngFor="let option of surgeriesOptions"
+                class="px-4 py-2 hover:bg-[#0c969c]/20 cursor-pointer text-[#e5f4f6] flex items-center justify-between"
+                (click)="toggleSelection('surgeries', option)">
+                <span>{{ option }}</span>
+                <mat-icon *ngIf="isSelected('surgeries', option)" class="text-[#0c969c] text-sm">check</mat-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Medications -->
+        <div class="patient-profile__field relative">
+          <span class="patient-profile__label">Current Medications</span>
+          <div class="patient-profile__input-wrapper">
+            <div class="patient-profile__input patient-profile__input--multi cursor-pointer"
+              (click)="toggleDropdown('medications')">
+              <span class="text-gray-400">Select medications...</span>
+            </div>
+
+            <div class="patient-profile__chips mt-2" *ngIf="form.get('medications')?.value?.length > 0">
+              <span *ngFor="let item of form.get('medications')?.value" class="patient-profile__chip">
+                {{ item }}
+                <button type="button" class="patient-profile__chip-remove"
+                  (click)="removeSelection('medications', item); $event.stopPropagation()">
+                  <mat-icon class="text-xs h-3 w-3 flex items-center justify-center">close</mat-icon>
+                </button>
+              </span>
+            </div>
+
+            <div *ngIf="openDropdown === 'medications'"
+              class="absolute z-50 w-full mt-1 bg-[#031f20] border border-[#0c969c] rounded-xl shadow-xl max-h-60 overflow-auto">
+              <div *ngFor="let option of medicationsOptions"
+                class="px-4 py-2 hover:bg-[#0c969c]/20 cursor-pointer text-[#e5f4f6] flex items-center justify-between"
+                (click)="toggleSelection('medications', option)">
+                <span>{{ option }}</span>
+                <mat-icon *ngIf="isSelected('medications', option)" class="text-[#0c969c] text-sm">check</mat-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Family History -->
+        <div class="patient-profile__field relative">
+          <span class="patient-profile__label">Family History</span>
+          <div class="patient-profile__input-wrapper">
+            <div class="patient-profile__input patient-profile__input--multi cursor-pointer"
+              (click)="toggleDropdown('family_history')">
+              <span class="text-gray-400">Select family history...</span>
+            </div>
+
+            <div class="patient-profile__chips mt-2" *ngIf="form.get('family_history')?.value?.length > 0">
+              <span *ngFor="let item of form.get('family_history')?.value" class="patient-profile__chip">
+                {{ item }}
+                <button type="button" class="patient-profile__chip-remove"
+                  (click)="removeSelection('family_history', item); $event.stopPropagation()">
+                  <mat-icon class="text-xs h-3 w-3 flex items-center justify-center">close</mat-icon>
+                </button>
+              </span>
+            </div>
+
+            <div *ngIf="openDropdown === 'family_history'"
+              class="absolute z-50 w-full mt-1 bg-[#031f20] border border-[#0c969c] rounded-xl shadow-xl max-h-60 overflow-auto">
+              <div *ngFor="let option of familyHistoryOptions"
+                class="px-4 py-2 hover:bg-[#0c969c]/20 cursor-pointer text-[#e5f4f6] flex items-center justify-between"
+                (click)="toggleSelection('family_history', option)">
+                <span>{{ option }}</span>
+                <mat-icon *ngIf="isSelected('family_history', option)" class="text-[#0c969c] text-sm">check</mat-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Social History -->
+        <div class="patient-profile__field relative">
+          <span class="patient-profile__label">Social History</span>
+          <div class="patient-profile__input-wrapper">
+            <div class="patient-profile__input patient-profile__input--multi cursor-pointer"
+              (click)="toggleDropdown('social_history')">
+              <span class="text-gray-400">Select social history...</span>
+            </div>
+
+            <div class="patient-profile__chips mt-2" *ngIf="form.get('social_history')?.value?.length > 0">
+              <span *ngFor="let item of form.get('social_history')?.value" class="patient-profile__chip">
+                {{ item }}
+                <button type="button" class="patient-profile__chip-remove"
+                  (click)="removeSelection('social_history', item); $event.stopPropagation()">
+                  <mat-icon class="text-xs h-3 w-3 flex items-center justify-center">close</mat-icon>
+                </button>
+              </span>
+            </div>
+
+            <div *ngIf="openDropdown === 'social_history'"
+              class="absolute z-50 w-full mt-1 bg-[#031f20] border border-[#0c969c] rounded-xl shadow-xl max-h-60 overflow-auto">
+              <div *ngFor="let option of socialHistoryOptions"
+                class="px-4 py-2 hover:bg-[#0c969c]/20 cursor-pointer text-[#e5f4f6] flex items-center justify-between"
+                (click)="toggleSelection('social_history', option)">
+                <span>{{ option }}</span>
+                <mat-icon *ngIf="isSelected('social_history', option)" class="text-[#0c969c] text-sm">check</mat-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="patient-profile__field md:col-span-2">
+          <span class="patient-profile__label">Additional Notes</span>
+          <textarea formControlName="notes" rows="3"
+            class="patient-profile__textarea patient-profile__input"></textarea>
+        </div>
+
+        <!-- Buttons -->
+        <div class="patient-profile__actions gap-3">
+          <button *ngIf="editingId" type="button"
+            class="patient-profile__modal-btn patient-profile__modal-btn--secondary" (click)="cancelEdit()">
+            Cancel
+          </button>
+
+          <button type="submit" class="patient-profile__save-btn" [disabled]="saving || form.invalid || !hasSelections">
+            {{ editingId ? "Update Record" : "Save Record" }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- Records Section -->
+    <div class="patient-profile__card">
+      <div class="patient-profile__card-header">
+        <div>
+          <h2>Previous Records</h2>
+          <p class="patient-profile__card-subtitle">Your medical history records</p>
+        </div>
+        <div class="patient-profile__records-count">
+          <span class="patient-profile__count-badge">{{ histories.length }}</span>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="py-12 flex flex-col items-center justify-center text-[#6ba3be]">
+        <mat-progress-spinner mode="indeterminate" [diameter]="50" color="accent"></mat-progress-spinner>
+        <p class="mt-4 text-sm font-medium">Loading your records...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!loading && histories.length === 0" class="py-12 flex flex-col items-center justify-center">
+        <div class="w-20 h-20 rounded-full bg-[#0c969c]/10 flex items-center justify-center mb-4">
+          <svg class="w-10 h-10 text-[#0c969c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+        <p class="text-[#6ba3be] font-medium mb-1">No records yet</p>
+        <p class="text-[#cfe9ec] text-sm">Start by adding your first medical history record above</p>
+      </div>
+
+      <!-- Records Cards Grid -->
+      <div *ngIf="!loading && histories.length > 0" class="patient-profile__records-grid mt-6">
+        <div *ngFor="let record of histories; let i = index" class="patient-profile__record-card">
+          <div class="patient-profile__record-header">
+            <div class="patient-profile__record-number">#{{ i + 1 }}</div>
+            <div class="patient-profile__record-date">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span>{{ record.created_at | date:'MMM d, y' }}</span>
+            </div>
+          </div>
+
+          <div class="patient-profile__record-content">
+            <!-- Chronic Diseases -->
+            <div class="patient-profile__record-field" *ngIf="record.chronic_diseases">
+              <div class="patient-profile__record-label">
+                <svg class="w-4 h-4 text-[#0c969c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Chronic Diseases</span>
+              </div>
+              <p class="patient-profile__record-value">{{ record.chronic_diseases }}</p>
+            </div>
+
+            <!-- Allergies -->
+            <div class="patient-profile__record-field" *ngIf="record.allergies">
+              <div class="patient-profile__record-label">
+                <svg class="w-4 h-4 text-[#f87171]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                <span>Allergies</span>
+              </div>
+              <p class="patient-profile__record-value">{{ record.allergies }}</p>
+            </div>
+
+            <!-- Medications -->
+            <div class="patient-profile__record-field" *ngIf="record.medications">
+              <div class="patient-profile__record-label">
+                <svg class="w-4 h-4 text-[#8b5cf6]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+                <span>Medications</span>
+              </div>
+              <p class="patient-profile__record-value">{{ record.medications }}</p>
+            </div>
+
+            <!-- Surgeries -->
+            <div class="patient-profile__record-field" *ngIf="record.surgeries">
+              <div class="patient-profile__record-label">
+                <svg class="w-4 h-4 text-[#0ea5e9]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span>Surgeries</span>
+              </div>
+              <p class="patient-profile__record-value">{{ record.surgeries }}</p>
+            </div>
+
+            <!-- Family History -->
+            <div class="patient-profile__record-field" *ngIf="record.family_history">
+              <div class="patient-profile__record-label">
+                <svg class="w-4 h-4 text-[#10b981]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <span>Family History</span>
+              </div>
+              <p class="patient-profile__record-value">{{ record.family_history }}</p>
+            </div>
+
+            <!-- Notes -->
+            <div class="patient-profile__record-field" *ngIf="record.notes">
+              <div class="patient-profile__record-label">
+                <svg class="w-4 h-4 text-[#f59e0b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                <span>Notes</span>
+              </div>
+              <p class="patient-profile__record-value">{{ record.notes }}</p>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="patient-profile__record-actions">
+            <button class="patient-profile__record-action-btn patient-profile__record-action-btn--edit" (click)="edit(record)">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              <span>Edit</span>
+            </button>
+            <button class="patient-profile__record-action-btn patient-profile__record-action-btn--delete" (click)="delete(record)">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              <span>Delete</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Backdrop for closing dropdowns -->
+  <div *ngIf="openDropdown" class="fixed inset-0 z-40" (click)="closeDropdown()"></div>
+</div>

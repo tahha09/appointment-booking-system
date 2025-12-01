@@ -1,14 +1,33 @@
 <div class="py-4 sm:py-6 space-y-4 sm:space-y-6">
   <!-- Welcome Section -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-      <div>
-        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Welcome back, {{ userName }}! 👋</h1>
-        <p class="text-sm sm:text-base text-gray-600">Here's what's happening with your health today</p>
+  <div class="bg-gradient-to-r from-[#0c969c] to-[#0a7075] rounded-2xl shadow-lg border border-[#0c969c]/20 p-6 sm:p-8 text-white">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+      <div class="flex items-center space-x-4 flex-1">
+        <!-- User Avatar -->
+        <div class="relative">
+          <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-white/30 shadow-xl overflow-hidden bg-white/20 flex items-center justify-center">
+            <ng-container *ngIf="userImage; else initialsFallback">
+              <img
+                [src]="userImage"
+                [alt]="userName"
+                class="w-full h-full object-cover"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+              />
+            </ng-container>
+            <ng-template #initialsFallback>
+              <span class="text-2xl sm:text-3xl font-bold text-white">{{ userInitials }}</span>
+            </ng-template>
+          </div>
+          <div class="absolute -bottom-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 bg-green-400 border-2 border-white rounded-full"></div>
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-1">Welcome back, {{ userName }}! 👋</h1>
+          <p class="text-sm sm:text-base text-white/90">Here's what's happening with your health today</p>
+        </div>
       </div>
-      <div class="text-left sm:text-right">
-        <p class="text-sm text-gray-500">Today is</p>
-        <p class="text-base sm:text-lg font-semibold text-gray-800">{{ currentDate | date:'fullDate' }}</p>
+      <div class="text-left sm:text-right bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+        <p class="text-xs sm:text-sm text-white/80 mb-1">Today is</p>
+        <p class="text-base sm:text-lg font-bold text-white">{{ currentDate | date:'fullDate' }}</p>
       </div>
     </div>
   </div>

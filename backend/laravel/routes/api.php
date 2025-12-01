@@ -17,6 +17,8 @@ use App\Http\Controllers\Patient\ProfileController as PatientProfileController;
 use App\Http\Controllers\AI\RecommendationController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Patient\SpecializationController;
+use App\Http\Controllers\Api\Patient\MedicalHistoryController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -147,6 +149,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // Medical Records
         Route::get('/medical-records', [PatientAppointmentController::class, 'medicalRecords']);
         Route::get('/medical-records/{id}', [PatientAppointmentController::class, 'medicalRecord']);
+        
+        // Medical History
+        Route::get('/medical-history', [MedicalHistoryController::class, 'index']);
+        Route::post('/medical-history', [MedicalHistoryController::class, 'store']);
+        Route::put('/medical-history/{id}', [MedicalHistoryController::class, 'update']);
+        Route::delete('/medical-history/{id}', [MedicalHistoryController::class, 'destroy']);
     });
 
     // AI Routes (accessible by doctors and patients)
