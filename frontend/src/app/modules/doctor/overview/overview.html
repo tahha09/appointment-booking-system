@@ -1,18 +1,18 @@
-<div class="space-y-6 text-slate-50">
+<div class="space-y-6 text-[#032f30]">
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-    <h2 class="text-2xl font-bold">Today's Overview</h2>
-    <p class="text-sm text-slate-200/80">Patients per month (last 6 months)</p>
+    <h2 class="text-2xl font-bold text-[#031716]">Today's Overview</h2>
+    <p class="text-sm text-[#274d60]">Patients per month (last 6 months)</p>
   </div>
 
-  <div class="rounded-2xl border border-[#6ba3be]/40 bg-white/5 backdrop-blur p-5 shadow-lg space-y-4">
+  <div class="rounded-2xl border border-[#d3e6eb] bg-white p-5 shadow-lg space-y-4">
     <ng-container *ngIf="loading; else loadedState">
-      <p class="text-sm text-slate-200/90">Loading patient counts...</p>
+      <p class="text-sm text-[#274d60]">Loading patient counts...</p>
     </ng-container>
 
     <ng-template #loadedState>
       <div class="space-y-4">
-        <div *ngIf="error" class="rounded-lg bg-yellow-500/20 border border-yellow-500/40 p-3 mb-4">
-          <p class="text-sm text-yellow-200">
+        <div *ngIf="error" class="rounded-lg bg-yellow-100 border border-yellow-300 text-[#031716] p-3 mb-4">
+          <p class="text-sm">
             <span class="font-semibold">Warning:</span> {{ error }}
           </p>
         </div>
@@ -24,7 +24,7 @@
           >
             <div class="relative w-full flex items-end justify-center" style="height: 180px;">
               <div
-                class="w-full rounded-t-xl bg-gradient-to-t from-[#032f30] via-[#0a7075] to-[#0c969c] shadow-md transition-all duration-300 hover:shadow-lg hover:shadow-[#0c969c]/50"
+                class="w-full rounded-t-xl bg-gradient-to-t from-[#031716] via-[#0a7075] to-[#0c969c] shadow-md transition-all duration-300 hover:shadow-lg hover:shadow-[#0c969c]/50"
                 [style.height]="getBarHeight(item.value)"
                 [class.opacity-50]="item.value === 0"
                 [title]="item.label + ': ' + item.value + ' patients'"
@@ -37,13 +37,13 @@
                 </div> -->
               </div>
             </div>
-            <div class="text-center text-xs text-slate-200/80 leading-tight w-full">
-              <div class="font-semibold text-white/90 mb-1">{{ item.value }}</div>
-              <div class="text-[10px] sm:text-xs break-words">{{ item.label }}</div>
+            <div class="text-center text-xs text-[#274d60] leading-tight w-full">
+              <div class="font-semibold text-[#0a7075] mb-1">{{ item.value }}</div>
+              <div class="text-[10px] sm:text-xs break-words text-[#032f30]">{{ item.label }}</div>
             </div>
           </div>
         </div>
-        <div class="text-xs text-slate-200/60 text-center pt-2">
+        <div class="text-xs text-[#6ba3be] text-center pt-2">
           Data reflects distinct patients per month over the last 6 months.
         </div>
       </div>

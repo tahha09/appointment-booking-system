@@ -1,106 +1,150 @@
-﻿<div
-  class="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-[#032f30] via-[#0c969c] to-[#274d60] text-slate-50"
->
-  <!-- Mobile menu toggle (checkbox used for pure-CSS toggle via Tailwind peer utilities) -->
-  <input id="mobile-menu" type="checkbox" class="peer hidden" />
+<div class="flex min-h-screen bg-[#f8fafc] text-[#15282b]">
+  <input id="doctor-menu" type="checkbox" class="peer hidden" />
+
   <aside
-    class="fixed inset-y-0 left-0 z-50 w-64 transform -translate-x-full peer-checked:translate-x-0 transition-transform duration-300 bg-[#031716]/95 backdrop-blur md:translate-x-0 md:w-64 md:flex md:sticky md:top-0 md:h-screen flex-shrink-0 flex flex-col gap-6 p-4 sm:p-6 shadow-2xl border-b md:border-b-0 md:border-r border-[#6ba3be]/30"
+    class="fixed inset-y-0 left-0 z-30 flex w-72 -translate-x-full transform flex-col bg-gradient-to-b from-[#031716] via-[#042628] to-[#052f2f] text-slate-50 shadow-2xl transition duration-300 peer-checked:translate-x-0 md:sticky md:translate-x-0"
   >
-    <div class="items-center gap-3 border-bottom pb-4 mb-4 border-5 border-white/10 flex flex-col">
-      <div class="logo">
-        <img src="assets/logo.png" alt="Logo" class="w-32 sm:w-40 object-contain" />
+    <div class="flex items-center gap-4 border-b border-[#0a7075] bg-[#021718]/90 px-6 py-6 text-white">
+      <img src="assets/logo.png" alt="CarePulse Logo" class="h-20 w-20 object-contain drop-shadow-lg" />
+      <div class="space-y-1">
+        <p class="text-[0.65rem] uppercase tracking-[0.35em] text-[#86d7df]">Doctor Portal</p>
+        <p class="text-2xl font-semibold text-white">MedCare</p>
       </div>
-      <div class="text-lg sm:text-xl font-bold tracking-wide text-center">Doctor Dashboard</div>
     </div>
 
-    <nav class="flex flex-col gap-2 text-xs sm:text-sm font-semibold overflow-y-auto">
+    <nav class="flex flex-1 flex-col gap-2 overflow-y-auto px-4 py-6 text-sm font-semibold text-[#cfe5e7]">
+      <span class="px-3 text-xs uppercase tracking-[0.4em] text-[#8fd0d9]">Menu</span>
+
       <a
-        class="px-3 py-2 rounded-xl border border-transparent text-slate-100/90 hover:border-[#0c969c]/50 hover:bg-white/5 transition flex items-center gap-2"
+        class="group relative flex items-center gap-3 rounded-xl border-l-4 border-transparent px-4 py-3 text-[#dfeff1] transition hover:border-white/10 hover:bg-white/5 hover:text-white"
         routerLink="/doctor/overview"
-        routerLinkActive="border-[#0c969c] bg-white/10 text-white shadow"
+        routerLinkActive="active bg-gradient-to-r from-[#0a7075] to-[#0c969c] text-white shadow-lg"
         [routerLinkActiveOptions]="{ exact: true }"
       >
-        Today''s Overview
+        <span class="text-[#7fdae6] transition group-[.active]:text-white">
+          <svg class="h-6 w-6" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 4h7v7H4zm9 0h7v5h-7zM4 13h5v7H4zm7 0h9v7h-9z" />
+          </svg>
+        </span>
+        <span>Overview</span>
       </a>
+
       <a
-        class="px-3 py-2 rounded-xl border border-transparent text-slate-100/90 hover:border-[#0c969c]/50 hover:bg-white/5 transition flex items-center gap-2"
+        class="group relative flex items-center gap-3 rounded-xl border-l-4 border-transparent px-4 py-3 text-[#dfeff1] transition hover:border-white/10 hover:bg-white/5 hover:text-white"
         routerLink="/doctor/patients"
-        routerLinkActive="border-[#0c969c] bg-white/10 text-white shadow"
+        routerLinkActive="active bg-gradient-to-r from-[#0a7075] to-[#0c969c] text-white shadow-lg"
       >
-        Patients Management
+        <span class="text-[#7fdae6] transition group-[.active]:text-white">
+          <svg class="h-6 w-6 " viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 13c-3.866 0-7 2.02-7 4.51V20h14v-2.49C19 15.02 15.866 13 12 13zm0-2.5a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
+          </svg>
+        </span>
+        <span>Patients Management</span>
       </a>
+
       <a
-        class="px-3 py-2 rounded-xl border border-transparent text-slate-100/90 hover:border-[#0c969c]/50 hover:bg-white/5 transition flex items-center gap-2"
+        class="group relative flex items-center gap-3 rounded-xl border-l-4 border-transparent px-4 py-3 text-[#dfeff1] transition hover:border-white/10 hover:bg-white/5 hover:text-white"
         routerLink="/doctor/my-appointments"
-        routerLinkActive="border-[#0c969c] bg-white/10 text-white shadow"
+        routerLinkActive="active bg-gradient-to-r from-[#0a7075] to-[#0c969c] text-white shadow-lg"
       >
-        My Appointments
+        <span class="text-[#7fdae6] transition group-[.active]:text-white">
+          <svg class="h-6 w-6" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 3v2H5a2 2 0 0 0-2 2v2h18V7a2 2 0 0 0-2-2h-2V3h-2v2H9V3zm14 7H3v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" />
+          </svg>
+        </span>
+        <span>My Appointments</span>
       </a>
+
       <a
-        class="px-3 py-2 rounded-xl border border-transparent text-slate-100/90 hover:border-[#0c969c]/50 hover:bg-white/5 transition flex items-center gap-2"
+        class="group relative flex items-center gap-3 rounded-xl border-l-4 border-transparent px-4 py-3 text-[#dfeff1] transition hover:border-white/10 hover:bg-white/5 hover:text-white"
         routerLink="/doctor/schedule"
-        routerLinkActive="border-[#0c969c] bg-white/10 text-white shadow"
+        routerLinkActive="active bg-gradient-to-r from-[#0a7075] to-[#0c969c] text-white shadow-lg"
       >
-        Schedule
+        <span class="text-[#7fdae6] transition group-[.active]:text-white">
+          <svg class="h-6 w-6" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 6a6 6 0 1 1 0 12 6 6 0 0 1 0-12Zm0 2v4l3 2" />
+          </svg>
+        </span>
+        <span>Schedule</span>
       </a>
+
       <a
-        class="px-3 py-2 rounded-xl border border-transparent text-slate-100/90 hover:border-[#0c969c]/50 hover:bg-white/5 transition flex items-center gap-2"
+        class="group relative flex items-center gap-3 rounded-xl border-l-4 border-transparent px-4 py-3 text-[#dfeff1] transition hover:border-white/10 hover:bg-white/5 hover:text-white"
         routerLink="/doctor/financial-performance"
-        routerLinkActive="border-[#0c969c] bg-white/10 text-white shadow"
+        routerLinkActive="active bg-gradient-to-r from-[#0a7075] to-[#0c969c] text-white shadow-lg"
       >
-        Financial Performance
+        <span class="text-[#7fdae6] transition group-[.active]:text-white">
+          <svg class="h-6 w-6" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 18h16v2H4zm1-4 4-5 4 3 5-7 2 1-6 9-4-3-3 4H5z" />
+          </svg>
+        </span>
+        <span>Financial Performance</span>
       </a>
+
       <a
-        class="px-3 py-2 rounded-xl border border-transparent text-slate-100/90 hover:border-[#0c969c]/50 hover:bg-white/5 transition flex items-center gap-2"
+        class="group relative flex items-center gap-3 rounded-xl border-l-4 border-transparent px-4 py-3 text-[#dfeff1] transition hover:border-white/10 hover:bg-white/5 hover:text-white"
         routerLink="/doctor/certificates"
-        routerLinkActive="border-[#0c969c] bg-white/10 text-white shadow"
+        routerLinkActive="active bg-gradient-to-r from-[#0a7075] to-[#0c969c] text-white shadow-lg"
       >
-        Certificates
+        <span class="text-[#7fdae6] transition group-[.active]:text-white">
+          <svg class="h-6 w-6" viewBox="0 0 24 24" aria-hidden="true" >
+            <path d="M5 4h14v12H5zm2 16 5-3 5 3v-4H7z" />
+          </svg>
+        </span>
+        <span>Certificates</span>
       </a>
     </nav>
   </aside>
 
-  <!-- Overlay for mobile when menu is open -->
-  <label for="mobile-menu" class="fixed inset-0 bg-black/40 z-40 hidden peer-checked:block md:hidden" aria-hidden="true"></label>
+  <label for="doctor-menu" class="fixed inset-0 z-20 hidden bg-black/40 peer-checked:block md:hidden"></label>
 
-  <main class="flex-1 p-3 sm:p-4 md:p-6 flex flex-col gap-3 sm:gap-4 w-full md:w-auto overflow-hidden">
-    <div
-      class="w-full rounded-2xl border border-[#6ba3be]/40 bg-white/5 backdrop-blur px-4 sm:px-6 py-4 sm:py-5 shadow-xl flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center justify-between gap-3 sm:gap-4"
-    >
-      <!-- Hamburger button (visible on small screens) -->
-      <label for="mobile-menu" class="mr-2 md:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl border border-[#6ba3be]/50 bg-white/10 text-slate-50 hover:bg-white/5 hover:shadow-lg transition" aria-label="Toggle menu">
+  <div class="flex min-h-screen flex-1 flex-col bg-[#f8fafc] text-[#15282b] ">
+    <header class="bg-gradient-to-r from-white to-[#f1f9ff] px-4 py-4 text-[#15282b] shadow-md sm:px-6 md:px-10 md:py-6">
+      <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div class="flex items-center gap-3 text-[#163437]">
+          <label
+            for="doctor-menu"
+            class="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[#0a7075]/30 bg-white text-[#0f2b2e] shadow-md transition hover:border-[#0c969c] md:hidden"
+          >
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 12h18M3 6h18M3 18h18" />
         </svg>
-      </label>
+          </label>
+          <div>
+            <p class="text-[0.65rem] uppercase tracking-[0.4em] text-[#0a7075]">Welcome back</p>
+            <h1 class="bg-gradient-to-r from-[#0f3033] to-[#0b7070] bg-clip-text text-2xl font-bold text-transparent md:text-3xl">
+              Dr. {{ doctorName || '...' }}
+            </h1>
+            <span class="text-sm text-[#5a717d]">{{ today | date: 'fullDate' }}</span>
+          </div>
+        </div>
 
-      <div class="flex-1 min-w-0">
-        <p class="uppercase tracking-[0.2em] text-xs text-[#6ba3be]">Welcome</p>
-        <h1 class="text-xl sm:text-2xl font-bold text-slate-50 truncate">
-          Hello, Dr. {{ doctorName || '...' }}
-        </h1>
-        <p class="text-xs sm:text-sm text-slate-200/80">Here''s what''s on your list today.</p>
+        <div class="flex items-center gap-3">
+          <button
+            type="button"
+            class="flex h-12 w-12 items-center justify-center rounded-xl border border-[#0a7075]/30 bg-white text-[#143235] shadow-lg transition hover:-translate-y-0.5 hover:border-[#0c969c]"
+            aria-label="Notifications"
+          >
+            <svg class="h-6 w-6" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M12 3a6 6 0 0 0-6 6v3.51l-.8 1.6A1 1 0 0 0 6.09 16h11.82a1 1 0 0 0 .89-1.49l-.8-1.6V9a6 6 0 0 0-6-6Zm0 18a2.75 2.75 0 0 0 2.7-2h-5.4A2.75 2.75 0 0 0 12 21Z"
+              />
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="rounded-xl bg-gradient-to-r from-[#0a7075] to-[#0c969c] px-5 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0c969c]"
+          >
+            View Holidays
+          </button>
+        </div>
       </div>
+    </header>
 
-      <div class="flex items-center gap-3 flex-shrink-0">
-        <button
-          type="button"
-          class="w-10 sm:w-11 h-10 sm:h-11 rounded-xl border border-[#6ba3be]/50 bg-white/10 text-slate-50 grid place-items-center hover:border-[#0c969c] hover:shadow-lg transition"
-          aria-label="Notifications"
-        >
-          <svg class="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
-            <path
-              d="M12 3a6 6 0 0 0-6 6v3.51l-.8 1.6A1 1 0 0 0 6.09 16h11.82a1 1 0 0 0 .89-1.49l-.8-1.6V9a6 6 0 0 0-6-6Zm0 18a2.75 2.75 0 0 0 2.7-2h-5.4A2.75 2.75 0 0 0 12 21Z"
-            />
-          </svg>
-        </button>
+    <section class="flex-1 overflow-y-auto bg-gradient-to-br from-[#f8fafc] via-[#f1f9ff] to-[#e8f4f8] px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
+      <div class="relative min-h-[400px] rounded-3xl border-t-4 border-[#0a7075] bg-gradient-to-b from-white to-[#f7fdff] p-4 text-[#15282b] shadow-xl sm:p-6 md:p-10">
+        <router-outlet></router-outlet>
       </div>
-    </div>
-
-    <section
-      class="flex-1 w-full rounded-2xl border border-[#6ba3be]/30 bg-white/5 backdrop-blur p-4 sm:p-6 shadow-xl overflow-y-auto"
-    >
-      <router-outlet></router-outlet>
     </section>
-  </main>
+  </div>
 </div>

@@ -1,16 +1,16 @@
-<div class="space-y-6 text-slate-50">
+<div class="space-y-6 text-[#032f30]">
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-    <h2 class="text-2xl font-bold">My Appointments</h2>
+    <h2 class="text-2xl font-bold text-[#031716]">My Appointments</h2>
   </div>
 
   <!-- Filters -->
-  <div class="rounded-2xl border border-[#6ba3be]/40 bg-white/5 backdrop-blur p-5 shadow-lg">
+  <div class="rounded-2xl border border-[#d3e6eb] bg-white p-5 shadow-lg">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
       <div>
-        <label class="block text-sm font-semibold text-[#6ba3be] mb-2">Status</label>
+        <label class="block text-sm font-semibold text-[#0a7075] mb-2">Status</label>
         <select
           [(ngModel)]="statusFilter"
-          class="w-full px-4 py-2 rounded-xl bg-[#032f30] border border-[#6ba3be]/40 text-white focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+          class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/50 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
         >
           <option value="all">All Status</option>
           <option value="pending">Pending</option>
@@ -22,20 +22,20 @@
       </div>
 
       <div>
-        <label class="block text-sm font-semibold text-[#6ba3be] mb-2">Date From</label>
+        <label class="block text-sm font-semibold text-[#0a7075] mb-2">Date From</label>
         <input
           type="date"
           [(ngModel)]="dateFrom"
-          class="w-full px-4 py-2 rounded-xl bg-[#032f30] border border-[#6ba3be]/40 text-white focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+          class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/50 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
         />
       </div>
 
       <div>
-        <label class="block text-sm font-semibold text-[#6ba3be] mb-2">Date To</label>
+        <label class="block text-sm font-semibold text-[#0a7075] mb-2">Date To</label>
         <input
           type="date"
           [(ngModel)]="dateTo"
-          class="w-full px-4 py-2 rounded-xl bg-[#032f30] border border-[#6ba3be]/40 text-white focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+          class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/50 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
         />
       </div>
 
@@ -71,16 +71,16 @@
 
   <!-- Appointments List -->
   <div *ngIf="!loading && !error" class="space-y-4">
-    <div *ngIf="appointments.length === 0" class="rounded-2xl border border-[#6ba3be]/40 bg-white/5 backdrop-blur p-8 text-center">
+    <div *ngIf="appointments.length === 0" class="rounded-2xl border border-[#d3e6eb] bg-white p-8 text-center">
       <p class="text-[#6ba3be] text-lg">No appointments found.</p>
     </div>
 
-    <div *ngFor="let appointment of appointments" class="rounded-2xl border border-[#6ba3be]/40 bg-white/5 backdrop-blur p-6 shadow-lg hover:border-[#0c969c]/50 transition">
+    <div *ngFor="let appointment of appointments" class="rounded-2xl border border-[#d7ebef] bg-white p-6 shadow-lg hover:border-[#0c969c]/50 transition">
       <div class="flex flex-col lg:flex-row gap-6">
         <!-- Patient Info -->
         <div class="flex-1">
           <div class="flex items-start gap-4">
-            <div class="w-16 h-16 rounded-full bg-[#032f30] border-2 border-[#0c969c]/50 overflow-hidden flex-shrink-0">
+            <div class="w-16 h-16 rounded-full bg-[#0c969c]/15 border-2 border-[#0c969c]/40 overflow-hidden flex-shrink-0">
               <img
                 [src]="appointment.patient?.user?.profile_image || 'assets/default-avatar.png'"
                 [alt]="appointment.patient?.user?.name"
@@ -88,7 +88,7 @@
               />
             </div>
             <div class="flex-1">
-              <h3 class="text-xl font-bold text-white mb-1">{{ appointment.patient?.user?.name || 'Unknown Patient' }}</h3>
+              <h3 class="text-xl font-bold text-[#031716] mb-1">{{ appointment.patient?.user?.name || 'Unknown Patient' }}</h3>
               <p class="text-sm text-[#6ba3be] mb-2">{{ appointment.patient?.user?.email }}</p>
               <p class="text-sm text-[#6ba3be]">{{ appointment.patient?.user?.phone }}</p>
             </div>
@@ -99,11 +99,11 @@
         <div class="flex-1 space-y-2">
           <div class="flex items-center gap-2">
             <span class="text-sm text-[#6ba3be]">Date:</span>
-            <span class="text-white font-semibold">{{ formatDate(appointment.appointment_date) }}</span>
+            <span class="text-[#031716] font-semibold">{{ formatDate(appointment.appointment_date) }}</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="text-sm text-[#6ba3be]">Time:</span>
-            <span class="text-white font-semibold">{{ formatTime(appointment.start_time) }} - {{ formatTime(appointment.end_time) }}</span>
+            <span class="text-[#031716] font-semibold">{{ formatTime(appointment.start_time) }} - {{ formatTime(appointment.end_time) }}</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="text-sm text-[#6ba3be]">Status:</span>
@@ -113,7 +113,7 @@
           </div>
           <div *ngIf="appointment.reason" class="mt-2">
             <span class="text-sm text-[#6ba3be]">Reason:</span>
-            <p class="text-white text-sm mt-1">{{ appointment.reason }}</p>
+            <p class="text-sm text-[#032f30] mt-1">{{ appointment.reason }}</p>
           </div>
         </div>
 
@@ -198,22 +198,22 @@
     (click)="closePatientModal()"
   >
     <div
-      class="bg-[#032f30] rounded-2xl border border-[#6ba3be]/40 p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+      class="bg-white text-[#032f30] rounded-2xl border border-[#d7ebef] p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
       (click)="$event.stopPropagation()"
     >
       <div class="flex items-center justify-between mb-6">
-        <h3 class="text-2xl font-bold text-white">Patient Details</h3>
+        <h3 class="text-2xl font-bold text-[#031716]">Patient Details</h3>
         <button
           (click)="closePatientModal()"
           class="w-8 h-8 rounded-full bg-red-500/20 text-red-300 hover:bg-red-500/30 transition flex items-center justify-center"
         >
-          ×
+          
         </button>
       </div>
 
       <div *ngIf="selectedPatient" class="space-y-4">
         <div class="flex items-center gap-4">
-          <div class="w-24 h-24 rounded-full bg-[#031716] border-2 border-[#0c969c]/50 overflow-hidden">
+          <div class="w-24 h-24 rounded-full bg-[#0c969c]/10 border-2 border-[#0c969c]/40 overflow-hidden">
             <img
               [src]="selectedPatient?.user?.profile_image || 'assets/default-avatar.png'"
               [alt]="selectedPatient?.user?.name"
@@ -221,7 +221,7 @@
             />
           </div>
           <div>
-            <h4 class="text-xl font-bold text-white">{{ selectedPatient?.user?.name }}</h4>
+            <h4 class="text-xl font-bold text-[#031716]">{{ selectedPatient?.user?.name }}</h4>
             <p class="text-[#6ba3be]">{{ selectedPatient?.user?.email }}</p>
             <p class="text-[#6ba3be]">{{ selectedPatient?.user?.phone }}</p>
           </div>
@@ -230,11 +230,11 @@
         <div class="grid grid-cols-2 gap-4 pt-4 border-t border-[#6ba3be]/30">
           <div>
             <span class="text-sm text-[#6ba3be]">Date of Birth:</span>
-            <p class="text-white">{{ selectedPatient?.user?.date_of_birth || 'N/A' }}</p>
+            <p>{{ selectedPatient?.user?.date_of_birth || 'N/A' }}</p>
           </div>
           <div>
             <span class="text-sm text-[#6ba3be]">Address:</span>
-            <p class="text-white">{{ selectedPatient?.user?.address || 'N/A' }}</p>
+            <p>{{ selectedPatient?.user?.address || 'N/A' }}</p>
           </div>
         </div>
       </div>
