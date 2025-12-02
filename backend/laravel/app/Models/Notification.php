@@ -22,6 +22,9 @@ class Notification extends Model
         'is_read' => 'boolean',
     ];
 
+    // مهم جداً: منع الـ recursive loop عند تحويل الـ model إلى JSON
+    protected $hidden = ['user'];
+
     // Relationships
     public function user()
     {

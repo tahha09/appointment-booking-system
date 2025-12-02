@@ -25,6 +25,7 @@ class RegisterController extends Controller
                     'email' => $data['email'],
                     'password' => $data['password'],
                     'role' => $data['role'],
+                    'status' => 'active', // Set default status to active
                 ]);
 
                 if (!empty($data['profileImage']) && is_string($data['profileImage'])) {

@@ -22,17 +22,16 @@ const adminRoutes: Routes = [
 ];
 
 @NgModule({
-  declarations: [
+  imports: [
+    CommonModule,
+    RouterModule.forChild(adminRoutes),
+    // Import standalone components
     AdminDashboard,
     SystemOverview,
     UserManagement,
     AppointmentsAdmin,
     AppointmentsAnalytics
   ],
-  imports: [
-    CommonModule,
-    RouterModule.forChild(adminRoutes)
-  ],
   exports: [RouterModule]
 })
-export class AdminModule {}
+export class AdminModule { }

@@ -139,7 +139,7 @@ class CertificateController extends Controller
                     if (Storage::disk('public')->exists($imageToRemove)) {
                         Storage::disk('public')->delete($imageToRemove);
                     }
-                    $currentImages = array_values(array_filter($currentImages, function($img) use ($imageToRemove) {
+                    $currentImages = array_values(array_filter($currentImages, function ($img) use ($imageToRemove) {
                         return $img !== $imageToRemove;
                     }));
                 }
@@ -204,4 +204,3 @@ class CertificateController extends Controller
         }
     }
 }
-

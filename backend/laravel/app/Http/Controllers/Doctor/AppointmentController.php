@@ -41,7 +41,7 @@ class AppointmentController extends Controller
 
             // Order by date and time
             $query->orderBy('appointment_date', 'desc')
-                  ->orderBy('start_time', 'desc');
+                ->orderBy('start_time', 'desc');
 
             // Pagination
             $perPage = $request->get('per_page', 15);
@@ -71,10 +71,10 @@ class AppointmentController extends Controller
         }
 
         $appointment = Appointment::with([
-                'patient.user',
-                'doctor.user',
-                'medicalNote',
-            ])
+            'patient.user',
+            'doctor.user',
+            'medicalNote',
+        ])
             ->forDoctor($user->doctor->id)
             ->find($id);
 

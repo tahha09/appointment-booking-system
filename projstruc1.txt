@@ -63,6 +63,7 @@ Backend (backend/laravel):
   - Models/
     - Admin.php
     - Appointment.php
+    - Certificate.php
     - Doctor.php
     - Holiday.php
     - MedicalNote.php
@@ -127,6 +128,11 @@ Backend (backend/laravel):
     - 2025_11_24_204259_create_personal_access_tokens_table.php
     - 2025_11_24_215811_create_payments_table.php
     - 2025_11_24_215831_add_payment_fields_to_appointments_table.php
+    - 2025_11_29_000001_add_profile_fields_to_patients_table.php
+    - 2025_11_30_000001_create_blocked_patients_table.php
+    - 2025_11_30_000002_create_certificates_table.php
+    - 2025_12_01_173948_add_status_to_users_table.php
+    - 2025_12_01_192129_add_api_token_to_users_table.php
   - seeders/
     - AppointmentSeeder.php
     - DatabaseSeeder.php
@@ -192,6 +198,7 @@ Frontend (frontend):
   - favicon.ico
   - assets/
     - bg-hero.jpg
+    - default-avatar.png
     - doctor.jpg
     - doctor1.jpg
     - health1.jpeg
@@ -212,6 +219,7 @@ Frontend (frontend):
     - core/
       - core-module.ts
       - guards/
+      - interceptors/
         - admin-guard.spec.ts
         - admin-guard.ts
         - auth-guard.spec.ts

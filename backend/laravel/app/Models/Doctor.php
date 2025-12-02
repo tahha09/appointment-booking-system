@@ -73,19 +73,19 @@ class Doctor extends Model
         return $query->where('specialization_id', $specializationId);
     }
 
-    // Accessors
-    public function getFullNameAttribute()
-    {
-        return $this->user->name;
-    }
+    // Accessors - commented out to avoid potential infinite loops
+    // public function getFullNameAttribute()
+    // {
+    //     return $this->user->name;
+    // }
 
-    public function getEmailAttribute()
-    {
-        return $this->user->email;
-    }
+    // public function getEmailAttribute()
+    // {
+    //     return $this->user->email;
+    // }
 
-    public function getPhoneAttribute()
-    {
-        return $this->user->phone;
-    }
+    // public function getPhoneAttribute()
+    // {
+    //     return $this->user->phone;
+    // }
 }

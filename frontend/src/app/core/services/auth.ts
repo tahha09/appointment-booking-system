@@ -56,11 +56,6 @@ interface ProfileResponse {
 })
 export class Auth {
   private readonly apiBaseUrl = 'http://localhost:8000/api';
-  private readonly tokenKey = 'auth_token';
-  private readonly roleKey = 'user_role';
-  private readonly nameKey = 'user_full_name';
-  private readonly emailKey = 'user_email';
-  private readonly profileImageKey = 'user_profile_image';
   private token: string | null = null;
   private role: string | null = null;
   private profileImage: string | null = null;
@@ -68,11 +63,6 @@ export class Auth {
   private email: string | null = null;
 
   constructor(private readonly http: HttpClient) {
-    this.token = localStorage.getItem(this.tokenKey);
-    this.role = localStorage.getItem(this.roleKey);
-    this.profileImage = localStorage.getItem(this.profileImageKey);
-    this.name = localStorage.getItem(this.nameKey);
-    this.email = localStorage.getItem(this.emailKey);
   }
 
   login(payload: LoginPayload): Observable<LoginResponse> {
@@ -84,15 +74,11 @@ export class Auth {
 
           this.token = token;
           this.role = user.role;
-          localStorage.setItem(this.tokenKey, token);
-          localStorage.setItem(this.roleKey, user.role);
-          if (user.profile_image) {
-            this.setProfileImage(user.profile_image);
-          }
           this.name = user.name;
           this.email = user.email;
-          localStorage.setItem(this.nameKey, user.name);
-          localStorage.setItem(this.emailKey, user.email);
+          if (user.profile_image) {
+            this.profileImage = user.profile_image;
+          }
 
           return { token };
         }),
@@ -121,17 +107,14 @@ export class Auth {
         map((response) => {
           const { user, token } = response.data;
 
+          // Store in memory only - no localStorage
           this.token = token;
           this.role = user.role;
-          localStorage.setItem(this.tokenKey, token);
-          localStorage.setItem(this.roleKey, user.role);
-          if (user.profile_image) {
-            this.setProfileImage(user.profile_image);
-          }
           this.name = user.name;
           this.email = user.email;
-          localStorage.setItem(this.nameKey, user.name);
-          localStorage.setItem(this.emailKey, user.email);
+          if (user.profile_image) {
+            this.profileImage = user.profile_image;
+          }
 
           return { id: user.id, token };
         }),
@@ -164,11 +147,8 @@ export class Auth {
     this.token = null;
     this.role = null;
     this.profileImage = null;
-    localStorage.removeItem(this.tokenKey);
-    localStorage.removeItem(this.roleKey);
-    localStorage.removeItem(this.nameKey);
-    localStorage.removeItem(this.emailKey);
-    localStorage.removeItem(this.profileImageKey);
+    this.name = null;
+    this.email = null;
   }
 
   getToken(): string | null {
@@ -181,32 +161,15 @@ export class Auth {
 
   setRole(role: string): void {
     this.role = role;
-    localStorage.setItem(this.roleKey, role);
   }
 
   getRole(): string | null {
     return this.role;
   }
 
-  // NEW: Get user role with fallback to token parsing
   getUserRole(): string {
-    // First check the stored role in localStorage/service
-    if (this.role) {
-      return this.role;
-    }
-
-    // Fallback: try to get from JWT token
-    const token = this.getToken();
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        return payload.role || 'patient';
-      } catch (error) {
-        console.error('Error parsing token:', error);
-      }
-    }
-
-    return 'patient'; // Default fallback
+    // Return stored role or default to patient
+    return this.role || 'patient';
   }
 
   // NEW: Check if user is a doctor
@@ -225,16 +188,11 @@ export class Auth {
 
   setProfileImage(url: string | null): void {
     this.profileImage = url;
-    if (url) {
-      localStorage.setItem(this.profileImageKey, url);
-    } else {
-      localStorage.removeItem(this.profileImageKey);
-    }
   }
 
   getProfileImage(): string | null {
     const profileImage = this.profileImage;
-  
+
     if (!profileImage) {
       return null;
     }
@@ -316,11 +274,8 @@ export class Auth {
           this.token = null;
           this.role = null;
           this.profileImage = null;
-          localStorage.removeItem(this.tokenKey);
-          localStorage.removeItem(this.roleKey);
-          localStorage.removeItem(this.nameKey);
-          localStorage.removeItem(this.emailKey);
-          localStorage.removeItem(this.profileImageKey);
+          this.name = null;
+          this.email = null;
         }),
         catchError((error: HttpErrorResponse) => {
           const message =
