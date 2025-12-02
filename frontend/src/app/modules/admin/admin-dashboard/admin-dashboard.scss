@@ -125,6 +125,12 @@
       top: 0;
       z-index: 100;
 
+      .top-bar-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
       h2 {
         margin: 0;
         color: #032F30;
@@ -143,6 +149,37 @@
           background: linear-gradient(90deg, #0A7075, #0C969C);
           border-radius: 2px;
           margin-top: 8px;
+        }
+      }
+
+      .logout-btn {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
+
+        &:hover {
+          background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+
+        &:active {
+          transform: translateY(0);
+        }
+
+        i {
+          font-style: normal;
+          font-size: 1rem;
         }
       }
     }

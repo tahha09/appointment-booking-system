@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Auth } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-doctor-overview',
@@ -18,7 +19,8 @@ export class DoctorOverview implements OnInit {
 
   constructor(
     private http: HttpClient,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private auth: Auth
   ) {}
 
   ngOnInit(): void {
@@ -74,7 +76,7 @@ export class DoctorOverview implements OnInit {
     this.error = '';
     this.patientCounts = [];
 
-    const token = localStorage.getItem('auth_token');
+    const token = this.auth.getToken();
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
     const options = headers ? { headers } : {};
 

@@ -6,31 +6,22 @@
     </div>
 
     <nav>
-      <button
-        routerLink="system-overview"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: false }">
+      <button routerLink="/admin/system-overview" class="nav-link" [class.active]="isActive('/admin/system-overview')">
         <i>📊</i>
         <span>System Overview</span>
       </button>
 
-      <button
-        routerLink="user-management"
-        routerLinkActive="active">
+      <button routerLink="user-management" routerLinkActive="active">
         <i>👥</i>
         <span>User Management</span>
       </button>
 
-      <button
-        routerLink="appointments"
-        routerLinkActive="active">
+      <button routerLink="appointments" routerLinkActive="active">
         <i>📅</i>
         <span>Appointments</span>
       </button>
 
-      <button
-        routerLink="appointments-analytics"
-        routerLinkActive="active">
+      <button routerLink="appointments-analytics" routerLinkActive="active">
         <i>📈</i>
         <span>Appointments Analytics</span>
       </button>
@@ -41,7 +32,13 @@
   <div class="main-content">
     <!-- Top Bar -->
     <div class="top-bar">
-      <h2>Hello {{ adminName }}</h2>
+      <div class="top-bar-content">
+        <h2>Hello {{ userName }}</h2>
+        <button class="logout-btn" (click)="logout()">
+          <i>🚪</i>
+          Logout
+        </button>
+      </div>
     </div>
 
     <!-- Page Content (Routing Area) -->

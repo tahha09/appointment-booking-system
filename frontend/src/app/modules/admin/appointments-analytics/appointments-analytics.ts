@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-appointments-analytics',
-  standalone: false,
+  standalone: true,
   templateUrl: './appointments-analytics.html',
   styleUrl: './appointments-analytics.scss',
 })

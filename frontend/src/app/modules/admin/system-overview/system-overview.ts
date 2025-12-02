@@ -1,11 +1,442 @@
-import { Component } from '@angular/core';
+import { AdminService } from './../../../core/services/admin';
+import { Auth } from '../../../core/services/auth';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { DashboardStats, User, Doctor, Appointment, SystemActivity, PaginatedResponse } from "./../../../core/services/admin";
+import { of } from 'rxjs'; // Added missing import
 
 @Component({
   selector: 'app-system-overview',
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, RouterModule],
   templateUrl: './system-overview.html',
-  styleUrl: './system-overview.scss',
+  styleUrls: ['./system-overview.scss']
 })
-export class SystemOverview {
+export class SystemOverview implements OnInit {
+  private adminService = inject(AdminService);
+  private auth = inject(Auth);
 
+  // Statistics
+  stats = signal<DashboardStats>({
+    totalUsers: 0,
+    totalDoctors: 0,
+    totalAppointments: 0,
+    pendingApprovals: 0,
+    todaysAppointments: 0,
+    newUsersToday: 0
+  });
+
+  // Data lists
+  recentUsers = signal<User[]>([]);
+  pendingDoctors = signal<Doctor[]>([]);
+  recentAppointments = signal<Appointment[]>([]);
+  recentActivities = signal<SystemActivity[]>([]);
+
+  // Loading states
+  isLoading = signal({
+    stats: false,
+    users: false,
+    doctors: false,
+    appointments: false,
+    activities: false
+  });
+
+  // Error states
+  hasError = signal({
+    stats: false,
+    users: false,
+    doctors: false,
+    appointments: false,
+    activities: false
+  });
+
+  // Quick stats - Updated to match your requested cards
+  quickStats = signal([
+    {
+      label: 'Total Users',
+      value: 0,
+      icon: '👥',
+      color: 'bg-blue-500',
+      loading: true,
+      error: false
+    },
+    {
+      label: 'Pending Approvals',
+      value: 0,
+      icon: '⏳',
+      color: 'bg-yellow-500',
+      loading: true,
+      error: false
+    },
+    {
+      label: "Today's Appointments",
+      value: 0,
+      icon: '📅',
+      color: 'bg-green-500',
+      loading: true,
+      error: false
+    },
+    {
+      label: 'Total Appointments',
+      value: 0,
+      icon: '📊',
+      color: 'bg-purple-500',
+      loading: true,
+      error: false
+    }
+  ]);
+
+  // Authentication check
+  isAuthenticated = signal(false);
+
+  ngOnInit(): void {
+    // Check if user is authenticated and has admin role
+    if (!this.auth.isAuthenticated() || !this.auth.isAdmin()) {
+      console.warn('Unauthorized access to system overview. Redirecting...');
+      // For now, just show empty data - in production you'd redirect
+      this.isAuthenticated.set(false);
+      return;
+    }
+
+    this.isAuthenticated.set(true);
+    this.loadAllData();
+  }
+
+  loadAllData(): void {
+    this.loadDashboardStats();
+    this.loadRecentUsers();
+    this.loadPendingDoctors();
+    this.loadRecentAppointments();
+    this.loadRecentActivities();
+  }
+
+  loadDashboardStats(): void {
+    this.isLoading.update(prev => ({ ...prev, stats: true }));
+    this.hasError.update(prev => ({ ...prev, stats: false }));
+
+    // Update quick stats loading state
+    this.quickStats.update(stats => stats.map(stat => ({ ...stat, loading: true, error: false })));
+
+    this.adminService.getDashboardStats().subscribe({
+      next: (stats) => {
+        this.stats.set(stats);
+
+        // Update quick stats with real data
+        this.quickStats.update(prev => [
+          {
+            ...prev[0],
+            value: stats.totalUsers,
+            loading: false,
+            error: false
+          },
+          {
+            ...prev[1],
+            value: stats.pendingApprovals,
+            loading: false,
+            error: false
+          },
+          {
+            ...prev[2],
+            value: stats.todaysAppointments,
+            loading: false,
+            error: false
+          },
+          {
+            ...prev[3],
+            value: stats.totalAppointments,
+            loading: false,
+            error: false
+          }
+        ]);
+
+        this.isLoading.update(prev => ({ ...prev, stats: false }));
+      },
+      error: (error) => {
+        console.error('Error loading dashboard stats:', error);
+
+        // Mark quick stats as error
+        this.quickStats.update(stats => stats.map(stat => ({
+          ...stat,
+          loading: false,
+          error: true
+        })));
+
+        this.isLoading.update(prev => ({ ...prev, stats: false }));
+        this.hasError.update(prev => ({ ...prev, stats: true }));
+      }
+    });
+  }
+
+  loadRecentUsers(): void {
+    this.isLoading.update(prev => ({ ...prev, users: true }));
+    this.hasError.update(prev => ({ ...prev, users: false }));
+
+    this.adminService.getUsers().subscribe({
+      next: (response: PaginatedResponse<User>) => {
+        // Extract data array from paginated response
+        const users = response.data;
+
+        // Sort by creation date, get latest 5
+        const sortedUsers = users.sort((a: any, b: any) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        ).slice(0, 5);
+
+        this.recentUsers.set(sortedUsers);
+        this.isLoading.update(prev => ({ ...prev, users: false }));
+      },
+      error: (error) => {
+        console.error('Error loading users:', error);
+        this.isLoading.update(prev => ({ ...prev, users: false }));
+        this.hasError.update(prev => ({ ...prev, users: true }));
+      }
+    });
+  }
+
+  loadPendingDoctors(): void {
+    this.isLoading.update(prev => ({ ...prev, doctors: true }));
+    this.hasError.update(prev => ({ ...prev, doctors: false }));
+
+    this.adminService.getPendingDoctors().subscribe({
+      next: (response: PaginatedResponse<Doctor>) => {
+        // Extract data array from paginated response
+        const doctors = response.data;
+        console.log('Pending doctors loaded:', doctors);
+        this.pendingDoctors.set(doctors);
+        this.isLoading.update(prev => ({ ...prev, doctors: false }));
+      },
+      error: (error) => {
+        console.error('Error loading pending doctors:', error);
+        this.isLoading.update(prev => ({ ...prev, doctors: false }));
+        this.hasError.update(prev => ({ ...prev, doctors: true }));
+      }
+    });
+  }
+
+  loadRecentAppointments(): void {
+    this.isLoading.update(prev => ({ ...prev, appointments: true }));
+    this.hasError.update(prev => ({ ...prev, appointments: false }));
+
+    this.adminService.getAppointments().subscribe({
+      next: (response: PaginatedResponse<Appointment>) => {
+        // Extract data array from paginated response
+        const appointments = response.data;
+
+        // Sort by date, get latest 5
+        const sortedAppointments = appointments.sort((a: any, b: any) =>
+          new Date(b.date).getTime() - new Date(a.date).getTime()
+        ).slice(0, 5);
+
+        this.recentAppointments.set(sortedAppointments);
+        this.isLoading.update(prev => ({ ...prev, appointments: false }));
+      },
+      error: (error) => {
+        console.error('Error loading appointments:', error);
+        this.isLoading.update(prev => ({ ...prev, appointments: false }));
+        this.hasError.update(prev => ({ ...prev, appointments: true }));
+      }
+    });
+  }
+
+  loadRecentActivities(): void {
+    this.isLoading.update(prev => ({ ...prev, activities: true }));
+    this.hasError.update(prev => ({ ...prev, activities: false }));
+
+    this.adminService.getRecentActivity().subscribe({
+      next: (activities) => {
+        console.log('Recent activities loaded:', activities);
+        this.recentActivities.set(activities);
+        this.isLoading.update(prev => ({ ...prev, activities: false }));
+      },
+      error: (error) => {
+        console.error('Error loading activities:', error);
+        this.isLoading.update(prev => ({ ...prev, activities: false }));
+        this.hasError.update(prev => ({ ...prev, activities: true }));
+      }
+    });
+  }
+
+  // Doctor approval actions - Fixed ID type
+  approveDoctor(doctorId: number): void {
+    this.adminService.approveDoctor(doctorId).subscribe({
+      next: () => {
+        console.log('Doctor approved:', doctorId);
+        // Remove from pending list
+        const currentPending = this.pendingDoctors();
+        const updatedPending = currentPending.filter(d => d.id !== doctorId);
+        this.pendingDoctors.set(updatedPending);
+
+        // Update stats
+        const currentStats = this.stats();
+        const updatedStats = {
+          ...currentStats,
+          pendingApprovals: updatedPending.length,
+          totalDoctors: currentStats.totalDoctors + 1
+        };
+        this.stats.set(updatedStats);
+
+        // Update quick stats
+        this.quickStats.update(prev => [
+          prev[0],
+          {
+            ...prev[1],
+            value: updatedPending.length
+          },
+          prev[2],
+          prev[3]
+        ]);
+      },
+      error: (error) => {
+        console.error('Error approving doctor:', error);
+        alert('Failed to approve doctor. Please try again.');
+      }
+    });
+  }
+
+  rejectDoctor(doctorId: number): void {
+    this.adminService.rejectDoctor(doctorId).subscribe({
+      next: () => {
+        console.log('Doctor rejected:', doctorId);
+        // Remove from pending list
+        const currentPending = this.pendingDoctors();
+        const updatedPending = currentPending.filter(d => d.id !== doctorId);
+        this.pendingDoctors.set(updatedPending);
+
+        // Update stats
+        const currentStats = this.stats();
+        const updatedStats = {
+          ...currentStats,
+          pendingApprovals: updatedPending.length
+        };
+        this.stats.set(updatedStats);
+
+        // Update quick stats
+        this.quickStats.update(prev => [
+          prev[0],
+          {
+            ...prev[1],
+            value: updatedPending.length
+          },
+          prev[2],
+          prev[3]
+        ]);
+      },
+      error: (error) => {
+        console.error('Error rejecting doctor:', error);
+        alert('Failed to reject doctor. Please try again.');
+      }
+    });
+  }
+
+  // Update appointment status - Fixed ID type
+  updateAppointmentStatus(appointmentId: number, status: string): void {
+    this.adminService.updateAppointmentStatus(appointmentId, status).subscribe({
+      next: (updatedAppointment) => {
+        console.log('Appointment status updated:', appointmentId, status);
+        // Update in recent appointments
+        const currentAppointments = this.recentAppointments();
+        const updatedAppointments = currentAppointments.map(app =>
+          app.id === appointmentId ? { ...app, status: updatedAppointment.status } : app
+        );
+        this.recentAppointments.set(updatedAppointments);
+      },
+      error: (error) => {
+        console.error('Error updating appointment:', error);
+        alert('Failed to update appointment status. Please try again.');
+      }
+    });
+  }
+
+  // Format date
+  formatDate(dateString: string): string {
+    try {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    } catch (error) {
+      console.warn('Error formatting date:', dateString, error);
+      return dateString;
+    }
+  }
+
+  // Format time
+  formatTime(timeString: string): string {
+    try {
+      const [hours, minutes] = timeString.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const displayHour = hour % 12 || 12;
+      return `${displayHour}:${minutes} ${ampm}`;
+    } catch (error) {
+      console.warn('Error formatting time:', timeString, error);
+      return timeString;
+    }
+  }
+
+  // Get status color
+  getStatusColor(status: string): string {
+    const colors: { [key: string]: string } = {
+      'pending': 'bg-yellow-100 text-yellow-800',
+      'approved': 'bg-green-100 text-green-800',
+      'rejected': 'bg-red-100 text-red-800',
+      'scheduled': 'bg-blue-100 text-blue-800',
+      'completed': 'bg-green-100 text-green-800',
+      'cancelled': 'bg-red-100 text-red-800',
+      'active': 'bg-green-100 text-green-800',
+      'inactive': 'bg-gray-100 text-gray-800'
+    };
+    return colors[status] || 'bg-gray-100 text-gray-800';
+  }
+
+  // Get status icon
+  getStatusIcon(status: string): string {
+    const icons: { [key: string]: string } = {
+      'pending': '⏳',
+      'approved': '✅',
+      'rejected': '❌',
+      'scheduled': '📅',
+      'completed': '✅',
+      'cancelled': '❌',
+      'active': '✅',
+      'inactive': '⏸️'
+    };
+    return icons[status] || '❓';
+  }
+
+  // Get activity icon
+  getActivityIcon(type: string): string {
+    const icons: { [key: string]: string } = {
+      'doctor': '👨‍⚕️',
+      'appointment': '📅',
+      'user': '👤',
+      'patient': '🩺',
+      'payment': '💰',
+      'system': '⚙️'
+    };
+    return icons[type] || '📝';
+  }
+
+  // Calculate percentage change
+  calculatePercentageChange(current: number, previous: number): string {
+    if (previous === 0) return '+100%';
+    const change = ((current - previous) / previous) * 100;
+    return change >= 0 ? `+${change.toFixed(0)}%` : `${change.toFixed(0)}%`;
+  }
+
+  // Refresh all data
+  refreshData(): void {
+    this.loadAllData();
+  }
+
+  // Get loading state for quick stats
+  isQuickStatsLoading(): boolean {
+    return this.quickStats().some(stat => stat.loading);
+  }
+
+  // Get error state for quick stats
+  hasQuickStatsError(): boolean {
+    return this.quickStats().some(stat => stat.error);
+  }
 }

@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { Auth } from '../../../core/services/auth';
 
 interface Patient {
   id: number;
@@ -58,7 +59,8 @@ export class PatientsManagement implements OnInit {
 
   constructor(
     private http: HttpClient,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private auth: Auth
   ) {}
 
   ngOnInit(): void {
@@ -69,7 +71,7 @@ export class PatientsManagement implements OnInit {
     this.loading = true;
     this.error = '';
 
-    const token = localStorage.getItem('auth_token');
+    const token = this.auth.getToken();
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
 
     let params: any = {
@@ -123,7 +125,7 @@ export class PatientsManagement implements OnInit {
     }
 
     this.blockingPatient = patientId;
-    const token = localStorage.getItem('auth_token');
+    const token = this.auth.getToken();
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
 
     this.http
@@ -150,7 +152,7 @@ export class PatientsManagement implements OnInit {
     if (this.blockingPatient === patientId) return;
 
     this.blockingPatient = patientId;
-    const token = localStorage.getItem('auth_token');
+    const token = this.auth.getToken();
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
 
     this.http
@@ -180,7 +182,7 @@ export class PatientsManagement implements OnInit {
 
   viewMedicalHistory(patient: Patient): void {
     this.selectedPatient = patient;
-    const token = localStorage.getItem('auth_token');
+    const token = this.auth.getToken();
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
 
     this.http

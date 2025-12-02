@@ -21,6 +21,7 @@ class User extends Authenticatable
         'date_of_birth',
         'address',
         'profile_image',
+        'status'
     ];
 
     protected $hidden = [
@@ -28,6 +29,7 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $with = [];
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
@@ -35,20 +37,20 @@ class User extends Authenticatable
     ];
 
     // Relationships
-    public function doctor()
-    {
-        return $this->hasOne(Doctor::class);
-    }
+    // public function doctor()
+    // {
+    //     return $this->hasOne(Doctor::class);
+    // }
 
-    public function patient()
-    {
-        return $this->hasOne(Patient::class);
-    }
+    // public function patient()
+    // {
+    //     return $this->hasOne(Patient::class);
+    // }
 
-    public function admin()
-    {
-        return $this->hasOne(Admin::class);
-    }
+    // public function admin()
+    // {
+    //     return $this->hasOne(Admin::class);
+    // }
 
     public function notifications()
     {
