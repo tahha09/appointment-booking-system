@@ -36,6 +36,11 @@ class Patient extends Model
         return $this->hasManyThrough(MedicalNote::class, Appointment::class);
     }
 
+    public function medicalHistory()
+    {
+        return $this->hasMany(MedicalHistory::class);
+    }
+
     // Accessors
     public function getFullNameAttribute()
     {

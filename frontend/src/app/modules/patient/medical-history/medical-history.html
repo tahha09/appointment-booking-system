@@ -1,1 +1,311 @@
-<p>medical-history works!</p>
+<main class="medical-history-container">
+  <!-- Header Section -->
+  <section class="header-section">
+    <div class="header-content">
+      <div>
+        <h1 class="page-title">
+          <i class="fas fa-file-medical"></i>
+          Medical History
+        </h1>
+        <p class="page-subtitle">View your complete medical records and past consultations</p>
+      </div>
+      <div class="view-toggle">
+        <button 
+          (click)="toggleViewMode()" 
+          class="toggle-btn"
+          [class.active]="viewMode === 'grid'"
+          title="Grid View"
+          aria-label="Grid View">
+          <i class="fas fa-th"></i>
+        </button>
+        <button 
+          (click)="toggleViewMode()" 
+          class="toggle-btn"
+          [class.active]="viewMode === 'list'"
+          title="List View"
+          aria-label="List View">
+          <i class="fas fa-list"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Search and Filter Section -->
+  <section class="filters-section">
+    <div class="search-bar">
+      <i class="fas fa-search"></i>
+      <input 
+        type="text" 
+        [(ngModel)]="searchQuery"
+        (input)="onSearch()"
+        placeholder="Search by condition, diagnosis, treatment, or notes..."
+        class="search-input">
+      <button *ngIf="searchQuery" (click)="searchQuery = ''; onSearch()" class="clear-btn" aria-label="Clear search">
+        ×
+      </button>
+    </div>
+
+    <div class="filter-controls">
+      <div class="filter-group">
+        <label><i class="fas fa-calendar-alt"></i> From Date</label>
+        <input 
+          type="date" 
+          [(ngModel)]="dateFrom"
+          (change)="onFilterChange()"
+          class="filter-input">
+      </div>
+
+      <div class="filter-group">
+        <label><i class="fas fa-calendar-alt"></i> To Date</label>
+        <input 
+          type="date" 
+          [(ngModel)]="dateTo"
+          (change)="onFilterChange()"
+          class="filter-input">
+      </div>
+
+      <div class="filter-group">
+        <label><i class="fas fa-user-md"></i> Doctor</label>
+        <select 
+          [(ngModel)]="selectedDoctor"
+          (change)="onFilterChange()"
+          class="filter-select">
+          <option value="">All Doctors</option>
+          <option *ngFor="let doctor of doctors" [value]="doctor">{{ doctor }}</option>
+        </select>
+      </div>
+
+      <button (click)="clearFilters()" class="clear-filters-btn">
+        <i class="fas fa-redo"></i> Clear Filters
+      </button>
+    </div>
+
+    <div *ngIf="filteredHistory.length !== medicalHistory.length" class="filter-info">
+      Showing {{ filteredHistory.length }} of {{ medicalHistory.length }} records
+    </div>
+  </section>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading your medical history...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <div class="error-card">
+      <i class="fas fa-exclamation-triangle"></i>
+      <h3>Error Loading Medical History</h3>
+      <p>{{ error }}</p>
+      <button (click)="fetchMedicalHistory()" class="retry-btn">
+        <i class="fas fa-redo"></i> Try Again
+      </button>
+    </div>
+  </div>
+
+  <!-- Content - Grid View -->
+  <section *ngIf="!loading && !error && viewMode === 'grid'" class="grid-view">
+    <div *ngFor="let record of filteredHistory" class="record-card" (click)="viewDetails(record)">
+      <div class="card-header">
+        <div class="date-badge">
+          <i class="fas fa-calendar-check"></i>
+          <span>{{ formatDate(record.visit_date) }}</span>
+        </div>
+        <span class="age-badge">{{ getRecordAge(record.visit_date) }}</span>
+      </div>
+
+      <div class="card-body">
+        <h3 class="condition-title">{{ record.condition }}</h3>
+        
+        <div class="doctor-info">
+          <i class="fas fa-user-md"></i>
+          <div>
+            <span class="doctor-name">Dr. {{ record.doctor?.user?.name }}</span>
+            <span *ngIf="record.doctor?.specialization?.name" class="specialization">
+              {{ record.doctor?.specialization?.name }}
+            </span>
+          </div>
+        </div>
+
+        <div class="record-preview">
+          <div class="preview-item">
+            <span class="preview-label">Diagnosis:</span>
+            <p class="preview-text">{{ record.diagnosis }}</p>
+          </div>
+          <div class="preview-item">
+            <span class="preview-label">Treatment:</span>
+            <p class="preview-text">{{ record.treatment }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <button class="view-details-btn">
+          <i class="fas fa-eye"></i> View Details
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Content - List View -->
+  <section *ngIf="!loading && !error && viewMode === 'list'" class="list-view">
+    <div *ngFor="let record of filteredHistory" class="list-item" (click)="viewDetails(record)">
+      <div class="list-date">
+        <div class="date-day">{{ formatDate(record.visit_date).split(',')[0] }}</div>
+        <div class="date-month">{{ formatDate(record.visit_date).split(',')[1]?.trim() }}</div>
+      </div>
+      
+      <div class="list-content">
+        <div class="list-header">
+          <h3>{{ record.condition }}</h3>
+          <span class="list-age">{{ getRecordAge(record.visit_date) }}</span>
+        </div>
+        <div class="list-doctor">
+          <i class="fas fa-user-md"></i>
+          Dr. {{ record.doctor?.user?.name }}
+          <span *ngIf="record.doctor?.specialization?.name" class="list-specialization">
+            • {{ record.doctor?.specialization?.name }}
+          </span>
+        </div>
+        <p class="list-diagnosis">{{ record.diagnosis }}</p>
+      </div>
+
+      <div class="list-actions">
+        <i class="fas fa-chevron-right"></i>
+      </div>
+    </div>
+  </section>
+
+  <!-- Empty State -->
+  <section *ngIf="!loading && !error && filteredHistory.length === 0" class="empty-state">
+    <div class="empty-icon">
+      <i class="fas fa-file-medical"></i>
+    </div>
+    <h3>{{ searchQuery || dateFrom || dateTo || selectedDoctor ? 'No records found' : 'No medical history found' }}</h3>
+    <p *ngIf="searchQuery || dateFrom || dateTo || selectedDoctor">
+      Try adjusting your filters or search criteria.
+    </p>
+    <p *ngIf="!searchQuery && !dateFrom && !dateTo && !selectedDoctor">
+      You don't have any medical records yet. Your medical history will appear here after your appointments.
+    </p>
+    <button *ngIf="searchQuery || dateFrom || dateTo || selectedDoctor" 
+            (click)="clearFilters()" 
+            class="clear-filters-btn">
+      Clear Filters
+    </button>
+  </section>
+
+  <!-- Details Modal -->
+  <div *ngIf="showDetailsModal && selectedRecord" 
+       class="modal-overlay" 
+       (click)="closeDetailsModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-header-content">
+          <div class="modal-icon-wrapper">
+            <i class="fas fa-file-medical"></i>
+          </div>
+          <div>
+            <h2>Medical Record Details</h2>
+            <p class="modal-subtitle">Complete information about this medical visit</p>
+          </div>
+        </div>
+        <button (click)="closeDetailsModal()" class="close-btn" aria-label="Close modal">
+          ×
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Visit Date Section -->
+        <div class="detail-section detail-section--highlighted">
+          <div class="detail-header">
+            <div class="detail-icon-wrapper">
+              <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="detail-content">
+              <h3>Visit Date</h3>
+              <p class="detail-value">{{ formatDate(selectedRecord.visit_date) }}</p>
+              <span class="detail-age">{{ getRecordAge(selectedRecord.visit_date) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Doctor Section -->
+        <div class="detail-section detail-section--highlighted">
+          <div class="detail-header">
+            <div class="detail-icon-wrapper">
+              <i class="fas fa-user-md"></i>
+            </div>
+            <div class="detail-content">
+              <h3>Attending Doctor</h3>
+              <p class="doctor-detail">Dr. {{ selectedRecord.doctor?.user?.name }}</p>
+              <p *ngIf="selectedRecord.doctor?.specialization?.name" class="specialization-detail">
+                <i class="fas fa-certificate"></i> {{ selectedRecord.doctor?.specialization?.name }}
+              </p>
+              <p *ngIf="selectedRecord.doctor?.user?.email" class="doctor-email">
+                <i class="fas fa-envelope"></i> {{ selectedRecord.doctor?.user?.email }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Condition Section -->
+        <div class="detail-section">
+          <div class="detail-label-wrapper">
+            <i class="fas fa-stethoscope"></i>
+            <h3>Condition</h3>
+          </div>
+          <div class="detail-text-wrapper">
+            <p class="detail-text">{{ selectedRecord.condition }}</p>
+          </div>
+        </div>
+
+        <!-- Diagnosis Section -->
+        <div class="detail-section">
+          <div class="detail-label-wrapper">
+            <i class="fas fa-diagnoses"></i>
+            <h3>Diagnosis</h3>
+          </div>
+          <div class="detail-text-wrapper">
+            <p class="detail-text">{{ selectedRecord.diagnosis }}</p>
+          </div>
+        </div>
+
+        <!-- Treatment Section -->
+        <div class="detail-section">
+          <div class="detail-label-wrapper">
+            <i class="fas fa-pills"></i>
+            <h3>Treatment</h3>
+          </div>
+          <div class="detail-text-wrapper">
+            <p class="detail-text">{{ selectedRecord.treatment }}</p>
+          </div>
+        </div>
+
+        <!-- Additional Notes Section -->
+        <div *ngIf="selectedRecord.notes" class="detail-section detail-section--notes">
+          <div class="detail-label-wrapper">
+            <i class="fas fa-notes-medical"></i>
+            <h3>Additional Notes</h3>
+          </div>
+          <div class="detail-text-wrapper">
+            <p class="detail-text notes-text">
+              <i class="fas fa-quote-left notes-quote"></i>
+              {{ selectedRecord.notes }}
+              <i class="fas fa-quote-right notes-quote"></i>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeDetailsModal()" class="close-modal-btn">
+          <i class="fas fa-check"></i>
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
