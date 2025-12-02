@@ -1,1 +1,54 @@
-<p>my-appointments works!</p>
+<div *ngIf="!loading && !error && appointments.length > 0" class="appointments-table">
+    <h2>My Appointments ({{ appointments.length }})</h2>
+    
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Doctor</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th>Reason</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let appointment of appointments">
+            <td>
+              <div class="doctor-info">
+                <strong>Dr. {{ appointment.doctor?.user?.name || 'N/A' }}</strong>
+              </div>
+            </td>
+            <td>
+              {{ appointment.appointment_date | date:'mediumDate' }}
+            </td>
+            <td>
+              {{ appointment.start_time }} - {{ appointment.end_time }}
+            </td>
+            <td>
+              <span [class]="'status-badge status-' + appointment.status">
+                {{ appointment.status | titlecase }}
+              </span>
+            </td>
+            <td>{{ appointment.reason || 'No reason provided' }}</td>
+            <td>
+              <button 
+                *ngIf="appointment.status === 'pending' || appointment.status === 'confirmed'"
+                (click)="cancelAppointment(appointment.id)"
+                class="cancel-btn"
+              >
+                Cancel
+              </button>
+              <button 
+                class="details-btn"
+                (click)="viewDetails(appointment.id)"
+              >
+                Details
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>

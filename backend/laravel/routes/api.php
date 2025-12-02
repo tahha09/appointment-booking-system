@@ -56,6 +56,16 @@ Route::get('/test', function () {
 
 // Test route outside doctor group
 Route::get('/doctor-test', [OverviewController::class, 'test']);
+Route::prefix('patient')->group(function () {
+    Route::get('/dashboard', [PatientAppointmentController::class, 'dashboard']);
+    Route::get('/appointments', [PatientAppointmentController::class, 'index']);
+    Route::put('/appointments/{id}/cancel', [PatientAppointmentController::class, 'cancel']);
+    Route::get('/medical-records', [PatientAppointmentController::class, 'medicalRecords']);
+    
+});
+
+// Protected Routes - require authentication
+Route::middleware(['auth:sanctum'])->group(function () {
 
 // Admin Routes - temporarily without authentication for testing
 Route::prefix('admin')->group(function () {
