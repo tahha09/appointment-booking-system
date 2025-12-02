@@ -55,7 +55,7 @@ export class Appointment {
   constructor(private http: HttpClient) {}
 
   private getAuthHeaders(): HttpHeaders | undefined {
-    const token = localStorage.getItem('auth_token');
+    const token = sessionStorage.getItem('auth_token');
     return token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
   }
 

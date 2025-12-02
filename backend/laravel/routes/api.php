@@ -46,13 +46,7 @@ Route::get('/specializations', [SpecializationController::class, 'index']);
 Route::get('/specializations/filter-list', [SpecializationController::class, 'filterList']);
 Route::get('/specializations/{id}', [SpecializationController::class, 'show']);
 
-/* Route::prefix('patient')->group(function () {
-    Route::get('/dashboard', [PatientAppointmentController::class, 'dashboard']);
-    Route::get('/appointments', [PatientAppointmentController::class, 'index']);
-    Route::put('/appointments/{id}/cancel', [PatientAppointmentController::class, 'cancel']);
-    Route::get('/medical-records', [PatientAppointmentController::class, 'medicalRecords']);
-    
-}); */
+
 
 // Test route
 Route::get('/test', function () {
