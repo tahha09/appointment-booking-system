@@ -46,6 +46,14 @@ Route::get('/specializations', [SpecializationController::class, 'index']);
 Route::get('/specializations/filter-list', [SpecializationController::class, 'filterList']);
 Route::get('/specializations/{id}', [SpecializationController::class, 'show']);
 
+/* Route::prefix('patient')->group(function () {
+    Route::get('/dashboard', [PatientAppointmentController::class, 'dashboard']);
+    Route::get('/appointments', [PatientAppointmentController::class, 'index']);
+    Route::put('/appointments/{id}/cancel', [PatientAppointmentController::class, 'cancel']);
+    Route::get('/medical-records', [PatientAppointmentController::class, 'medicalRecords']);
+    
+}); */
+
 // Test route
 Route::get('/test', function () {
     return response()->json([
@@ -56,16 +64,6 @@ Route::get('/test', function () {
 
 // Test route outside doctor group
 Route::get('/doctor-test', [OverviewController::class, 'test']);
-Route::prefix('patient')->group(function () {
-    Route::get('/dashboard', [PatientAppointmentController::class, 'dashboard']);
-    Route::get('/appointments', [PatientAppointmentController::class, 'index']);
-    Route::put('/appointments/{id}/cancel', [PatientAppointmentController::class, 'cancel']);
-    Route::get('/medical-records', [PatientAppointmentController::class, 'medicalRecords']);
-    
-});
-
-// Protected Routes - require authentication
-Route::middleware(['auth:sanctum'])->group(function () {
 
 // Admin Routes - temporarily without authentication for testing
 Route::prefix('admin')->group(function () {
@@ -202,44 +200,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // Specializations
         Route::get('/specializations', function () {
             return \App\Models\Specialization::all();
-        // AI Routes (accessible by doctors and patients)
-        Route::prefix('ai')->group(function () {
-            Route::middleware('role:patient')->post('/doctor-recommendation', [RecommendationController::class, 'recommendDoctors']);
-            Route::middleware('role:doctor')->post('/generate-medical-notes', [RecommendationController::class, 'generateMedicalNotes']);
-            Route::middleware('role:doctor')->get('/patient-summary/{patientId}', [RecommendationController::class, 'patientSummary']);
-        });
-
-        // Shared Routes (accessible by multiple roles)
-        Route::prefix('shared')->group(function () {
-            // Notifications
-            Route::get('/notifications', function (Request $request) {
-                return $request->user()->notifications()->orderBy('created_at', 'desc')->get();
-            });
-
-            Route::put('/notifications/{id}/read', function (Request $request, $id) {
-                $notification = $request->user()->notifications()->findOrFail($id);
-                $notification->update(['is_read' => true]);
-                return response()->json(['message' => 'Notification marked as read']);
-            });
-
-            Route::put('/notifications/read-all', function (Request $request) {
-                $request->user()->notifications()->where('is_read', false)->update(['is_read' => true]);
-                return response()->json(['message' => 'All notifications marked as read']);
-            });
-
-            // Specializations
-            Route::get('/specializations', function () {
-                return \App\Models\Specialization::all();
-            });
-        });
-    }
-        // Payment Routes
-        Route::prefix('payments')->middleware(['auth:sanctum', 'role:patient'])->group(function () {
-            Route::post('/create-intent', [PaymentController::class, 'createPaymentIntent']);
-            Route::post('/confirm', [PaymentController::class, 'confirmPayment']);
-            Route::get('/{id}', [PaymentController::class, 'getPayment']);
-            Route::get('/', [PaymentController::class, 'getPatientPayments']);
-            Route::post('/{id}/refund', [PaymentController::class, 'refundPayment']);
         });
     });
 
