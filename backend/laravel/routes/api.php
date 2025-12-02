@@ -46,6 +46,8 @@ Route::get('/specializations', [SpecializationController::class, 'index']);
 Route::get('/specializations/filter-list', [SpecializationController::class, 'filterList']);
 Route::get('/specializations/{id}', [SpecializationController::class, 'show']);
 
+
+
 // Test route
 Route::get('/test', function () {
     return response()->json([

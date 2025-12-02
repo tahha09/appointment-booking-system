@@ -7,6 +7,7 @@ import { PatientProfile } from './profile/profile';
 import { MyAppointments } from './my-appointments/my-appointments';
 import { MedicalHistory } from './medical-history/medical-history';
 import { Prescriptions } from './prescriptions/prescriptions';
+import { AppointmentDetails } from './appointment-details/appointment-details';
 import { authGuard } from '../../core/guards/auth-guard';
 
 const routes: Routes = [
@@ -19,6 +20,7 @@ const routes: Routes = [
       { path: 'my-appointments', component: MyAppointments },
       { path: 'medical-history', component: MedicalHistory },
       { path: 'prescriptions', component: Prescriptions },
+      { path: 'appointment-details/:id', component: AppointmentDetails},
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
       
     ]
@@ -37,6 +39,7 @@ const routes: Routes = [
     MyAppointments,
     MedicalHistory,
     Prescriptions,
+    AppointmentDetails,
     RouterModule.forChild(routes)
   ],
   exports: [RouterModule]
