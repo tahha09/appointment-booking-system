@@ -5,7 +5,7 @@ import { Layout } from './layout/layout';
 import { Dashboard } from './dashboard/dashboard';
 import { PatientProfile } from './profile/profile';
 import { MyAppointments } from './my-appointments/my-appointments';
-import { MedicalHistory } from './medical-history/medical-history';
+import { MedicalHistoryComponent } from './medical-history/medical-history';
 import { Prescriptions } from './prescriptions/prescriptions';
 import { authGuard } from '../../core/guards/auth-guard';
 
@@ -17,27 +17,27 @@ const routes: Routes = [
     children: [
       { path: 'dashboard', component: Dashboard },
       { path: 'my-appointments', component: MyAppointments },
-      { path: 'medical-history', component: MedicalHistory },
+      { path: 'medical-history', component: MedicalHistoryComponent },
       { path: 'prescriptions', component: Prescriptions },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
-      
     ]
   },
   { path: 'profile', component: PatientProfile },
 ];
 
 @NgModule({
-  declarations: [], // Empty declarations since all components are standalone
+  // ✅ كل الكومبوننتس standalone → مفيش declarations
+  declarations: [],
   imports: [
     CommonModule,
-    // Import all standalone components
+    // ✅ هنا تحط كل الـ standalone components
     Layout,
     Dashboard,
     PatientProfile,
     MyAppointments,
-    MedicalHistory,
+    MedicalHistoryComponent, // ✅ صح كده
     Prescriptions,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
   ],
   exports: [RouterModule]
 })

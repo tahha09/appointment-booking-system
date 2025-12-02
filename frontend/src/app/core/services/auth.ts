@@ -48,6 +48,7 @@ interface ProfileResponse {
   phone: string;
   dateOfBirth: string | null;
   address: string;
+  bloodType: string | null;
   profileImage: string | null;
 }
 
@@ -251,7 +252,11 @@ export class Auth {
             'Failed to load profile.';
 
           return throwError(() => ({
-            error: { error: message },
+            ...error,
+            error: { 
+              error: message,
+              message: message 
+            },
           }));
         })
       );
@@ -263,6 +268,7 @@ export class Auth {
     phone: string;
     dateOfBirth: string;
     address: string;
+    bloodType?: string | null;
     currentPassword?: string;
     newPassword?: string;
     confirmNewPassword?: string;
@@ -284,7 +290,11 @@ export class Auth {
             'Failed to update profile.';
 
           return throwError(() => ({
-            error: { error: message },
+            ...error,
+            error: { 
+              error: message,
+              message: message 
+            },
           }));
         })
       );

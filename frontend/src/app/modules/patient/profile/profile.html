@@ -1,3 +1,4 @@
+<app-header></app-header>
 <main class="patient-profile">
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="patient-profile__form">
     <section class="patient-profile__header">
@@ -98,6 +99,17 @@
               class="patient-profile__input"
               placeholder="Your address"
             />
+          </div>
+          <div class="patient-profile__field">
+            <span class="patient-profile__label">Blood Type</span>
+            <select
+              formControlName="bloodType"
+              class="patient-profile__input patient-profile__select"
+            >
+              <option *ngFor="let option of bloodTypeOptions" [value]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
           </div>
         </div>
       </div>
@@ -341,3 +353,4 @@
     </div>
   </div>
 </main>
+<app-footer></app-footer>

@@ -45,10 +45,13 @@ export class Layout {
     return this.auth.getProfileImage() || 'assets/user-placeholder.png';
   }
 
-  // get the first character of the name
-   get userInitial(): string {
+  // get user initials for avatar fallback
+  get userInitial(): string {
     const name = this.userName;
-    return name.charAt(0).toUpperCase();
+    const parts = name.trim().split(/\s+/).filter((part) => !!part);
+    if (parts.length === 0) return 'U';
+    if (parts.length === 1) return parts[0][0].toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   }
 
   handleAvatarError() {
