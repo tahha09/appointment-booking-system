@@ -8,6 +8,7 @@ import { MyAppointments } from './my-appointments/my-appointments';
 import { Schedule } from './schedule/schedule';
 import { FinancialPerformance } from './financial-performance/financial-performance';
 import { Certificates } from './certificates/certificates';
+import { Profile } from '../../shared/components/profile/profile';
 
 const doctorRoutes: Routes = [
   {
@@ -21,6 +22,7 @@ const doctorRoutes: Routes = [
       { path: 'schedule', component: Schedule },
       { path: 'financial-performance', component: FinancialPerformance },
       { path: 'certificates', component: Certificates },
+      { path: 'profile', component: Profile },
     ],
   },
 ];
@@ -36,6 +38,7 @@ const doctorRoutes: Routes = [
     MyAppointments,
     Schedule,
     FinancialPerformance,
+    Profile,
     RouterModule.forChild(doctorRoutes)
   ],
   exports: [RouterModule]

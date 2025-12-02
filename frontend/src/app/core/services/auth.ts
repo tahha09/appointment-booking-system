@@ -290,9 +290,85 @@ export class Auth {
       );
   }
 
+  getProfile(): Observable<ProfileResponse> {
+    return this.http
+      .get<ApiResponse<ProfileResponse>>(`${this.apiBaseUrl}/profile`, {
+        headers: this.getAuthHeaders(),
+      })
+      .pipe(
+        map((response) => {
+          const profile = response.data;
+          this.setProfileImage(profile.profileImage);
+          return profile;
+        }),
+        catchError((error: HttpErrorResponse) => {
+          const message =
+            (error?.error && (error.error.message || error.error.error)) ||
+            'Failed to load profile.';
+
+          return throwError(() => ({
+            error: { error: message },
+          }));
+        })
+      );
+  }
+
+  updateProfile(update: {
+    fullName: string;
+    email: string;
+    phone: string;
+    dateOfBirth: string;
+    address: string;
+    profileImage?: string | null;
+  }): Observable<ProfileResponse> {
+    return this.http
+      .put<ApiResponse<ProfileResponse>>(`${this.apiBaseUrl}/profile`, update, {
+        headers: this.getAuthHeaders(),
+      })
+      .pipe(
+        map((response) => {
+          const profile = response.data;
+          this.setProfileImage(profile.profileImage);
+          return profile;
+        }),
+        catchError((error: HttpErrorResponse) => {
+          const message =
+            (error?.error && (error.error.message || error.error.error)) ||
+            'Failed to update profile.';
+
+          return throwError(() => ({
+            error: { error: message },
+          }));
+        })
+      );
+  }
+
+  updatePassword(update: {
+    currentPassword: string;
+    newPassword: string;
+    confirmNewPassword: string;
+  }): Observable<void> {
+    return this.http
+      .put<ApiResponse<null>>(`${this.apiBaseUrl}/password`, update, {
+        headers: this.getAuthHeaders(),
+      })
+      .pipe(
+        map(() => {}),
+        catchError((error: HttpErrorResponse) => {
+          const message =
+            (error?.error && (error.error.message || error.error.error)) ||
+            'Failed to update password.';
+
+          return throwError(() => ({
+            error: { error: message },
+          }));
+        })
+      );
+  }
+
   deleteAccount(password: string): Observable<void> {
     return this.http
-      .delete<ApiResponse<null>>(`${this.apiBaseUrl}/patient/account`, {
+      .delete<ApiResponse<null>>(`${this.apiBaseUrl}/account`, {
         headers: this.getAuthHeaders(),
         body: { password },
       })
