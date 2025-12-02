@@ -162,6 +162,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // Medical History
         Route::get('/medical-history', [\App\Http\Controllers\Patient\MedicalHistoryController::class, 'index']);
+
+        // Prescriptions
+        Route::get('/prescriptions', [\App\Http\Controllers\Patient\PrescriptionController::class, 'index']);
     });
 
     // AI Routes (accessible by doctors and patients)

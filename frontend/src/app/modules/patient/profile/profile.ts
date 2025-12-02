@@ -4,11 +4,13 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
 import { Notification } from '../../../core/services/notification';
+import { Header } from '../../../shared/components/header/header';
+import { Footer } from '../../../shared/components/footer/footer';
 
 @Component({
   selector: 'app-patient-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, Header, Footer],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })
