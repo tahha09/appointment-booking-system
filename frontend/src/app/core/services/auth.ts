@@ -56,6 +56,11 @@ interface ProfileResponse {
 })
 export class Auth {
   private readonly apiBaseUrl = 'http://localhost:8000/api';
+  private readonly TOKEN_KEY = 'auth_token';
+  private readonly ROLE_KEY = 'user_role';
+  private readonly NAME_KEY = 'user_name';
+  private readonly EMAIL_KEY = 'user_email';
+  private readonly PROFILE_IMAGE_KEY = 'profile_image';
   private token: string | null = null;
   private role: string | null = null;
   private profileImage: string | null = null;
@@ -63,6 +68,12 @@ export class Auth {
   private email: string | null = null;
 
   constructor(private readonly http: HttpClient) {
+    // Load persisted data on initialization
+    this.token = sessionStorage.getItem(this.TOKEN_KEY);
+    this.role = sessionStorage.getItem(this.ROLE_KEY);
+    this.name = sessionStorage.getItem(this.NAME_KEY);
+    this.email = sessionStorage.getItem(this.EMAIL_KEY);
+    this.profileImage = sessionStorage.getItem(this.PROFILE_IMAGE_KEY);
   }
 
   login(payload: LoginPayload): Observable<LoginResponse> {
@@ -78,6 +89,15 @@ export class Auth {
           this.email = user.email;
           if (user.profile_image) {
             this.profileImage = user.profile_image;
+          }
+
+          // Persist to sessionStorage
+          sessionStorage.setItem(this.TOKEN_KEY, token);
+          sessionStorage.setItem(this.ROLE_KEY, user.role);
+          sessionStorage.setItem(this.NAME_KEY, user.name);
+          sessionStorage.setItem(this.EMAIL_KEY, user.email);
+          if (user.profile_image) {
+            sessionStorage.setItem(this.PROFILE_IMAGE_KEY, user.profile_image);
           }
 
           return { token };
@@ -131,6 +151,19 @@ export class Auth {
   }
 
   logout(): void {
+    // Clear from memory and sessionStorage immediately
+    this.token = null;
+    this.role = null;
+    this.profileImage = null;
+    this.name = null;
+    this.email = null;
+    sessionStorage.removeItem(this.TOKEN_KEY);
+    sessionStorage.removeItem(this.ROLE_KEY);
+    sessionStorage.removeItem(this.NAME_KEY);
+    sessionStorage.removeItem(this.EMAIL_KEY);
+    sessionStorage.removeItem(this.PROFILE_IMAGE_KEY);
+
+    // Optionally notify backend (don't wait for response)
     if (this.token) {
       this.http
         .post<ApiResponse<null>>(
@@ -143,12 +176,6 @@ export class Auth {
           error: () => {},
         });
     }
-
-    this.token = null;
-    this.role = null;
-    this.profileImage = null;
-    this.name = null;
-    this.email = null;
   }
 
   getToken(): string | null {
@@ -276,6 +303,11 @@ export class Auth {
           this.profileImage = null;
           this.name = null;
           this.email = null;
+          sessionStorage.removeItem(this.TOKEN_KEY);
+          sessionStorage.removeItem(this.ROLE_KEY);
+          sessionStorage.removeItem(this.NAME_KEY);
+          sessionStorage.removeItem(this.EMAIL_KEY);
+          sessionStorage.removeItem(this.PROFILE_IMAGE_KEY);
         }),
         catchError((error: HttpErrorResponse) => {
           const message =

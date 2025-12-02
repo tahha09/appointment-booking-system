@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './core/guards/auth-guard';
+import { patientGuard } from './core/guards/patient-guard';
+import { doctorGuard } from './core/guards/doctor-guard';
+import { adminGuard } from './core/guards/admin-guard';
 
 export const routes: Routes = [
   {
@@ -13,24 +15,17 @@ export const routes: Routes = [
   {
     path: 'patient',
     loadChildren: () => import('./modules/patient/patient-module').then((m) => m.PatientModule),
-    canActivate: [authGuard],
+    canActivate: [patientGuard],
   },
   {
     path: 'doctor',
     loadChildren: () => import('./modules/doctor/doctor-module').then((m) => m.DoctorModule),
-    canActivate: [authGuard],
+    canActivate: [doctorGuard],
   },
   {
     path: 'admin',
     loadChildren: () => import('./modules/admin/admin-module').then((m) => m.AdminModule),
-    canActivate: [authGuard],
+    canActivate: [adminGuard],
   },
-  {
-    path: 'admin',
-    loadChildren: () => import('./modules/admin/admin-module').then(m => m.AdminModule)
-  },
-  {
-    path: 'doctor',
-    loadChildren: () => import('./modules/doctor/doctor-module').then(m => m.DoctorModule)
-  }
+
 ];

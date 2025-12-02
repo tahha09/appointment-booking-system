@@ -142,16 +142,7 @@ export class Register {
               confirmButtonText: 'Continue',
             })
             .then(() => {
-              const userRole = this.auth.getRole();
-              if (userRole === 'patient') {
-                this.router.navigateByUrl('/patient/profile');
-              } else if (userRole === 'doctor') {
-                this.router.navigateByUrl('/doctor/dashboard');
-              } else if (userRole === 'admin') {
-                this.router.navigateByUrl('/admin/dashboard');
-              } else {
-                this.router.navigateByUrl('/');
-              }
+              this.router.navigateByUrl('/login');
             });
         },
         error: (error) => {
