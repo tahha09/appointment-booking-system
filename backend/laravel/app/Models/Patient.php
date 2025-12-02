@@ -21,10 +21,10 @@ class Patient extends Model
     ];
 
     // Relationships
-    // public function user()
-    // {
-    //     return $this->belongsTo(User::class);
-    // }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function appointments()
     {
@@ -36,26 +36,26 @@ class Patient extends Model
         return $this->hasManyThrough(MedicalNote::class, Appointment::class);
     }
 
-    // Accessors - commented out to avoid potential infinite loops
-    // public function getFullNameAttribute()
-    // {
-    //     return $this->user->name;
-    // }
+    // Accessors
+    public function getFullNameAttribute()
+    {
+        return $this->user->name;
+    }
 
-    // public function getEmailAttribute()
-    // {
-    //     return $this->user->email;
-    // }
+    public function getEmailAttribute()
+    {
+        return $this->user->email;
+    }
 
-    // public function getPhoneAttribute()
-    // {
-    //     return $this->user->phone;
-    // }
+    public function getPhoneAttribute()
+    {
+        return $this->user->phone;
+    }
 
-    // public function getAgeAttribute()
-    // {
-    //     return $this->user->age;
-    // }
+    public function getAgeAttribute()
+    {
+        return $this->user->age;
+    }
 
     // Methods
 // في Patient.php - استبدل:
