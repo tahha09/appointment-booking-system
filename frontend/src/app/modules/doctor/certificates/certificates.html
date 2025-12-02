@@ -1,6 +1,6 @@
-<div class="space-y-6 text-slate-50">
+<div class="space-y-6 text-[#032f30]">
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-    <h2 class="text-2xl font-bold">My Certificates</h2>
+    <h2 class="text-2xl font-bold text-[#031716]">My Certificates</h2>
     <button
       (click)="openAddModal()"
       class="px-6 py-2 rounded-xl bg-[#0c969c] text-white font-semibold hover:bg-[#0a7075] transition"
@@ -13,7 +13,7 @@
   <div *ngIf="loading" class="flex items-center justify-center py-20">
     <div class="text-center">
       <div class="w-16 h-16 border-4 border-[#0c969c] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-      <p class="text-teal-200">Loading certificates...</p>
+      <p class="text-[#274d60]">Loading certificates...</p>
     </div>
   </div>
 
@@ -24,13 +24,13 @@
 
   <!-- Certificates Grid -->
   <div *ngIf="!loading && !error" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <div *ngIf="certificates.length === 0" class="col-span-full rounded-2xl border border-[#6ba3be]/40 bg-white/5 backdrop-blur p-8 text-center">
-      <p class="text-teal-200 text-lg">No certificates added yet.</p>
+    <div *ngIf="certificates.length === 0" class="col-span-full rounded-2xl border border-[#d3e6eb] bg-white p-8 text-center">
+      <p class="text-[#274d60] text-lg">No certificates added yet.</p>
     </div>
 
-    <div *ngFor="let certificate of certificates" class="rounded-2xl border border-[#6ba3be]/40 bg-white/5 backdrop-blur p-6 shadow-lg hover:border-[#0c969c]/50 transition">
-      <div class="space-y-4">
-        <h3 class="text-xl font-bold text-white">{{ certificate.title }}</h3>
+    <div *ngFor="let certificate of certificates" class="rounded-2xl border border-[#d7ebef] bg-white p-6 shadow-lg hover:border-[#0c969c]/50 transition">
+      <div class="space-y-4 text-[#032f30]">
+        <h3 class="text-xl font-bold text-[#031716]">{{ certificate.title }}</h3>
 
         <div *ngIf="certificate.issuing_organization" class="text-sm text-teal-200">
           <strong>Organization:</strong> {{ certificate.issuing_organization }}
@@ -39,15 +39,15 @@
         <div class="grid grid-cols-2 gap-2 text-sm">
           <div>
             <span class="text-teal-200">Issue Date:</span>
-            <p class="text-white">{{ formatDate(certificate.issue_date) }}</p>
+            <p class="text-[#032f30]">{{ formatDate(certificate.issue_date) }}</p>
           </div>
           <div>
             <span class="text-teal-200">Expiry Date:</span>
-            <p class="text-white">{{ formatDate(certificate.expiry_date) }}</p>
+            <p class="text-[#032f30]">{{ formatDate(certificate.expiry_date) }}</p>
           </div>
         </div>
 
-        <div *ngIf="certificate.description" class="text-sm text-white">
+        <div *ngIf="certificate.description" class="text-sm text-[#032f30]">
           <p class="line-clamp-3">{{ certificate.description }}</p>
         </div>
 
@@ -117,11 +117,11 @@
     (click)="closeModals()"
   >
     <div
-      class="bg-[#032f30] rounded-2xl border border-[#6ba3be]/40 p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+      class="bg-white text-[#032f30] rounded-2xl border border-[#d7ebef] p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
       (click)="$event.stopPropagation()"
     >
       <div class="flex items-center justify-between mb-6">
-        <h3 class="text-2xl font-bold text-white">{{ showEditModal ? 'Edit' : 'Add' }} Certificate</h3>
+        <h3 class="text-2xl font-bold text-[#031716]">{{ showEditModal ? 'Edit' : 'Add' }} Certificate</h3>
         <button
           (click)="closeModals()"
           class="w-8 h-8 rounded-full bg-red-500/20 text-red-300 hover:bg-red-500/30 transition flex items-center justify-center"
@@ -138,7 +138,7 @@
             [(ngModel)]="formData.title"
             name="title"
             required
-            class="w-full px-4 py-2 rounded-xl bg-[#031716] border border-[#6ba3be]/40 text-white focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+            class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/40 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
           />
         </div>
 
@@ -148,7 +148,7 @@
             [(ngModel)]="formData.description"
             name="description"
             rows="4"
-            class="w-full px-4 py-2 rounded-xl bg-[#031716] border border-[#6ba3be]/40 text-white focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+            class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/40 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
           ></textarea>
         </div>
 
@@ -159,7 +159,7 @@
               type="text"
               [(ngModel)]="formData.issuing_organization"
               name="issuing_organization"
-              class="w-full px-4 py-2 rounded-xl bg-[#031716] border border-[#6ba3be]/40 text-white focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+              class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/40 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
             />
           </div>
         </div>
@@ -171,7 +171,7 @@
               type="date"
               [(ngModel)]="formData.issue_date"
               name="issue_date"
-              class="w-full px-4 py-2 rounded-xl bg-[#031716] border border-[#6ba3be]/40 text-white focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+              class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/40 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
             />
           </div>
           <div>
@@ -180,7 +180,7 @@
               type="date"
               [(ngModel)]="formData.expiry_date"
               name="expiry_date"
-              class="w-full px-4 py-2 rounded-xl bg-[#031716] border border-[#6ba3be]/40 text-white focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+              class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/40 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
             />
           </div>
         </div>
@@ -192,7 +192,7 @@
             (change)="onImageSelect($event)"
             multiple
             accept="image/*"
-            class="w-full px-4 py-2 rounded-xl bg-[#031716] border border-[#6ba3be]/40 text-white focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+            class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/40 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
           />
         </div>
 
@@ -257,11 +257,11 @@
     (click)="closeModals()"
   >
     <div
-      class="bg-[#032f30] rounded-2xl border border-[#6ba3be]/40 p-6 max-w-md w-full"
+      class="bg-white text-[#032f30] rounded-2xl border border-[#d7ebef] p-6 max-w-md w-full shadow-2xl"
       (click)="$event.stopPropagation()"
     >
-      <h3 class="text-xl font-bold text-white mb-4">Delete Certificate</h3>
-      <p class="text-teal-200 mb-6">Are you sure you want to delete "{{ selectedCertificate?.title }}"? This action cannot be undone.</p>
+      <h3 class="text-xl font-bold text-[#031716] mb-4">Delete Certificate</h3>
+      <p class="text-[#274d60] mb-6">Are you sure you want to delete "{{ selectedCertificate?.title }}"? This action cannot be undone.</p>
       <div class="flex gap-4">
         <button
           (click)="deleteCertificate()"
