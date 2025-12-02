@@ -1,13 +1,10 @@
+<app-header></app-header>
 <main class="patient-profile">
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="patient-profile__form">
     <section class="patient-profile__header">
       <div class="patient-profile__avatar">
         <ng-container *ngIf="profileImage; else initialsAvatar">
-          <img
-            [src]="profileImage"
-            alt="Patient avatar"
-            class="patient-profile__avatar-img"
-          />
+          <img [src]="profileImage" alt="Patient avatar" class="patient-profile__avatar-img" />
         </ng-container>
         <ng-template #initialsAvatar>
           <span class="patient-profile__avatar-initials">
@@ -22,12 +19,8 @@
           Manage your personal details and account settings.
         </p>
         <label class="patient-profile__upload-btn">
-          <input
-            type="file"
-            accept="image/*"
-            class="patient-profile__upload-input"
-            (change)="onProfileImageSelected($event)"
-          />
+          <input type="file" accept="image/*" class="patient-profile__upload-input"
+            (change)="onProfileImageSelected($event)" />
           Change photo
         </label>
       </div>
@@ -44,60 +37,30 @@
         <div class="patient-profile__grid">
           <div class="patient-profile__field">
             <span class="patient-profile__label">Full name</span>
-            <input
-              type="text"
-              formControlName="fullName"
-              class="patient-profile__input"
-              placeholder="Your full name"
-            />
-            <span
-              class="patient-profile__error"
-              *ngIf="form.get('fullName')?.touched && form.get('fullName')?.invalid"
-            >
+            <input type="text" formControlName="fullName" class="patient-profile__input" placeholder="Your full name" />
+            <span class="patient-profile__error" *ngIf="form.get('fullName')?.touched && form.get('fullName')?.invalid">
               Please enter your full name.
             </span>
           </div>
           <div class="patient-profile__field">
             <span class="patient-profile__label">Email</span>
-            <input
-              type="email"
-              formControlName="email"
-              class="patient-profile__input patient-profile__input--readonly"
-              placeholder="you@example.com"
-              readonly
-            />
-            <span
-              class="patient-profile__error"
-              *ngIf="form.get('email')?.touched && form.get('email')?.invalid"
-            >
+            <input type="email" formControlName="email" class="patient-profile__input patient-profile__input--readonly"
+              placeholder="you@example.com" readonly />
+            <span class="patient-profile__error" *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
               Please enter a valid email address.
             </span>
           </div>
           <div class="patient-profile__field">
             <span class="patient-profile__label">Phone</span>
-            <input
-              type="text"
-              formControlName="phone"
-              class="patient-profile__input"
-              placeholder="+20 123 456 7890"
-            />
+            <input type="text" formControlName="phone" class="patient-profile__input" placeholder="+20 123 456 7890" />
           </div>
           <div class="patient-profile__field">
             <span class="patient-profile__label">Date of birth</span>
-            <input
-              type="date"
-              formControlName="dateOfBirth"
-              class="patient-profile__input"
-            />
+            <input type="date" formControlName="dateOfBirth" class="patient-profile__input" />
           </div>
           <div class="patient-profile__field patient-profile__field--full">
             <span class="patient-profile__label">Address</span>
-            <input
-              type="text"
-              formControlName="address"
-              class="patient-profile__input"
-              placeholder="Your address"
-            />
+            <input type="text" formControlName="address" class="patient-profile__input" placeholder="Your address" />
           </div>
         </div>
       </div>
@@ -113,11 +76,7 @@
             </p>
           </div>
           <div class="patient-profile__security-actions">
-            <button
-              type="button"
-              class="patient-profile__change-password-btn"
-              (click)="openPasswordModal()"
-            >
+            <button type="button" class="patient-profile__change-password-btn" (click)="openPasswordModal()">
               Change password
             </button>
           </div>
@@ -131,11 +90,7 @@
             </p>
           </div>
           <div class="patient-profile__security-actions">
-            <button
-              type="button"
-              class="patient-profile__delete-account-btn"
-              (click)="openDeleteModal()"
-            >
+            <button type="button" class="patient-profile__delete-account-btn" (click)="openDeleteModal()">
               Delete account
             </button>
           </div>
@@ -144,52 +99,34 @@
     </section>
 
     <div class="patient-profile__actions">
-      <button
-        type="submit"
-        class="patient-profile__save-btn"
-        [disabled]="form.invalid || isLoading || isSaving || !form.dirty"
-      >
+      <button type="submit" class="patient-profile__save-btn"
+        [disabled]="form.invalid || isLoading || isSaving || !form.dirty">
         <span *ngIf="!isSaving">Save changes</span>
         <span *ngIf="isSaving">Saving...</span>
       </button>
     </div>
   </form>
 
-  <div
-    class="patient-profile__modal-backdrop"
-    *ngIf="showPasswordModal"
-  >
+  <div class="patient-profile__modal-backdrop" *ngIf="showPasswordModal">
     <div class="patient-profile__modal">
       <h3 class="patient-profile__modal-title">Change password</h3>
       <form [formGroup]="passwordForm" (ngSubmit)="onPasswordSubmit()">
         <div class="patient-profile__field patient-profile__field--full">
           <span class="patient-profile__label">Current password</span>
           <div class="patient-profile__input-wrapper">
-            <input
-              [type]="showCurrentPassword ? 'text' : 'password'"
-              formControlName="currentPassword"
-              class="patient-profile__input"
-              autocomplete="current-password"
-              placeholder="Enter your current password"
-            />
-            <button
-              type="button"
-              class="patient-profile__toggle-password"
-              (click)="showCurrentPassword = !showCurrentPassword"
-              aria-label="Toggle current password visibility"
-            >
+            <input [type]="showCurrentPassword ? 'text' : 'password'" formControlName="currentPassword"
+              class="patient-profile__input" autocomplete="current-password"
+              placeholder="Enter your current password" />
+            <button type="button" class="patient-profile__toggle-password"
+              (click)="showCurrentPassword = !showCurrentPassword" aria-label="Toggle current password visibility">
               <svg class="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
-                <path
-                  fill="currentColor"
-                  d="M12 5c-4.5 0-8.3 2.9-9.5 7 1.2 4.1 5 7 9.5 7s8.3-2.9 9.5-7c-1.2-4.1-5-7-9.5-7Zm0 2c3.1 0 5.8 1.8 7 5-1.2 3.2-3.9 5-7 5s-5.8-1.8-7-5c1.2-3.2 3.9-5 7-5Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"
-                />
+                <path fill="currentColor"
+                  d="M12 5c-4.5 0-8.3 2.9-9.5 7 1.2 4.1 5 7 9.5 7s8.3-2.9 9.5-7c-1.2-4.1-5-7-9.5-7Zm0 2c3.1 0 5.8 1.8 7 5-1.2 3.2-3.9 5-7 5s-5.8-1.8-7-5c1.2-3.2 3.9-5 7-5Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" />
               </svg>
             </button>
           </div>
-          <span
-            class="patient-profile__error"
-            *ngIf="passwordForm.get('currentPassword')?.touched && passwordForm.get('currentPassword')?.invalid"
-          >
+          <span class="patient-profile__error"
+            *ngIf="passwordForm.get('currentPassword')?.touched && passwordForm.get('currentPassword')?.invalid">
             Current password is required.
           </span>
         </div>
@@ -198,31 +135,18 @@
           <div class="patient-profile__field">
             <span class="patient-profile__label">New password</span>
             <div class="patient-profile__input-wrapper">
-              <input
-                [type]="showNewPassword ? 'text' : 'password'"
-                formControlName="newPassword"
-                class="patient-profile__input"
-                autocomplete="new-password"
-                placeholder="New password"
-              />
-              <button
-                type="button"
-                class="patient-profile__toggle-password"
-                (click)="showNewPassword = !showNewPassword"
-                aria-label="Toggle new password visibility"
-              >
+              <input [type]="showNewPassword ? 'text' : 'password'" formControlName="newPassword"
+                class="patient-profile__input" autocomplete="new-password" placeholder="New password" />
+              <button type="button" class="patient-profile__toggle-password"
+                (click)="showNewPassword = !showNewPassword" aria-label="Toggle new password visibility">
                 <svg class="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
-                  <path
-                    fill="currentColor"
-                    d="M12 5c-4.5 0-8.3 2.9-9.5 7 1.2 4.1 5 7 9.5 7s8.3-2.9 9.5-7c-1.2-4.1-5-7-9.5-7Zm0 2c3.1 0 5.8 1.8 7 5-1.2 3.2-3.9 5-7 5s-5.8-1.8-7-5c1.2-3.2 3.9-5 7-5Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"
-                  />
+                  <path fill="currentColor"
+                    d="M12 5c-4.5 0-8.3 2.9-9.5 7 1.2 4.1 5 7 9.5 7s8.3-2.9 9.5-7c-1.2-4.1-5-7-9.5-7Zm0 2c3.1 0 5.8 1.8 7 5-1.2 3.2-3.9 5-7 5s-5.8-1.8-7-5c1.2-3.2 3.9-5 7-5Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" />
                 </svg>
               </button>
             </div>
-            <span
-              class="patient-profile__error"
-              *ngIf="passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.invalid"
-            >
+            <span class="patient-profile__error"
+              *ngIf="passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.invalid">
               Password must be at least 6 characters.
             </span>
           </div>
@@ -230,24 +154,14 @@
           <div class="patient-profile__field">
             <span class="patient-profile__label">Confirm new password</span>
             <div class="patient-profile__input-wrapper">
-              <input
-                [type]="showConfirmNewPassword ? 'text' : 'password'"
-                formControlName="confirmNewPassword"
-                class="patient-profile__input"
-                autocomplete="new-password"
-                placeholder="Confirm new password"
-              />
-              <button
-                type="button"
-                class="patient-profile__toggle-password"
+              <input [type]="showConfirmNewPassword ? 'text' : 'password'" formControlName="confirmNewPassword"
+                class="patient-profile__input" autocomplete="new-password" placeholder="Confirm new password" />
+              <button type="button" class="patient-profile__toggle-password"
                 (click)="showConfirmNewPassword = !showConfirmNewPassword"
-                aria-label="Toggle confirm password visibility"
-              >
+                aria-label="Toggle confirm password visibility">
                 <svg class="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
-                  <path
-                    fill="currentColor"
-                    d="M12 5c-4.5 0-8.3 2.9-9.5 7 1.2 4.1 5 7 9.5 7s8.3-2.9 9.5-7c-1.2-4.1-5-7-9.5-7Zm0 2c3.1 0 5.8 1.8 7 5-1.2 3.2-3.9 5-7 5s-5.8-1.8-7-5c1.2-3.2 3.9-5 7-5Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"
-                  />
+                  <path fill="currentColor"
+                    d="M12 5c-4.5 0-8.3 2.9-9.5 7 1.2 4.1 5 7 9.5 7s8.3-2.9 9.5-7c-1.2-4.1-5-7-9.5-7Zm0 2c3.1 0 5.8 1.8 7 5-1.2 3.2-3.9 5-7 5s-5.8-1.8-7-5c1.2-3.2 3.9-5 7-5Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" />
                 </svg>
               </button>
             </div>
@@ -255,19 +169,12 @@
         </div>
 
         <div class="patient-profile__modal-actions">
-          <button
-            type="button"
-            class="patient-profile__modal-btn patient-profile__modal-btn--secondary"
-            (click)="closePasswordModal()"
-            [disabled]="isPasswordSaving"
-          >
+          <button type="button" class="patient-profile__modal-btn patient-profile__modal-btn--secondary"
+            (click)="closePasswordModal()" [disabled]="isPasswordSaving">
             Cancel
           </button>
-          <button
-            type="submit"
-            class="patient-profile__modal-btn patient-profile__modal-btn--primary"
-            [disabled]="passwordForm.invalid || isPasswordSaving"
-          >
+          <button type="submit" class="patient-profile__modal-btn patient-profile__modal-btn--primary"
+            [disabled]="passwordForm.invalid || isPasswordSaving">
             <span *ngIf="!isPasswordSaving">Update password</span>
             <span *ngIf="isPasswordSaving">Updating...</span>
           </button>
@@ -276,10 +183,7 @@
     </div>
   </div>
 
-  <div
-    class="patient-profile__modal-backdrop"
-    *ngIf="showDeleteModal"
-  >
+  <div class="patient-profile__modal-backdrop" *ngIf="showDeleteModal">
     <div class="patient-profile__modal patient-profile__modal--danger">
       <h3 class="patient-profile__modal-title">Delete account</h3>
       <p class="patient-profile__danger-text">
@@ -290,49 +194,30 @@
         <div class="patient-profile__field patient-profile__field--full">
           <span class="patient-profile__label">Current password</span>
           <div class="patient-profile__input-wrapper">
-            <input
-              [type]="showDeletePassword ? 'text' : 'password'"
-              formControlName="password"
-              class="patient-profile__input"
-              autocomplete="current-password"
-              placeholder="Enter your current password to confirm"
-            />
-            <button
-              type="button"
-              class="patient-profile__toggle-password"
-              (click)="showDeletePassword = !showDeletePassword"
-              aria-label="Toggle delete password visibility"
-            >
+            <input [type]="showDeletePassword ? 'text' : 'password'" formControlName="password"
+              class="patient-profile__input" autocomplete="current-password"
+              placeholder="Enter your current password to confirm" />
+            <button type="button" class="patient-profile__toggle-password"
+              (click)="showDeletePassword = !showDeletePassword" aria-label="Toggle delete password visibility">
               <svg class="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
-                <path
-                  fill="currentColor"
-                  d="M12 5c-4.5 0-8.3 2.9-9.5 7 1.2 4.1 5 7 9.5 7s8.3-2.9 9.5-7c-1.2-4.1-5-7-9.5-7Zm0 2c3.1 0 5.8 1.8 7 5-1.2 3.2-3.9 5-7 5s-5.8-1.8-7-5c1.2-3.2 3.9-5 7-5Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"
-                />
+                <path fill="currentColor"
+                  d="M12 5c-4.5 0-8.3 2.9-9.5 7 1.2 4.1 5 7 9.5 7s8.3-2.9 9.5-7c-1.2-4.1-5-7-9.5-7Zm0 2c3.1 0 5.8 1.8 7 5-1.2 3.2-3.9 5-7 5s-5.8-1.8-7-5c1.2-3.2 3.9-5 7-5Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" />
               </svg>
             </button>
           </div>
-          <span
-            class="patient-profile__error"
-            *ngIf="deleteForm.get('password')?.touched && deleteForm.get('password')?.invalid"
-          >
+          <span class="patient-profile__error"
+            *ngIf="deleteForm.get('password')?.touched && deleteForm.get('password')?.invalid">
             Password is required to delete your account.
           </span>
         </div>
 
         <div class="patient-profile__modal-actions">
-          <button
-            type="button"
-            class="patient-profile__modal-btn patient-profile__modal-btn--secondary"
-            (click)="closeDeleteModal()"
-            [disabled]="isDeletingAccount"
-          >
+          <button type="button" class="patient-profile__modal-btn patient-profile__modal-btn--secondary"
+            (click)="closeDeleteModal()" [disabled]="isDeletingAccount">
             Cancel
           </button>
-          <button
-            type="submit"
-            class="patient-profile__modal-btn patient-profile__modal-btn--danger"
-            [disabled]="deleteForm.invalid || isDeletingAccount"
-          >
+          <button type="submit" class="patient-profile__modal-btn patient-profile__modal-btn--danger"
+            [disabled]="deleteForm.invalid || isDeletingAccount">
             <span *ngIf="!isDeletingAccount">Delete account</span>
             <span *ngIf="isDeletingAccount">Deleting...</span>
           </button>
@@ -341,3 +226,4 @@
     </div>
   </div>
 </main>
+<app-footer></app-footer>

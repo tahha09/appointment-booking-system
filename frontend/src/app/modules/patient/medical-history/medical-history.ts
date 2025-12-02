@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PatientService } from '../services/patient.service';
@@ -49,22 +49,36 @@ export class MedicalHistory implements OnInit {
   // View mode
   viewMode: 'grid' | 'list' = 'grid';
 
-  constructor(private patientService: PatientService) { }
+  constructor(
+    private patientService: PatientService,
+    private cdr: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
-    this.fetchMedicalHistory();
+    // Check if we have filters applied
+    const hasFilters = this.searchQuery || this.dateFrom || this.dateTo || this.selectedDoctor;
+    
+    // If no filters, try to use cache (service will handle it)
+    // If filters exist, fetch from API
+    this.fetchMedicalHistory(!hasFilters);
   }
 
-  fetchMedicalHistory(): void {
-    this.loading = true;
-    this.error = null;
-    
+  fetchMedicalHistory(useCache: boolean = true): void {
     const params: any = {};
     if (this.searchQuery) params.search = this.searchQuery;
     if (this.dateFrom) params.date_from = this.dateFrom;
     if (this.dateTo) params.date_to = this.dateTo;
     
-    this.patientService.getMedicalHistory(params).subscribe({
+    const hasFilters = Object.keys(params).length > 0;
+    
+    // Only show loading if we're fetching from API (not using cache)
+    if (!useCache || hasFilters) {
+      this.loading = true;
+    }
+    this.error = null;
+    
+    // forceRefresh = true only if we have filters (need fresh data)
+    this.patientService.getMedicalHistory(params, hasFilters).subscribe({
       next: (response: any) => {
         // Backend uses ApiResponse trait which returns { success, message, data }
         this.medicalHistory = Array.isArray(response.data) ? response.data : [];
@@ -72,6 +86,7 @@ export class MedicalHistory implements OnInit {
         this.extractDoctors();
         this.applyFilters();
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
         this.error = err?.error?.message || 'Failed to load medical history.';
@@ -128,11 +143,21 @@ export class MedicalHistory implements OnInit {
   }
 
   onSearch(): void {
-    this.applyFilters();
+    // If search query exists, fetch from API, otherwise use cache
+    if (this.searchQuery || this.dateFrom || this.dateTo || this.selectedDoctor) {
+      this.fetchMedicalHistory(false);
+    } else {
+      this.applyFilters();
+    }
   }
 
   onFilterChange(): void {
-    this.applyFilters();
+    // If filters exist, fetch from API, otherwise use cache
+    if (this.searchQuery || this.dateFrom || this.dateTo || this.selectedDoctor) {
+      this.fetchMedicalHistory(false);
+    } else {
+      this.applyFilters();
+    }
   }
 
   clearFilters(): void {
