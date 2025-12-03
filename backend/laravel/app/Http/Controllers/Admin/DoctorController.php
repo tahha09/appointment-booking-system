@@ -12,14 +12,11 @@ class DoctorController extends Controller
     public function pendingDoctors(Request $request)
     {
         // Get pending doctors with pagination to prevent memory exhaustion
+        // A doctor is pending if is_approved = 0 (unapproved)
         $perPage = $request->get('per_page', 15); // Default 15 doctors per page
         $doctors = User::where('users.role', 'doctor')
             ->join('doctors', 'doctors.user_id', '=', 'users.id')
-            ->where(function ($query) {
-                // Check users.status is pending AND doctors.is_approved is 0
-                $query->where('users.status', 'pending')
-                    ->where('doctors.is_approved', 0);
-            })
+            ->where('doctors.is_approved', 0) // Unapproved doctors
             ->leftJoin('specializations', 'specializations.id', '=', 'doctors.specialization_id')
             ->select(
                 'users.id',
