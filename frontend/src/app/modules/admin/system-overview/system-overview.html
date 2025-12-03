@@ -93,14 +93,22 @@
           </div>
           <div class="flex flex-col gap-2 ml-4">
             <button (click)="approveDoctor(doctor.id)"
-              class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium shadow-sm flex items-center gap-2">
-              <span>✓</span>
-              Approve
+              [disabled]="processingDoctor() === doctor.id"
+              [class.opacity-50]="processingDoctor() === doctor.id"
+              [class.cursor-not-allowed]="processingDoctor() === doctor.id"
+              class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium shadow-sm flex items-center justify-center gap-2 min-w-[100px] disabled:opacity-50 disabled:cursor-not-allowed">
+              <span *ngIf="processingDoctor() !== doctor.id">✓</span>
+              <span *ngIf="processingDoctor() === doctor.id" class="animate-spin">⟳</span>
+              <span>{{ processingDoctor() === doctor.id ? 'Processing...' : 'Approve' }}</span>
             </button>
             <button (click)="rejectDoctor(doctor.id)"
-              class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium shadow-sm flex items-center gap-2">
-              <span>✕</span>
-              Reject
+              [disabled]="processingDoctor() === doctor.id"
+              [class.opacity-50]="processingDoctor() === doctor.id"
+              [class.cursor-not-allowed]="processingDoctor() === doctor.id"
+              class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium shadow-sm flex items-center justify-center gap-2 min-w-[100px] disabled:opacity-50 disabled:cursor-not-allowed">
+              <span *ngIf="processingDoctor() !== doctor.id">✕</span>
+              <span *ngIf="processingDoctor() === doctor.id" class="animate-spin">⟳</span>
+              <span>{{ processingDoctor() === doctor.id ? 'Processing...' : 'Reject' }}</span>
             </button>
           </div>
         </div>

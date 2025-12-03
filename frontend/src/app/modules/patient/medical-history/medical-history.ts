@@ -165,7 +165,8 @@ export class MedicalHistory implements OnInit {
     this.dateFrom = '';
     this.dateTo = '';
     this.selectedDoctor = '';
-    this.applyFilters();
+    // Fetch all data again from cache
+    this.fetchMedicalHistory(true);
   }
 
   viewDetails(record: MedicalHistoryRecord): void {

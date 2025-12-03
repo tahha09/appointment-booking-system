@@ -58,7 +58,7 @@
             </div>
             <div class="pt-1">
               <h4 class="font-semibold text-white text-lg mb-1">Phone Number</h4>
-              <p class="text-[#CFE9EC]">+20 100 000 0000</p>
+              <p class="text-[#CFE9EC]">+20 1037953389</p>
             </div>
           </div>
 
@@ -80,6 +80,17 @@
         <!-- Contact Form - Right Side (3 columns) -->
         <div class="lg:col-span-3">
           <div class="bg-[#031716]/70 p-8 rounded-2xl border border-[#0C969C]/30 shadow-2xl backdrop-blur">
+             <!-- Success Message -->
+             <div *ngIf="successMessage"
+              class="mb-6 p-4 rounded-xl bg-green-600/30 border border-green-500 text-green-100 font-semibold text-center animate-fade-in">
+              {{ successMessage }}
+             </div>
+
+              <!-- Error Message -->
+             <div *ngIf="errorMessage"
+              class="mb-6 p-4 rounded-xl bg-red-600/30 border border-red-500 text-red-100 font-semibold text-center animate-fade-in">
+              {{ errorMessage }}
+             </div>
             <h2 class="text-2xl font-semibold text-white mb-6">Send Us a Message</h2>
 
             <form class="space-y-6" #f="ngForm" (ngSubmit)="onSubmit(f)" novalidate>

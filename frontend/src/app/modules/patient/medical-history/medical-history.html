@@ -3,6 +3,7 @@
   <section class="header-section">
     <div class="header-content">
       <div>
+        <p class="page-label">Medical Records</p>
         <h1 class="page-title">
           <i class="fas fa-file-medical"></i>
           Medical History
@@ -32,56 +33,101 @@
 
   <!-- Search and Filter Section -->
   <section class="filters-section">
+    <div class="filters-header">
+      <h3 class="filters-title">
+        <i class="fas fa-filter"></i>
+        Search & Filters
+      </h3>
+      <button 
+        *ngIf="searchQuery || dateFrom || dateTo || selectedDoctor" 
+        (click)="clearFilters()" 
+        class="clear-all-btn"
+        title="Clear all filters">
+        <i class="fas fa-times-circle"></i>
+        Clear All
+      </button>
+    </div>
+
     <div class="search-bar">
       <i class="fas fa-search"></i>
       <input 
         type="text" 
         [(ngModel)]="searchQuery"
         (input)="onSearch()"
-        placeholder="Search by condition, diagnosis, treatment, or notes..."
+        placeholder="Search by condition, diagnosis, treatment, or notes..." 
         class="search-input">
-      <button *ngIf="searchQuery" (click)="searchQuery = ''; onSearch()" class="clear-btn" aria-label="Clear search">
-        ×
-      </button>
     </div>
 
     <div class="filter-controls">
       <div class="filter-group">
-        <label><i class="fas fa-calendar-alt"></i> From Date</label>
-        <input 
-          type="date" 
-          [(ngModel)]="dateFrom"
-          (change)="onFilterChange()"
-          class="filter-input">
+        <label>
+          <i class="fas fa-calendar-alt"></i>
+          From Date
+        </label>
+        <div class="input-wrapper">
+          <input 
+            type="date" 
+            [(ngModel)]="dateFrom"
+            (change)="onFilterChange()"
+            class="filter-input">
+          <button 
+            *ngIf="dateFrom" 
+            (click)="dateFrom = ''; onFilterChange()" 
+            class="clear-field-btn"
+            title="Clear date">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
       </div>
 
       <div class="filter-group">
-        <label><i class="fas fa-calendar-alt"></i> To Date</label>
-        <input 
-          type="date" 
-          [(ngModel)]="dateTo"
-          (change)="onFilterChange()"
-          class="filter-input">
+        <label>
+          <i class="fas fa-calendar-alt"></i>
+          To Date
+        </label>
+        <div class="input-wrapper">
+          <input 
+            type="date" 
+            [(ngModel)]="dateTo"
+            (change)="onFilterChange()"
+            class="filter-input">
+          <button 
+            *ngIf="dateTo" 
+            (click)="dateTo = ''; onFilterChange()" 
+            class="clear-field-btn"
+            title="Clear date">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
       </div>
 
       <div class="filter-group">
-        <label><i class="fas fa-user-md"></i> Doctor</label>
-        <select 
-          [(ngModel)]="selectedDoctor"
-          (change)="onFilterChange()"
-          class="filter-select">
-          <option value="">All Doctors</option>
-          <option *ngFor="let doctor of doctors" [value]="doctor">{{ doctor }}</option>
-        </select>
+        <label>
+          <i class="fas fa-user-md"></i>
+          Doctor
+        </label>
+        <div class="input-wrapper">
+          <select 
+            [(ngModel)]="selectedDoctor"
+            (change)="onFilterChange()"
+            class="filter-select">
+            <option value="">All Doctors</option>
+            <option *ngFor="let doctor of doctors" [value]="doctor">{{ doctor }}</option>
+          </select>
+          <button 
+            *ngIf="selectedDoctor" 
+            (click)="selectedDoctor = ''; onFilterChange()" 
+            class="clear-field-btn"
+            title="Clear doctor filter">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
       </div>
-
-      <button (click)="clearFilters()" class="clear-filters-btn">
-        <i class="fas fa-redo"></i> Clear Filters
-      </button>
     </div>
 
     <div *ngIf="filteredHistory.length !== medicalHistory.length" class="filter-info">
-      Showing {{ filteredHistory.length }} of {{ medicalHistory.length }} records
+      <i class="fas fa-info-circle"></i>
+      Showing <strong>{{ filteredHistory.length }}</strong> of <strong>{{ medicalHistory.length }}</strong> records
     </div>
   </section>
 
@@ -96,10 +142,12 @@
   <!-- Error State -->
   <div *ngIf="error && !loading" class="error-container">
     <div class="error-card">
-      <i class="fas fa-exclamation-triangle"></i>
+      <div class="error-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
       <h3>Error Loading Medical History</h3>
       <p>{{ error }}</p>
-      <button (click)="fetchMedicalHistory()" class="retry-btn">
+      <button (click)="fetchMedicalHistory(false)" class="retry-btn">
         <i class="fas fa-redo"></i> Try Again
       </button>
     </div>
@@ -117,13 +165,19 @@
       </div>
 
       <div class="card-body">
-        <h3 class="condition-title">{{ record.condition }}</h3>
+        <h3 class="condition-title">
+          <i class="fas fa-file-medical-alt"></i>
+          {{ record.condition }}
+        </h3>
         
         <div class="doctor-info">
-          <i class="fas fa-user-md"></i>
+          <div class="doctor-avatar">
+            <i class="fas fa-user-md"></i>
+          </div>
           <div>
             <span class="doctor-name">Dr. {{ record.doctor?.user?.name }}</span>
             <span *ngIf="record.doctor?.specialization?.name" class="specialization">
+              <i class="fas fa-certificate"></i>
               {{ record.doctor?.specialization?.name }}
             </span>
           </div>
@@ -131,11 +185,17 @@
 
         <div class="record-preview">
           <div class="preview-item">
-            <span class="preview-label">Diagnosis:</span>
+            <span class="preview-label">
+              <i class="fas fa-diagnoses"></i>
+              Diagnosis
+            </span>
             <p class="preview-text">{{ record.diagnosis }}</p>
           </div>
           <div class="preview-item">
-            <span class="preview-label">Treatment:</span>
+            <span class="preview-label">
+              <i class="fas fa-pills"></i>
+              Treatment
+            </span>
             <p class="preview-text">{{ record.treatment }}</p>
           </div>
         </div>
@@ -153,6 +213,7 @@
   <section *ngIf="!loading && !error && viewMode === 'list'" class="list-view">
     <div *ngFor="let record of filteredHistory" class="list-item" (click)="viewDetails(record)">
       <div class="list-date">
+        <i class="fas fa-calendar-check date-icon"></i>
         <div class="date-day">{{ formatDate(record.visit_date).split(',')[0] }}</div>
         <div class="date-month">{{ formatDate(record.visit_date).split(',')[1]?.trim() }}</div>
       </div>
@@ -193,7 +254,7 @@
     <button *ngIf="searchQuery || dateFrom || dateTo || selectedDoctor" 
             (click)="clearFilters()" 
             class="clear-filters-btn">
-      Clear Filters
+      <i class="fas fa-redo"></i> Clear Filters
     </button>
   </section>
 
@@ -254,7 +315,9 @@
         <!-- Condition Section -->
         <div class="detail-section">
           <div class="detail-label-wrapper">
-            <i class="fas fa-stethoscope"></i>
+            <div class="detail-icon-box">
+              <i class="fas fa-stethoscope"></i>
+            </div>
             <h3>Condition</h3>
           </div>
           <div class="detail-text-wrapper">
@@ -265,7 +328,9 @@
         <!-- Diagnosis Section -->
         <div class="detail-section">
           <div class="detail-label-wrapper">
-            <i class="fas fa-diagnoses"></i>
+            <div class="detail-icon-box">
+              <i class="fas fa-diagnoses"></i>
+            </div>
             <h3>Diagnosis</h3>
           </div>
           <div class="detail-text-wrapper">
@@ -276,7 +341,9 @@
         <!-- Treatment Section -->
         <div class="detail-section">
           <div class="detail-label-wrapper">
-            <i class="fas fa-pills"></i>
+            <div class="detail-icon-box">
+              <i class="fas fa-pills"></i>
+            </div>
             <h3>Treatment</h3>
           </div>
           <div class="detail-text-wrapper">
@@ -287,7 +354,9 @@
         <!-- Additional Notes Section -->
         <div *ngIf="selectedRecord.notes" class="detail-section detail-section--notes">
           <div class="detail-label-wrapper">
-            <i class="fas fa-notes-medical"></i>
+            <div class="detail-icon-box">
+              <i class="fas fa-notes-medical"></i>
+            </div>
             <h3>Additional Notes</h3>
           </div>
           <div class="detail-text-wrapper">

@@ -41,7 +41,7 @@ export class Prescriptions implements OnInit {
   filteredPrescriptions: Prescription[] = [];
   loading = true;
   error: string | null = null;
-  
+
   // Search and filter
   searchQuery: string = '';
   dateFrom: string = '';
@@ -49,11 +49,11 @@ export class Prescriptions implements OnInit {
   selectedDoctor: string = '';
   selectedStatus: string = 'all';
   doctors: string[] = [];
-  
+
   // View details
   selectedPrescription: Prescription | null = null;
   showDetailsModal = false;
-  
+
   // View mode
   viewMode: 'grid' | 'list' = 'grid';
 
@@ -65,7 +65,7 @@ export class Prescriptions implements OnInit {
   ngOnInit(): void {
     // Check if we have filters applied
     const hasFilters = this.searchQuery || this.dateFrom || this.dateTo || this.selectedDoctor || this.selectedStatus !== 'all';
-    
+
     // If no filters, try to use cache (service will handle it)
     // If filters exist, fetch from API
     this.fetchPrescriptions(!hasFilters);
@@ -77,15 +77,15 @@ export class Prescriptions implements OnInit {
     if (this.dateFrom) params.date_from = this.dateFrom;
     if (this.dateTo) params.date_to = this.dateTo;
     if (this.selectedStatus !== 'all') params.status = this.selectedStatus;
-    
+
     const hasFilters = Object.keys(params).length > 0;
-    
+
     // Only show loading if we're fetching from API (not using cache)
     if (!useCache || hasFilters) {
       this.loading = true;
     }
     this.error = null;
-    
+
     // forceRefresh = true only if we have filters (need fresh data)
     this.patientService.getPrescriptions(params, hasFilters).subscribe({
       next: (response: any) => {
@@ -131,12 +131,12 @@ export class Prescriptions implements OnInit {
 
     // Date filters
     if (this.dateFrom) {
-      filtered = filtered.filter(prescription => 
+      filtered = filtered.filter(prescription =>
         new Date(prescription.prescribed_date) >= new Date(this.dateFrom)
       );
     }
     if (this.dateTo) {
-      filtered = filtered.filter(prescription => 
+      filtered = filtered.filter(prescription =>
         new Date(prescription.prescribed_date) <= new Date(this.dateTo)
       );
     }
@@ -182,7 +182,8 @@ export class Prescriptions implements OnInit {
     this.dateTo = '';
     this.selectedDoctor = '';
     this.selectedStatus = 'all';
-    this.applyFilters();
+    // Fetch all data again from cache
+    this.fetchPrescriptions(true);
   }
 
   viewDetails(prescription: Prescription): void {
@@ -214,7 +215,7 @@ export class Prescriptions implements OnInit {
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return 'Yesterday';
     if (diffDays < 30) return `${diffDays} days ago`;
