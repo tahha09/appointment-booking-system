@@ -141,6 +141,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/certificates/{id}', [CertificateController::class, 'show']);
         Route::put('/certificates/{id}', [CertificateController::class, 'update']);
         Route::delete('/certificates/{id}', [CertificateController::class, 'destroy']);
+
+        // Financial Management
+        Route::get('/financial/overview', [\App\Http\Controllers\Doctor\FinancialManagementController::class, 'overview']);
+        Route::get('/financial/revenue-by-period', [\App\Http\Controllers\Doctor\FinancialManagementController::class, 'revenueByPeriod']);
+        Route::get('/financial/payment-history', [\App\Http\Controllers\Doctor\FinancialManagementController::class, 'paymentHistory']);
+        Route::get('/financial/statistics', [\App\Http\Controllers\Doctor\FinancialManagementController::class, 'statistics']);
     });
 
     // Admin Routes - temporarily without authentication for testing
