@@ -14,6 +14,8 @@ class Patient extends Model
         'user_id',
         'emergency_contact',
         'insurance_info',
+        'insurance_provider',
+        'insurance_policy_number',
         'medical_history',
         'blood_type',
         'allergies',

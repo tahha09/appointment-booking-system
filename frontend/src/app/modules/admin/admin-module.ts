@@ -6,8 +6,7 @@ import { SystemOverview } from './system-overview/system-overview';
 import { UserManagement } from './user-management/user-management';
 import { AppointmentsAdmin } from './appointments-admin/appointments-admin';
 import { AppointmentsAnalytics } from './appointments-analytics/appointments-analytics';
-import { Profile } from '../../shared/components/profile/profile';
-
+import { UserProfile } from '../../shared/components/profile/profile';
 const adminRoutes: Routes = [
   {
     path: '',
@@ -18,7 +17,7 @@ const adminRoutes: Routes = [
       { path: 'user-management', component: UserManagement },
       { path: 'appointments', component: AppointmentsAdmin },
       { path: 'appointments-analytics', component: AppointmentsAnalytics },
-      { path: 'profile', component: Profile }
+      { path: 'profile', component: UserProfile }
     ]
   }
 ];
@@ -33,7 +32,7 @@ const adminRoutes: Routes = [
     UserManagement,
     AppointmentsAdmin,
     AppointmentsAnalytics,
-    Profile
+    UserProfile
   ],
   exports: [RouterModule]
 })

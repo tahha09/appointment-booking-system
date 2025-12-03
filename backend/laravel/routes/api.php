@@ -91,11 +91,47 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('/logout', [LoginController::class, 'logout']);
 
-    // General Profile Routes
-    Route::get('/profile', [ProfileController::class, 'show']);
-    Route::put('/profile', [ProfileController::class, 'update']);
-    Route::put('/password', [ProfileController::class, 'updatePassword']);
-    Route::delete('/account', [ProfileController::class, 'destroy']);
+    // General Profile Routes (for all users - patients, doctors, admins)
+    Route::prefix('profile')->group(function () {
+        Route::get('/', [ProfileController::class, 'show']);
+        Route::put('/', [ProfileController::class, 'update']);
+        Route::patch('/password', [ProfileController::class, 'updatePassword']);
+        Route::delete('/', [ProfileController::class, 'destroy']);
+        Route::get('/basic', [ProfileController::class, 'getBasicInfo']);
+    });
+
+    // Keep legacy patient profile routes for backward compatibility
+    Route::prefix('patient')->middleware('role:patient')->group(function () {
+        // Dashboard
+        Route::get('/dashboard', [PatientAppointmentController::class, 'dashboard']);
+
+        // Legacy Profile Routes (can be removed once Angular is updated)
+        Route::get('/profile', [PatientProfileController::class, 'show']);
+        Route::put('/profile', [PatientProfileController::class, 'update']);
+        Route::delete('/account', [PatientProfileController::class, 'destroy']);
+
+        // Doctor Search & Listing
+        Route::get('/doctors', [PatientDoctorController::class, 'index']);
+        Route::get('/doctors/{id}', [PatientDoctorController::class, 'show']);
+        Route::get('/doctors/{id}/availability', [PatientDoctorController::class, 'availability']);
+
+        // Appointments
+        Route::get('/appointments', [PatientAppointmentController::class, 'index']);
+        Route::get('/appointments/{id}', [PatientAppointmentController::class, 'show']);
+        Route::post('/appointments', [PatientAppointmentController::class, 'store']);
+        Route::put('/appointments/{id}/cancel', [PatientAppointmentController::class, 'cancel']);
+        Route::put('/appointments/{id}/reschedule', [PatientAppointmentController::class, 'reschedule']);
+
+        // Medical Records
+        Route::get('/medical-records', [PatientAppointmentController::class, 'medicalRecords']);
+        Route::get('/medical-records/{id}', [PatientAppointmentController::class, 'medicalRecord']);
+
+        // Medical History
+        Route::get('/medical-history', [\App\Http\Controllers\Patient\MedicalHistoryController::class, 'index']);
+
+        // Prescriptions
+        Route::get('/prescriptions', [\App\Http\Controllers\Patient\PrescriptionController::class, 'index']);
+    });
 
     // Doctor Routes
     Route::prefix('doctor')->group(function () {
@@ -134,39 +170,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/certificates/{id}', [CertificateController::class, 'show']);
         Route::put('/certificates/{id}', [CertificateController::class, 'update']);
         Route::delete('/certificates/{id}', [CertificateController::class, 'destroy']);
-    });
-
-    // Patient Routes
-    Route::prefix('patient')->middleware('role:patient')->group(function () {
-        // Dashboard
-        Route::get('/dashboard', [PatientAppointmentController::class, 'dashboard']);
-
-        // Profile
-        Route::get('/profile', [PatientProfileController::class, 'show']);
-        Route::put('/profile', [PatientProfileController::class, 'update']);
-        Route::delete('/account', [PatientProfileController::class, 'destroy']);
-
-        // Doctor Search & Listing
-        Route::get('/doctors', [PatientDoctorController::class, 'index']);
-        Route::get('/doctors/{id}', [PatientDoctorController::class, 'show']);
-        Route::get('/doctors/{id}/availability', [PatientDoctorController::class, 'availability']);
-
-        // Appointments
-        Route::get('/appointments', [PatientAppointmentController::class, 'index']);
-        Route::get('/appointments/{id}', [PatientAppointmentController::class, 'show']);
-        Route::post('/appointments', [PatientAppointmentController::class, 'store']);
-        Route::put('/appointments/{id}/cancel', [PatientAppointmentController::class, 'cancel']);
-        Route::put('/appointments/{id}/reschedule', [PatientAppointmentController::class, 'reschedule']);
-
-        // Medical Records
-        Route::get('/medical-records', [PatientAppointmentController::class, 'medicalRecords']);
-        Route::get('/medical-records/{id}', [PatientAppointmentController::class, 'medicalRecord']);
-
-        // Medical History
-        Route::get('/medical-history', [\App\Http\Controllers\Patient\MedicalHistoryController::class, 'index']);
-
-        // Prescriptions
-        Route::get('/prescriptions', [\App\Http\Controllers\Patient\PrescriptionController::class, 'index']);
     });
 
     // AI Routes (accessible by doctors and patients)

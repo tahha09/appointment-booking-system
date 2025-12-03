@@ -11,10 +11,10 @@ type ActionOptions = Pick<
 })
 export class Notification {
   private readonly swal = Swal.mixin({
-    background: 'linear-gradient(135deg, #031716 0%, #0A7075 40%, #274D60 100%)',
-    color: '#F9FAFB',
-    confirmButtonColor: '#0C969C',
-    cancelButtonColor: '#6BA3BE',
+    background: 'white',
+    color: '#1e293b',
+    confirmButtonColor: '#0c969c',
+    cancelButtonColor: '#64748b',
     showClass: {
       popup: 'swal2-show app-auth-popup-show',
     },
@@ -63,7 +63,7 @@ export class Notification {
   ): Promise<SweetAlertResult<unknown>> {
     const baseOptions: SweetAlertOptions = {
       icon,
-      iconColor: icon === 'success' ? '#0C969C' : icon === 'error' ? '#f97373' : '#6BA3BE',
+      iconColor: icon === 'success' ? '#0c969c' : icon === 'error' ? '#ef4444' : '#64748b',
       title,
       text,
       confirmButtonText: 'OK',

@@ -12,6 +12,8 @@ class Admin extends Model
     protected $fillable = [
         'user_id',
         'permissions',
+        'department',
+        'admin_level',
     ];
 
     protected $casts = [

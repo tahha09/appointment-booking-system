@@ -1,340 +1,517 @@
-<main class="profile">
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="profile__form">
-    <section class="profile__header">
-      <div class="profile__avatar">
-        <ng-container *ngIf="profileImage; else initialsAvatar">
-          <img
-            [src]="profileImage"
-            alt="User avatar"
-            class="profile__avatar-img"
-          />
-        </ng-container>
-        <ng-template #initialsAvatar>
-          <span class="profile__avatar-initials">
-            {{ getInitials(displayName || 'U') }}
-          </span>
-        </ng-template>
+<main class="user-profile">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="user-profile__form">
+    <section class="user-profile__header">
+      <div class="user-profile__avatar-container">
+        <div class="user-profile__avatar">
+          <ng-container *ngIf="profileImage; else initialsAvatar">
+            <img [src]="profileImage" alt="User avatar" class="user-profile__avatar-img" />
+          </ng-container>
+          <ng-template #initialsAvatar>
+            <span class="user-profile__avatar-initials">
+              {{ getInitials(displayName || 'U') }}
+            </span>
+          </ng-template>
+          <div class="user-profile__avatar-overlay">
+            <label class="user-profile__avatar-upload">
+              <input type="file" accept="image/*" class="user-profile__upload-input"
+                (change)="onProfileImageSelected($event)" />
+              <svg class="user-profile__upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2v11z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+            </label>
+          </div>
+        </div>
       </div>
-      <div class="profile__header-info">
-        <h1>{{ displayName }}</h1>
-        <p class="profile__role">{{ userRole | titlecase }}</p>
-        <p class="profile__subtitle">
+      <div class="user-profile__header-info">
+        <div class="user-profile__header-main">
+          <h1 class="user-profile__title">{{ displayName }}</h1>
+          <div class="user-profile__role-badge">
+            {{ userRole | titlecase }}
+          </div>
+        </div>
+        <p class="user-profile__subtitle">
           Manage your personal details and account settings.
         </p>
-        <label class="profile__upload-btn">
-          <input
-            type="file"
-            accept="image/*"
-            class="profile__upload-input"
-            (change)="onProfileImageSelected($event)"
-          />
-          Change photo
-        </label>
       </div>
     </section>
 
-    <section *ngIf="isLoading()" class="profile__status profile__status--loading">
-      <div class="profile__spinner"></div>
-      <p>Loading your profile...</p>
+    <section *ngIf="isLoading" class="user-profile__loading">
+      <div class="user-profile__loading-spinner"></div>
+      <p class="user-profile__loading-text">Loading your profile...</p>
     </section>
 
-    <section class="profile__content">
-      <div class="profile__card">
-        <h2>Personal Information</h2>
-        <div class="profile__grid">
-          <div class="profile__field">
-            <span class="profile__label">Full name</span>
-            <input
-              type="text"
-              formControlName="fullName"
-              class="profile__input"
-              placeholder="Your full name"
-            />
-            <span
-              class="profile__error"
-              *ngIf="form.get('fullName')?.touched && form.get('fullName')?.invalid"
-            >
+    <section class="user-profile__content">
+      <!-- Personal Information Card -->
+      <div class="user-profile__card user-profile__card--personal">
+        <div class="user-profile__card-header">
+          <h2 class="user-profile__card-title">
+            <svg class="user-profile__card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            Personal Information
+          </h2>
+          <div class="user-profile__card-actions">
+            <span class="user-profile__card-hint">All fields marked * are required</span>
+          </div>
+        </div>
+
+        <div class="user-profile__grid">
+          <div class="user-profile__field">
+            <label class="user-profile__label">
+              Full name *
+              <div class="user-profile__input-container">
+                <input type="text" formControlName="fullName" class="user-profile__input"
+                  placeholder="Your full name" />
+                <div class="user-profile__input-border"></div>
+              </div>
+            </label>
+            <span class="user-profile__error" *ngIf="form.get('fullName')?.touched && form.get('fullName')?.invalid">
               Please enter your full name.
             </span>
           </div>
-          <div class="profile__field">
-            <span class="profile__label">Email</span>
-            <input
-              type="email"
-              formControlName="email"
-              class="profile__input profile__input--readonly"
-              placeholder="you@example.com"
-              readonly
-            />
-            <span
-              class="profile__error"
-              *ngIf="form.get('email')?.touched && form.get('email')?.invalid"
-            >
+
+          <div class="user-profile__field">
+            <label class="user-profile__label">
+              Email *
+              <div class="user-profile__input-container">
+                <input type="email" formControlName="email" class="user-profile__input user-profile__input--readonly"
+                  placeholder="you@example.com" readonly />
+                <div class="user-profile__input-border"></div>
+                <div class="user-profile__readonly-indicator">
+                  <svg class="user-profile__lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                </div>
+              </div>
+            </label>
+            <span class="user-profile__error" *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
               Please enter a valid email address.
             </span>
           </div>
-          <div class="profile__field">
-            <span class="profile__label">Phone</span>
-            <input
-              type="text"
-              formControlName="phone"
-              class="profile__input"
-              placeholder="+20 123 456 7890"
-            />
+
+          <div class="user-profile__field">
+            <label class="user-profile__label">
+              Phone
+              <div class="user-profile__input-container">
+                <input type="text" formControlName="phone" class="user-profile__input"
+                  placeholder="+20 123 456 7890" />
+                <div class="user-profile__input-border"></div>
+              </div>
+            </label>
           </div>
-          <div class="profile__field">
-            <span class="profile__label">Date of birth</span>
-            <input
-              type="date"
-              formControlName="dateOfBirth"
-              class="profile__input"
-            />
+
+          <div class="user-profile__field">
+            <label class="user-profile__label">
+              Date of birth
+              <div class="user-profile__input-container">
+                <input type="date" formControlName="dateOfBirth" class="user-profile__input" />
+                <div class="user-profile__input-border"></div>
+              </div>
+            </label>
           </div>
-          <div class="profile__field profile__field--full">
-            <span class="profile__label">Address</span>
-            <input
-              type="text"
-              formControlName="address"
-              class="profile__input"
-              placeholder="Your address"
-            />
+
+          <div class="user-profile__field user-profile__field--full">
+            <label class="user-profile__label">
+              Address
+              <div class="user-profile__input-container">
+                <input type="text" formControlName="address" class="user-profile__input"
+                  placeholder="Your address" />
+                <div class="user-profile__input-border"></div>
+              </div>
+            </label>
           </div>
         </div>
       </div>
 
-      <div class="profile__card">
-        <h2>Security</h2>
-
-        <div class="profile__security-row">
-          <div class="profile__security-main">
-            <span class="profile__security-label">Password</span>
-            <p class="profile__security-text">
-              Use a strong, unique password to help keep your account secure.
-            </p>
+      <!-- Role-Specific Cards -->
+      <div class="user-profile__role-cards">
+        <!-- Patient Card -->
+        <div class="user-profile__card user-profile__card--medical" *ngIf="userRole === 'patient'">
+          <div class="user-profile__card-header">
+            <h2 class="user-profile__card-title">
+              <svg class="user-profile__card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+              </svg>
+              Medical Information
+            </h2>
           </div>
-          <div class="profile__security-actions">
-            <button
-              type="button"
-              class="profile__change-password-btn"
-              (click)="openPasswordModal()"
-            >
-              Change password
-            </button>
+          <div class="user-profile__grid" [formGroup]="patientForm">
+            <!-- Patient fields remain the same -->
+            <div class="user-profile__field">
+              <label class="user-profile__label">
+                Medical History
+                <textarea formControlName="medicalHistory" class="user-profile__textarea"
+                  placeholder="Your medical history" rows="3"></textarea>
+              </label>
+            </div>
+            <div class="user-profile__field">
+              <label class="user-profile__label">
+                Allergies
+                <div class="user-profile__input-container">
+                  <input type="text" formControlName="allergies" class="user-profile__input"
+                    placeholder="Any allergies" />
+                  <div class="user-profile__input-border"></div>
+                </div>
+              </label>
+            </div>
+            <div class="user-profile__field">
+              <label class="user-profile__label">
+                Emergency Contact
+                <div class="user-profile__input-container">
+                  <input type="text" formControlName="emergencyContact" class="user-profile__input"
+                    placeholder="Emergency contact number" />
+                  <div class="user-profile__input-border"></div>
+                </div>
+              </label>
+            </div>
+            <div class="user-profile__field">
+              <label class="user-profile__label">
+                Insurance Provider
+                <div class="user-profile__input-container">
+                  <input type="text" formControlName="insuranceProvider" class="user-profile__input"
+                    placeholder="Insurance company" />
+                  <div class="user-profile__input-border"></div>
+                </div>
+              </label>
+            </div>
+            <div class="user-profile__field">
+              <label class="user-profile__label">
+                Insurance Policy Number
+                <div class="user-profile__input-container">
+                  <input type="text" formControlName="insurancePolicyNumber" class="user-profile__input"
+                    placeholder="Policy number" />
+                  <div class="user-profile__input-border"></div>
+                </div>
+              </label>
+            </div>
           </div>
         </div>
 
-        <div class="profile__danger-row">
-          <div class="profile__danger-main">
-            <span class="profile__danger-label">Delete account</span>
-            <p class="profile__danger-text">
-              Permanently remove your account and all associated data. This action cannot be undone.
-            </p>
+        <!-- Doctor Card -->
+        <div class="user-profile__card user-profile__card--professional" *ngIf="userRole === 'doctor'">
+          <div class="user-profile__card-header">
+            <h2 class="user-profile__card-title">
+              <svg class="user-profile__card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+              Professional Information
+            </h2>
           </div>
-          <div class="profile__security-actions">
-            <button
-              type="button"
-              class="profile__delete-account-btn"
-              (click)="openDeleteModal()"
-            >
-              Delete account
-            </button>
+          <div class="user-profile__grid" [formGroup]="doctorForm">
+            <!-- Doctor fields remain the same -->
+            <div class="user-profile__field">
+              <label class="user-profile__label">
+                Specialty
+                <div class="user-profile__input-container">
+                  <input type="text" formControlName="specialty" class="user-profile__input"
+                    placeholder="Your specialty" />
+                  <div class="user-profile__input-border"></div>
+                </div>
+              </label>
+            </div>
+            <div class="user-profile__field">
+              <label class="user-profile__label">
+                License Number
+                <div class="user-profile__input-container">
+                  <input type="text" formControlName="licenseNumber" class="user-profile__input"
+                    placeholder="Medical license number" />
+                  <div class="user-profile__input-border"></div>
+                </div>
+              </label>
+            </div>
+            <div class="user-profile__field">
+              <label class="user-profile__label">
+                Qualifications
+                <div class="user-profile__input-container">
+                  <input type="text" formControlName="qualifications" class="user-profile__input"
+                    placeholder="Your qualifications" />
+                  <div class="user-profile__input-border"></div>
+                </div>
+              </label>
+            </div>
+            <div class="user-profile__field">
+              <label class="user-profile__label">
+                Years of Experience
+                <div class="user-profile__input-container">
+                  <input type="number" formControlName="experienceYears" class="user-profile__input"
+                    placeholder="Years of experience" min="0" />
+                  <div class="user-profile__input-border"></div>
+                </div>
+              </label>
+            </div>
+            <div class="user-profile__field user-profile__field--full">
+              <label class="user-profile__label">
+                Bio
+                <textarea formControlName="bio" class="user-profile__textarea"
+                  placeholder="Tell patients about yourself" rows="3"></textarea>
+              </label>
+            </div>
+            <div class="user-profile__field">
+              <label class="user-profile__label">
+                Consultation Fee
+                <div class="user-profile__input-container user-profile__input-container--currency">
+                  <span class="user-profile__currency-symbol">$</span>
+                  <input type="number" formControlName="consultationFee" class="user-profile__input"
+                    placeholder="0.00" min="0" step="0.01" />
+                  <div class="user-profile__input-border"></div>
+                </div>
+              </label>
+            </div>
+            <div class="user-profile__field">
+              <label class="user-profile__label">
+                Department
+                <div class="user-profile__input-container">
+                  <input type="text" formControlName="department" class="user-profile__input"
+                    placeholder="Your department" />
+                  <div class="user-profile__input-border"></div>
+                </div>
+              </label>
+            </div>
+            <div class="user-profile__field user-profile__field--full">
+              <label class="user-profile__label">
+                Availability
+                <textarea formControlName="availability" class="user-profile__textarea"
+                  placeholder="Your availability schedule" rows="2"></textarea>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin Card -->
+        <div class="user-profile__card user-profile__card--admin" *ngIf="userRole === 'admin'">
+          <div class="user-profile__card-header">
+            <h2 class="user-profile__card-title">
+              <svg class="user-profile__card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 15v2m-6 4h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2zm10-10V7a4 4 0 0 0-8 0v4h8z"/>
+              </svg>
+              Administrative Information
+            </h2>
+          </div>
+          <div class="user-profile__grid" [formGroup]="adminForm">
+            <!-- Admin fields remain the same -->
+            <div class="user-profile__field">
+              <label class="user-profile__label">
+                Department
+                <div class="user-profile__input-container">
+                  <input type="text" formControlName="department" class="user-profile__input"
+                    placeholder="Your department" />
+                  <div class="user-profile__input-border"></div>
+                </div>
+              </label>
+            </div>
+            <div class="user-profile__field">
+              <label class="user-profile__label">
+                Admin Level
+                <div class="user-profile__input-container">
+                  <select formControlName="adminLevel" class="user-profile__select">
+                    <option value="">Select level</option>
+                    <option value="super_admin">Super Admin</option>
+                    <option value="admin">Admin</option>
+                    <option value="moderator">Moderator</option>
+                  </select>
+                  <div class="user-profile__select-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                  </div>
+                  <div class="user-profile__input-border"></div>
+                </div>
+              </label>
+            </div>
+            <div class="user-profile__field user-profile__field--full">
+              <label class="user-profile__label">
+                Permissions
+                <textarea formControlName="permissions" class="user-profile__textarea user-profile__textarea--code"
+                  placeholder='["permission1", "permission2"]' rows="3"></textarea>
+                <small class="user-profile__hint">
+                  <svg class="user-profile__hint-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 16v-4"/>
+                    <path d="M12 8h.01"/>
+                  </svg>
+                  Enter permissions as a JSON array
+                </small>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security Card -->
+        <div class="user-profile__card user-profile__card--security">
+          <div class="user-profile__card-header">
+            <h2 class="user-profile__card-title">
+              <svg class="user-profile__card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              Security
+            </h2>
+          </div>
+
+          <div class="user-profile__security-section">
+            <div class="user-profile__security-item">
+              <div class="user-profile__security-info">
+                <h3 class="user-profile__security-title">Password</h3>
+                <p class="user-profile__security-description">
+                  Use a strong, unique password to help keep your account secure.
+                </p>
+              </div>
+              <button type="button" class="user-profile__security-action" (click)="openPasswordModal()">
+                Change password
+              </button>
+            </div>
+
+            <div class="user-profile__security-divider"></div>
+
+            <div class="user-profile__security-item user-profile__security-item--danger">
+              <div class="user-profile__security-info">
+                <h3 class="user-profile__security-title">Delete Account</h3>
+                <p class="user-profile__security-description">
+                  Permanently remove your account and all associated data. This action cannot be undone.
+                </p>
+              </div>
+              <button type="button" class="user-profile__security-action user-profile__security-action--danger"
+                (click)="openDeleteModal()">
+                Delete account
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <div class="profile__actions">
-      <button
-        type="submit"
-        class="profile__save-btn"
-        [disabled]="form.invalid || isLoading() || isSaving() || !form.dirty"
-      >
-        <span *ngIf="!isSaving()">Save changes</span>
-        <span *ngIf="isSaving()">Saving...</span>
+    <div class="user-profile__actions">
+      <button type="button" class="user-profile__cancel-btn" (click)="onCancel()"
+        [disabled]="isSaving || !isFormDirty()">
+        Cancel
+      </button>
+      <button type="submit" class="user-profile__save-btn"
+        [disabled]="form.invalid || isLoading || isSaving || !isFormDirty()">
+        <span class="user-profile__save-btn-text" *ngIf="!isSaving">
+          <svg class="user-profile__save-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/>
+            <polyline points="7 3 7 8 15 8"/>
+          </svg>
+          Save Changes
+        </span>
+        <span class="user-profile__save-btn-text" *ngIf="isSaving">
+          <div class="user-profile__save-spinner"></div>
+          Saving...
+        </span>
       </button>
     </div>
   </form>
 
-  <div
-    class="profile__modal-backdrop"
-    *ngIf="showPasswordModal()"
-  >
-    <div class="profile__modal">
-      <h3 class="profile__modal-title">Change password</h3>
+  <!-- Password Modal (same HTML structure, just styled differently) -->
+  <div class="user-profile__modal-backdrop" *ngIf="showPasswordModal">
+    <div class="user-profile__modal">
+      <h3 class="user-profile__modal-title">Change password</h3>
       <form [formGroup]="passwordForm" (ngSubmit)="onPasswordSubmit()">
-        <div class="profile__field profile__field--full">
-          <span class="profile__label">Current password</span>
-          <div class="profile__input-wrapper">
-            <input
-              [type]="showCurrentPassword() ? 'text' : 'password'"
-              formControlName="currentPassword"
-              class="profile__input"
-              autocomplete="current-password"
-              placeholder="Enter your current password"
-            />
-            <button
-              type="button"
-              class="profile__toggle-password"
-              (click)="showCurrentPassword.set(!showCurrentPassword())"
-              aria-label="Toggle current password visibility"
-            >
-              <svg class="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
-                <path
-                  fill="currentColor"
-                  d="M12 5c-4.5 0-8.3 2.9-9.5 7 1.2 4.1 5 7 9.5 7s8.3-2.9 9.5-7c-1.2-4.1-5-7-9.5-7Zm0 2c3.1 0 5.8 1.8 7 5-1.2 3.2-3.9 5-7 5s-5.8-1.8-7-5c1.2-3.2 3.9-5 7-5Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"
-                />
-              </svg>
+        <div class="user-profile__field user-profile__field--full">
+          <span class="user-profile__label">Current password</span>
+          <div class="user-profile__input-wrapper">
+            <input type="password" formControlName="currentPassword"
+              class="user-profile__input" autocomplete="current-password" placeholder="Enter your current password" />
+            <button type="button" class="user-profile__toggle-password"
+              (click)="showCurrentPassword = !showCurrentPassword">
+              <span *ngIf="!showCurrentPassword">👁️</span>
+              <span *ngIf="showCurrentPassword">🙈</span>
             </button>
           </div>
-          <span
-            class="profile__error"
-            *ngIf="passwordForm.get('currentPassword')?.touched && passwordForm.get('currentPassword')?.invalid"
-          >
+          <span class="user-profile__error" *ngIf="passwordForm.get('currentPassword')?.touched && passwordForm.get('currentPassword')?.invalid">
             Current password is required.
           </span>
         </div>
 
-        <div class="profile__grid profile__grid--two profile__modal-grid">
-          <div class="profile__field">
-            <span class="profile__label">New password</span>
-            <div class="profile__input-wrapper">
-              <input
-                [type]="showNewPassword() ? 'text' : 'password'"
-                formControlName="newPassword"
-                class="profile__input"
-                autocomplete="new-password"
-                placeholder="New password"
-              />
-              <button
-                type="button"
-                class="profile__toggle-password"
-                (click)="showNewPassword.set(!showNewPassword())"
-                aria-label="Toggle new password visibility"
-              >
-                <svg class="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
-                  <path
-                    fill="currentColor"
-                    d="M12 5c-4.5 0-8.3 2.9-9.5 7 1.2 4.1 5 7 9.5 7s8.3-2.9 9.5-7c-1.2-4.1-5-7-9.5-7Zm0 2c3.1 0 5.8 1.8 7 5-1.2 3.2-3.9 5-7 5s-5.8-1.8-7-5c1.2-3.2 3.9-5 7-5Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"
-                  />
-                </svg>
+        <div class="user-profile__grid user-profile__grid--two user-profile__modal-grid">
+          <div class="user-profile__field">
+            <span class="user-profile__label">New password</span>
+            <div class="user-profile__input-wrapper">
+              <input [type]="showNewPassword ? 'text' : 'password'" formControlName="newPassword"
+                class="user-profile__input" autocomplete="new-password" placeholder="New password" />
+              <button type="button" class="user-profile__toggle-password" (click)="showNewPassword = !showNewPassword">
+                <span *ngIf="!showNewPassword">👁️</span>
+                <span *ngIf="showNewPassword">🙈</span>
               </button>
             </div>
-            <span
-              class="profile__error"
-              *ngIf="passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.invalid"
-            >
-              Password must be at least 6 characters.
+            <span class="user-profile__error" *ngIf="passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.invalid">
+              New password must be at least 6 characters.
             </span>
           </div>
 
-          <div class="profile__field">
-            <span class="profile__label">Confirm new password</span>
-            <div class="profile__input-wrapper">
-              <input
-                [type]="showConfirmNewPassword() ? 'text' : 'password'"
-                formControlName="confirmNewPassword"
-                class="profile__input"
-                autocomplete="new-password"
-                placeholder="Confirm new password"
-              />
-              <button
-                type="button"
-                class="profile__toggle-password"
-                (click)="showConfirmNewPassword.set(!showConfirmNewPassword())"
-                aria-label="Toggle confirm password visibility"
-              >
-                <svg class="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
-                  <path
-                    fill="currentColor"
-                    d="M12 5c-4.5 0-8.3 2.9-9.5 7 1.2 4.1 5 7 9.5 7s8.3-2.9 9.5-7c-1.2-4.1-5-7-9.5-7Zm0 2c3.1 0 5.8 1.8 7 5-1.2 3.2-3.9 5-7 5s-5.8-1.8-7-5c1.2-3.2 3.9-5 7-5Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"
-                  />
-                </svg>
+          <div class="user-profile__field">
+            <span class="user-profile__label">Confirm new password</span>
+            <div class="user-profile__input-wrapper">
+              <input [type]="showConfirmNewPassword ? 'text' : 'password'" formControlName="confirmNewPassword"
+                class="user-profile__input" autocomplete="new-password" placeholder="Confirm new password" />
+              <button type="button" class="user-profile__toggle-password"
+                (click)="showConfirmNewPassword = !showConfirmNewPassword">
+                <span *ngIf="!showConfirmNewPassword">👁️</span>
+                <span *ngIf="showConfirmNewPassword">🙈</span>
               </button>
             </div>
+            <span class="user-profile__error" *ngIf="passwordForm.get('confirmNewPassword')?.touched && passwordForm.get('confirmNewPassword')?.invalid">
+              Please confirm your new password.
+            </span>
           </div>
         </div>
 
-        <div class="profile__modal-actions">
-          <button
-            type="button"
-            class="profile__modal-btn profile__modal-btn--secondary"
-            (click)="closePasswordModal()"
-            [disabled]="isPasswordSaving()"
-          >
+        <div class="user-profile__modal-actions">
+          <button type="button" class="user-profile__modal-btn user-profile__modal-btn--secondary"
+            (click)="closePasswordModal()">
             Cancel
           </button>
-          <button
-            type="submit"
-            class="profile__modal-btn profile__modal-btn--primary"
-            [disabled]="passwordForm.invalid || isPasswordSaving()"
-          >
-            <span *ngIf="!isPasswordSaving()">Update password</span>
-            <span *ngIf="isPasswordSaving()">Updating...</span>
+          <button type="submit" class="user-profile__modal-btn user-profile__modal-btn--primary"
+            [disabled]="isPasswordSaving">
+            <span *ngIf="isPasswordSaving">Changing...</span>
+            <span *ngIf="!isPasswordSaving">Change password</span>
           </button>
         </div>
       </form>
     </div>
   </div>
 
-  <div
-    class="profile__modal-backdrop"
-    *ngIf="showDeleteModal()"
-  >
-    <div class="profile__modal profile__modal--danger">
-      <h3 class="profile__modal-title">Delete account</h3>
-      <p class="profile__danger-text">
-        This action cannot be undone. All your data associated with this account
-        will be permanently removed.
+  <!-- Delete Account Modal (same HTML structure, just styled differently) -->
+  <div class="user-profile__modal-backdrop" *ngIf="showDeleteModal">
+    <div class="user-profile__modal user-profile__modal--danger">
+      <h3 class="user-profile__modal-title">Delete account</h3>
+      <p class="user-profile__danger-text">
+        This action cannot be undone. All your data will be permanently deleted.
       </p>
       <form [formGroup]="deleteForm" (ngSubmit)="onDeleteAccountSubmit()">
-        <div class="profile__field profile__field--full">
-          <span class="profile__label">Current password</span>
-          <div class="profile__input-wrapper">
-            <input
-              [type]="showDeletePassword() ? 'text' : 'password'"
-              formControlName="password"
-              class="profile__input"
-              autocomplete="current-password"
-              placeholder="Enter your current password to confirm"
-            />
-            <button
-              type="button"
-              class="profile__toggle-password"
-              (click)="showDeletePassword.set(!showDeletePassword())"
-              aria-label="Toggle delete password visibility"
-            >
-              <svg class="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
-                <path
-                  fill="currentColor"
-                  d="M12 5c-4.5 0-8.3 2.9-9.5 7 1.2 4.1 5 7 9.5 7s8.3-2.9 9.5-7c-1.2-4.1-5-7-9.5-7Zm0 2c3.1 0 5.8 1.8 7 5-1.2 3.2-3.9 5-7 5s-5.8-1.8-7-5c1.2-3.2 3.9-5 7-5Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"
-                />
-              </svg>
+        <div class="user-profile__field user-profile__field--full">
+          <span class="user-profile__label">Current password</span>
+          <div class="user-profile__input-wrapper">
+            <input [type]="showDeletePassword ? 'text' : 'password'" formControlName="password"
+              class="user-profile__input" autocomplete="current-password"
+              placeholder="Enter your password to confirm" />
+            <button type="button" class="user-profile__toggle-password"
+              (click)="showDeletePassword = !showDeletePassword">
+              <span *ngIf="!showDeletePassword">👁️</span>
+              <span *ngIf="showDeletePassword">🙈</span>
             </button>
           </div>
-          <span
-            class="profile__error"
-            *ngIf="deleteForm.get('password')?.touched && deleteForm.get('password')?.invalid"
-          >
+          <span class="user-profile__error" *ngIf="deleteForm.get('password')?.touched && deleteForm.get('password')?.invalid">
             Password is required to delete your account.
           </span>
         </div>
 
-        <div class="profile__modal-actions">
-          <button
-            type="button"
-            class="profile__modal-btn profile__modal-btn--secondary"
-            (click)="closeDeleteModal()"
-            [disabled]="isDeletingAccount()"
-          >
+        <div class="user-profile__modal-actions">
+          <button type="button" class="user-profile__modal-btn user-profile__modal-btn--secondary"
+            (click)="closeDeleteModal()">
             Cancel
           </button>
-          <button
-            type="submit"
-            class="profile__modal-btn profile__modal-btn--danger"
-            [disabled]="deleteForm.invalid || isDeletingAccount()"
-          >
-            <span *ngIf="!isDeletingAccount()">Delete account</span>
-            <span *ngIf="isDeletingAccount()">Deleting...</span>
+          <button type="submit" class="user-profile__modal-btn user-profile__modal-btn--danger"
+            [disabled]="isDeletingAccount">
+            <span *ngIf="isDeletingAccount">Deleting...</span>
+            <span *ngIf="!isDeletingAccount">Delete account</span>
           </button>
         </div>
       </form>

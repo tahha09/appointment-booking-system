@@ -1,6 +1,9 @@
 <div class="admin-dashboard">
   <!-- Fixed Sidebar -->
-  <div class="sidebar">
+  <aside
+    [class.sidebar-collapsed]="isSidebarCollapsed"
+    class="sidebar"
+  >
     <div class="logo">
       <h2>MedAdmin</h2>
     </div>
@@ -8,38 +11,76 @@
     <nav>
       <button routerLink="/admin/system-overview" class="nav-link" [class.active]="isActive('/admin/system-overview')">
         <i>📊</i>
-        <span>System Overview</span>
+        <span [class.hidden]="isSidebarCollapsed">System Overview</span>
       </button>
 
       <button routerLink="user-management" routerLinkActive="active">
         <i>👥</i>
-        <span>User Management</span>
+        <span [class.hidden]="isSidebarCollapsed">User Management</span>
       </button>
 
       <button routerLink="appointments" routerLinkActive="active">
         <i>📅</i>
-        <span>Appointments</span>
+        <span [class.hidden]="isSidebarCollapsed">Appointments</span>
       </button>
 
       <button routerLink="appointments-analytics" routerLinkActive="active">
         <i>📈</i>
-        <span>Appointments Analytics</span>
+        <span [class.hidden]="isSidebarCollapsed">Appointments Analytics</span>
+      </button>
+
+      <button routerLink="profile" routerLinkActive="active">
+        <i>👤</i>
+        <span [class.hidden]="isSidebarCollapsed">Profile</span>
       </button>
     </nav>
-  </div>
+
+    <!-- Logout Button at Bottom -->
+    <div class="sidebar-footer">
+      <button class="nav-link logout-sidebar-btn" (click)="logout()">
+        <i>🚪</i>
+        <span [class.hidden]="isSidebarCollapsed">Logout</span>
+      </button>
+    </div>
+  </aside>
 
   <!-- Main Content -->
-  <div class="main-content">
+  <div class="main-content" [class.main-content-expanded]="isSidebarCollapsed">
     <!-- Top Bar -->
-    <div class="top-bar">
+    <header class="top-bar">
       <div class="top-bar-content">
-        <h2>Hello {{ userName }}</h2>
-        <button class="logout-btn" (click)="logout()">
-          <i>🚪</i>
-          Logout
-        </button>
+        <div class="top-bar-left">
+          <button
+            (click)="toggleSidebar()"
+            class="sidebar-toggle-btn"
+            aria-label="Toggle sidebar"
+          >
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12h18M3 6h18M3 18h18" />
+            </svg>
+          </button>
+          <div class="welcome-section">
+            <p class="welcome-text">Welcome back</p>
+            <h1 class="user-name">{{ userName }}</h1>
+            <span class="date-text">{{ today | date: 'fullDate' }}</span>
+          </div>
+        </div>
+
+        <div class="top-bar-right">
+          <button
+            type="button"
+            class="notification-btn"
+            aria-label="Notifications"
+          >
+            <svg class="h-6 w-6" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M12 3a6 6 0 0 0-6 6v3.51l-.8 1.6A1 1 0 0 0 6.09 16h11.82a1 1 0 0 0 .89-1.49l-.8-1.6V9a6 6 0 0 0-6-6Zm0 18a2.75 2.75 0 0 0 2.7-2h-5.4A2.75 2.75 0 0 0 12 21Z"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
-    </div>
+    </header>
 
     <!-- Page Content (Routing Area) -->
     <div class="page-content">

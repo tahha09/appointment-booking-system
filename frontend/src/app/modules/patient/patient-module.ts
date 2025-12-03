@@ -3,12 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { Layout } from './layout/layout';
 import { Dashboard } from './dashboard/dashboard';
-import { PatientProfile } from './profile/profile';
 import { MyAppointments } from './my-appointments/my-appointments';
 import { MedicalHistory } from './medical-history/medical-history';
 import { Prescriptions } from './prescriptions/prescriptions';
 import { AppointmentDetails } from './appointment-details/appointment-details';
 import { authGuard } from '../../core/guards/auth-guard';
+import { UserProfile } from '../../shared/components/profile/profile';
 
 const routes: Routes = [
   {
@@ -21,11 +21,11 @@ const routes: Routes = [
       { path: 'medical-history', component: MedicalHistory },
       { path: 'prescriptions', component: Prescriptions },
       { path: 'appointment-details/:id', component: AppointmentDetails},
+      { path: 'profile', component:UserProfile},
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
-      
+
     ]
   },
-  { path: 'profile', component: PatientProfile },
 ];
 
 @NgModule({
@@ -35,7 +35,7 @@ const routes: Routes = [
     // Import all standalone components
     Layout,
     Dashboard,
-    PatientProfile,
+    UserProfile,
     MyAppointments,
     MedicalHistory,
     Prescriptions,

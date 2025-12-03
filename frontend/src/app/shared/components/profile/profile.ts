@@ -1,214 +1,467 @@
-import { Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { CommonModule, TitleCasePipe } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
+import { ReactiveFormsModule, FormBuilder, Validators, FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
+import { Notification } from '../../../core/services/notification';
+
+type UserRole = 'patient' | 'doctor' | 'admin' | 'staff';
+
+// Renamed from UserProfile to UserProfileData to avoid conflict
+interface UserProfileData {
+  fullName: string;
+  email: string;
+  phone?: string;
+  dateOfBirth?: string;
+  role: UserRole;
+  profileImage?: string;
+  address?: string;
+
+  // Patient specific
+  medicalHistory?: string;
+  allergies?: string;
+  emergencyContact?: string;
+  insuranceProvider?: string;
+  insurancePolicyNumber?: string;
+
+  // Doctor specific
+  specialty?: string;
+  licenseNumber?: string;
+  qualifications?: string;
+  experienceYears?: number;
+  bio?: string;
+  consultationFee?: number;
+  availability?: string;
+  department?: string;
+
+  // Admin specific
+  permissions?: any[];
+  adminLevel?: string;
+}
 
 @Component({
-  selector: 'app-profile',
+  selector: 'app-user-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, TitleCasePipe],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })
-export class Profile {
-  private readonly auth = inject(Auth);
+export class UserProfile implements OnInit {
   private readonly fb = inject(FormBuilder);
+  private readonly auth = inject(Auth);
+  private readonly notification = inject(Notification);
+  private readonly router = inject(Router);
+  private originalData: any;
 
-  protected readonly form = this.fb.group({
-    fullName: ['', Validators.required],
-    email: ['', [Validators.required, Validators.email]],
-    phone: [''],
-    dateOfBirth: [''],
-    address: [''],
+  profileImage: string | null = null;
+  private selectedImageDataUrl: string | null = null;
+  isLoading = true;
+  isSaving = false;
+  showPasswordModal = false;
+  isPasswordSaving = false;
+  showCurrentPassword = false;
+  showNewPassword = false;
+  showConfirmNewPassword = false;
+  showDeleteModal = false;
+  isDeletingAccount = false;
+  showDeletePassword = false;
+
+  userRole: UserRole = 'patient';
+
+  // Main form for common fields
+  form = this.fb.group({
+    fullName: this.fb.control('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.minLength(3)],
+    }),
+    email: this.fb.control('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.email],
+    }),
+    phone: this.fb.control(''),
+    dateOfBirth: this.fb.control(''),
+    address: this.fb.control(''),
   });
 
-  protected readonly passwordForm = this.fb.group({
-    currentPassword: ['', Validators.required],
-    newPassword: ['', [Validators.required, Validators.minLength(6)]],
-    confirmNewPassword: ['', Validators.required],
-  }, { validators: this.passwordMatchValidator });
-
-  protected readonly deleteForm = this.fb.group({
-    password: ['', Validators.required],
+  // Role-specific forms
+  patientForm = this.fb.group({
+    medicalHistory: this.fb.control(''),
+    allergies: this.fb.control(''),
+    emergencyContact: this.fb.control(''),
+    insuranceProvider: this.fb.control(''),
+    insurancePolicyNumber: this.fb.control(''),
   });
 
-  protected readonly isLoading = signal(false);
-  protected readonly isSaving = signal(false);
-  protected readonly isPasswordSaving = signal(false);
-  protected readonly isDeletingAccount = signal(false);
-  protected readonly showPasswordModal = signal(false);
-  protected readonly showDeleteModal = signal(false);
-  protected readonly showCurrentPassword = signal(false);
-  protected readonly showNewPassword = signal(false);
-  protected readonly showConfirmNewPassword = signal(false);
-  protected readonly showDeletePassword = signal(false);
+  doctorForm = this.fb.group({
+    specialty: this.fb.control(''),
+    licenseNumber: this.fb.control(''),
+    qualifications: this.fb.control(''),
+    experienceYears: this.fb.control<number | null>(null),
+    bio: this.fb.control(''),
+    consultationFee: this.fb.control<number | null>(null),
+    availability: this.fb.control(''),
+    department: this.fb.control(''),
+  });
 
-  protected profileImage: string | null = null;
-  protected selectedImageDataUrl: string | null = null;
+  adminForm = this.fb.group({
+    department: this.fb.control(''),
+    permissions: this.fb.control<any[]>([]),
+    adminLevel: this.fb.control(''),
+  });
 
-  constructor() {
-    this.loadProfile();
+  passwordForm = this.fb.group({
+    currentPassword: this.fb.control('', {
+      nonNullable: true,
+      validators: [Validators.required]
+    }),
+    newPassword: this.fb.control('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.minLength(6)]
+    }),
+    confirmNewPassword: this.fb.control('', {
+      nonNullable: true,
+      validators: [Validators.required]
+    }),
+  });
+
+  deleteForm = this.fb.group({
+    password: this.fb.control('', {
+      nonNullable: true,
+      validators: [Validators.required]
+    }),
+  });
+
+  ngOnInit(): void {
+    this.loadUserProfile();
   }
 
-  protected get displayName(): string {
-    return this.auth.getUserName() || 'User';
+  private loadUserProfile(): void {
+    this.isLoading = true;
+    this.auth.getUserProfile().subscribe({
+      next: (profile: UserProfileData) => {
+        this.profileImage = profile.profileImage || null;
+        this.userRole = profile.role as UserRole;
+
+        // Patch common fields
+        this.form.patchValue({
+          fullName: profile.fullName || '',
+          email: profile.email || '',
+          phone: profile.phone || '',
+          dateOfBirth: profile.dateOfBirth || '',
+          address: profile.address || '',
+        });
+
+        // Patch role-specific fields
+        this.patchRoleSpecificFields(profile);
+
+        // Disable email field (should not be editable)
+        this.form.get('email')?.disable({ emitEvent: false });
+
+        // Mark role-specific forms as pristine
+        this.patientForm.markAsPristine();
+        this.doctorForm.markAsPristine();
+        this.adminForm.markAsPristine();
+
+        this.isLoading = false;
+      },
+      error: (error: any) => {
+        this.handleProfileLoadError(error);
+      },
+    });
   }
 
-  protected get userRole(): string {
-    return this.auth.getUserRole();
+  private patchRoleSpecificFields(profile: UserProfileData): void {
+    switch (this.userRole) {
+      case 'patient':
+        this.patientForm.patchValue({
+          medicalHistory: profile.medicalHistory || '',
+          allergies: profile.allergies || '',
+          emergencyContact: profile.emergencyContact || '',
+          insuranceProvider: profile.insuranceProvider || '',
+          insurancePolicyNumber: profile.insurancePolicyNumber || '',
+        });
+        break;
+      case 'doctor':
+        this.doctorForm.patchValue({
+          specialty: profile.specialty || '',
+          licenseNumber: profile.licenseNumber || '',
+          qualifications: profile.qualifications || '',
+          experienceYears: profile.experienceYears || null,
+          bio: profile.bio || '',
+          consultationFee: profile.consultationFee || null,
+          availability: profile.availability || '',
+          department: profile.department || '',
+        });
+        break;
+      case 'admin':
+        this.adminForm.patchValue({
+          department: profile.department || '',
+          permissions: profile.permissions || [],
+          adminLevel: profile.adminLevel || '',
+        });
+        break;
+    }
   }
 
-  protected getInitials(name: string): string {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
+  private handleProfileLoadError(error: any): void {
+    const message = error?.error?.error || 'Failed to load profile.';
+    this.notification.error('Profile load failed', message);
+    this.isLoading = false;
   }
 
-  protected onProfileImageSelected(event: Event): void {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (!file) return;
+  get displayName(): string {
+    return this.form.get('fullName')?.value || '';
+  }
+
+  getInitials(name: string): string {
+    const parts = name.trim().split(/\s+/).filter((part) => !!part);
+    if (parts.length === 0) return '';
+    if (parts.length === 1) return parts[0][0].toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+
+  onProfileImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    if (!file.type.startsWith('image/')) {
+      this.notification.error('Invalid file', 'Please select an image file.');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      this.notification.error('File too large', 'Image must be less than 5MB.');
+      return;
+    }
 
     const reader = new FileReader();
-    reader.onload = (e) => {
-      this.selectedImageDataUrl = e.target?.result as string;
+    reader.onload = () => {
+      this.selectedImageDataUrl = reader.result as string;
       this.profileImage = this.selectedImageDataUrl;
       this.form.markAsDirty();
     };
     reader.readAsDataURL(file);
   }
 
-  protected openPasswordModal(): void {
-    this.showPasswordModal.set(true);
-    this.passwordForm.reset();
+  onSubmit(): void {
+    // Validate main form
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    // Validate role-specific form only if it's been modified and has required fields
+    switch (this.userRole) {
+      case 'doctor':
+        if (this.doctorForm.dirty && this.doctorForm.invalid) {
+          this.doctorForm.markAllAsTouched();
+          return;
+        }
+        break;
+    }
+
+    const updateData = this.buildUpdateData();
+    this.isSaving = true;
+
+    this.auth.updateUserProfile(updateData).subscribe({
+      next: (response: UserProfileData) => {
+        this.isSaving = false;
+        this.notification.success('Profile updated', 'Your details have been saved.');
+
+        // Reset dirty state
+        this.form.markAsPristine();
+        this.patientForm.markAsPristine();
+        this.doctorForm.markAsPristine();
+        this.adminForm.markAsPristine();
+
+        this.selectedImageDataUrl = null;
+
+        // Update profile image if returned
+        if (response.profileImage) {
+          this.profileImage = response.profileImage;
+        }
+      },
+      error: (error: any) => {
+        this.isSaving = false;
+        const message = error?.error?.error ||
+          'Failed to update profile. Please check your details and try again.';
+        this.notification.error('Update failed', message);
+      },
+    });
   }
 
-  protected closePasswordModal(): void {
-    this.showPasswordModal.set(false);
-    this.passwordForm.reset();
+  onCancel(): void {
+    // Reset form to original values
+    if (this.originalData) {
+      this.form.patchValue(this.originalData);
+    }
+
+    // Reset role-specific forms if they exist
+    if (this.userRole === 'patient' && this.patientForm) {
+      this.patientForm.reset();
+    } else if (this.userRole === 'doctor' && this.doctorForm) {
+      this.doctorForm.reset();
+    } else if (this.userRole === 'admin' && this.adminForm) {
+      this.adminForm.reset();
+    }
+
+    // Mark forms as pristine
+    this.form.markAsPristine();
+    this.form.markAsUntouched();
   }
-
-  protected openDeleteModal(): void {
-    this.showDeleteModal.set(true);
-    this.deleteForm.reset();
-  }
-
-  protected closeDeleteModal(): void {
-    this.showDeleteModal.set(false);
-    this.deleteForm.reset();
-  }
-
-  protected onSubmit(): void {
-    if (this.form.invalid || this.isSaving()) return;
-
-    this.isSaving.set(true);
-
-    const profile = this.form.getRawValue();
-
-    const updateData = {
-      fullName: profile.fullName || '',
-      email: profile.email || '',
-      phone: profile.phone || '',
-      dateOfBirth: profile.dateOfBirth || '',
-      address: profile.address || '',
-      profileImage: this.selectedImageDataUrl,
+  private buildUpdateData(): any {
+    const baseData: any = {
+      fullName: this.form.get('fullName')?.value || '',
+      phone: this.form.get('phone')?.value || '',
+      dateOfBirth: this.form.get('dateOfBirth')?.value || '',
+      address: this.form.get('address')?.value || '',
     };
 
-    this.auth.updateProfile(updateData).subscribe({
-      next: (updatedProfile) => {
-        this.profileImage = updatedProfile.profileImage;
-        this.form.markAsPristine();
-        this.isSaving.set(false);
-        // TODO: Add success notification
-      },
-      error: (error) => {
-        this.isSaving.set(false);
-        // TODO: Add error notification
-        console.error('Failed to update profile:', error);
-      },
-    });
+    // Add profile image if changed
+    if (this.selectedImageDataUrl) {
+      baseData.profileImage = this.selectedImageDataUrl;
+    }
+
+    // Add role-specific fields
+    switch (this.userRole) {
+      case 'patient':
+        Object.assign(baseData, {
+          medicalHistory: this.patientForm.get('medicalHistory')?.value || '',
+          allergies: this.patientForm.get('allergies')?.value || '',
+          emergencyContact: this.patientForm.get('emergencyContact')?.value || '',
+          insuranceProvider: this.patientForm.get('insuranceProvider')?.value || '',
+          insurancePolicyNumber: this.patientForm.get('insurancePolicyNumber')?.value || '',
+        });
+        break;
+      case 'doctor':
+        Object.assign(baseData, {
+          specialty: this.doctorForm.get('specialty')?.value || '',
+          licenseNumber: this.doctorForm.get('licenseNumber')?.value || '',
+          qualifications: this.doctorForm.get('qualifications')?.value || '',
+          experienceYears: this.doctorForm.get('experienceYears')?.value || null,
+          bio: this.doctorForm.get('bio')?.value || '',
+          consultationFee: this.doctorForm.get('consultationFee')?.value || null,
+          availability: this.doctorForm.get('availability')?.value || '',
+          department: this.doctorForm.get('department')?.value || '',
+        });
+        break;
+      case 'admin':
+        Object.assign(baseData, {
+          department: this.adminForm.get('department')?.value || '',
+          permissions: this.adminForm.get('permissions')?.value || [],
+          adminLevel: this.adminForm.get('adminLevel')?.value || '',
+        });
+        break;
+    }
+
+    // Remove empty values but keep 0 values for numbers
+    return Object.fromEntries(
+      Object.entries(baseData).filter(([_, v]) => {
+        if (typeof v === 'number') return v !== null && v !== undefined;
+        return v !== null && v !== undefined && v !== '';
+      })
+    );
   }
 
-  protected onPasswordSubmit(): void {
-    if (this.passwordForm.invalid || this.isPasswordSaving()) return;
+  openPasswordModal(): void {
+    this.passwordForm.reset({
+      currentPassword: '',
+      newPassword: '',
+      confirmNewPassword: '',
+    });
+    this.showCurrentPassword = false;
+    this.showNewPassword = false;
+    this.showConfirmNewPassword = false;
+    this.showPasswordModal = true;
+  }
 
-    this.isPasswordSaving.set(true);
+  closePasswordModal(): void {
+    if (this.isPasswordSaving) return;
+    this.showPasswordModal = false;
+  }
+
+  onPasswordSubmit(): void {
+    if (this.passwordForm.invalid || this.isPasswordSaving) {
+      this.passwordForm.markAllAsTouched();
+      return;
+    }
 
     const pwd = this.passwordForm.getRawValue();
+    if (pwd.newPassword !== pwd.confirmNewPassword) {
+      this.notification.error('Update failed', 'New password and confirmation do not match.');
+      return;
+    }
 
-    this.auth.updatePassword({
-      currentPassword: pwd.currentPassword || '',
-      newPassword: pwd.newPassword || '',
-      confirmNewPassword: pwd.confirmNewPassword || '',
-    }).subscribe({
+    this.isPasswordSaving = true;
+    this.auth.updatePassword(pwd).subscribe({
       next: () => {
-        this.closePasswordModal();
-        this.isPasswordSaving.set(false);
-        // TODO: Add success notification
+        this.isPasswordSaving = false;
+        this.showPasswordModal = false;
+        this.passwordForm.reset();
+        this.notification.success('Password updated', 'Your password has been changed.');
       },
-      error: (error) => {
-        this.isPasswordSaving.set(false);
-        // TODO: Add error notification
-        console.error('Failed to update password:', error);
+      error: (error: any) => {
+        this.isPasswordSaving = false;
+        const message = error?.error?.error ||
+          'Failed to update password. Please check your details and try again.';
+        this.notification.error('Update failed', message);
       },
     });
   }
 
-  protected onDeleteAccountSubmit(): void {
-    if (this.deleteForm.invalid || this.isDeletingAccount()) return;
+  openDeleteModal(): void {
+    this.deleteForm.reset({ password: '' });
+    this.showDeletePassword = false;
+    this.showDeleteModal = true;
+  }
 
-    this.isDeletingAccount.set(true);
+  closeDeleteModal(): void {
+    if (this.isDeletingAccount) return;
+    this.showDeleteModal = false;
+  }
 
-    const password = this.deleteForm.getRawValue().password || '';
+  onDeleteAccountSubmit(): void {
+    if (this.deleteForm.invalid || this.isDeletingAccount) {
+      this.deleteForm.markAllAsTouched();
+      return;
+    }
+
+    const { password } = this.deleteForm.getRawValue();
+    this.isDeletingAccount = true;
 
     this.auth.deleteAccount(password).subscribe({
       next: () => {
-        this.isDeletingAccount.set(false);
-        // Account deletion handled in auth service
+        this.isDeletingAccount = false;
+        this.showDeleteModal = false;
+        this.notification.success('Account deleted', 'Your account has been deleted.');
+        this.router.navigateByUrl('/login');
       },
-      error: (error) => {
-        this.isDeletingAccount.set(false);
-        // TODO: Add error notification
-        console.error('Failed to delete account:', error);
-      },
-    });
-  }
-
-  private loadProfile(): void {
-    this.isLoading.set(true);
-
-    this.auth.getProfile().subscribe({
-      next: (profile) => {
-        this.profileImage = profile.profileImage;
-
-        this.form.patchValue({
-          fullName: profile.fullName,
-          email: profile.email,
-          phone: profile.phone,
-          dateOfBirth: profile.dateOfBirth || '',
-          address: profile.address,
-        });
-
-        this.isLoading.set(false);
-      },
-      error: (error) => {
-        this.isLoading.set(false);
-        // TODO: Add error notification
-        console.error('Failed to load profile:', error);
+      error: (error: any) => {
+        this.isDeletingAccount = false;
+        const message = error?.error?.error ||
+          'Failed to delete account. Please check your password and try again.';
+        this.notification.error('Delete failed', message);
       },
     });
   }
 
-  private passwordMatchValidator(group: FormGroup): { [key: string]: any } | null {
-    const newPassword = group.get('newPassword');
-    const confirmPassword = group.get('confirmNewPassword');
+  isFormDirty(): boolean {
+    const baseDirty = this.form.dirty;
+    let roleDirty = false;
 
-    if (newPassword && confirmPassword && newPassword.value !== confirmPassword.value) {
-      return { passwordMismatch: true };
+    switch (this.userRole) {
+      case 'patient':
+        roleDirty = this.patientForm.dirty;
+        break;
+      case 'doctor':
+        roleDirty = this.doctorForm.dirty;
+        break;
+      case 'admin':
+        roleDirty = this.adminForm.dirty;
+        break;
     }
 
-    return null;
+    return baseDirty || roleDirty || this.selectedImageDataUrl !== null;
   }
 }

@@ -42,13 +42,72 @@ interface RegisterResponse {
   token: string;
 }
 
+// Updated Profile Response for unified controller
 interface ProfileResponse {
   fullName: string;
   email: string;
-  phone: string;
-  dateOfBirth: string | null;
-  address: string;
-  profileImage: string | null;
+  phone?: string;
+  dateOfBirth?: string;
+  address?: string;
+  profileImage?: string;
+  role: 'patient' | 'doctor' | 'admin' | 'staff'; // Change from string to union type
+
+  // Patient specific
+  medicalHistory?: string;
+  allergies?: string;
+  emergencyContact?: string;
+  insuranceProvider?: string;
+  insurancePolicyNumber?: string;
+
+  // Doctor specific
+  specialty?: string;
+  licenseNumber?: string;
+  qualifications?: string;
+  experienceYears?: number;
+  bio?: string;
+  consultationFee?: number;
+  availability?: string;
+  department?: string;
+
+  // Admin specific
+  permissions?: any[];
+  adminLevel?: string;
+}
+
+// Update Profile Request interface
+interface UpdateProfileRequest {
+  fullName?: string;
+  phone?: string;
+  dateOfBirth?: string;
+  address?: string;
+  profileImage?: string | null;
+
+  // Patient specific
+  medicalHistory?: string;
+  allergies?: string;
+  emergencyContact?: string;
+  insuranceProvider?: string;
+  insurancePolicyNumber?: string;
+
+  // Doctor specific
+  specialty?: string;
+  licenseNumber?: string;
+  qualifications?: string;
+  experienceYears?: number;
+  bio?: string;
+  consultationFee?: number;
+  availability?: string;
+  department?: string;
+
+  // Admin specific
+  permissions?: any[];
+  adminLevel?: string;
+}
+
+interface UpdatePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
 }
 
 @Injectable({
@@ -172,8 +231,8 @@ export class Auth {
           { headers: this.getAuthHeaders() }
         )
         .subscribe({
-          next: () => {},
-          error: () => {},
+          next: () => { },
+          error: () => { },
         });
     }
   }
@@ -213,8 +272,8 @@ export class Auth {
     return this.getUserRole() === 'patient';
   }
 
-  setProfileImage(url: string | null): void {
-    this.profileImage = url;
+  setProfileImage(url: string | undefined): void {
+    this.profileImage = url || null;
   }
 
   getProfileImage(): string | null {
@@ -224,17 +283,147 @@ export class Auth {
       return null;
     }
     if (profileImage.startsWith('http')) {
-    return profileImage;
-  } else {
-    return `http://localhost:8000/storage/${profileImage}`;
-  }
+      return profileImage;
+    } else {
+      return `http://localhost:8000/storage/${profileImage}`;
+    }
   }
 
   getUserName(): string | null {
     return this.name;
   }
 
+  // Unified Profile Methods - use these
+  getUserProfile(): Observable<ProfileResponse> {
+    return this.http
+      .get<ApiResponse<ProfileResponse>>(`${this.apiBaseUrl}/profile`, {
+        headers: this.getAuthHeaders(),
+      })
+      .pipe(
+        map((response) => {
+          const profile = response.data;
+          // Update stored profile image
+          if (profile.profileImage) {
+            this.setProfileImage(profile.profileImage);
+            sessionStorage.setItem(this.PROFILE_IMAGE_KEY, profile.profileImage);
+          }
+          // Update stored name
+          if (profile.fullName && profile.fullName !== this.name) {
+            this.name = profile.fullName;
+            sessionStorage.setItem(this.NAME_KEY, profile.fullName);
+          }
+          // Update stored role if different
+          if (profile.role && profile.role !== this.role) {
+            this.role = profile.role;
+            sessionStorage.setItem(this.ROLE_KEY, profile.role);
+          }
+          return profile;
+        }),
+        catchError((error: HttpErrorResponse) => {
+          const message =
+            (error?.error && (error.error.message || error.error.error)) ||
+            'Failed to load profile.';
+
+          return throwError(() => ({
+            error: { error: message },
+          }));
+        })
+      );
+  }
+  updateUserProfile(update: UpdateProfileRequest): Observable<ProfileResponse> {
+    return this.http
+      .put<ApiResponse<ProfileResponse>>(`${this.apiBaseUrl}/profile`, update, {
+        headers: this.getAuthHeaders(),
+      })
+      .pipe(
+        map((response) => {
+          const profile = response.data;
+          // Update stored profile image
+          if (profile.profileImage) {
+            this.setProfileImage(profile.profileImage);
+            sessionStorage.setItem(this.PROFILE_IMAGE_KEY, profile.profileImage);
+          }
+          // Update stored name
+          if (profile.fullName && profile.fullName !== this.name) {
+            this.name = profile.fullName;
+            sessionStorage.setItem(this.NAME_KEY, profile.fullName);
+          }
+          return profile;
+        }),
+        catchError((error: HttpErrorResponse) => {
+          const message =
+            (error?.error && (error.error.message || error.error.error)) ||
+            'Failed to update profile.';
+
+          return throwError(() => ({
+            error: { error: message },
+          }));
+        })
+      );
+  }
+
+  updatePassword(update: UpdatePasswordRequest): Observable<void> {
+    return this.http
+      .patch<ApiResponse<null>>(`${this.apiBaseUrl}/profile/password`, update, {
+        headers: this.getAuthHeaders(),
+      })
+      .pipe(
+        map(() => { }),
+        catchError((error: HttpErrorResponse) => {
+          const message =
+            (error?.error && (error.error.message || error.error.error)) ||
+            'Failed to update password.';
+
+          return throwError(() => ({
+            error: { error: message },
+          }));
+        })
+      );
+  }
+
+  deleteAccount(password: string): Observable<void> {
+    return this.http
+      .delete<ApiResponse<null>>(`${this.apiBaseUrl}/profile`, {
+        headers: this.getAuthHeaders(),
+        body: { password },
+      })
+      .pipe(
+        map(() => {
+          // Clear all stored data on successful deletion
+          this.logout();
+        }),
+        catchError((error: HttpErrorResponse) => {
+          const message =
+            (error?.error && (error.error.message || error.error.error)) ||
+            'Failed to delete account.';
+
+          return throwError(() => ({
+            error: { error: message },
+          }));
+        })
+      );
+  }
+
+  // Legacy methods - for backward compatibility
+  getProfile(): Observable<ProfileResponse> {
+    console.warn('getProfile() is deprecated. Use getUserProfile() instead.');
+    return this.getUserProfile();
+  }
+
+  updateProfile(update: {
+    fullName: string;
+    email: string;
+    phone: string;
+    dateOfBirth: string;
+    address: string;
+    profileImage?: string | null;
+  }): Observable<ProfileResponse> {
+    console.warn('updateProfile() is deprecated. Use updateUserProfile() instead.');
+    return this.updateUserProfile(update);
+  }
+
   getPatientProfile(): Observable<ProfileResponse> {
+    console.warn('getPatientProfile() is deprecated. Use getUserProfile() instead.');
     return this.http
       .get<ApiResponse<ProfileResponse>>(`${this.apiBaseUrl}/patient/profile`, {
         headers: this.getAuthHeaders(),
@@ -268,6 +457,7 @@ export class Auth {
     confirmNewPassword?: string;
     profileImage?: string | null;
   }): Observable<ProfileResponse> {
+    console.warn('updatePatientProfile() is deprecated. Use updateUserProfile() instead.');
     return this.http
       .put<ApiResponse<ProfileResponse>>(`${this.apiBaseUrl}/patient/profile`, update, {
         headers: this.getAuthHeaders(),
@@ -282,113 +472,6 @@ export class Auth {
           const message =
             (error?.error && (error.error.message || error.error.error)) ||
             'Failed to update profile.';
-
-          return throwError(() => ({
-            error: { error: message },
-          }));
-        })
-      );
-  }
-
-  getProfile(): Observable<ProfileResponse> {
-    return this.http
-      .get<ApiResponse<ProfileResponse>>(`${this.apiBaseUrl}/profile`, {
-        headers: this.getAuthHeaders(),
-      })
-      .pipe(
-        map((response) => {
-          const profile = response.data;
-          this.setProfileImage(profile.profileImage);
-          return profile;
-        }),
-        catchError((error: HttpErrorResponse) => {
-          const message =
-            (error?.error && (error.error.message || error.error.error)) ||
-            'Failed to load profile.';
-
-          return throwError(() => ({
-            error: { error: message },
-          }));
-        })
-      );
-  }
-
-  updateProfile(update: {
-    fullName: string;
-    email: string;
-    phone: string;
-    dateOfBirth: string;
-    address: string;
-    profileImage?: string | null;
-  }): Observable<ProfileResponse> {
-    return this.http
-      .put<ApiResponse<ProfileResponse>>(`${this.apiBaseUrl}/profile`, update, {
-        headers: this.getAuthHeaders(),
-      })
-      .pipe(
-        map((response) => {
-          const profile = response.data;
-          this.setProfileImage(profile.profileImage);
-          return profile;
-        }),
-        catchError((error: HttpErrorResponse) => {
-          const message =
-            (error?.error && (error.error.message || error.error.error)) ||
-            'Failed to update profile.';
-
-          return throwError(() => ({
-            error: { error: message },
-          }));
-        })
-      );
-  }
-
-  updatePassword(update: {
-    currentPassword: string;
-    newPassword: string;
-    confirmNewPassword: string;
-  }): Observable<void> {
-    return this.http
-      .put<ApiResponse<null>>(`${this.apiBaseUrl}/password`, update, {
-        headers: this.getAuthHeaders(),
-      })
-      .pipe(
-        map(() => {}),
-        catchError((error: HttpErrorResponse) => {
-          const message =
-            (error?.error && (error.error.message || error.error.error)) ||
-            'Failed to update password.';
-
-          return throwError(() => ({
-            error: { error: message },
-          }));
-        })
-      );
-  }
-
-  deleteAccount(password: string): Observable<void> {
-    return this.http
-      .delete<ApiResponse<null>>(`${this.apiBaseUrl}/account`, {
-        headers: this.getAuthHeaders(),
-        body: { password },
-      })
-      .pipe(
-        map(() => {
-          this.token = null;
-          this.role = null;
-          this.profileImage = null;
-          this.name = null;
-          this.email = null;
-          sessionStorage.removeItem(this.TOKEN_KEY);
-          sessionStorage.removeItem(this.ROLE_KEY);
-          sessionStorage.removeItem(this.NAME_KEY);
-          sessionStorage.removeItem(this.EMAIL_KEY);
-          sessionStorage.removeItem(this.PROFILE_IMAGE_KEY);
-        }),
-        catchError((error: HttpErrorResponse) => {
-          const message =
-            (error?.error && (error.error.message || error.error.error)) ||
-            'Failed to delete account.';
 
           return throwError(() => ({
             error: { error: message },
