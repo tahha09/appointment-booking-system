@@ -33,20 +33,22 @@ export class UserManagement implements OnInit {
 
   // Fallback avatar image served from Laravel storage
   readonly defaultAvatarUrl = 'http://localhost:8000/storage/default-avatar.png';
-  // All users loaded from backend
+  // Users loaded from backend (already filtered and paginated)
   users: AdminUser[] = [];
-
-  // Users after applying search + filters
-  filteredUsers: AdminUser[] = [];
-
-  // Logged-in user id (used to hide self from list)
-  currentUserId: number | null = null;
-  // Logged-in user email (fallback for older sessions)
-  currentUserEmail: string | null = null;
 
   // UI state
   isLoading = false;
   hasError = false;
+
+  // Pagination state
+  pagination = {
+    current_page: 1,
+    last_page: 1,
+    per_page: 6,
+    total: 0,
+    from: null as number | null,
+    to: null as number | null
+  };
 
   searchTerm = '';
   filters = {
@@ -66,83 +68,83 @@ export class UserManagement implements OnInit {
   deleteResultMessage = '';
 
   ngOnInit(): void {
-    this.currentUserId = this.auth.getUserId();
-    this.currentUserEmail = this.auth.getUserEmail();
     this.loadUsers();
   }
 
-  loadUsers(): void {
+  loadUsers(page: number = 1): void {
     this.isLoading = true;
     this.hasError = false;
 
-    this.adminService.getUsers().subscribe({
+    // Build query parameters
+    const params: any = {
+      page: page,
+      per_page: this.pagination.per_page
+    };
+
+    // Add search parameter if provided
+    if (this.searchTerm.trim()) {
+      params.search = this.searchTerm.trim();
+    }
+
+    // Add role filter if not 'ALL'
+    if (this.filters.role !== 'ALL') {
+      params.role = this.filters.role;
+    }
+
+    // Add status filter if not 'ALL'
+    if (this.filters.status !== 'ALL') {
+      params.status = this.filters.status;
+    }
+
+    this.adminService.getUsers(params).subscribe({
       next: (response: PaginatedResponse<AdminApiUser>) => {
         const apiUsers = response.data || [];
 
-        // Map API users and exclude the currently logged-in user from the list
-        this.users = apiUsers
-          .filter((u) => {
-            // Prefer filtering by id when available
-            if (this.currentUserId) {
-              return u.id !== this.currentUserId;
-            }
-            // Fallback: filter by email if id is not stored yet (older sessions)
-            if (this.currentUserEmail) {
-              return u.email !== this.currentUserEmail;
-            }
-            return true;
-          })
-          .map((u) => ({
-            id: u.id,
-            name: u.name,
-            email: u.email,
-            role: (u.role || '').toUpperCase() as UserRole,
-            status: (u.status || 'ACTIVE').toUpperCase() as UserStatus,
-            createdAt: u.created_at,
-            // Prefer backend-provided URL, otherwise use local default avatar
-            profileImage: u.profile_image_url || this.defaultAvatarUrl
-          }));
+        // Map API users (backend already excludes logged-in user and applies filters)
+        this.users = apiUsers.map((u) => ({
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          role: (u.role || '').toUpperCase() as UserRole,
+          status: (u.status || 'ACTIVE').toUpperCase() as UserStatus,
+          createdAt: u.created_at,
+          // Prefer backend-provided URL, otherwise use local default avatar
+          profileImage: u.profile_image_url || this.defaultAvatarUrl
+        }));
 
-        this.applyFilters();
+        // Update pagination info
+        this.pagination = {
+          current_page: response.current_page || 1,
+          last_page: response.last_page || 1,
+          per_page: response.per_page || this.pagination.per_page,
+          total: response.total || 0,
+          from: response.from,
+          to: response.to
+        };
+
         this.isLoading = false;
         this.cdn.detectChanges()
       },
       error: (error) => {
         console.error('Failed to load users:', error);
         this.users = [];
-        this.filteredUsers = [];
         this.isLoading = false;
         this.hasError = true;
+        this.cdn.detectChanges();
       }
     });
   }
 
   onSearchChange(): void {
-    this.applyFilters();
+    // Reset to page 1 when search changes
+    this.pagination.current_page = 1;
+    this.loadUsers(1);
   }
 
   onFiltersChanged(): void {
-    this.applyFilters();
-  }
-
-  applyFilters(): void {
-    const term = this.searchTerm.trim().toLowerCase();
-
-    this.filteredUsers = this.users.filter((user) => {
-      const matchesName =
-        !term ||
-        user.name.toLowerCase().includes(term) ||
-        user.email.toLowerCase().includes(term);
-
-      const matchesRole =
-        this.filters.role === 'ALL' || user.role === this.filters.role;
-
-      const matchesStatus =
-        this.filters.status === 'ALL' ||
-        user.status === this.filters.status;
-
-      return matchesName && matchesRole && matchesStatus;
-    });
+    // Reset to page 1 when filters change
+    this.pagination.current_page = 1;
+    this.loadUsers(1);
   }
 
   approveDoctor(user: AdminUser): void {
@@ -157,8 +159,8 @@ export class UserManagement implements OnInit {
 
     this.adminService.approveDoctor(id).subscribe({
       next: () => {
-        user.status = 'ACTIVE';
-        this.applyFilters();
+        // Reload current page to reflect changes
+        this.loadUsers(this.pagination.current_page);
       },
       error: (error) => {
         console.error('Failed to approve doctor:', error);
@@ -181,11 +183,8 @@ export class UserManagement implements OnInit {
 
     this.adminService.updateUser(id, payload).subscribe({
       next: (updated) => {
-        // Reflect the actual status returned by the backend (source of truth)
-        const savedStatus = ((updated as any).status || '').toUpperCase() as UserStatus;
-        user.status = savedStatus || newStatus;
-        // Reload users to ensure UI matches database
-        this.loadUsers();
+        // Reload current page to ensure UI matches database
+        this.loadUsers(this.pagination.current_page);
       },
       error: (error) => {
         console.error('Failed to update user status:', error);
@@ -256,4 +255,55 @@ export class UserManagement implements OnInit {
     this.deleteResultSuccess = null;
     this.deleteResultMessage = '';
   }
+
+  // Pagination methods
+  goToPreviousPage(): void {
+    if (this.pagination.current_page > 1) {
+      this.loadUsers(this.pagination.current_page - 1);
+    }
+  }
+
+  goToNextPage(): void {
+    if (this.pagination.current_page < this.pagination.last_page) {
+      this.loadUsers(this.pagination.current_page + 1);
+    }
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.pagination.last_page) {
+      this.loadUsers(page);
+    }
+  }
+
+  // Helper method to get page numbers for pagination display
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxPagesToShow = 5;
+    const currentPage = this.pagination.current_page;
+    const lastPage = this.pagination.last_page;
+
+    let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+    let endPage = Math.min(lastPage, startPage + maxPagesToShow - 1);
+
+    if (endPage - startPage + 1 < maxPagesToShow) {
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  }
+
+  // Helper to check if previous page exists
+  hasPreviousPage(): boolean {
+    return this.pagination.current_page > 1;
+  }
+
+  // Helper to check if next page exists
+  hasNextPage(): boolean {
+    return this.pagination.current_page < this.pagination.last_page;
+  }
 }
+

@@ -42,9 +42,12 @@ export interface Appointment {
 
 export interface DashboardStats {
   totalUsers: number;
+  totalAdmins: number;
   totalDoctors: number;
-  totalAppointments: number;
+  totalPatients: number;
+  approvedDoctors: number;
   pendingApprovals: number;
+  totalAppointments: number;
   todaysAppointments: number;
   newUsersToday: number;
 }
@@ -112,57 +115,20 @@ export class AdminService {
 
   // Get complete dashboard statistics
   getDashboardStats(): Observable<DashboardStats> {
-    return forkJoin({
-      users: this.getUsers(),
-      appointments: this.getAppointments(),
-      pendingDoctors: this.getPendingDoctors()
-    }).pipe(
-      map(({ users, appointments, pendingDoctors }: {
-        users: PaginatedResponse<User>,
-        appointments: PaginatedResponse<Appointment>,
-        pendingDoctors: PaginatedResponse<Doctor>
-      }) => {
-        const today = new Date().toISOString().split('T')[0];
+    const headers = this.getAuthHeaders();
 
-        // Extract data arrays from paginated responses
-        const usersData = users.data;
-        const appointmentsData = appointments.data;
-        const pendingDoctorsData = pendingDoctors.data;
-
-        // Count doctors from users data
-        const doctors = usersData.filter((user: any) => user.role === 'doctor');
-        const approvedDoctors = doctors.filter((doctor: any) =>
-          doctor.status === 'approved' || doctor.status === 'active'
-        );
-
-        // Get today's appointments
-        const todaysAppointments = appointmentsData.filter((appointment: any) =>
-          appointment.date === today
-        );
-
-        // Get new users today
-        const newUsersToday = usersData.filter((user: any) => {
-          const userDate = new Date(user.created_at).toISOString().split('T')[0];
-          return userDate === today;
-        });
-
-        return {
-          totalUsers: usersData.length,
-          totalDoctors: approvedDoctors.length,
-          totalAppointments: appointmentsData.length,
-          pendingApprovals: pendingDoctorsData.length,
-          todaysAppointments: todaysAppointments.length,
-          newUsersToday: newUsersToday.length
-        };
-      }),
+    return this.http.get<DashboardStats>(`${this.apiUrl}/admin/stats`, { headers }).pipe(
       catchError((error: HttpErrorResponse) => {
         console.error('Error in getDashboardStats:', error);
         // Return default stats on error
         return of({
           totalUsers: 0,
+          totalAdmins: 0,
           totalDoctors: 0,
-          totalAppointments: 0,
+          totalPatients: 0,
+          approvedDoctors: 0,
           pendingApprovals: 0,
+          totalAppointments: 0,
           todaysAppointments: 0,
           newUsersToday: 0
         });
@@ -171,10 +137,40 @@ export class AdminService {
   }
 
   // User Management
-  getUsers(): Observable<PaginatedResponse<User>> {
+  getUsers(params?: { 
+    page?: number; 
+    per_page?: number; 
+    exclude_user_id?: number;
+    role?: string;
+    status?: string;
+    search?: string;
+  }): Observable<PaginatedResponse<User>> {
     const headers = this.getAuthHeaders();
+    const queryParams: any = {};
 
-    return this.http.get<PaginatedResponse<User>>(`${this.apiUrl}/admin/users`, { headers }).pipe(
+    if (params?.page) {
+      queryParams.page = params.page;
+    }
+    if (params?.per_page) {
+      queryParams.per_page = params.per_page;
+    }
+    if (params?.exclude_user_id) {
+      queryParams.exclude_user_id = params.exclude_user_id;
+    }
+    if (params?.role) {
+      queryParams.role = params.role;
+    }
+    if (params?.status) {
+      queryParams.status = params.status;
+    }
+    if (params?.search) {
+      queryParams.search = params.search;
+    }
+
+    return this.http.get<PaginatedResponse<User>>(`${this.apiUrl}/admin/users`, {
+      headers,
+      params: queryParams
+    }).pipe(
       catchError((error: HttpErrorResponse) => {
         console.error('Error loading users:', error);
         // Fallback to empty paginated response if error
@@ -187,7 +183,7 @@ export class AdminService {
           last_page_url: '',
           next_page_url: null,
           path: '',
-          per_page: 15,
+          per_page: params?.per_page || 15,
           prev_page_url: null,
           to: null,
           total: 0
@@ -291,15 +287,18 @@ export class AdminService {
   }
 
   // Appointment Management
-  getAppointments(params?: { search?: string; status?: string; page?: number; per_page?: number }): Observable<PaginatedResponse<Appointment>> {
+  getAppointments(params?: { search?: string; status?: string; payment_status?: string; page?: number; per_page?: number; upcoming?: boolean }): Observable<PaginatedResponse<Appointment>> {
     const headers = this.getAuthHeaders();
     const queryParams: any = {};
-    
+
     if (params?.search) {
       queryParams.search = params.search;
     }
     if (params?.status && params.status !== 'ALL') {
       queryParams.status = params.status;
+    }
+    if (params?.payment_status && params.payment_status !== 'ALL') {
+      queryParams.payment_status = params.payment_status;
     }
     if (params?.page) {
       queryParams.page = params.page;
@@ -307,8 +306,11 @@ export class AdminService {
     if (params?.per_page) {
       queryParams.per_page = params.per_page;
     }
+    if (params?.upcoming) {
+      queryParams.upcoming = params.upcoming;
+    }
 
-    return this.http.get<PaginatedResponse<Appointment>>(`${this.apiUrl}/admin/appointments`, { 
+    return this.http.get<PaginatedResponse<Appointment>>(`${this.apiUrl}/admin/appointments`, {
       headers,
       params: queryParams
     }).pipe(
