@@ -10,32 +10,71 @@ class PaymentSeeder extends Seeder
 {
     public function run()
     {
-        // Get confirmed appointments
-        $appointments = Appointment::where('status', 'confirmed')->get();
+        // Get confirmed and completed appointments
+        $appointments = Appointment::whereIn('status', ['confirmed', 'completed'])->get();
 
-        foreach ($appointments as $appointment) {
-            // Create payment for each appointment
-            Payment::create([
+        $paymentMethods = ['card', 'cash', 'bank_transfer', 'online'];
+        $currencies = ['USD', 'EGP'];
+        $statuses = ['completed', 'pending', 'failed'];
+
+        foreach ($appointments as $index => $appointment) {
+            // Most payments are completed, some pending, few failed
+            if ($index % 10 == 0) {
+                $paymentStatus = 'failed';
+            } elseif ($index % 8 == 0) {
+                $paymentStatus = 'pending';
+            } else {
+                $paymentStatus = 'completed';
+            }
+
+            // Use EGP for most payments, USD for some
+            $currency = ($index % 3 == 0) ? 'USD' : 'EGP';
+
+            // Convert fee to EGP if needed (approximate conversion)
+            $amount = $appointment->doctor->consultation_fee;
+            if ($currency === 'EGP') {
+                $amount = $amount * 30; // Approximate conversion rate
+            }
+
+            $paymentData = [
                 'appointment_id' => $appointment->id,
                 'patient_id' => $appointment->patient_id,
-                'amount' => $appointment->doctor->consultation_fee,
-                'currency' => 'USD',
-                'payment_method' => 'card',
-                'status' => 'completed',
-                'transaction_id' => 'txn_' . uniqid(),
+                'amount' => $amount,
+                'currency' => $currency,
+                'payment_method' => $paymentMethods[$index % count($paymentMethods)],
+                'status' => $paymentStatus,
+                'transaction_id' => 'txn_' . strtoupper(uniqid()),
                 'payment_details' => [
                     'gateway' => 'demo_gateway',
-                    'payment_method' => 'card',
-                    'processed_at' => now()->toISOString(),
+                    'payment_method' => $paymentMethods[$index % count($paymentMethods)],
+                    'processed_at' => now()->subDays(rand(0, 7))->toISOString(),
                 ],
-                'paid_at' => now(),
-            ]);
+            ];
 
-            // Update appointment payment status
-            $appointment->update([
-                'payment_status' => 'paid',
-                'consultation_fee' => $appointment->doctor->consultation_fee,
-            ]);
+            // Only set paid_at if payment is completed
+            if ($paymentStatus === 'completed') {
+                $paymentData['paid_at'] = now()->subDays(rand(0, 7));
+            }
+
+            Payment::create($paymentData);
+
+            // Update appointment payment status only if payment is completed
+            if ($paymentStatus === 'completed') {
+                $appointment->update([
+                    'payment_status' => 'paid',
+                    'consultation_fee' => $appointment->doctor->consultation_fee,
+                ]);
+            } elseif ($paymentStatus === 'failed') {
+                $appointment->update([
+                    'payment_status' => 'failed',
+                    'consultation_fee' => $appointment->doctor->consultation_fee,
+                ]);
+            } else {
+                $appointment->update([
+                    'payment_status' => 'pending',
+                    'consultation_fee' => $appointment->doctor->consultation_fee,
+                ]);
+            }
         }
 
         $this->command->info('Payments seeded successfully!');
