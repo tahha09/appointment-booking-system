@@ -30,8 +30,6 @@ use App\Http\Controllers\Patient\SpecializationController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::get('doctor/overview/patient-counts', [OverviewController::class, 'patientCounts']);
-
 
 // Public Routes
 Route::post('/login', [LoginController::class, 'login']);
@@ -46,39 +44,12 @@ Route::get('/specializations', [SpecializationController::class, 'index']);
 Route::get('/specializations/filter-list', [SpecializationController::class, 'filterList']);
 Route::get('/specializations/{id}', [SpecializationController::class, 'show']);
 
-
-
 // Test route
 Route::get('/test', function () {
     return response()->json([
         'message' => 'API is working!',
         'timestamp' => now()
     ]);
-});
-
-// Test route outside doctor group
-Route::get('/doctor-test', [OverviewController::class, 'test']);
-
-// Admin Routes - temporarily without authentication for testing
-Route::prefix('admin')->group(function () {
-    Route::get('/users', [UserController::class, 'index']);
-    Route::get('/users/{id}', [UserController::class, 'show']);
-    Route::put('/users/{id}', [UserController::class, 'update']);
-    Route::delete('/users/{id}', [UserController::class, 'destroy']);
-
-    // Doctor Management
-    Route::get('/doctors/pending', [AdminDoctorController::class, 'pendingDoctors']);
-    Route::put('/doctors/{id}/approve', [AdminDoctorController::class, 'approveDoctor']);
-    Route::put('/doctors/{id}/reject', [AdminDoctorController::class, 'rejectDoctor']);
-
-    // Appointment Management
-    Route::get('/appointments', [AdminAppointmentController::class, 'index']);
-    Route::get('/appointments/{id}', [AdminAppointmentController::class, 'show']);
-    Route::put('/appointments/{id}/status', [AdminAppointmentController::class, 'updateStatus']);
-
-    // Reports
-    Route::get('/reports/appointments', [AdminAppointmentController::class, 'appointmentReport']);
-    Route::get('/reports/doctors', [AdminDoctorController::class, 'doctorReport']);
 });
 
 // Protected Routes - require authentication
@@ -171,6 +142,30 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/certificates/{id}', [CertificateController::class, 'update']);
         Route::delete('/certificates/{id}', [CertificateController::class, 'destroy']);
     });
+
+    // Admin Routes - temporarily without authentication for testing
+    Route::prefix('admin')->group(function () {
+        Route::get('/users', [UserController::class, 'index']);
+        Route::get('/users/{id}', [UserController::class, 'show']);
+        Route::put('/users/{id}', [UserController::class, 'update']);
+        Route::delete('/users/{id}', [UserController::class, 'destroy']);
+
+        // Doctor Management
+        Route::get('/doctors/pending', [AdminDoctorController::class, 'pendingDoctors']);
+        Route::put('/doctors/{id}/approve', [AdminDoctorController::class, 'approveDoctor']);
+        Route::put('/doctors/{id}/reject', [AdminDoctorController::class, 'rejectDoctor']);
+
+        // Appointment Management
+        Route::get('/appointments', [AdminAppointmentController::class, 'index']);
+        Route::get('/appointments/{id}', [AdminAppointmentController::class, 'show']);
+        Route::put('/appointments/{id}/status', [AdminAppointmentController::class, 'updateStatus']);
+        Route::delete('/appointments/{id}', [AdminAppointmentController::class, 'destroy']);
+
+        // Reports
+        Route::get('/reports/appointments', [AdminAppointmentController::class, 'appointmentReport']);
+        Route::get('/reports/doctors', [AdminDoctorController::class, 'doctorReport']);
+    });
+
 
     // AI Routes (accessible by doctors and patients)
     Route::prefix('ai')->group(function () {

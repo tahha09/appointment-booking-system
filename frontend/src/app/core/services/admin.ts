@@ -34,6 +34,9 @@ export interface Appointment {
   time: string;
   status: 'scheduled' | 'completed' | 'cancelled' | string;
   type: string;
+  notes?: string | null;
+  payment_status?: string | null;
+  consultation_fee?: number | null;
   created_at: string;
 }
 
@@ -288,10 +291,27 @@ export class AdminService {
   }
 
   // Appointment Management
-  getAppointments(): Observable<PaginatedResponse<Appointment>> {
+  getAppointments(params?: { search?: string; status?: string; page?: number; per_page?: number }): Observable<PaginatedResponse<Appointment>> {
     const headers = this.getAuthHeaders();
+    const queryParams: any = {};
+    
+    if (params?.search) {
+      queryParams.search = params.search;
+    }
+    if (params?.status && params.status !== 'ALL') {
+      queryParams.status = params.status;
+    }
+    if (params?.page) {
+      queryParams.page = params.page;
+    }
+    if (params?.per_page) {
+      queryParams.per_page = params.per_page;
+    }
 
-    return this.http.get<PaginatedResponse<Appointment>>(`${this.apiUrl}/admin/appointments`, { headers }).pipe(
+    return this.http.get<PaginatedResponse<Appointment>>(`${this.apiUrl}/admin/appointments`, { 
+      headers,
+      params: queryParams
+    }).pipe(
       catchError((error: HttpErrorResponse) => {
         console.error('Error loading appointments:', error);
         // Fallback to empty paginated response if error
@@ -304,7 +324,7 @@ export class AdminService {
           last_page_url: '',
           next_page_url: null,
           path: '',
-          per_page: 15,
+          per_page: 5,
           prev_page_url: null,
           to: null,
           total: 0
@@ -345,6 +365,17 @@ export class AdminService {
     ).pipe(
       catchError((error: HttpErrorResponse) => {
         console.error(`Error updating appointment ${id} status:`, error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  deleteAppointment(id: number): Observable<void> {
+    const headers = this.getAuthHeaders();
+
+    return this.http.delete<void>(`${this.apiUrl}/admin/appointments/${id}`, { headers }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error(`Error deleting appointment ${id}:`, error);
         return throwError(() => error);
       })
     );

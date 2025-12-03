@@ -9,25 +9,37 @@ use Carbon\Carbon;
 
 class AppointmentController extends Controller
 {
-    // app/Http\Controllers\Admin\AppointmentController.php
-    // app/Http\Controllers\Admin\AppointmentController.php
     public function index(Request $request)
     {
-        // Get appointments with pagination to prevent memory exhaustion
-        $perPage = $request->get('per_page', 15); // Default 15 appointments per page
-        $appointments = Appointment::select(
-            'id',
-            'patient_id',
-            'doctor_id',
-            'appointment_date',
-            'start_time',
-            'end_time',
-            'status',
-            'reason',
-            'payment_status',
-            'consultation_fee',
-            'created_at'
-        )
+        // Get query parameters
+        $perPage = $request->get('per_page', 5); // Default 5 appointments per page
+        $search = $request->get('search', '');
+        $status = $request->get('status', '');
+
+        // Build query with relationships
+        $query = Appointment::with([
+            'patient.user',
+            'doctor.user'
+        ]);
+
+        // Apply search filter (search by patient name or doctor name)
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('patient.user', function ($subQ) use ($search) {
+                    $subQ->where('name', 'like', '%' . $search . '%');
+                })->orWhereHas('doctor.user', function ($subQ) use ($search) {
+                    $subQ->where('name', 'like', '%' . $search . '%');
+                });
+            });
+        }
+
+        // Apply status filter
+        if (!empty($status) && $status !== 'ALL') {
+            $query->where('status', $status);
+        }
+
+        // Order and paginate
+        $appointments = $query
             ->orderBy('appointment_date', 'desc')
             ->orderBy('start_time', 'desc')
             ->paginate($perPage)
@@ -36,15 +48,16 @@ class AppointmentController extends Controller
                     'id' => $appointment->id,
                     'patient_id' => $appointment->patient_id,
                     'doctor_id' => $appointment->doctor_id,
-                    'patient_name' => 'Patient #' . $appointment->patient_id, // Simple placeholder
-                    'doctor_name' => 'Doctor #' . $appointment->doctor_id,   // Simple placeholder
+                    'patient_name' => $appointment->patient->user->name ?? 'Unknown Patient',
+                    'doctor_name' => $appointment->doctor->user->name ?? 'Unknown Doctor',
                     'date' => $appointment->appointment_date,
                     'time' => $appointment->start_time,
                     'end_time' => $appointment->end_time,
                     'status' => $appointment->status,
                     'type' => $appointment->reason,
-                    'payment_status' => $appointment->payment_status,
-                    'consultation_fee' => $appointment->consultation_fee,
+                    'notes' => $appointment->notes ?? null,
+                    'payment_status' => $appointment->payment_status ?? null,
+                    'consultation_fee' => $appointment->consultation_fee ?? null,
                     'created_at' => $appointment->created_at
                 ];
             });
@@ -65,6 +78,16 @@ class AppointmentController extends Controller
         $appointment->save();
 
         return response()->json($appointment);
+    }
+
+    public function destroy($id)
+    {
+        $appointment = Appointment::findOrFail($id);
+        $appointment->delete();
+
+        return response()->json([
+            'message' => 'Appointment deleted successfully'
+        ], 200);
     }
 
     public function appointmentReport(Request $request)
