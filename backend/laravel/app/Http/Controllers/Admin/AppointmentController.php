@@ -15,6 +15,8 @@ class AppointmentController extends Controller
         $perPage = $request->get('per_page', 5); // Default 5 appointments per page
         $search = $request->get('search', '');
         $status = $request->get('status', '');
+        $paymentStatus = $request->get('payment_status', '');
+        $upcoming = $request->get('upcoming', false);
 
         // Build query with relationships
         $query = Appointment::with([
@@ -35,7 +37,24 @@ class AppointmentController extends Controller
 
         // Apply status filter
         if (!empty($status) && $status !== 'ALL') {
-            $query->where('status', $status);
+            // Handle "upcoming" as a special status filter
+            if ($status === 'upcoming') {
+                $today = now()->format('Y-m-d');
+                $query->where('appointment_date', '>=', $today);
+            } else {
+                $query->where('status', $status);
+            }
+        }
+
+        // Apply payment status filter
+        if (!empty($paymentStatus) && $paymentStatus !== 'ALL') {
+            $query->where('payment_status', $paymentStatus);
+        }
+
+        // Apply upcoming filter (appointments from today onwards) - legacy support
+        if ($upcoming) {
+            $today = now()->format('Y-m-d');
+            $query->where('appointment_date', '>=', $today);
         }
 
         // Order and paginate

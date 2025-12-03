@@ -32,6 +32,7 @@ export class AppointmentsAdmin implements OnInit {
   // Search and filters
   searchTerm = '';
   statusFilter: string = 'ALL';
+  paymentStatusFilter: string = 'ALL';
 
   // Modal states
   selectedAppointment: Appointment | null = null;
@@ -60,6 +61,10 @@ export class AppointmentsAdmin implements OnInit {
 
     if (this.statusFilter && this.statusFilter !== 'ALL') {
       params.status = this.statusFilter;
+    }
+
+    if (this.paymentStatusFilter && this.paymentStatusFilter !== 'ALL') {
+      params.payment_status = this.paymentStatusFilter;
     }
 
     this.adminService.getAppointments(params).subscribe({
@@ -93,6 +98,12 @@ export class AppointmentsAdmin implements OnInit {
   }
 
   onStatusFilterChange(): void {
+    // Reset to first page when filtering
+    this.pagination.current_page = 1;
+    this.loadAppointments();
+  }
+
+  onPaymentStatusFilterChange(): void {
     // Reset to first page when filtering
     this.pagination.current_page = 1;
     this.loadAppointments();

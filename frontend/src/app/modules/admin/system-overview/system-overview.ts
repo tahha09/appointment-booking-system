@@ -20,9 +20,12 @@ export class SystemOverview implements OnInit {
   // Statistics
   stats = signal<DashboardStats>({
     totalUsers: 0,
+    totalAdmins: 0,
     totalDoctors: 0,
-    totalAppointments: 0,
+    totalPatients: 0,
+    approvedDoctors: 0,
     pendingApprovals: 0,
+    totalAppointments: 0,
     todaysAppointments: 0,
     newUsersToday: 0
   });
@@ -57,7 +60,10 @@ export class SystemOverview implements OnInit {
       label: 'Total Users',
       value: 0,
       icon: '👥',
-      color: 'bg-blue-500',
+      color: 'blue',
+      borderColor: 'border-blue-500',
+      bgColor: 'bg-blue-50',
+      iconColor: 'text-blue-500',
       loading: true,
       error: false
     },
@@ -65,15 +71,21 @@ export class SystemOverview implements OnInit {
       label: 'Pending Approvals',
       value: 0,
       icon: '⏳',
-      color: 'bg-yellow-500',
+      color: 'yellow',
+      borderColor: 'border-yellow-500',
+      bgColor: 'bg-yellow-50',
+      iconColor: 'text-yellow-500',
       loading: true,
       error: false
     },
     {
-      label: "Today's Appointments",
+      label: 'Upcoming Appointments',
       value: 0,
       icon: '📅',
-      color: 'bg-green-500',
+      color: 'green',
+      borderColor: 'border-green-500',
+      bgColor: 'bg-green-50',
+      iconColor: 'text-green-500',
       loading: true,
       error: false
     },
@@ -81,7 +93,21 @@ export class SystemOverview implements OnInit {
       label: 'Total Appointments',
       value: 0,
       icon: '📊',
-      color: 'bg-purple-500',
+      color: 'purple',
+      borderColor: 'border-purple-500',
+      bgColor: 'bg-purple-50',
+      iconColor: 'text-purple-500',
+      loading: true,
+      error: false
+    },
+    {
+      label: 'Total Doctors',
+      value: 0,
+      icon: '👨‍⚕️',
+      color: 'indigo',
+      borderColor: 'border-indigo-500',
+      bgColor: 'bg-indigo-50',
+      iconColor: 'text-indigo-500',
       loading: true,
       error: false
     }
@@ -147,6 +173,12 @@ export class SystemOverview implements OnInit {
             value: stats.totalAppointments,
             loading: false,
             error: false
+          },
+          {
+            ...prev[4],
+            value: stats.totalDoctors,
+            loading: false,
+            error: false
           }
         ]);
 
@@ -177,10 +209,10 @@ export class SystemOverview implements OnInit {
         // Extract data array from paginated response
         const users = response.data;
 
-        // Sort by creation date, get latest 5
+        // Sort by creation date, get latest 3
         const sortedUsers = users.sort((a: any, b: any) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        ).slice(0, 5);
+        ).slice(0, 3);
 
         this.recentUsers.set(sortedUsers);
         this.isLoading.update(prev => ({ ...prev, users: false }));
@@ -222,10 +254,10 @@ export class SystemOverview implements OnInit {
         // Extract data array from paginated response
         const appointments = response.data;
 
-        // Sort by date, get latest 5
+        // Sort by date, get latest 3
         const sortedAppointments = appointments.sort((a: any, b: any) =>
           new Date(b.date).getTime() - new Date(a.date).getTime()
-        ).slice(0, 5);
+        ).slice(0, 3);
 
         this.recentAppointments.set(sortedAppointments);
         this.isLoading.update(prev => ({ ...prev, appointments: false }));
@@ -245,7 +277,9 @@ export class SystemOverview implements OnInit {
     this.adminService.getRecentActivity().subscribe({
       next: (activities) => {
         console.log('Recent activities loaded:', activities);
-        this.recentActivities.set(activities);
+        // Get latest 3 activities
+        const latestActivities = activities.slice(0, 3);
+        this.recentActivities.set(latestActivities);
         this.isLoading.update(prev => ({ ...prev, activities: false }));
       },
       error: (error) => {
