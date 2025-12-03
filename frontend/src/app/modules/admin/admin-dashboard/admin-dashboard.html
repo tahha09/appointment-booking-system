@@ -1,90 +1,152 @@
-<div class="admin-dashboard">
+<div class="admin-dashboard flex h-screen bg-gray-50">
+
+  <!-- Mobile Overlay -->
+  @if (isMobileMenuOpen) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" (click)="closeMobileMenu()"></div>
+  }
+
   <!-- Fixed Sidebar -->
-  <aside
-    [class.sidebar-collapsed]="isSidebarCollapsed"
-    class="sidebar"
-  >
-    <div class="logo">
-      <h2>MedAdmin</h2>
+  <aside [class.sidebar-collapsed]="isSidebarCollapsed" [class.translate-x-0]="isMobileMenuOpen"
+    class="sidebar fixed lg:relative flex flex-col w-64 lg:w-72 xl:w-80 h-screen bg-gradient-to-b from-[#031716] to-[#032F30] text-white shadow-2xl z-50 border-r border-[#0A7075] transition-all duration-300 ease-in-out">
+    <!-- Logo Section -->
+    <div class="logo px-6 py-8 border-b border-[#0A7075] bg-[#032F30]/80 flex-shrink-0">
+      <h2 class="text-xl font-bold text-[#6BA3BE] flex items-center gap-3 whitespace-nowrap m-0">
+        <span>⚕️</span>
+        <span [class.hidden]="isSidebarCollapsed">MedAdmin</span>
+      </h2>
     </div>
 
-    <nav>
-      <button routerLink="/admin/system-overview" class="nav-link" [class.active]="isActive('/admin/system-overview')">
-        <i>📊</i>
-        <span [class.hidden]="isSidebarCollapsed">System Overview</span>
+    <!-- Navigation -->
+    <nav class="flex flex-col gap-2 p-4 flex-1 overflow-y-auto">
+      <button routerLink="/admin/system-overview" [class.active]="isActive('/admin/system-overview')"
+        class="nav-btn flex items-center gap-4 px-5 py-4 text-[#a0bcc4] rounded-xl border border-transparent bg-transparent text-left transition-all duration-300 ease-in-out relative overflow-hidden whitespace-nowrap hover:bg-[#0A7075]/15 hover:text-[#6BA3BE] hover:border-[#0A7075] hover:translate-x-1"
+        [class.active]="isActive('/admin/system-overview')">
+        <i class="text-lg flex-shrink-0 w-5 text-center">📊</i>
+        <span [class.hidden]="isSidebarCollapsed" class="transition-opacity duration-300">System Overview</span>
+        <div
+          class="active-indicator absolute left-0 top-0 h-full w-1 bg-[#0A7075] scale-y-0 transition-transform duration-300">
+        </div>
       </button>
 
-      <button routerLink="user-management" routerLinkActive="active">
-        <i>👥</i>
-        <span [class.hidden]="isSidebarCollapsed">User Management</span>
+      <button routerLink="user-management" routerLinkActive="active"
+        class="nav-btn flex items-center gap-4 px-5 py-4 text-[#a0bcc4] rounded-xl border border-transparent bg-transparent text-left transition-all duration-300 ease-in-out relative overflow-hidden whitespace-nowrap hover:bg-[#0A7075]/15 hover:text-[#6BA3BE] hover:border-[#0A7075] hover:translate-x-1">
+        <i class="text-lg flex-shrink-0 w-5 text-center">👥</i>
+        <span [class.hidden]="isSidebarCollapsed" class="transition-opacity duration-300">User Management</span>
+        <div
+          class="active-indicator absolute left-0 top-0 h-full w-1 bg-[#0A7075] scale-y-0 transition-transform duration-300">
+        </div>
       </button>
 
-      <button routerLink="appointments" routerLinkActive="active">
-        <i>📅</i>
-        <span [class.hidden]="isSidebarCollapsed">Appointments</span>
+      <button routerLink="appointments" routerLinkActive="active"
+        class="nav-btn flex items-center gap-4 px-5 py-4 text-[#a0bcc4] rounded-xl border border-transparent bg-transparent text-left transition-all duration-300 ease-in-out relative overflow-hidden whitespace-nowrap hover:bg-[#0A7075]/15 hover:text-[#6BA3BE] hover:border-[#0A7075] hover:translate-x-1">
+        <i class="text-lg flex-shrink-0 w-5 text-center">📅</i>
+        <span [class.hidden]="isSidebarCollapsed" class="transition-opacity duration-300">Appointments</span>
+        <div
+          class="active-indicator absolute left-0 top-0 h-full w-1 bg-[#0A7075] scale-y-0 transition-transform duration-300">
+        </div>
       </button>
 
-      <button routerLink="appointments-analytics" routerLinkActive="active">
-        <i>📈</i>
-        <span [class.hidden]="isSidebarCollapsed">Appointments Analytics</span>
+      <button routerLink="appointments-analytics" routerLinkActive="active"
+        class="nav-btn flex items-center gap-4 px-5 py-4 text-[#a0bcc4] rounded-xl border border-transparent bg-transparent text-left transition-all duration-300 ease-in-out relative overflow-hidden whitespace-nowrap hover:bg-[#0A7075]/15 hover:text-[#6BA3BE] hover:border-[#0A7075] hover:translate-x-1">
+        <i class="text-lg flex-shrink-0 w-5 text-center">📈</i>
+        <span [class.hidden]="isSidebarCollapsed" class="transition-opacity duration-300">Appointments Analytics</span>
+        <div
+          class="active-indicator absolute left-0 top-0 h-full w-1 bg-[#0A7075] scale-y-0 transition-transform duration-300">
+        </div>
       </button>
 
-      <button routerLink="profile" routerLinkActive="active">
-        <i>👤</i>
-        <span [class.hidden]="isSidebarCollapsed">Profile</span>
+      <button routerLink="profile" routerLinkActive="active"
+        class="nav-btn flex items-center gap-4 px-5 py-4 text-[#a0bcc4] rounded-xl border border-transparent bg-transparent text-left transition-all duration-300 ease-in-out relative overflow-hidden whitespace-nowrap hover:bg-[#0A7075]/15 hover:text-[#6BA3BE] hover:border-[#0A7075] hover:translate-x-1">
+        <i class="text-lg flex-shrink-0 w-5 text-center">👤</i>
+        <span [class.hidden]="isSidebarCollapsed" class="transition-opacity duration-300">Profile</span>
+        <div
+          class="active-indicator absolute left-0 top-0 h-full w-1 bg-[#0A7075] scale-y-0 transition-transform duration-300">
+        </div>
       </button>
     </nav>
 
-    <!-- Logout Button at Bottom -->
-    <div class="sidebar-footer">
-      <button class="nav-link logout-sidebar-btn" (click)="logout()">
-        <i>🚪</i>
-        <span [class.hidden]="isSidebarCollapsed">Logout</span>
+    <!-- Logout Button -->
+    <div class="sidebar-footer p-4 border-t border-[#0A7075] flex-shrink-0">
+      <button (click)="logout()"
+        class="logout-btn flex items-center gap-4 px-5 py-4 w-full text-[#a0bcc4] rounded-xl border border-transparent bg-transparent text-left transition-all duration-300 ease-in-out relative overflow-hidden whitespace-nowrap hover:bg-red-600/15 hover:text-red-300 hover:border-red-600 hover:translate-x-1">
+        <i class="text-lg flex-shrink-0 w-5 text-center">🚪</i>
+        <span [class.hidden]="isSidebarCollapsed" class="transition-opacity duration-300">Logout</span>
+        <div
+          class="active-indicator absolute left-0 top-0 h-full w-1 bg-red-600 scale-y-0 transition-transform duration-300">
+        </div>
       </button>
     </div>
+
+    <!-- Mobile Close Button -->
+    <button (click)="closeMobileMenu()" class="lg:hidden absolute top-4 right-4 p-2 text-white hover:text-[#6BA3BE]">
+      ✕
+    </button>
   </aside>
 
   <!-- Main Content -->
-  <div class="main-content" [class.main-content-expanded]="isSidebarCollapsed">
+  <div [class.lg:ml-10]="!isSidebarCollapsed" [class.lg:ml-10]="isSidebarCollapsed"
+    class="main-content flex flex-col flex-1 transition-all duration-300 ease-in-out bg-gradient-to-br from-gray-50 via-blue-50 to-cyan-50">
     <!-- Top Bar -->
-    <header class="top-bar">
-      <div class="top-bar-content">
-        <div class="top-bar-left">
-          <button
-            (click)="toggleSidebar()"
-            class="sidebar-toggle-btn"
-            aria-label="Toggle sidebar"
-          >
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <header
+      class="top-bar bg-gradient-to-r from-white to-blue-50 pl-0 pr-6 py-4 lg:pr-10 lg:py-6 shadow-md border-b border-blue-100 sticky top-0 z-30">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <!-- Left Section -->
+        <div class="top-bar-left flex items-center gap-4 text-[#163437]">
+          <!-- Mobile Menu Toggle -->
+          <button (click)="toggleMobileMenu()"
+            class="lg:hidden flex h-11 w-11 items-center justify-center rounded-xl border border-[#0A7075]/30 bg-white text-[#0f2b2e] shadow-sm hover:border-[#0c969c] hover:-translate-y-0.5 transition-all duration-300"
+            aria-label="Toggle mobile menu">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M3 12h18M3 6h18M3 18h18" />
             </svg>
           </button>
-          <div class="welcome-section">
-            <p class="welcome-text">Welcome back</p>
-            <h1 class="user-name">{{ userName }}</h1>
-            <span class="date-text">{{ today | date: 'fullDate' }}</span>
+
+          <!-- Desktop Sidebar Toggle -->
+          <button (click)="toggleSidebar()"
+            class="hidden lg:flex h-11 w-11 items-center justify-center rounded-xl border border-[#0A7075]/30 bg-white text-[#0f2b2e] shadow-sm hover:border-[#0c969c] hover:-translate-y-0.5 transition-all duration-300"
+            aria-label="Toggle sidebar">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 12h18M3 6h18M3 18h18" />
+            </svg>
+          </button>
+
+          <!-- Welcome Section -->
+          <div class="flex flex-col gap-1">
+            <p class="welcome-text text-xs uppercase tracking-widest text-[#0a7075] m-0">Welcome back</p>
+            <h1
+              class="user-name text-xl md:text-2xl font-bold bg-gradient-to-r from-[#0f3033] to-[#0b7070] bg-clip-text text-transparent m-0">
+              {{ userName }}
+            </h1>
+            <span class="date-text text-sm text-gray-600">{{ today | date: 'fullDate' }}</span>
           </div>
         </div>
 
-        <div class="top-bar-right">
-          <button
-            type="button"
-            class="notification-btn"
-            aria-label="Notifications"
-          >
+        <!-- Right Section -->
+        <div class="top-bar-right flex items-center gap-3">
+          <!-- Notifications -->
+          <button type="button"
+            class="notification-btn flex h-12 w-12 items-center justify-center rounded-xl border border-[#0A7075]/30 bg-white text-[#143235] shadow-sm hover:border-[#0c969c] hover:-translate-y-1 transition-all duration-300"
+            aria-label="Notifications">
             <svg class="h-6 w-6" viewBox="0 0 24 24" aria-hidden="true">
               <path
-                d="M12 3a6 6 0 0 0-6 6v3.51l-.8 1.6A1 1 0 0 0 6.09 16h11.82a1 1 0 0 0 .89-1.49l-.8-1.6V9a6 6 0 0 0-6-6Zm0 18a2.75 2.75 0 0 0 2.7-2h-5.4A2.75 2.75 0 0 0 12 21Z"
-              />
+                d="M12 3a6 6 0 0 0-6 6v3.51l-.8 1.6A1 1 0 0 0 6.09 16h11.82a1 1 0 0 0 .89-1.49l-.8-1.6V9a6 6 0 0 0-6-6Zm0 18a2.75 2.75 0 0 0 2.7-2h-5.4A2.75 2.75 0 0 0 12 21Z" />
             </svg>
           </button>
         </div>
       </div>
     </header>
 
-    <!-- Page Content (Routing Area) -->
-    <div class="page-content">
-      <div class="page-container">
+    <!-- Page Content -->
+    <div
+      class="page-content flex-1 pl-0 pr-6 py-6 lg:pr-10 lg:py-8 overflow-y-auto bg-gradient-to-br from-gray-50 via-blue-50 to-cyan-100">
+      <div
+        class="page-container bg-gradient-to-br from-white to-blue-50 rounded-2xl p-6 lg:p-8 shadow-2xl min-h-[500px] border border-blue-100 relative">
+        <!-- Top Gradient Border -->
+        <div
+          class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#0A7075] via-[#0C969C] to-[#6BA3BE] rounded-t-2xl">
+        </div>
+
+        <!-- Router Content -->
         <router-outlet></router-outlet>
       </div>
     </div>

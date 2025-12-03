@@ -12,6 +12,8 @@ export interface User {
   status?: string;
   specialty?: string;
   license_number?: string;
+  profile_image?: string;
+  profile_image_url?: string;
 }
 
 export interface Doctor {

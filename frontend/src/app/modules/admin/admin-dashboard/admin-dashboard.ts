@@ -15,6 +15,7 @@ export class AdminDashboard {
   private router = inject(Router);
 
   isSidebarCollapsed = false;
+  isMobileMenuOpen = false;
 
   // Get user name from auth service
   get userName(): string {
@@ -34,6 +35,16 @@ export class AdminDashboard {
   // Toggle sidebar
   toggleSidebar(): void {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
+  }
+
+  // Toggle mobile menu
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
+
+  // Close mobile menu
+  closeMobileMenu(): void {
+    this.isMobileMenuOpen = false;
   }
 
   // Logout method
