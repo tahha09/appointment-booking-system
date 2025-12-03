@@ -22,9 +22,10 @@ const doctorRoutes: Routes = [
       { path: 'financial-performance', component: FinancialPerformance },
       { path: 'certificates', component: Certificates },
       { path: 'profile', component: UserProfile },
+      { path: 'schedule', component: Schedule },
     ],
   },
-];
+]; 
 
 @NgModule({
   declarations: [], // Empty declarations since all components are standalone

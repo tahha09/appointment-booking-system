@@ -1,4 +1,339 @@
 <div class="space-y-6 text-[#032f30]">
-  <h2 class="text-2xl font-bold text-[#031716]">Financial Performance</h2>
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <h2 class="text-2xl font-bold text-[#031716]">Financial Management</h2>
+  </div>
 
+  <!-- Tabs -->
+  <div class="flex flex-wrap gap-2 border-b border-[#d3e6eb]">
+    <button
+      (click)="setActiveTab('overview')"
+      [class]="'px-4 py-2 font-semibold transition ' + (activeTab === 'overview' ? 'border-b-2 border-[#0c969c] text-[#0c969c]' : 'text-[#6ba3be] hover:text-[#0c969c]')"
+    >
+      Overview
+    </button>
+    <button
+      (click)="setActiveTab('history')"
+      [class]="'px-4 py-2 font-semibold transition ' + (activeTab === 'history' ? 'border-b-2 border-[#0c969c] text-[#0c969c]' : 'text-[#6ba3be] hover:text-[#0c969c]')"
+    >
+      Payment History
+    </button>
+    <button
+      (click)="setActiveTab('statistics')"
+      [class]="'px-4 py-2 font-semibold transition ' + (activeTab === 'statistics' ? 'border-b-2 border-[#0c969c] text-[#0c969c]' : 'text-[#6ba3be] hover:text-[#0c969c]')"
+    >
+      Statistics
+    </button>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error" class="rounded-lg bg-red-100 border border-red-300 text-red-800 p-3">
+    <p class="text-sm">{{ error }}</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="flex items-center justify-center py-20">
+    <div class="text-center">
+      <div class="w-16 h-16 border-4 border-[#0c969c] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+      <p class="text-[#6ba3be]">Loading financial data...</p>
+    </div>
+  </div>
+
+  <!-- Overview Tab -->
+  <div *ngIf="activeTab === 'overview' && !loading" class="space-y-6">
+    <!-- Financial Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 shadow-lg">
+        <p class="text-xs sm:text-sm text-[#6ba3be] mb-1">Total Revenue</p>
+        <p class="text-xl sm:text-2xl font-bold text-[#031716]">{{ overview ? formatCurrency(overview.total_revenue) : '$0.00' }}</p>
+      </div>
+      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 shadow-lg">
+        <p class="text-xs sm:text-sm text-[#6ba3be] mb-1">This Month</p>
+        <p class="text-xl sm:text-2xl font-bold text-[#031716]">{{ overview ? formatCurrency(overview.this_month_revenue) : '$0.00' }}</p>
+        <p *ngIf="overview" [class]="'text-xs mt-1 ' + (overview.revenue_change_percent >= 0 ? 'text-green-600' : 'text-red-600')">
+          {{ overview.revenue_change_percent >= 0 ? '+' : '' }}{{ overview.revenue_change_percent.toFixed(1) }} from last month
+        </p>
+      </div>
+      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 shadow-lg">
+        <p class="text-xs sm:text-sm text-[#6ba3be] mb-1">Total Payments</p>
+        <p class="text-xl sm:text-2xl font-bold text-[#031716]">{{ overview ? overview.total_payments : 0 }}</p>
+        <p class="text-xs text-[#6ba3be] mt-1">{{ overview ? overview.this_month_payments : 0 }} this month</p>
+      </div>
+      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 shadow-lg">
+        <p class="text-xs sm:text-sm text-[#6ba3be] mb-1">Pending Payments</p>
+        <p class="text-xl sm:text-2xl font-bold text-[#031716]">{{ overview ? overview.pending_payments : 0 }}</p>
+      </div>
+    </div>
+
+    <!-- Revenue Chart -->
+    <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 shadow-lg">
+      <h3 class="text-lg sm:text-xl font-bold text-[#031716] mb-4">Revenue Trend (Last 6 Months)</h3>
+      <ng-container *ngIf="revenueByMonth.length > 0; else noRevenueData">
+        <div class="relative w-full overflow-hidden rounded-2xl bg-[#f8fafc] border border-[#e3eef2]">
+          <div class="overflow-x-auto">
+            <svg
+              [attr.viewBox]="lineChartViewBox"
+              preserveAspectRatio="none"
+              class="min-w-[520px] w-full h-48 sm:h-64 text-center mx-auto my-3 sm:my-4"
+            >
+            <defs>
+              <linearGradient [attr.id]="gradientId" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#0c969c" stop-opacity="0.35"></stop>
+                <stop offset="100%" stop-color="#0c969c" stop-opacity="0"></stop>
+              </linearGradient>
+            </defs>
+
+            <g *ngFor="let _ of chartGridLines; let i = index">
+              <line
+                [attr.x1]="chartPaddingLeft"
+                [attr.x2]="chartWidth - chartPaddingRight"
+                [attr.y1]="getGridLineY(i)"
+                [attr.y2]="getGridLineY(i)"
+                stroke="#d3e6eb"
+                stroke-width="1"
+                stroke-dasharray="4 4"
+              ></line>
+              <text
+                [attr.x]="chartPaddingLeft - 10"
+                [attr.y]="getGridLineY(i) + 4"
+                font-size="10"
+                fill="#6ba3be"
+                text-anchor="end"
+              >
+                {{ getGridLabel(i) }}
+              </text>
+            </g>
+
+            <line
+              [attr.x1]="chartPaddingLeft"
+              [attr.x2]="chartWidth - chartPaddingRight"
+              [attr.y1]="getBaselineY()"
+              [attr.y2]="getBaselineY()"
+              stroke="#032f30"
+              stroke-width="1"
+              stroke-linecap="round"
+              opacity="0.2"
+            ></line>
+
+            <path
+              *ngIf="revenueByMonth.length"
+              [attr.d]="getAreaPath()"
+              [attr.fill]="'url(#' + gradientId + ')'"
+              opacity="0.8"
+            ></path>
+
+            <polyline
+              *ngIf="revenueByMonth.length"
+              [attr.points]="getLinePoints()"
+              fill="none"
+              stroke="#0c969c"
+              stroke-width="3"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+            ></polyline>
+
+            <g *ngFor="let month of revenueByMonth; let i = index">
+              <circle
+                [attr.cx]="getPointX(i)"
+                [attr.cy]="getPointY(month.revenue)"
+                r="10"
+                fill="transparent"
+              >
+                <title>{{ month.label }}: {{ formatCurrency(month.revenue) }}</title>
+              </circle>
+              <circle
+                [attr.cx]="getPointX(i)"
+                [attr.cy]="getPointY(month.revenue)"
+                r="3"
+                fill="#0c969c"
+              ></circle>
+            </g>
+
+            <g *ngFor="let month of revenueByMonth; let i = index">
+              <line
+                [attr.x1]="getPointX(i)"
+                [attr.x2]="getPointX(i)"
+                [attr.y1]="getBaselineY()"
+                [attr.y2]="getBaselineY() + 6"
+                stroke="#0c969c"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              ></line>
+              <text
+                [attr.x]="getPointX(i)"
+                [attr.y]="getBaselineY() + 18"
+                font-size="10"
+                fill="#032f30"
+                text-anchor="middle"
+              >
+                {{ month.label }}
+              </text>
+            </g>
+            </svg>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mt-4 sm:mt-6">
+          <div
+            *ngFor="let month of revenueByMonth"
+            class="rounded-xl border border-[#d7ebef] bg-white p-3 text-center shadow-sm"
+          >
+            <p class="text-sm text-[#6ba3be] mb-1">{{ month.label }}</p>
+            <p class="text-lg font-bold text-[#031716]">{{ formatCurrency(month.revenue) }}</p>
+            <p class="text-xs text-[#0a7075]">{{ month.payment_count }} payments</p>
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #noRevenueData>
+        <div class="text-center text-[#6ba3be] italic py-6">
+          No revenue data available for the selected period.
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- Payment History Tab -->
+  <div *ngIf="activeTab === 'history' && !loading" class="space-y-6">
+    <!-- Filters -->
+    <div class="rounded-2xl border border-[#d3e6eb] bg-white p-5 shadow-lg">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-[#0a7075] mb-2">Status</label>
+          <select
+            [(ngModel)]="statusFilter"
+            class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/50 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+          >
+            <option value="all">All Status</option>
+            <option value="completed">Completed</option>
+            <option value="pending">Pending</option>
+            <option value="failed">Failed</option>
+            <option value="refunded">Refunded</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-[#0a7075] mb-2">Date From</label>
+          <input
+            type="date"
+            [(ngModel)]="dateFrom"
+            class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/50 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-[#0a7075] mb-2">Date To</label>
+          <input
+            type="date"
+            [(ngModel)]="dateTo"
+            class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/50 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+          />
+        </div>
+
+        <div class="flex items-end gap-2">
+          <button
+            (click)="applyFilters()"
+            class="flex-1 px-4 py-2 rounded-xl bg-[#0c969c] text-white font-semibold hover:bg-[#0a7075] transition"
+          >
+            Apply
+          </button>
+          <button
+            (click)="resetFilters()"
+            class="px-4 py-2 rounded-xl border border-[#6ba3be]/40 text-[#6ba3be] hover:bg-white/5 transition"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payments List -->
+    <div class="space-y-4">
+      <div *ngIf="payments.length === 0" class="rounded-2xl border border-[#d3e6eb] bg-white p-8 text-center">
+        <p class="text-[#6ba3be] text-lg">No payments found.</p>
+      </div>
+
+      <div *ngFor="let payment of payments" class="rounded-2xl border border-[#d7ebef] bg-white p-6 shadow-lg hover:border-[#0c969c]/50 transition">
+        <div class="flex flex-col lg:flex-row gap-6">
+          <div class="flex-1">
+            <h3 class="text-xl font-bold text-[#031716] mb-2">{{ getPatientName(payment) }}</h3>
+            <p class="text-sm text-[#6ba3be] mb-1">Appointment ID: #{{ payment.appointment_id }}</p>
+            <p class="text-sm text-[#6ba3be]">{{ formatDate(payment.paid_at) }} at {{ formatTime(payment.paid_at) }}</p>
+          </div>
+
+          <div class="flex-1 space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-[#6ba3be]">Amount:</span>
+              <span class="text-[#031716] font-semibold text-lg">{{ formatCurrency(payment.amount) }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-[#6ba3be]">Method:</span>
+              <span class="text-[#031716] font-semibold">{{ payment.payment_method | titlecase }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-[#6ba3be]">Status:</span>
+              <span [class]="'px-3 py-1 rounded-full text-xs font-semibold border ' + getStatusColor(payment.status)">
+                {{ payment.status | titlecase }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div *ngIf="pagination && pagination.last_page > 1" class="flex items-center justify-center gap-2 mt-6">
+        <button
+          (click)="goToPage(pagination!.current_page - 1)"
+          [disabled]="pagination!.current_page === 1"
+          class="px-4 py-2 rounded-xl border border-[#6ba3be]/40 text-[#6ba3be] hover:bg-white/5 transition disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Previous
+        </button>
+
+        <span class="text-[#6ba3be]">
+          Page {{ pagination!.current_page }} of {{ pagination!.last_page }}
+        </span>
+
+        <button
+          (click)="goToPage(pagination!.current_page + 1)"
+          [disabled]="pagination!.current_page === pagination!.last_page"
+          class="px-4 py-2 rounded-xl border border-[#6ba3be]/40 text-[#6ba3be] hover:bg-white/5 transition disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Tab -->
+  <div *ngIf="activeTab === 'statistics' && !loading && statistics" class="space-y-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-5 shadow-lg">
+        <p class="text-sm text-[#6ba3be] mb-1">Today's Revenue</p>
+        <p class="text-2xl font-bold text-[#031716]">{{ formatCurrency(statistics.today_revenue) }}</p>
+      </div>
+      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-5 shadow-lg">
+        <p class="text-sm text-[#6ba3be] mb-1">This Week's Revenue</p>
+        <p class="text-2xl font-bold text-[#031716]">{{ formatCurrency(statistics.this_week_revenue) }}</p>
+      </div>
+      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-5 shadow-lg">
+        <p class="text-sm text-[#6ba3be] mb-1">Average Payment</p>
+        <p class="text-2xl font-bold text-[#031716]">{{ formatCurrency(statistics.average_payment) }}</p>
+      </div>
+    </div>
+
+    <div class="rounded-2xl border border-[#d3e6eb] bg-white p-5 shadow-lg">
+      <h3 class="text-xl font-bold text-[#031716] mb-4">Payment Methods Breakdown</h3>
+      <div class="space-y-3">
+        <div *ngFor="let method of statistics.payment_methods" class="flex items-center justify-between p-3 rounded-lg bg-[#f1f9ff] border border-[#6ba3be]/30">
+          <div>
+            <p class="font-semibold text-[#032f30]">{{ method.payment_method | titlecase }}</p>
+            <p class="text-sm text-[#6ba3be]">{{ method.count }} payment(s)</p>
+          </div>
+          <p class="text-lg font-bold text-[#0a7075]">{{ formatCurrency(method.total) }}</p>
+        </div>
+        <div *ngIf="statistics.payment_methods.length === 0" class="text-sm text-[#6ba3be] italic text-center py-4">
+          No payment data available
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

@@ -2,7 +2,7 @@
   <input id="doctor-menu" type="checkbox" class="peer hidden" />
 
   <aside
-    class="fixed inset-y-0 left-0 z-30 flex w-72 -translate-x-full transform flex-col bg-gradient-to-b from-[#031716] via-[#042628] to-[#052f2f] text-slate-50 shadow-2xl transition duration-300 peer-checked:translate-x-0 md:sticky md:translate-x-0"
+    class="fixed inset-y-0 left-0 z-30 flex w-72 -translate-x-full transform flex-col bg-gradient-to-b from-[#031716] via-[#042628] to-[#052f2f] text-slate-50 shadow-2xl transition duration-300 peer-checked:translate-x-0 md:sticky md:translate-x-0 h-screen"
   >
     <div class="flex items-center gap-4 border-b border-[#0a7075] bg-[#021718]/90 px-6 py-6 text-white">
       <img src="assets/logo.png" alt="CarePulse Logo" class="h-20 w-20 object-contain drop-shadow-lg" />
@@ -93,7 +93,34 @@
         </span>
         <span>Certificates</span>
       </a>
+       <a
+        class="group relative flex items-center gap-3 rounded-xl border-l-4 border-transparent px-4 py-3 text-[#dfeff1] transition hover:border-white/10 hover:bg-white/5 hover:text-white"
+        routerLink="/doctor/profile"
+        routerLinkActive="active bg-gradient-to-r from-[#0a7075] to-[#0c969c] text-white shadow-lg"
+      >
+        <span class="text-[#7fdae6] transition group-[.active]:text-white">
+          <svg class="h-6 w-6" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-3.33 0-6 1.57-6 3.5V20h12v-2.5c0-1.93-2.67-3.5-6-3.5Z" />
+          </svg>
+        </span>
+        <span>Profile</span>
+      </a>
     </nav>
+
+    <div class="border-t border-white/10 px-4 py-6">
+      <button
+        type="button"
+        (click)="logout()"
+        class="group flex w-full items-center gap-3 rounded-xl border border-white/5 bg-white/5 px-4 py-3 text-sm font-semibold text-red-200 transition hover:border-red-400/40 hover:bg-red-600/20 hover:text-white"
+      >
+        <span class="rounded-lg bg-red-500/20 p-2 text-red-200 transition group-hover:bg-white/20 group-hover:text-white">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M10 6H5v12h5v2H3V4h7zM15.5 7 14 8.5 16.5 11H9v2h7.5L14 15.5 15.5 17 21 12z" />
+          </svg>
+        </span>
+        <span>Logout</span>
+      </button>
+    </div>
   </aside>
 
   <label for="doctor-menu" class="fixed inset-0 z-20 hidden bg-black/40 peer-checked:block md:hidden"></label>

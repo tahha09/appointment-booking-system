@@ -15,7 +15,7 @@ export class DoctorOverview implements OnInit {
   patientCounts: Array<{ label: string; value: number; month: string }> = [];
   loading = true;
   error = '';
-  maxValue = 0;
+  maxValue = 0 ;
 
   constructor(
     private http: HttpClient,
@@ -49,14 +49,14 @@ export class DoctorOverview implements OnInit {
   private generateLast6Months(): string[] {
     const months: string[] = [];
     const now = new Date();
-    
+
     for (let i = 5; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const year = date.getFullYear();
       const month = String(date.getMonth() + 2).padStart(2, '0');
       months.push(`${year}-${month}`);
     }
-    
+
     return months;
   }
 
@@ -88,16 +88,16 @@ export class DoctorOverview implements OnInit {
       .subscribe({
         next: (res) => {
           const raw = res?.data ?? [];
-          
+
           // Generate all 6 months
           const allMonths = this.generateLast6Months();
-          
+
           // Create a map of month -> patient_count from API response
           const dataMap = new Map<string, number>();
           raw.forEach((item) => {
             dataMap.set(item.month, item.patient_count ?? 0);
           });
-          
+
           // Build patientCounts array with all 6 months, filling missing ones with 0
           this.patientCounts = allMonths.map((monthKey) => {
             return {
@@ -106,17 +106,17 @@ export class DoctorOverview implements OnInit {
               label: this.formatMonthLabel(monthKey),
             };
           });
-          
+
           // Calculate max value for bar height scaling
-          this.maxValue = this.patientCounts.length > 0 
+          this.maxValue = this.patientCounts.length > 0
             ? Math.max(...this.patientCounts.map(item => item.value), 1)
             : 1; // Use 1 as minimum to avoid division by zero
-          
+
           this.loading = false;
           this.cdr.detectChanges();
         },
         error: (err) => {
-          
+
           // Even on error, show empty chart with 6 months
           const allMonths = this.generateLast6Months();
           this.patientCounts = allMonths.map((monthKey) => ({
@@ -125,7 +125,7 @@ export class DoctorOverview implements OnInit {
             label: this.formatMonthLabel(monthKey),
           }));
           this.maxValue = 1;
-          
+
           // Set error message but don't prevent chart from showing
           this.error =
             err?.error?.message ||
