@@ -19,6 +19,7 @@ class Schedule extends Model
     ];
 
     protected $casts = [
+        'day_of_week' => 'integer',
         'is_available' => 'boolean',
     ];
 
@@ -49,6 +50,12 @@ class Schedule extends Model
     public function getTimeSlotAttribute()
     {
         return "{$this->start_time} - {$this->end_time}";
+    }
+
+    // Mutators
+    public function setDayOfWeekAttribute($value)
+    {
+        $this->attributes['day_of_week'] = (string) (is_numeric($value) ? (int) $value : $value);
     }
 
     // Methods
