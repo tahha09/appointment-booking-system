@@ -66,18 +66,26 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 
 .app-auth-confirm-btn {
-  background-color: #0a7075 !important;
-  color: #f9fafb !important;
+  background: linear-gradient(135deg, #0c969c 0%, #0a7075 100%) !important;
+  color: white !important;
+  border: none !important;
 }
 
 .app-auth-confirm-btn:hover {
-  background-color: #032f30 !important;
+  background: linear-gradient(135deg, #0a7075 0%, #096a6f 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(12, 150, 156, 0.3) !important;
 }
 
 .app-auth-cancel-btn {
-  background-color: transparent !important;
-  color: #e5f4f5 !important;
-  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  background-color: white !important;
+  color: #64748b !important;
+  border: 1.5px solid #e2e8f0 !important;
+}
+
+.app-auth-cancel-btn:hover {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
 }
 
 .app-auth-popup-show {

@@ -54,6 +54,7 @@
                 <button
                   type="button"
                   class="user-menu__item"
+                  *ngIf="isPatient()"
                   (click)="goToProfile()"
                 >
                   <span class="user-menu__icon">

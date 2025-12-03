@@ -14,14 +14,26 @@ export class AdminDashboard {
   private auth = inject(Auth);
   private router = inject(Router);
 
+  isSidebarCollapsed = false;
+
   // Get user name from auth service
   get userName(): string {
     return this.auth.getUserName() || 'Admin';
   }
 
+  // Get today's date
+  get today(): Date {
+    return new Date();
+  }
+
   // Method to check if route is active
   isActive(route: string): boolean {
     return this.router.url === route || this.router.url.startsWith(route + '/');
+  }
+
+  // Toggle sidebar
+  toggleSidebar(): void {
+    this.isSidebarCollapsed = !this.isSidebarCollapsed;
   }
 
   // Logout method

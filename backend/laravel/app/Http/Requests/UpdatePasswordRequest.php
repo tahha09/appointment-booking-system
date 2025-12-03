@@ -6,25 +6,28 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdatePasswordRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            'currentPassword' => 'required|string',
-            'newPassword' => 'required|string|min:6|confirmed',
-            'confirmNewPassword' => 'required|string',
+            'currentPassword' => ['required', 'string'],
+            'newPassword' => ['required', 'string', 'min:6', 'different:currentPassword'],
+            'confirmNewPassword' => ['required', 'string', 'min:6', 'same:newPassword'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'currentPassword.required' => 'Current password is required.',
+            'newPassword.required' => 'New password is required.',
+            'newPassword.min' => 'New password must be at least 6 characters.',
+            'newPassword.different' => 'New password must be different from current password.',
+            'confirmNewPassword.same' => 'Password confirmation does not match.',
         ];
     }
 }
