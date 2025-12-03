@@ -3,6 +3,7 @@
   <section class="header-section">
     <div class="header-content">
       <div>
+        <p class="page-label">Medications</p>
         <h1 class="page-title">
           <i class="fas fa-pills"></i>
           Prescriptions
@@ -32,69 +33,126 @@
 
   <!-- Search and Filter Section -->
   <section class="filters-section">
+    <div class="filters-header">
+      <h3 class="filters-title">
+        <i class="fas fa-filter"></i>
+        Search & Filters
+      </h3>
+      <button 
+        *ngIf="searchQuery || dateFrom || dateTo || selectedDoctor || selectedStatus !== 'all'" 
+        (click)="clearFilters()" 
+        class="clear-all-btn"
+        title="Clear all filters">
+        <i class="fas fa-times-circle"></i>
+        Clear All
+      </button>
+    </div>
+
     <div class="search-bar">
       <i class="fas fa-search"></i>
       <input 
         type="text" 
         [(ngModel)]="searchQuery"
         (input)="onSearch()"
-        placeholder="Search by medication name, dosage, frequency, or instructions..."
+        placeholder="Search by medication name, dosage, frequency, or instructions..." 
         class="search-input">
-      <button *ngIf="searchQuery" (click)="searchQuery = ''; onSearch()" class="clear-btn" aria-label="Clear search">
-        ×
-      </button>
     </div>
 
     <div class="filter-controls">
       <div class="filter-group">
-        <label><i class="fas fa-calendar-alt"></i> From Date</label>
-        <input 
-          type="date" 
-          [(ngModel)]="dateFrom"
-          (change)="onFilterChange()"
-          class="filter-input">
+        <label>
+          <i class="fas fa-calendar-alt"></i>
+          From Date
+        </label>
+        <div class="input-wrapper">
+          <input 
+            type="date" 
+            [(ngModel)]="dateFrom"
+            (change)="onFilterChange()"
+            class="filter-input">
+          <button 
+            *ngIf="dateFrom" 
+            (click)="dateFrom = ''; onFilterChange()" 
+            class="clear-field-btn"
+            title="Clear date">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
       </div>
 
       <div class="filter-group">
-        <label><i class="fas fa-calendar-alt"></i> To Date</label>
-        <input 
-          type="date" 
-          [(ngModel)]="dateTo"
-          (change)="onFilterChange()"
-          class="filter-input">
+        <label>
+          <i class="fas fa-calendar-alt"></i>
+          To Date
+        </label>
+        <div class="input-wrapper">
+          <input 
+            type="date" 
+            [(ngModel)]="dateTo"
+            (change)="onFilterChange()"
+            class="filter-input">
+          <button 
+            *ngIf="dateTo" 
+            (click)="dateTo = ''; onFilterChange()" 
+            class="clear-field-btn"
+            title="Clear date">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
       </div>
 
       <div class="filter-group">
-        <label><i class="fas fa-user-md"></i> Doctor</label>
-        <select 
-          [(ngModel)]="selectedDoctor"
-          (change)="onFilterChange()"
-          class="filter-select">
-          <option value="">All Doctors</option>
-          <option *ngFor="let doctor of doctors" [value]="doctor">{{ doctor }}</option>
-        </select>
+        <label>
+          <i class="fas fa-user-md"></i>
+          Doctor
+        </label>
+        <div class="input-wrapper">
+          <select 
+            [(ngModel)]="selectedDoctor"
+            (change)="onFilterChange()"
+            class="filter-select">
+            <option value="">All Doctors</option>
+            <option *ngFor="let doctor of doctors" [value]="doctor">{{ doctor }}</option>
+          </select>
+          <button 
+            *ngIf="selectedDoctor" 
+            (click)="selectedDoctor = ''; onFilterChange()" 
+            class="clear-field-btn"
+            title="Clear doctor filter">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
       </div>
 
       <div class="filter-group">
-        <label><i class="fas fa-info-circle"></i> Status</label>
-        <select 
-          [(ngModel)]="selectedStatus"
-          (change)="onFilterChange()"
-          class="filter-select">
-          <option value="all">All Status</option>
-          <option value="active">Active</option>
-          <option value="completed">Completed</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
+        <label>
+          <i class="fas fa-info-circle"></i>
+          Status
+        </label>
+        <div class="input-wrapper">
+          <select 
+            [(ngModel)]="selectedStatus"
+            (change)="onFilterChange()"
+            class="filter-select">
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <button 
+            *ngIf="selectedStatus !== 'all'" 
+            (click)="selectedStatus = 'all'; onFilterChange()" 
+            class="clear-field-btn"
+            title="Clear status filter">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
       </div>
-
-      <button (click)="clearFilters()" class="clear-filters-btn">
-        <i class="fas fa-redo"></i> Clear Filters
-      </button>
     </div>
 
     <div *ngIf="filteredPrescriptions.length !== prescriptions.length" class="filter-info">
-      Showing {{ filteredPrescriptions.length }} of {{ prescriptions.length }} prescriptions
+      <i class="fas fa-info-circle"></i>
+      Showing <strong>{{ filteredPrescriptions.length }}</strong> of <strong>{{ prescriptions.length }}</strong> prescriptions
     </div>
   </section>
 
@@ -109,10 +167,12 @@
   <!-- Error State -->
   <div *ngIf="error && !loading" class="error-container">
     <div class="error-card">
-      <i class="fas fa-exclamation-triangle"></i>
+      <div class="error-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
       <h3>Error Loading Prescriptions</h3>
       <p>{{ error }}</p>
-      <button (click)="fetchPrescriptions()" class="retry-btn">
+      <button (click)="fetchPrescriptions(false)" class="retry-btn">
         <i class="fas fa-redo"></i> Try Again
       </button>
     </div>
@@ -120,7 +180,9 @@
 
   <!-- Content - Grid View -->
   <section *ngIf="!loading && !error && viewMode === 'grid'" class="grid-view">
-    <div *ngFor="let prescription of filteredPrescriptions" class="prescription-card" (click)="viewDetails(prescription)">
+    <div *ngFor="let prescription of filteredPrescriptions" 
+         class="prescription-card"
+         (click)="viewDetails(prescription)">
       <div class="card-header">
         <div class="date-badge">
           <i class="fas fa-calendar-check"></i>
@@ -135,13 +197,19 @@
       </div>
 
       <div class="card-body">
-        <h3 class="medication-title">{{ prescription.medication_name }}</h3>
-        
+        <h3 class="medication-title">
+          <i class="fas fa-pills"></i>
+          {{ prescription.medication_name }}
+        </h3>
+
         <div class="doctor-info">
-          <i class="fas fa-user-md"></i>
+          <div class="doctor-avatar">
+            <i class="fas fa-user-md"></i>
+          </div>
           <div>
             <span class="doctor-name">Dr. {{ prescription.doctor?.user?.name }}</span>
             <span *ngIf="prescription.doctor?.specialization?.name" class="specialization">
+              <i class="fas fa-certificate"></i>
               {{ prescription.doctor?.specialization?.name }}
             </span>
           </div>
@@ -149,21 +217,33 @@
 
         <div class="prescription-details">
           <div class="detail-row">
-            <span class="detail-label">Dosage:</span>
+            <span class="detail-label">
+              <i class="fas fa-prescription"></i>
+              Dosage
+            </span>
             <span class="detail-value">{{ prescription.dosage }}</span>
           </div>
           <div class="detail-row">
-            <span class="detail-label">Frequency:</span>
+            <span class="detail-label">
+              <i class="fas fa-redo-alt"></i>
+              Frequency
+            </span>
             <span class="detail-value">{{ prescription.frequency }}</span>
           </div>
           <div class="detail-row">
-            <span class="detail-label">Duration:</span>
-            <span class="detail-value">{{ prescription.duration }}</span>
+            <span class="detail-label">
+              <i class="fas fa-hourglass-half"></i>
+              Duration
+            </span>
+            <span class="detail-value">{{ prescription.duration || 'N/A' }}</span>
           </div>
         </div>
 
         <div *ngIf="prescription.instructions" class="instructions-preview">
-          <span class="preview-label">Instructions:</span>
+          <span class="preview-label">
+            <i class="fas fa-clipboard-list"></i>
+            Instructions
+          </span>
           <p class="preview-text">{{ prescription.instructions }}</p>
         </div>
       </div>
@@ -178,12 +258,15 @@
 
   <!-- Content - List View -->
   <section *ngIf="!loading && !error && viewMode === 'list'" class="list-view">
-    <div *ngFor="let prescription of filteredPrescriptions" class="list-item" (click)="viewDetails(prescription)">
+    <div *ngFor="let prescription of filteredPrescriptions" 
+         class="list-item" 
+         (click)="viewDetails(prescription)">
       <div class="list-date">
+        <i class="fas fa-calendar-check date-icon"></i>
         <div class="date-day">{{ formatDate(prescription.prescribed_date).split(',')[0] }}</div>
         <div class="date-month">{{ formatDate(prescription.prescribed_date).split(',')[1]?.trim() }}</div>
       </div>
-      
+
       <div class="list-content">
         <div class="list-header">
           <h3>{{ prescription.medication_name }}</h3>
@@ -202,9 +285,18 @@
           </span>
         </div>
         <div class="list-medication-info">
-          <span>{{ prescription.dosage }}</span> • 
-          <span>{{ prescription.frequency }}</span> • 
-          <span>{{ prescription.duration }}</span>
+          <span>
+            <i class="fas fa-prescription"></i>
+            {{ prescription.dosage }}
+          </span> •
+          <span>
+            <i class="fas fa-redo-alt"></i>
+            {{ prescription.frequency }}
+          </span> •
+          <span>
+            <i class="fas fa-hourglass-half"></i>
+            {{ prescription.duration || 'N/A' }}
+          </span>
         </div>
       </div>
 
@@ -226,10 +318,10 @@
     <p *ngIf="!searchQuery && !dateFrom && !dateTo && !selectedDoctor && selectedStatus === 'all'">
       You don't have any prescriptions yet. Your prescriptions will appear here after your appointments.
     </p>
-    <button *ngIf="searchQuery || dateFrom || dateTo || selectedDoctor || selectedStatus !== 'all'" 
+    <button *ngIf="searchQuery || dateFrom || dateTo || selectedDoctor || selectedStatus !== 'all'"
             (click)="clearFilters()" 
             class="clear-filters-btn">
-      Clear Filters
+      <i class="fas fa-redo"></i> Clear Filters
     </button>
   </section>
 
@@ -305,62 +397,89 @@
         <!-- Medication Section -->
         <div class="detail-section">
           <div class="detail-label-wrapper">
-            <i class="fas fa-pills"></i>
+            <div class="detail-icon-box">
+              <i class="fas fa-capsules"></i>
+            </div>
             <h3>Medication Name</h3>
           </div>
           <div class="detail-text-wrapper">
-            <p class="detail-text medication-name">{{ selectedPrescription.medication_name }}</p>
+            <p class="detail-text medication-name">
+              <i class="fas fa-prescription-bottle-alt"></i>
+              {{ selectedPrescription.medication_name }}
+            </p>
           </div>
         </div>
 
         <!-- Dosage Section -->
         <div class="detail-section">
           <div class="detail-label-wrapper">
-            <i class="fas fa-syringe"></i>
+            <div class="detail-icon-box">
+              <i class="fas fa-prescription"></i>
+            </div>
             <h3>Dosage</h3>
           </div>
           <div class="detail-text-wrapper">
-            <p class="detail-text">{{ selectedPrescription.dosage }}</p>
+            <p class="detail-text">
+              <i class="fas fa-tablets"></i>
+              {{ selectedPrescription.dosage }}
+            </p>
           </div>
         </div>
 
         <!-- Frequency Section -->
         <div class="detail-section">
           <div class="detail-label-wrapper">
-            <i class="fas fa-clock"></i>
+            <div class="detail-icon-box">
+              <i class="fas fa-redo-alt"></i>
+            </div>
             <h3>Frequency</h3>
           </div>
           <div class="detail-text-wrapper">
-            <p class="detail-text">{{ selectedPrescription.frequency }}</p>
+            <p class="detail-text">
+              <i class="fas fa-clock"></i>
+              {{ selectedPrescription.frequency }}
+            </p>
           </div>
         </div>
 
         <!-- Duration Section -->
         <div class="detail-section">
           <div class="detail-label-wrapper">
-            <i class="fas fa-calendar-alt"></i>
+            <div class="detail-icon-box">
+              <i class="fas fa-hourglass-half"></i>
+            </div>
             <h3>Duration</h3>
           </div>
           <div class="detail-text-wrapper">
-            <p class="detail-text">{{ selectedPrescription.duration }}</p>
+            <p class="detail-text">
+              <i class="fas fa-calendar-week"></i>
+              {{ selectedPrescription.duration || 'N/A' }}
+            </p>
           </div>
         </div>
 
         <!-- Instructions Section -->
         <div *ngIf="selectedPrescription.instructions" class="detail-section">
           <div class="detail-label-wrapper">
-            <i class="fas fa-list-check"></i>
+            <div class="detail-icon-box">
+              <i class="fas fa-clipboard-list"></i>
+            </div>
             <h3>Instructions</h3>
           </div>
           <div class="detail-text-wrapper">
-            <p class="detail-text">{{ selectedPrescription.instructions }}</p>
+            <p class="detail-text">
+              <i class="fas fa-info-circle"></i>
+              {{ selectedPrescription.instructions }}
+            </p>
           </div>
         </div>
 
         <!-- Additional Notes Section -->
         <div *ngIf="selectedPrescription.notes" class="detail-section detail-section--notes">
           <div class="detail-label-wrapper">
-            <i class="fas fa-notes-medical"></i>
+            <div class="detail-icon-box">
+              <i class="fas fa-notes-medical"></i>
+            </div>
             <h3>Additional Notes</h3>
           </div>
           <div class="detail-text-wrapper">

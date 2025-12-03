@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { Auth } from '../../../core/services/auth';
 
 @Injectable({
@@ -11,7 +10,7 @@ export class PatientService {
   private apiUrl = 'http://localhost:8000/api/patient';
   private auth = inject(Auth);
 
-  // Cache for medical history and prescriptions
+  // Cache storage
   private medicalHistoryCache: any[] | null = null;
   private prescriptionsCache: any[] | null = null;
 
@@ -30,21 +29,20 @@ export class PatientService {
   }
 
   getMedicalHistory(params?: any, forceRefresh: boolean = false): Observable<any> {
-    // Check if params object is empty (no filters)
+    // If we have cached data and don't need to force refresh, return it
+    // We only use cache if there are no search params (fetching all data)
     const hasParams = params && Object.keys(params).length > 0;
-    
-    // If no params and cache exists and not forcing refresh, return cached data
-    if (!forceRefresh && !hasParams && this.medicalHistoryCache !== null) {
-      return of({
-        success: true,
-        data: this.medicalHistoryCache,
-        message: 'Medical history retrieved successfully'
+
+    if (!hasParams && !forceRefresh && this.medicalHistoryCache) {
+      return new Observable(observer => {
+        observer.next({ success: true, data: this.medicalHistoryCache });
+        observer.complete();
       });
     }
 
     let url = `${this.apiUrl}/medical-history`;
-    
-    if (hasParams) {
+
+    if (params) {
       const queryParams = new URLSearchParams();
       Object.keys(params).forEach(key => {
         if (params[key]) {
@@ -56,35 +54,39 @@ export class PatientService {
         url += `?${queryString}`;
       }
     }
-    
-    return this.http.get(url, {
-      headers: this.getAuthHeaders()
-    }).pipe(
-      tap((response: any) => {
-        // Cache the data only if no filters applied
-        if (!hasParams && response.data) {
-          this.medicalHistoryCache = response.data;
+
+    return new Observable(observer => {
+      this.http.get(url, { headers: this.getAuthHeaders() }).subscribe({
+        next: (response: any) => {
+          // Cache the data if we fetched all records (no params)
+          if (!hasParams && response.success) {
+            this.medicalHistoryCache = response.data;
+          }
+          observer.next(response);
+          observer.complete();
+        },
+        error: (err) => {
+          observer.error(err);
         }
-      })
-    );
+      });
+    });
   }
 
   getPrescriptions(params?: any, forceRefresh: boolean = false): Observable<any> {
-    // Check if params object is empty (no filters)
+    // If we have cached data and don't need to force refresh, return it
+    // We only use cache if there are no search params (fetching all data)
     const hasParams = params && Object.keys(params).length > 0;
-    
-    // If no params and cache exists and not forcing refresh, return cached data
-    if (!forceRefresh && !hasParams && this.prescriptionsCache !== null) {
-      return of({
-        success: true,
-        data: this.prescriptionsCache,
-        message: 'Prescriptions retrieved successfully'
+
+    if (!hasParams && !forceRefresh && this.prescriptionsCache) {
+      return new Observable(observer => {
+        observer.next({ success: true, data: this.prescriptionsCache });
+        observer.complete();
       });
     }
 
     let url = `${this.apiUrl}/prescriptions`;
-    
-    if (hasParams) {
+
+    if (params) {
       const queryParams = new URLSearchParams();
       Object.keys(params).forEach(key => {
         if (params[key]) {
@@ -96,31 +98,21 @@ export class PatientService {
         url += `?${queryString}`;
       }
     }
-    
-    return this.http.get(url, {
-      headers: this.getAuthHeaders()
-    }).pipe(
-      tap((response: any) => {
-        // Cache the data only if no filters applied
-        if (!hasParams && response.data) {
-          this.prescriptionsCache = response.data;
+
+    return new Observable(observer => {
+      this.http.get(url, { headers: this.getAuthHeaders() }).subscribe({
+        next: (response: any) => {
+          // Cache the data if we fetched all records (no params)
+          if (!hasParams && response.success) {
+            this.prescriptionsCache = response.data;
+          }
+          observer.next(response);
+          observer.complete();
+        },
+        error: (err) => {
+          observer.error(err);
         }
-      })
-    );
-  }
-
-  // Method to clear cache (useful for logout or when data needs refresh)
-  clearCache(): void {
-    this.medicalHistoryCache = null;
-    this.prescriptionsCache = null;
-  }
-
-  // Method to clear specific cache
-  clearMedicalHistoryCache(): void {
-    this.medicalHistoryCache = null;
-  }
-
-  clearPrescriptionsCache(): void {
-    this.prescriptionsCache = null;
+      });
+    });
   }
 }
