@@ -1,6 +1,6 @@
 ﻿import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
 
 @Component({
@@ -12,7 +12,13 @@ import { Auth } from '../../../core/services/auth';
 })
 export class DoctorDashboardLayout {
   private readonly auth = inject(Auth);
+  private readonly router = inject(Router);
 
   readonly doctorName =  this.auth.getUserName() || 'Doctor';
   readonly today = new Date();
+
+  logout(): void {
+    this.auth.logout();
+    this.router.navigateByUrl('/login');
+  }
 }
