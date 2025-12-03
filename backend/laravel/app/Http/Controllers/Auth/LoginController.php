@@ -27,6 +27,15 @@ class LoginController extends Controller
                 return $this->error('Your account is currently ' . $user->status . '. Please contact support.', 403);
             }
 
+            // Check if user is a doctor and is approved
+            if ($user->role === 'doctor') {
+                $doctor = $user->doctor;
+                if ($doctor && !$doctor->is_approved) {
+                    Auth::logout();
+                    return $this->error('Your doctor registration is pending admin approval. Please wait until your registration is approved.', 403);
+                }
+            }
+
             $token = $user->createToken('auth_token')->plainTextToken;
 
             return $this->success([

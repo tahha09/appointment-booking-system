@@ -220,7 +220,10 @@ class ProfileController extends Controller
 
     private function updateDoctorData(User $user, array $data): void
     {
-        $doctor = $user->doctor ?? Doctor::create(['user_id' => $user->id]);
+        $doctor = $user->doctor ?? Doctor::create([
+            'user_id' => $user->id,
+            'is_approved' => false, // New doctors start as unapproved
+        ]);
 
         // Update doctor-specific fields
         $doctor->specialty = $data['specialty'] ?? $doctor->specialty;
