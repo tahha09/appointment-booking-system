@@ -14,15 +14,15 @@ interface Appointment {
   status: string;
   reason: string;
   notes: string;
-  patient: {
-    user: {
+  patient?: {
+    user?: {
       id: number;
       name: string;
       email: string;
       phone: string;
       profile_image: string | null;
-    };
-  };
+    } | null;
+  } | null;
 }
 
 interface Pagination {
@@ -45,12 +45,12 @@ export class MyAppointments implements OnInit {
   loading = true;
   error = '';
   pagination: Pagination | null = null;
-  
+
   // Filters
   statusFilter: string = 'all';
   dateFrom: string = '';
   dateTo: string = '';
-  
+
   // Status update
   updatingStatus: number | null = null;
   selectedPatient: any = null;
@@ -72,7 +72,7 @@ export class MyAppointments implements OnInit {
 
     const token = this.auth.getToken();
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
-    
+
     let params: any = {
       page,
       per_page: 15,
@@ -184,7 +184,6 @@ export class MyAppointments implements OnInit {
       confirmed: 'bg-green-500/20 text-green-300 border-green-500/30',
       completed: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
       cancelled: 'bg-red-500/20 text-red-300 border-red-500/30',
-      rejected: 'bg-red-500/20 text-red-300 border-red-500/30',
     };
     return colors[status] || 'bg-gray-500/20 text-gray-300 border-gray-500/30';
   }
