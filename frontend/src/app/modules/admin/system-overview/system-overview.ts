@@ -36,6 +36,9 @@ export class SystemOverview implements OnInit {
   recentAppointments = signal<Appointment[]>([]);
   recentActivities = signal<SystemActivity[]>([]);
 
+  // Action loading states
+  processingDoctor = signal<number | null>(null);
+
   // Loading states
   isLoading = signal({
     stats: false,
@@ -231,8 +234,16 @@ export class SystemOverview implements OnInit {
 
     this.adminService.getPendingDoctors().subscribe({
       next: (response: PaginatedResponse<Doctor>) => {
-        // Extract data array from paginated response
-        const doctors = response.data;
+        // Extract data array from paginated response and map to Doctor interface
+        const doctors = response.data.map((doctor: any) => ({
+          id: doctor.id,
+          name: doctor.name || 'Unknown',
+          email: doctor.email || '',
+          specialty: doctor.specialty || 'Not specified',
+          license_number: doctor.license_number || 'Not provided',
+          status: 'pending' as const,
+          created_at: doctor.created_at || new Date().toISOString()
+        }));
         console.log('Pending doctors loaded:', doctors);
         this.pendingDoctors.set(doctors);
         this.isLoading.update(prev => ({ ...prev, doctors: false }));
@@ -292,6 +303,11 @@ export class SystemOverview implements OnInit {
 
   // Doctor approval actions - Fixed ID type
   approveDoctor(doctorId: number): void {
+    if (!confirm('Are you sure you want to approve this doctor?')) {
+      return;
+    }
+
+    this.processingDoctor.set(doctorId);
     this.adminService.approveDoctor(doctorId).subscribe({
       next: () => {
         console.log('Doctor approved:', doctorId);
@@ -300,34 +316,24 @@ export class SystemOverview implements OnInit {
         const updatedPending = currentPending.filter(d => d.id !== doctorId);
         this.pendingDoctors.set(updatedPending);
 
-        // Update stats
-        const currentStats = this.stats();
-        const updatedStats = {
-          ...currentStats,
-          pendingApprovals: updatedPending.length,
-          totalDoctors: currentStats.totalDoctors + 1
-        };
-        this.stats.set(updatedStats);
-
-        // Update quick stats
-        this.quickStats.update(prev => [
-          prev[0],
-          {
-            ...prev[1],
-            value: updatedPending.length
-          },
-          prev[2],
-          prev[3]
-        ]);
+        // Reload stats to get accurate counts
+        this.loadDashboardStats();
+        this.processingDoctor.set(null);
       },
       error: (error) => {
         console.error('Error approving doctor:', error);
         alert('Failed to approve doctor. Please try again.');
+        this.processingDoctor.set(null);
       }
     });
   }
 
   rejectDoctor(doctorId: number): void {
+    if (!confirm('Are you sure you want to reject this doctor application? This action cannot be undone.')) {
+      return;
+    }
+
+    this.processingDoctor.set(doctorId);
     this.adminService.rejectDoctor(doctorId).subscribe({
       next: () => {
         console.log('Doctor rejected:', doctorId);
@@ -336,28 +342,14 @@ export class SystemOverview implements OnInit {
         const updatedPending = currentPending.filter(d => d.id !== doctorId);
         this.pendingDoctors.set(updatedPending);
 
-        // Update stats
-        const currentStats = this.stats();
-        const updatedStats = {
-          ...currentStats,
-          pendingApprovals: updatedPending.length
-        };
-        this.stats.set(updatedStats);
-
-        // Update quick stats
-        this.quickStats.update(prev => [
-          prev[0],
-          {
-            ...prev[1],
-            value: updatedPending.length
-          },
-          prev[2],
-          prev[3]
-        ]);
+        // Reload stats to get accurate counts
+        this.loadDashboardStats();
+        this.processingDoctor.set(null);
       },
       error: (error) => {
         console.error('Error rejecting doctor:', error);
         alert('Failed to reject doctor. Please try again.');
+        this.processingDoctor.set(null);
       }
     });
   }
