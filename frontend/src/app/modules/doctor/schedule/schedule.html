@@ -1,4 +1,291 @@
 <div class="space-y-6 text-[#032f30]">
-  <h2 class="text-2xl font-bold text-[#031716]">Schedule</h2>
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <h2 class="text-2xl font-bold text-[#031716]">Schedule Management</h2>
+    <div class="flex flex-wrap gap-3">
+      <button
+        (click)="openHolidayModal()"
+        class="px-6 py-2 rounded-xl border border-[#0c969c]/50 text-[#0c969c] bg-[#0c969c]/10 font-semibold hover:bg-[#0c969c]/20 transition"
+      >
+        + Add Holiday
+      </button>
+      <button
+        (click)="openScheduleModal()"
+        class="px-6 py-2 rounded-xl bg-[#0c969c] text-white font-semibold hover:bg-[#0a7075] transition"
+      >
+        + Add Schedule
+      </button>
+    </div>
+  </div>
 
+  <!-- Loading State -->
+  <div *ngIf="loading" class="flex items-center justify-center py-20">
+    <div class="text-center">
+      <div class="w-16 h-16 border-4 border-[#0c969c] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+      <p class="text-[#274d60]">Loading schedule...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="rounded-2xl border border-red-500/40 bg-red-500/10 p-4">
+    <p class="text-red-300">{{ error }}</p>
+  </div>
+
+  <!-- Schedule Display -->
+  <div *ngIf="!loading && !error" class="space-y-6">
+    <div class="grid grid-cols-1 2xl:grid-cols-[2fr_1fr] gap-6">
+      <!-- Weekly Schedule -->
+      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-6 shadow-lg">
+        <h3 class="text-xl font-bold text-[#031716] mb-6">Weekly Schedule</h3>
+        <div class="overflow-x-auto -mx-4 sm:mx-0">
+          <div class="space-y-4 min-w-[280px] px-4 sm:px-0">
+            <div *ngFor="let day of daysOfWeek" class="border-b border-[#d3e6eb] pb-4 last:border-0 last:pb-0">
+              <h4 class="text-lg font-semibold text-[#031716] mb-3">{{ day.label }}</h4>
+              <div *ngIf="getSchedulesForDay(day.value).length === 0" class="text-sm text-[#6ba3be] pl-4">
+                No schedule set
+              </div>
+              <div
+                *ngFor="let schedule of getSchedulesForDay(day.value)"
+                class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-[#f8fafc] rounded-xl p-4 mb-2"
+              >
+                <div class="flex flex-col md:flex-row md:items-center gap-4">
+                  <span class="font-semibold text-[#031716]">
+                    {{ formatTime(schedule.start_time) }} - {{ formatTime(schedule.end_time) }}
+                  </span>
+                  <span
+                    [class]="'px-3 py-1 rounded-full text-xs font-semibold self-start md:self-auto ' + (schedule.is_available ? 'bg-green-500/20 text-green-300' : 'bg-gray-500/20 text-gray-300')"
+                  >
+                    {{ schedule.is_available ? 'Available' : 'Unavailable' }}
+                  </span>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <button
+                    (click)="openScheduleModal(schedule)"
+                    class="px-4 py-2 rounded-xl border border-blue-500/40 text-blue-200 bg-blue-500/10 font-semibold hover:bg-blue-500/20 transition text-sm"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    (click)="confirmDeleteSchedule(schedule)"
+                    class="px-4 py-2 rounded-xl border border-red-500/40 text-red-200 bg-red-500/10 font-semibold hover:bg-red-500/20 transition text-sm"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Holidays -->
+      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-6 shadow-lg">
+        <h3 class="text-xl font-bold text-[#031716] mb-6">Holidays</h3>
+        <div *ngIf="holidays.length === 0" class="text-center py-8 text-[#6ba3be]">
+          No holidays added yet.
+        </div>
+        <div *ngIf="holidays.length > 0" class="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-1 gap-4">
+          <div *ngFor="let holiday of holidays" class="bg-[#f8fafc] rounded-xl p-4 border border-[#d3e6eb]">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex-1">
+                <p class="font-semibold text-[#031716] mb-1">{{ formatDate(holiday.holiday_date) }}</p>
+                <p *ngIf="holiday.reason" class="text-sm text-[#6ba3be]">{{ holiday.reason }}</p>
+              </div>
+              <button
+                (click)="confirmDeleteHoliday(holiday)"
+                class="px-3 py-1 rounded-xl border border-red-500/40 text-red-200 bg-red-500/10 font-semibold hover:bg-red-500/20 transition text-xs"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Schedule Modal -->
+  <div
+    *ngIf="showScheduleModal"
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+    (click)="closeModals()"
+  >
+    <div
+      class="bg-white text-[#032f30] rounded-2xl border border-[#d7ebef] p-6 max-w-md w-full shadow-2xl max-h-[90vh] overflow-y-auto"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-2xl font-bold text-[#031716]">{{ selectedSchedule ? 'Edit' : 'Add' }} Schedule</h3>
+        <button
+          (click)="closeModals()"
+          class="w-8 h-8 rounded-full bg-red-500/20 text-red-300 hover:bg-red-500/30 transition flex items-center justify-center"
+        >
+          x
+        </button>
+      </div>
+
+      <form (ngSubmit)="submitSchedule()" class="space-y-4">
+        <div>
+          <label class="block text-sm font-semibold text-[#0a7075] mb-2">Day of Week *</label>
+          <select
+            [(ngModel)]="scheduleForm.day_of_week"
+            name="day_of_week"
+            required
+            class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/40 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+          >
+            <option *ngFor="let day of daysOfWeek" [value]="day.value">{{ day.label }}</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-[#0a7075] mb-2">Start Time *</label>
+            <input
+              type="time"
+              [(ngModel)]="scheduleForm.start_time"
+              name="start_time"
+              required
+              class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/40 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-[#0a7075] mb-2">End Time *</label>
+            <input
+              type="time"
+              [(ngModel)]="scheduleForm.end_time"
+              name="end_time"
+              required
+              class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/40 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              [(ngModel)]="scheduleForm.is_available"
+              name="is_available"
+              class="w-4 h-4 rounded border-[#6ba3be]/40 text-[#0c969c] focus:ring-[#0c969c]"
+            />
+            <span class="text-sm font-semibold text-[#0a7075]">Available</span>
+          </label>
+        </div>
+
+        <div class="flex gap-4 pt-4">
+          <button
+            type="submit"
+            [disabled]="submitting"
+            class="flex-1 px-6 py-2 rounded-xl bg-[#0c969c] text-white font-semibold hover:bg-[#0a7075] transition disabled:opacity-50"
+          >
+            {{ submitting ? 'Saving...' : (selectedSchedule ? 'Update' : 'Create') }}
+          </button>
+          <button
+            type="button"
+            (click)="closeModals()"
+            class="px-6 py-2 rounded-xl border border-[#6ba3be]/40 text-[#6ba3be] hover:bg-white/5 transition"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Holiday Modal -->
+  <div
+    *ngIf="showHolidayModal"
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+    (click)="closeModals()"
+  >
+    <div
+      class="bg-white text-[#032f30] rounded-2xl border border-[#d7ebef] p-6 max-w-md w-full shadow-2xl max-h-[90vh] overflow-y-auto"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-2xl font-bold text-[#031716]">Add Holiday</h3>
+        <button
+          (click)="closeModals()"
+          class="w-8 h-8 rounded-full bg-red-500/20 text-red-300 hover:bg-red-500/30 transition flex items-center justify-center"
+        >
+          x
+        </button>
+      </div>
+
+      <form (ngSubmit)="submitHoliday()" class="space-y-4">
+        <div>
+          <label class="block text-sm font-semibold text-[#0a7075] mb-2">Date *</label>
+          <input
+            type="date"
+            [(ngModel)]="holidayForm.holiday_date"
+            name="holiday_date"
+            required
+            [min]="minHolidayDate"
+            class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/40 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-[#0a7075] mb-2">Reason *</label>
+          <input
+            type="text"
+            [(ngModel)]="holidayForm.reason"
+            name="reason"
+            required
+            class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/40 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+            placeholder="e.g., Public Holiday, Personal Leave"
+          />
+        </div>
+
+        <div class="flex gap-4 pt-4">
+          <button
+            type="submit"
+            [disabled]="submitting"
+            class="flex-1 px-6 py-2 rounded-xl bg-[#0c969c] text-white font-semibold hover:bg-[#0a7075] transition disabled:opacity-50"
+          >
+            {{ submitting ? 'Adding...' : 'Add Holiday' }}
+          </button>
+          <button
+            type="button"
+            (click)="closeModals()"
+            class="px-6 py-2 rounded-xl border border-[#6ba3be]/40 text-[#6ba3be] hover:bg-white/5 transition"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div
+    *ngIf="showDeleteConfirm"
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+    (click)="closeModals()"
+  >
+    <div
+      class="bg-white text-[#032f30] rounded-2xl border border-[#d7ebef] p-6 max-w-md w-full shadow-2xl max-h-[90vh] overflow-y-auto"
+      (click)="$event.stopPropagation()"
+    >
+      <h3 class="text-xl font-bold text-[#031716] mb-4">
+        {{ selectedSchedule ? 'Delete Schedule' : 'Delete Holiday' }}
+      </h3>
+      <p class="text-[#274d60] mb-6">
+        Are you sure you want to delete this {{ selectedSchedule ? 'schedule' : 'holiday' }}? This action cannot be undone.
+      </p>
+      <div class="flex gap-4">
+        <button
+          (click)="selectedSchedule ? deleteSchedule() : deleteHoliday()"
+          class="flex-1 px-6 py-2 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition"
+        >
+          Delete
+        </button>
+        <button
+          (click)="closeModals()"
+          class="flex-1 px-6 py-2 rounded-xl border border-[#6ba3be]/40 text-[#6ba3be] hover:bg-white/5 transition"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
