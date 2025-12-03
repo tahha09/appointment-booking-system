@@ -20,9 +20,17 @@ class UserController extends Controller
             $page = $request->get('page', 1);
 
             // Use chunking for better memory management
-            $users = User::select('id', 'name', 'email', 'role', 'created_at', 'status')
+            $users = User::select('id', 'name', 'email', 'role', 'created_at', 'status', 'profile_image')
                         ->orderBy('created_at', 'desc')
                         ->simplePaginate($perPage);
+
+            // Add profile_image_url to each user
+            $users->getCollection()->transform(function ($user) {
+                $user->profile_image_url = $user->profile_image
+                    ? asset('storage/' . $user->profile_image)
+                    : asset('storage/default-avatar.png');
+                return $user;
+            });
 
             // Convert to array to avoid potential serialization issues
             $userData = $users->toArray();
@@ -49,7 +57,26 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
-        $user->update($request->all());
+
+        // Only allow specific fields to be updated from the admin panel
+        $data = $request->only(['name', 'email', 'role', 'status', 'profile_image']);
+
+        // Normalize and validate status if present
+        if ($request->has('status')) {
+            $status = strtolower($request->input('status'));
+
+            if (!in_array($status, ['active', 'inactive', 'suspended'])) {
+                return response()->json([
+                    'message' => 'Invalid status value.',
+                ], 422);
+            }
+
+            $data['status'] = $status;
+        }
+
+        $user->fill($data);
+        $user->save();
+
         return response()->json($user);
     }
 

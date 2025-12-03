@@ -116,11 +116,13 @@ interface UpdatePasswordRequest {
 export class Auth {
   private readonly apiBaseUrl = 'http://localhost:8000/api';
   private readonly TOKEN_KEY = 'auth_token';
+  private readonly ID_KEY = 'user_id';
   private readonly ROLE_KEY = 'user_role';
   private readonly NAME_KEY = 'user_name';
   private readonly EMAIL_KEY = 'user_email';
   private readonly PROFILE_IMAGE_KEY = 'profile_image';
   private token: string | null = null;
+  private userId: number | null = null;
   private role: string | null = null;
   private profileImage: string | null = null;
   private name: string | null = null;
@@ -129,6 +131,8 @@ export class Auth {
   constructor(private readonly http: HttpClient) {
     // Load persisted data on initialization
     this.token = sessionStorage.getItem(this.TOKEN_KEY);
+    const storedId = sessionStorage.getItem(this.ID_KEY);
+    this.userId = storedId ? Number(storedId) : null;
     this.role = sessionStorage.getItem(this.ROLE_KEY);
     this.name = sessionStorage.getItem(this.NAME_KEY);
     this.email = sessionStorage.getItem(this.EMAIL_KEY);
@@ -143,6 +147,7 @@ export class Auth {
           const { user, token } = response.data;
 
           this.token = token;
+          this.userId = user.id;
           this.role = user.role;
           this.name = user.name;
           this.email = user.email;
@@ -152,6 +157,7 @@ export class Auth {
 
           // Persist to sessionStorage
           sessionStorage.setItem(this.TOKEN_KEY, token);
+          sessionStorage.setItem(this.ID_KEY, String(user.id));
           sessionStorage.setItem(this.ROLE_KEY, user.role);
           sessionStorage.setItem(this.NAME_KEY, user.name);
           sessionStorage.setItem(this.EMAIL_KEY, user.email);
@@ -188,6 +194,7 @@ export class Auth {
 
           // Store in memory only - no localStorage
           this.token = token;
+          this.userId = user.id;
           this.role = user.role;
           this.name = user.name;
           this.email = user.email;
@@ -212,11 +219,13 @@ export class Auth {
   logout(): void {
     // Clear from memory and sessionStorage immediately
     this.token = null;
+    this.userId = null;
     this.role = null;
     this.profileImage = null;
     this.name = null;
     this.email = null;
     sessionStorage.removeItem(this.TOKEN_KEY);
+    sessionStorage.removeItem(this.ID_KEY);
     sessionStorage.removeItem(this.ROLE_KEY);
     sessionStorage.removeItem(this.NAME_KEY);
     sessionStorage.removeItem(this.EMAIL_KEY);
@@ -239,6 +248,14 @@ export class Auth {
 
   getToken(): string | null {
     return this.token;
+  }
+
+  getUserId(): number | null {
+    return this.userId;
+  }
+
+  getUserEmail(): string | null {
+    return this.email;
   }
 
   isAuthenticated(): boolean {
