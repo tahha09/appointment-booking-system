@@ -262,9 +262,9 @@
                   </svg>
                 </div>
                 <div class="min-w-0">
-                  <p class="font-medium text-gray-900">{{ latestPrescription.medication_name || 'Prescription' }}</p>
-                  <p class="text-sm text-gray-600 truncate">Issued by {{ latestPrescription.doctor_name || 'Unknown Doctor' }}</p>
-                  <p class="text-xs text-gray-500 mt-1">Prescribed on: {{ latestPrescription.prescribed_date | date:'mediumDate' }}</p>
+                  <p class="font-medium text-gray-900">{{ latestPrescription?.medication_name || 'Prescription' }}</p>
+                  <p class="text-sm text-gray-600 truncate">Issued by {{ latestPrescription?.doctor_name || 'Unknown Doctor' }}</p>
+                  <p class="text-xs text-gray-500 mt-1">Prescribed on: {{ latestPrescription?.prescribed_date | date:'mediumDate' }}</p>
                 </div>
               </div>
               <button (click)="viewPrescriptions()" 
