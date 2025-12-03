@@ -13,11 +13,11 @@ class MedicalHistoryController extends Controller
     public function index(Request $request)
     {
         try {
-            $patient = $request->user()->patient;
+        $patient = $request->user()->patient;
 
-            if (!$patient) {
+        if (!$patient) {
                 return $this->notFound('Patient profile not found');
-            }
+        }
 
             $query = $patient->medicalHistory()
                 ->with(['doctor.user', 'doctor.specialization'])
