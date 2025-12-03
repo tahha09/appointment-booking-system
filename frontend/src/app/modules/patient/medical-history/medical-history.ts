@@ -10,16 +10,16 @@ interface MedicalHistoryRecord {
   treatment: string;
   notes?: string;
   visit_date: string;
-  doctor: {
+  doctor?: {
     id: number;
-    user: {
+    user?: {
       name: string;
       email: string;
-    };
+    } | null;
     specialization?: {
       name: string;
-    };
-  };
+    } | null;
+  } | null;
 }
 
 @Component({

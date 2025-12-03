@@ -13,16 +13,16 @@ interface Prescription {
   notes?: string;
   prescribed_date: string;
   status: 'active' | 'completed' | 'cancelled';
-  doctor: {
+  doctor?: {
     id: number;
-    user: {
+    user?: {
       name: string;
       email: string;
-    };
+    } | null;
     specialization?: {
       name: string;
-    };
-  };
+    } | null;
+  } | null;
   appointment?: {
     id: number;
     appointment_date: string;

@@ -14,7 +14,7 @@ interface Patient {
   allergies: string;
   chronic_conditions: string;
   is_blocked: boolean;
-  user: {
+  user?: {
     id: number;
     name: string;
     email: string;
@@ -22,7 +22,7 @@ interface Patient {
     date_of_birth: string;
     address: string;
     profile_image: string | null;
-  };
+  } | null;
 }
 
 interface Pagination {
