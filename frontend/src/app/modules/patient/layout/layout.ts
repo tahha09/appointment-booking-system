@@ -42,7 +42,7 @@ export class Layout {
 
   // get user avatar
   get userAvatar(): string {
-    return this.auth.getProfileImage() || 'assets/user-placeholder.png';
+    return this.auth.getProfileImage() || 'assets/default-avatar.png';
   }
 
   // get the first character of the name
