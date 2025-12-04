@@ -36,7 +36,7 @@ export class Home implements OnInit {
   private fetchTopDoctors(): void {
     this.loadingTopDoctors = true;
     this.errorTopDoctors = '';
-    this.doctorService.getTopDoctors(5).subscribe({
+    this.doctorService.getTopDoctors(3).subscribe({
       next: (response: DoctorResponse) => {
         console.log('API Response:', response);
         if (response.success && response.data) {
