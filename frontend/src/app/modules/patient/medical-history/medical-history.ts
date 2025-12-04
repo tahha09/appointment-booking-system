@@ -1,7 +1,9 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { PatientService } from '../../../core/services/patient.service';
+import { MedicalAiService } from '../../../core/services/medical-ai';
 
 interface MedicalHistoryRecord {
   id: number;
@@ -26,7 +28,7 @@ interface MedicalHistoryRecord {
 @Component({
   selector: 'app-medical-history',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './medical-history.html',
   styleUrl: './medical-history.scss'
 })
@@ -50,8 +52,18 @@ export class MedicalHistory implements OnInit {
   // View mode
   viewMode: 'grid' | 'list' = 'grid';
 
+  // Tab navigation
+  activeTab: 'records' | 'chat' = 'records';
+
+  // Chat history
+  chatMessages: any[] = [];
+  chatStats: any = {};
+  chatLoading = false;
+  chatError: string | null = null;
+
   constructor(
     private patientService: PatientService,
+    private medicalAiService: MedicalAiService,
     private cdr: ChangeDetectorRef
   ) { }
 
@@ -218,5 +230,75 @@ export class MedicalHistory implements OnInit {
     }
     const years = Math.floor(diffDays / 365);
     return `${years} ${years === 1 ? 'year' : 'years'} ago`;
+  }
+
+  // Tab switching
+  switchTab(tab: 'records' | 'chat'): void {
+    this.activeTab = tab;
+
+    if (tab === 'chat' && this.chatMessages.length === 0 && !this.chatError) {
+      this.loadChatHistory();
+    }
+
+    this.cdr.detectChanges();
+  }
+
+  // Chat history methods
+  loadChatHistory(): void {
+    this.chatLoading = true;
+    this.chatError = null;
+
+    this.medicalAiService.getChatHistory().subscribe({
+      next: (response) => {
+        this.chatLoading = false;
+        if (response.success) {
+          this.chatMessages = response.messages || [];
+          this.chatStats = response.stats || {};
+        } else {
+          this.chatError = 'Failed to load chat history';
+        }
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        this.chatLoading = false;
+        this.chatError = error?.error?.message || 'Failed to load chat history';
+        console.error('Chat history error:', error);
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  refreshChatHistory(): void {
+    this.loadChatHistory();
+  }
+
+  formatChatTime(timestamp: string): string {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffHours < 1) {
+      return 'Just now';
+    } else if (diffHours < 24) {
+      return `${diffHours}h ago`;
+    } else if (diffDays < 7) {
+      return `${diffDays}d ago`;
+    } else {
+      return date.toLocaleDateString();
+    }
+  }
+
+  formatChatMessage(content: string): string {
+    if (!content) return '';
+
+    // Basic HTML sanitization and formatting
+    return content
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold text
+      .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italic text
+      .replace(/\n/g, '<br>') // Line breaks
+      .replace(/•/g, '<span class="bullet">•</span>'); // Bullets
   }
 }

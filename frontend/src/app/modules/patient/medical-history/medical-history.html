@@ -10,7 +10,7 @@
         </h1>
         <p class="page-subtitle">View your complete medical records and past consultations</p>
       </div>
-      <div class="view-toggle">
+      <div class="view-toggle" *ngIf="activeTab === 'records'">
         <button (click)="toggleViewMode()" class="toggle-btn" [class.active]="viewMode === 'grid'" title="Grid View"
           aria-label="Grid View">
           <i class="fas fa-th"></i>
@@ -20,6 +20,21 @@
           <i class="fas fa-list"></i>
         </button>
       </div>
+    </div>
+  </section>
+
+  <!-- Tab Navigation -->
+  <section class="tab-navigation">
+    <div class="tab-container">
+      <button (click)="switchTab('records')" class="tab-btn" [class.active]="activeTab === 'records'">
+        <i class="fas fa-file-medical-alt"></i>
+        Medical Records
+      </button>
+      <button (click)="switchTab('chat')" class="tab-btn" [class.active]="activeTab === 'chat'">
+        <i class="fas fa-robot"></i>
+        AI Chat History
+        <span *ngIf="chatStats?.total_messages > 0" class="tab-badge">{{ chatStats.total_messages }}</span>
+      </button>
     </div>
   </section>
 
@@ -339,4 +354,102 @@
       </div>
     </div>
   </div>
+
+  <!-- AI Chat History Section -->
+  <section *ngIf="activeTab === 'chat'" class="chat-history-section">
+    <div class="chat-history-header">
+      <div class="chat-stats">
+        <div class="stat-item">
+          <div class="stat-number">{{ chatStats?.total_messages || 0 }}</div>
+          <div class="stat-label">Total Messages</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">{{ chatStats?.user_messages || 0 }}</div>
+          <div class="stat-label">Your Questions</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">{{ chatStats?.bot_messages || 0 }}</div>
+          <div class="stat-label">AI Responses</div>
+        </div>
+      </div>
+
+      <div class="chat-actions">
+        <button (click)="refreshChatHistory()" class="refresh-btn" [disabled]="chatLoading">
+          <i class="fas fa-sync-alt" [class.fa-spin]="chatLoading"></i>
+          Refresh
+        </button>
+        <button routerLink="/medical-assistant" class="continue-chat-btn">
+          <i class="fas fa-robot"></i>
+          Continue Chat
+        </button>
+      </div>
+    </div>
+
+    <!-- Chat History Loading -->
+    <div *ngIf="chatLoading" class="chat-loading">
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Loading your chat history...</p>
+      </div>
+    </div>
+
+    <!-- Chat History Error -->
+    <div *ngIf="chatError && !chatLoading" class="chat-error">
+      <div class="error-card">
+        <div class="error-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3>Unable to Load Chat History</h3>
+        <p>{{ chatError }}</p>
+        <button (click)="refreshChatHistory()" class="retry-btn">
+          <i class="fas fa-redo"></i> Try Again
+        </button>
+      </div>
+    </div>
+
+    <!-- Chat Messages -->
+    <div *ngIf="!chatLoading && !chatError" class="chat-messages">
+      <div *ngFor="let message of chatMessages; let i = index" class="chat-message-item"
+           [ngClass]="{'user-message': message.is_user, 'bot-message': !message.is_user}">
+
+        <div class="message-avatar">
+          <div class="avatar-circle" [ngClass]="{'user-avatar': message.is_user, 'bot-avatar': !message.is_user}">
+            <i *ngIf="message.is_user" class="fas fa-user"></i>
+            <i *ngIf="!message.is_user" class="fas fa-robot"></i>
+          </div>
+        </div>
+
+        <div class="message-content">
+          <div class="message-header">
+            <span class="message-author">{{ message.is_user ? 'You' : 'Medical Assistant' }}</span>
+            <span class="message-time">{{ formatChatTime(message.timestamp) }}</span>
+          </div>
+          <div class="message-text" [innerHTML]="formatChatMessage(message.content)"></div>
+
+          <!-- Suggested Actions (if available) -->
+          <div *ngIf="message.suggested_actions?.length > 0" class="message-actions">
+            <div class="actions-label">Suggested Actions:</div>
+            <div class="actions-list">
+              <span *ngFor="let action of message.suggested_actions" class="action-tag">
+                {{ action }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty Chat State -->
+      <div *ngIf="chatMessages.length === 0" class="empty-chat">
+        <div class="empty-icon">
+          <i class="fas fa-robot"></i>
+        </div>
+        <h3>No Chat History Found</h3>
+        <p>You haven't chatted with our Medical Assistant yet. Start a conversation to get personalized medical guidance!</p>
+        <button routerLink="/medical-assistant" class="start-chat-btn">
+          <i class="fas fa-comments"></i>
+          Start Chat
+        </button>
+      </div>
+    </div>
+  </section>
 </main>

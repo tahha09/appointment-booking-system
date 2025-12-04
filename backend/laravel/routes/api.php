@@ -20,7 +20,7 @@ use App\Http\Controllers\AI\RecommendationController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Patient\SpecializationController;
 use App\Http\Controllers\ContactController;
-
+use App\Http\Controllers\AI\MedicalAssistantController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -31,7 +31,6 @@ use App\Http\Controllers\ContactController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::post('/send-email', [ContactController::class, 'sendEmail']);
 // Public Routes
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
@@ -45,6 +44,20 @@ Route::get('/specializations', [SpecializationController::class, 'index']);
 Route::get('/specializations/filter-list', [SpecializationController::class, 'filterList']);
 Route::get('/specializations/{id}', [SpecializationController::class, 'show']);
 
+Route::post('/send-email', [ContactController::class, 'sendEmail']);
+
+//airoutes
+// Add these routes to your api.php file
+Route::prefix('ai')->group(function () {
+    Route::get('/examples', [MedicalAssistantController::class, 'testExamples']);
+    Route::post('/ask', [MedicalAssistantController::class, 'ask']);
+    Route::post('/history', [MedicalAssistantController::class, 'getHistory']);
+
+    // Optional: Add authentication middleware for logged-in users
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/ask/secure', [MedicalAssistantController::class, 'ask']);
+    });
+});
 // Test route
 Route::get('/test', function () {
     return response()->json([
@@ -155,7 +168,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('admin')->group(function () {
         // Stats/Dashboard
         Route::get('/stats', [UserController::class, 'stats']);
-        
+
         // User Management
         Route::get('/users', [UserController::class, 'index']);
         Route::get('/users/{id}', [UserController::class, 'show']);
