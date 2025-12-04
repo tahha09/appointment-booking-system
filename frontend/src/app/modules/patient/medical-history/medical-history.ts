@@ -15,6 +15,7 @@ interface MedicalHistoryRecord {
     user?: {
       name: string;
       email: string;
+      profile_image?: string;
     } | null;
     specialization?: {
       name: string;
@@ -34,18 +35,18 @@ export class MedicalHistory implements OnInit {
   filteredHistory: MedicalHistoryRecord[] = [];
   loading = true;
   error: string | null = null;
-  
+
   // Search and filter
   searchQuery: string = '';
   dateFrom: string = '';
   dateTo: string = '';
   selectedDoctor: string = '';
   doctors: string[] = [];
-  
+
   // View details
   selectedRecord: MedicalHistoryRecord | null = null;
   showDetailsModal = false;
-  
+
   // View mode
   viewMode: 'grid' | 'list' = 'grid';
 
@@ -57,7 +58,7 @@ export class MedicalHistory implements OnInit {
   ngOnInit(): void {
     // Check if we have filters applied
     const hasFilters = this.searchQuery || this.dateFrom || this.dateTo || this.selectedDoctor;
-    
+
     // If no filters, try to use cache (service will handle it)
     // If filters exist, fetch from API
     this.fetchMedicalHistory(!hasFilters);
@@ -68,15 +69,15 @@ export class MedicalHistory implements OnInit {
     if (this.searchQuery) params.search = this.searchQuery;
     if (this.dateFrom) params.date_from = this.dateFrom;
     if (this.dateTo) params.date_to = this.dateTo;
-    
+
     const hasFilters = Object.keys(params).length > 0;
-    
+
     // Only show loading if we're fetching from API (not using cache)
     if (!useCache || hasFilters) {
       this.loading = true;
     }
     this.error = null;
-    
+
     // forceRefresh = true only if we have filters (need fresh data)
     this.patientService.getMedicalHistory(params, hasFilters).subscribe({
       next: (response: any) => {
@@ -122,12 +123,12 @@ export class MedicalHistory implements OnInit {
 
     // Date filters
     if (this.dateFrom) {
-      filtered = filtered.filter(record => 
+      filtered = filtered.filter(record =>
         new Date(record.visit_date) >= new Date(this.dateFrom)
       );
     }
     if (this.dateTo) {
-      filtered = filtered.filter(record => 
+      filtered = filtered.filter(record =>
         new Date(record.visit_date) <= new Date(this.dateTo)
       );
     }
@@ -207,7 +208,7 @@ export class MedicalHistory implements OnInit {
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - visit.getTime());
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return 'Yesterday';
     if (diffDays < 30) return `${diffDays} days ago`;

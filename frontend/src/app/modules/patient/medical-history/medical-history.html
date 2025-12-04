@@ -11,19 +11,11 @@
         <p class="page-subtitle">View your complete medical records and past consultations</p>
       </div>
       <div class="view-toggle">
-        <button 
-          (click)="toggleViewMode()" 
-          class="toggle-btn"
-          [class.active]="viewMode === 'grid'"
-          title="Grid View"
+        <button (click)="toggleViewMode()" class="toggle-btn" [class.active]="viewMode === 'grid'" title="Grid View"
           aria-label="Grid View">
           <i class="fas fa-th"></i>
         </button>
-        <button 
-          (click)="toggleViewMode()" 
-          class="toggle-btn"
-          [class.active]="viewMode === 'list'"
-          title="List View"
+        <button (click)="toggleViewMode()" class="toggle-btn" [class.active]="viewMode === 'list'" title="List View"
           aria-label="List View">
           <i class="fas fa-list"></i>
         </button>
@@ -38,10 +30,7 @@
         <i class="fas fa-filter"></i>
         Search & Filters
       </h3>
-      <button 
-        *ngIf="searchQuery || dateFrom || dateTo || selectedDoctor" 
-        (click)="clearFilters()" 
-        class="clear-all-btn"
+      <button *ngIf="searchQuery || dateFrom || dateTo || selectedDoctor" (click)="clearFilters()" class="clear-all-btn"
         title="Clear all filters">
         <i class="fas fa-times-circle"></i>
         Clear All
@@ -50,12 +39,8 @@
 
     <div class="search-bar">
       <i class="fas fa-search"></i>
-      <input 
-        type="text" 
-        [(ngModel)]="searchQuery"
-        (input)="onSearch()"
-        placeholder="Search by condition, diagnosis, treatment, or notes..." 
-        class="search-input">
+      <input type="text" [(ngModel)]="searchQuery" (input)="onSearch()"
+        placeholder="Search by condition, diagnosis, treatment, or notes..." class="search-input">
     </div>
 
     <div class="filter-controls">
@@ -65,16 +50,8 @@
           From Date
         </label>
         <div class="input-wrapper">
-          <input 
-            type="date" 
-            [(ngModel)]="dateFrom"
-            (change)="onFilterChange()"
-            class="filter-input">
-          <button 
-            *ngIf="dateFrom" 
-            (click)="dateFrom = ''; onFilterChange()" 
-            class="clear-field-btn"
-            title="Clear date">
+          <input type="date" [(ngModel)]="dateFrom" (change)="onFilterChange()" class="filter-input">
+          <button *ngIf="dateFrom" (click)="dateFrom = ''; onFilterChange()" class="clear-field-btn" title="Clear date">
             <i class="fas fa-times"></i>
           </button>
         </div>
@@ -86,16 +63,8 @@
           To Date
         </label>
         <div class="input-wrapper">
-          <input 
-            type="date" 
-            [(ngModel)]="dateTo"
-            (change)="onFilterChange()"
-            class="filter-input">
-          <button 
-            *ngIf="dateTo" 
-            (click)="dateTo = ''; onFilterChange()" 
-            class="clear-field-btn"
-            title="Clear date">
+          <input type="date" [(ngModel)]="dateTo" (change)="onFilterChange()" class="filter-input">
+          <button *ngIf="dateTo" (click)="dateTo = ''; onFilterChange()" class="clear-field-btn" title="Clear date">
             <i class="fas fa-times"></i>
           </button>
         </div>
@@ -107,17 +76,11 @@
           Doctor
         </label>
         <div class="input-wrapper">
-          <select 
-            [(ngModel)]="selectedDoctor"
-            (change)="onFilterChange()"
-            class="filter-select">
+          <select [(ngModel)]="selectedDoctor" (change)="onFilterChange()" class="filter-select">
             <option value="">All Doctors</option>
             <option *ngFor="let doctor of doctors" [value]="doctor">{{ doctor }}</option>
           </select>
-          <button 
-            *ngIf="selectedDoctor" 
-            (click)="selectedDoctor = ''; onFilterChange()" 
-            class="clear-field-btn"
+          <button *ngIf="selectedDoctor" (click)="selectedDoctor = ''; onFilterChange()" class="clear-field-btn"
             title="Clear doctor filter">
             <i class="fas fa-times"></i>
           </button>
@@ -169,10 +132,12 @@
           <i class="fas fa-file-medical-alt"></i>
           {{ record.condition }}
         </h3>
-        
+
         <div class="doctor-info">
           <div class="doctor-avatar">
-            <i class="fas fa-user-md"></i>
+            <img *ngIf="record.doctor?.user?.profile_image" [src]="record.doctor?.user?.profile_image"
+              [alt]="'Dr. ' + record.doctor?.user?.name" class="avatar-image">
+            <i *ngIf="!record.doctor?.user?.profile_image" class="fas fa-user-md"></i>
           </div>
           <div>
             <span class="doctor-name">Dr. {{ record.doctor?.user?.name }}</span>
@@ -217,7 +182,7 @@
         <div class="date-day">{{ formatDate(record.visit_date).split(',')[0] }}</div>
         <div class="date-month">{{ formatDate(record.visit_date).split(',')[1]?.trim() }}</div>
       </div>
-      
+
       <div class="list-content">
         <div class="list-header">
           <h3>{{ record.condition }}</h3>
@@ -251,17 +216,14 @@
     <p *ngIf="!searchQuery && !dateFrom && !dateTo && !selectedDoctor">
       You don't have any medical records yet. Your medical history will appear here after your appointments.
     </p>
-    <button *ngIf="searchQuery || dateFrom || dateTo || selectedDoctor" 
-            (click)="clearFilters()" 
-            class="clear-filters-btn">
+    <button *ngIf="searchQuery || dateFrom || dateTo || selectedDoctor" (click)="clearFilters()"
+      class="clear-filters-btn">
       <i class="fas fa-redo"></i> Clear Filters
     </button>
   </section>
 
   <!-- Details Modal -->
-  <div *ngIf="showDetailsModal && selectedRecord" 
-       class="modal-overlay" 
-       (click)="closeDetailsModal()">
+  <div *ngIf="showDetailsModal && selectedRecord" class="modal-overlay" (click)="closeDetailsModal()">
     <div class="modal-content" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div class="modal-header-content">
