@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { Auth } from '../../../core/services/auth'
 import { Appointment } from '../../../core/services/appointment';
@@ -12,7 +12,11 @@ import { PatientService } from '../services/patient.service'
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
-export class Dashboard implements OnInit { 
+export class Dashboard implements OnInit {
+  // Scroll to top properties
+  showScrollTop = false;
+  scrollProgress = 0;
+
   constructor(
     private auth: Auth,
     private router: Router,
@@ -20,8 +24,8 @@ export class Dashboard implements OnInit {
     private patientService: PatientService,
     private cdr: ChangeDetectorRef
 
-  ){}
-  
+  ) { }
+
 
   // Current date for welcome section
   currentDate = new Date();
@@ -55,31 +59,31 @@ export class Dashboard implements OnInit {
     this.appointmentService.getAppointments().subscribe({
       next: (response: any) => {
         console.log('Dashboard appointments data:', response);
-        
+
         if (response.success && response.data) {
           const allAppointments = response.data.appointments || [];
-          
+
           //  (confirmed + future date)
           const today = new Date();
           today.setHours(0, 0, 0, 0);
-          
+
           this.upcomingAppointments = allAppointments.filter((appointment: any) => {
             const appointmentDate = new Date(appointment.appointment_date);
             return appointment.status === 'confirmed' && appointmentDate >= today;
           });
-          
-          
+
+
           this.totalAppointmentsCount = allAppointments.length;
           this.upcomingAppointmentsCount = this.upcomingAppointments.length;
-          
-          
+
+
           this.upcomingAppointments = this.upcomingAppointments
-            .sort((a: any, b: any) => 
+            .sort((a: any, b: any) =>
               new Date(a.appointment_date).getTime() - new Date(b.appointment_date).getTime()
             )
             .slice(0, 2); // take first 2 appointments
         }
-        
+
         this.loading = false;
 
         this.cdr.detectChanges();
@@ -95,52 +99,52 @@ export class Dashboard implements OnInit {
   }
 
   loadMedicalHistoryData(): void {
-  this.patientService.getMedicalHistory().subscribe({
-    next: (response: any) => {
-      console.log("Medical histories:", response);
-      
-      if (response.success && response.data) {
-        this.totalMedicalHistoriesCount = response.data.length;
+    this.patientService.getMedicalHistory().subscribe({
+      next: (response: any) => {
+        console.log("Medical histories:", response);
 
-        // latest two
-        this.recentMedicalHistories = response.data
-          .sort((a: any, b: any) => new Date(b.visit_date).getTime() - new Date(a.visit_date).getTime())
-          .slice(0, 2);
+        if (response.success && response.data) {
+          this.totalMedicalHistoriesCount = response.data.length;
+
+          // latest two
+          this.recentMedicalHistories = response.data
+            .sort((a: any, b: any) => new Date(b.visit_date).getTime() - new Date(a.visit_date).getTime())
+            .slice(0, 2);
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.cdr.detectChanges();
+        console.error("Error loading medical histories:", err);
       }
-      this.cdr.detectChanges();
-    },
-    error: (err) => {
-      this.cdr.detectChanges();
-      console.error("Error loading medical histories:", err);
-    }
-  });
-}
+    });
+  }
 
-loadPrescriptionsData(): void {
-  this.patientService.getPrescriptions().subscribe({
-    next: (response: any) => {
-      console.log("Prescriptions:", response);
+  loadPrescriptionsData(): void {
+    this.patientService.getPrescriptions().subscribe({
+      next: (response: any) => {
+        console.log("Prescriptions:", response);
 
-      if (response.success && response.data) {
-        const all = response.data;
+        if (response.success && response.data) {
+          const all = response.data;
 
-        // total count
-        this.totalPrescriptionsCount = all.length;
+          // total count
+          this.totalPrescriptionsCount = all.length;
 
-        // latest prescription
-        this.latestPrescription = all
-          .sort((a: any, b: any) => new Date(b.prescribed_date).getTime() - new Date(a.prescribed_date).getTime())
+          // latest prescription
+          this.latestPrescription = all
+            .sort((a: any, b: any) => new Date(b.prescribed_date).getTime() - new Date(a.prescribed_date).getTime())
           [0]; // Take only the newest one
-      }
+        }
 
-      this.cdr.detectChanges();
-    },
-    error: (err) => {
-      console.error("Error loading prescriptions:", err);
-      this.cdr.detectChanges();
-    }
-  });
-}
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error("Error loading prescriptions:", err);
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
   /* viewMedicalHistory(historyId: number): void {
     this.router.navigate(['/patient/medical-history', historyId]);
@@ -148,12 +152,12 @@ loadPrescriptionsData(): void {
   } */
 
   viewDetails(id: number): void {
-  this.router.navigate(['/patient/appointment-details', id]);
-  
+    this.router.navigate(['/patient/appointment-details', id]);
+
   }
 
   goToMyAppointments(): void {
-  this.router.navigate(['/patient/my-appointments']);
+    this.router.navigate(['/patient/my-appointments']);
   }
 
   // Navigation methods
@@ -187,7 +191,7 @@ loadPrescriptionsData(): void {
     const date = new Date(dateString);
     const [hours, minutes] = timeString.split(':');
     date.setHours(parseInt(hours), parseInt(minutes));
-    
+
     return date.toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
@@ -196,14 +200,49 @@ loadPrescriptionsData(): void {
   }
 
   getDoctorName(appointment: any): string {
-    return appointment.doctor?.user?.name || 
-           appointment.doctor?.name || 
-           'Unknown Doctor';
+    return appointment.doctor?.user?.name ||
+      appointment.doctor?.name ||
+      'Unknown Doctor';
   }
 
   getSpecialization(appointment: any): string {
-    return appointment.doctor?.specialization?.name || 
-           appointment.doctor?.specialization || 
-           'General';
+    return appointment.doctor?.specialization?.name ||
+      appointment.doctor?.specialization ||
+      'General';
+  }
+
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    const doc = document.documentElement;
+    const scrollTop = window.scrollY || doc.scrollTop || 0;
+    const height = doc.scrollHeight - doc.clientHeight;
+    this.showScrollTop = height > 0 && scrollTop > 80;
+    this.scrollProgress = height > 0 ? Math.min(100, Math.round((scrollTop / height) * 100)) : 0;
+  }
+
+  scrollToTop(): void {
+    const doc = document.documentElement;
+    const start = window.scrollY || doc.scrollTop || 0;
+    const duration = 600;
+    const startTime = performance.now();
+
+    const easeInOutCubic = (t: number): number => {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    };
+
+    const scroll = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = easeInOutCubic(progress);
+      const nextScroll = start * (1 - eased);
+
+      window.scrollTo(0, nextScroll);
+
+      if (progress < 1) {
+        requestAnimationFrame(scroll);
+      }
+    };
+
+    requestAnimationFrame(scroll);
   }
 }

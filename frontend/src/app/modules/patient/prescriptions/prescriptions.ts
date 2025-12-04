@@ -18,6 +18,7 @@ interface Prescription {
     user?: {
       name: string;
       email: string;
+      profile_image?: string;
     } | null;
     specialization?: {
       name: string;
