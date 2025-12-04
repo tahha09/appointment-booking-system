@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PatientService } from '../services/patient.service';
+import { PatientService } from '../../../core/services/patient.service';
 
 interface MedicalHistoryRecord {
   id: number;
