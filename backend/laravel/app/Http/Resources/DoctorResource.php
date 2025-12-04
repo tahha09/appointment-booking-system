@@ -32,7 +32,7 @@ class DoctorResource extends JsonResource
                     'name' => $this->user->name,
                     'email' => $this->user->email,
                     'phone' => $this->user->phone,
-                    'profile_image' => $this->user->profile_image,
+                    'profile_image' => $this->resolveProfileImage($this->user->profile_image),
                     'date_of_birth' => $this->user->date_of_birth,
                     'address' => $this->user->address,
                 ];
@@ -45,5 +45,23 @@ class DoctorResource extends JsonResource
                 ];
             }),
         ];
+    }
+
+    private function resolveProfileImage(?string $path): ?string
+    {
+        if (!$path) {
+            return null;
+        }
+
+        if (preg_match('/^https?:\/\//', $path)) {
+            return $path;
+        }
+
+        $normalizedPath = ltrim($path, '/');
+        if (str_starts_with($normalizedPath, 'storage/')) {
+            return url($normalizedPath);
+        }
+
+        return url('storage/' . $normalizedPath);
     }
 }
