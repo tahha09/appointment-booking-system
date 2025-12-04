@@ -3,7 +3,7 @@ import { Component, inject, OnInit, ChangeDetectorRef, HostListener } from '@ang
 import { Router } from '@angular/router';
 import { Auth } from '../../../core/services/auth'
 import { Appointment } from '../../../core/services/appointment';
-import { PatientService } from '../services/patient.service'
+import { PatientService } from '../../../core/services/patient.service'
 
 @Component({
   selector: 'app-dashboard',

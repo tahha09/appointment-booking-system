@@ -20,7 +20,7 @@ class PrescriptionController extends Controller
             }
 
             $query = $patient->prescriptions()
-                ->with(['doctor.user', 'doctor.specialization', 'appointment'])
+                ->with(['doctor.user', 'doctor.specialization'])
                 ->orderBy('prescribed_date', 'desc');
 
             // Filter by date range
@@ -32,7 +32,7 @@ class PrescriptionController extends Controller
                 $query->where('prescribed_date', '<=', $request->date_to);
             }
 
-            // Search by medication name, dosage, or instructions
+            // Search by medication name, dosage, frequency, or instructions
             if ($request->has('search') && $request->search) {
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
@@ -62,5 +62,4 @@ class PrescriptionController extends Controller
         }
     }
 }
-
 
