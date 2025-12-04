@@ -13,6 +13,7 @@ export class PatientService {
   // Cache storage
   private medicalHistoryCache: any[] | null = null;
   private prescriptionsCache: any[] | null = null;
+  private appointmentsCache: any[] | null = null;
 
   constructor(private http: HttpClient) { }
 
@@ -105,6 +106,50 @@ export class PatientService {
           // Cache the data if we fetched all records (no params)
           if (!hasParams && response.success) {
             this.prescriptionsCache = response.data;
+          }
+          observer.next(response);
+          observer.complete();
+        },
+        error: (err) => {
+          observer.error(err);
+        }
+      });
+    });
+  }
+
+  getAppointments(params?: any, forceRefresh: boolean = false): Observable<any> {
+    // If we have cached data and don't need to force refresh, return it
+    // We only use cache if there are no search params (fetching all data)
+    const hasParams = params && Object.keys(params).length > 0;
+
+    if (!hasParams && !forceRefresh && this.appointmentsCache) {
+      return new Observable(observer => {
+        observer.next({ success: true, data: this.appointmentsCache });
+        observer.complete();
+      });
+    }
+
+    let url = `${this.apiUrl}/appointments`;
+
+    if (params) {
+      const queryParams = new URLSearchParams();
+      Object.keys(params).forEach(key => {
+        if (params[key]) {
+          queryParams.append(key, params[key]);
+        }
+      });
+      const queryString = queryParams.toString();
+      if (queryString) {
+        url += `?${queryString}`;
+      }
+    }
+
+    return new Observable(observer => {
+      this.http.get(url, { headers: this.getAuthHeaders() }).subscribe({
+        next: (response: any) => {
+          // Cache the data if we fetched all records (no params)
+          if (!hasParams && response.success) {
+            this.appointmentsCache = response.data;
           }
           observer.next(response);
           observer.complete();

@@ -88,7 +88,7 @@ export class Prescriptions implements OnInit {
     this.error = null;
 
     // forceRefresh = true only if we have filters (need fresh data)
-    this.patientService.getPrescriptions(params, hasFilters).subscribe({
+    this.patientService.getPrescriptions(params, !useCache || hasFilters).subscribe({
       next: (response: any) => {
         this.prescriptions = Array.isArray(response.data) ? response.data : [];
         this.filteredPrescriptions = [...this.prescriptions];
