@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PatientService } from '../services/patient.service';
+import { PatientService } from '../../../core/services/patient.service';
 
 interface MedicalHistoryRecord {
   id: number;
@@ -79,7 +79,7 @@ export class MedicalHistory implements OnInit {
     this.error = null;
 
     // forceRefresh = true only if we have filters (need fresh data)
-    this.patientService.getMedicalHistory(params, hasFilters).subscribe({
+    this.patientService.getMedicalHistory(params, !useCache || hasFilters).subscribe({
       next: (response: any) => {
         // Backend uses ApiResponse trait which returns { success, message, data }
         this.medicalHistory = Array.isArray(response.data) ? response.data : [];
