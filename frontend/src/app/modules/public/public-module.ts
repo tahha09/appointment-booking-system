@@ -10,6 +10,7 @@ import { Contact } from './contact/contact';
 import { DoctorListing } from './doctor-listing/doctor-listing';
 import { DoctorDetails } from './doctor-details/doctor-details';
 import { Specializations } from './specializations/specializations';
+import { MedicalAssistant } from './medical-assistant/medical-assistant';
 
 
 const routes: Routes = [
@@ -19,7 +20,8 @@ const routes: Routes = [
   { path: 'specialties', component: Specializations},
   { path: 'about-us', component: AboutUs},
   { path: 'contact', component: Contact},
-  {path : 'doctors/:id',component:DoctorDetails}
+  {path : 'doctors/:id',component:DoctorDetails},
+  {path : 'medical-assistant',component:MedicalAssistant}
 
   // ... other public routes
 ];
