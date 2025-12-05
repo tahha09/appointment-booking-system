@@ -1,0 +1,293 @@
+<app-header></app-header>
+<div class="min-h-screen bg-gradient-to-br from-[#031716] via-[#032f30] to-[#0a7075] px-4 py-10 text-white">
+  <div class="mx-auto max-w-5xl space-y-6">
+    <div class="flex items-center gap-2 text-sm text-[#cfe9ec]">
+      <a routerLink="/" class="rounded-full border border-white/20 px-3 py-1 text-xs uppercase tracking-[0.2em] transition hover:bg-white/10">Back Home</a>
+      <span>→</span>
+      <p>Secure Payment</p>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
+
+
+      <aside class="rounded-3xl border border-white/20 bg-white/5 p-6 backdrop-blur-xl">
+        <div class="rounded-2xl border border-white/20 bg-white/10 p-5">
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#6ba3be]">Selected doctor</p>
+          <h3 class="mt-3 text-2xl font-bold">{{ doctorInfo.name }}</h3>
+          <p class="text-sm text-[#cfe9ec]">{{ doctorInfo.department }}</p>
+
+          <div class="mt-5 grid gap-3 text-sm">
+            <div class="flex items-center justify-between rounded-2xl bg-white/5 px-4 py-3">
+              <span class="text-[#cfe9ec]">Consultation fee</span>
+              <span class="font-semibold">{{ doctorInfo.fee | number: '1.2-2' }} {{ currencySymbol }}</span>
+            </div>
+            <div class="flex items-center justify-between rounded-2xl bg-white/5 px-4 py-3">
+              <span class="text-[#cfe9ec]">Minimum deposit</span>
+              <span class="font-semibold">{{ minimumDeposit | number: '1.2-2' }} {{ currencySymbol }}</span>
+            </div>
+          </div>
+
+          <p class="mt-4 text-xs text-[#cfe9ec]">
+            Deposits are recorded instantly and sent to the doctor. Any balance will be due at the clinic or through your preferred method.
+          </p>
+        </div>
+
+        <div class="mt-6 space-y-3 rounded-2xl border border-white/20 bg-white/5 p-5 text-sm">
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#6ba3be]">Need help?</p>
+          <p class="text-[#cfe9ec]">Our care coordinators are available 24/7 for payment assistance.</p>
+          <a href="tel:+201154481315" class="inline-flex items-center gap-2 text-[#0c969c] transition hover:text-white">
+            <span class="h-2 w-2 rounded-full bg-[#0c969c]"></span>
+            +20 115 448 1315
+          </a>
+        </div>
+      </aside>
+
+      <section class="rounded-3xl bg-white/95 p-6 shadow-2xl ring-1 ring-white/40">
+        <div class="space-y-2">
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#0a7075]">Complete Booking</p>
+          <h1 class="text-3xl font-bold text-[#031716]">Secure payment</h1>
+          <p class="text-sm text-[#274d60]">
+            Pay at least 50% of the consultation fee now to lock in the appointment. The remaining balance can be settled later.
+          </p>
+        </div>
+
+        <div *ngIf="successMessage" class="mt-4 rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-700">
+          {{ successMessage }}
+        </div>
+        <div *ngIf="errorMessage" class="mt-4 rounded-2xl bg-red-50 p-4 text-sm text-red-600">
+          {{ errorMessage }}
+        </div>
+
+        <form [formGroup]="paymentForm" (ngSubmit)="submitPayment()" class="mt-6 space-y-6">
+          <div class="grid gap-4 md:grid-cols-2">
+            <label class="flex flex-col gap-2 text-sm font-semibold text-[#032f30]">
+              Full name
+              <input
+                type="text"
+                class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none"
+                formControlName="patientName"
+                placeholder="Enter your name"
+              />
+              <span class="text-xs text-red-500" *ngIf="f['patientName'].touched && f['patientName'].invalid">Name is required.</span>
+            </label>
+
+            <label class="flex flex-col gap-2 text-sm font-semibold text-[#032f30]">
+              Email (optional)
+              <input
+                type="email"
+                class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none"
+                formControlName="patientEmail"
+                placeholder="name@email.com"
+              />
+              <span class="text-xs text-red-500" *ngIf="f['patientEmail'].touched && f['patientEmail'].invalid">Enter a valid email.</span>
+            </label>
+          </div>
+
+          <label class="flex flex-col gap-2 text-sm font-semibold text-[#032f30]">
+            Amount to pay ({{ currencySymbol }})
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none"
+              formControlName="amount"
+            />
+            <span class="text-xs text-[#0a7075]">
+              Minimum deposit: {{ minimumDeposit | number: '1.2-2' }} {{ currencySymbol }}
+            </span>
+            <span class="text-xs text-red-500" *ngIf="f['amount'].touched && f['amount'].invalid">
+              Please enter an amount greater than or equal to {{ minimumDeposit | number: '1.2-2' }}.
+            </span>
+          </label>
+
+          <div class="rounded-2xl border border-[#e0eff2] bg-[#f7fbfc] px-4 py-5 text-sm text-[#032f30]">
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#6ba3be]">Appointment details</p>
+            <div class="mt-4 grid gap-4 md:grid-cols-3">
+              <label class="flex flex-col gap-2 font-semibold">
+                Appointment date
+                <input
+                  type="date"
+                  formControlName="appointmentDate"
+                  [attr.min]="minAppointmentDate"
+                  class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none"
+                />
+                <span class="text-xs text-red-500" *ngIf="f['appointmentDate'].touched && f['appointmentDate'].invalid">
+                  Please select a valid date.
+                </span>
+              </label>
+              <label class="flex flex-col gap-2 font-semibold">
+                Start time
+                <input
+                  type="time"
+                  formControlName="startTime"
+                  class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none"
+                />
+                <span class="text-xs text-red-500" *ngIf="f['startTime'].touched && f['startTime'].invalid">
+                  Start time is required.
+                </span>
+              </label>
+              <label class="flex flex-col gap-2 font-semibold">
+                End time
+                <input
+                  type="time"
+                  formControlName="endTime"
+                  class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none"
+                />
+                <span class="text-xs text-red-500" *ngIf="f['endTime'].touched && f['endTime'].invalid">
+                  End time is required.
+                </span>
+              </label>
+            </div>
+            <label class="mt-4 flex flex-col gap-2 font-semibold text-sm text-[#032f30]">
+              Reason for visit
+              <textarea
+                rows="3"
+                formControlName="reason"
+                class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none"
+                placeholder="Describe the symptoms or reason for the appointment"
+              ></textarea>
+              <span class="text-xs text-red-500" *ngIf="f['reason'].touched && f['reason'].invalid">
+                Please describe the reason for the visit (minimum 5 characters).
+              </span>
+            </label>
+            <label class="mt-3 flex flex-col gap-2 font-semibold text-sm text-[#032f30]">
+              Additional notes (optional)
+              <textarea
+                rows="2"
+                formControlName="notes"
+                class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none"
+                placeholder="Share any extra information for the doctor"
+              ></textarea>
+            </label>
+          </div>
+
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#6ba3be]">Payment method</p>
+            <div class="mt-3 grid gap-3 md:grid-cols-2">
+              <button
+                type="button"
+                *ngFor="let method of paymentMethods"
+                (click)="paymentForm.get('paymentMethod')?.setValue(method.value)"
+                class="rounded-2xl border px-4 py-3 text-left transition focus:outline-none"
+                [ngClass]="{
+                  'border-[#0c969c] bg-[#0c969c]/10 text-[#031716] shadow-lg': selectedMethod === method.value,
+                  'border-[#e0eff2] text-[#274d60] hover:border-[#0c969c]/70': selectedMethod !== method.value
+                }"
+              >
+                <p class="text-sm font-semibold">{{ method.label }}</p>
+                <p class="text-xs text-[#6ba3be]">{{ method.description }}</p>
+              </button>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <ng-container [ngSwitch]="selectedMethod">
+              <div *ngSwitchCase="'credit_card'" class="grid gap-4 md:grid-cols-2">
+                <label class="flex flex-col gap-2 text-sm font-semibold text-[#032f30] md:col-span-2">
+                  Card number
+                  <input
+                    type="text"
+                    formControlName="cardNumber"
+                    maxlength="19"
+                    class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none"
+                    placeholder="1234 5678 9012 3456"
+                  />
+                  <span class="text-xs text-red-500" *ngIf="f['cardNumber'].touched && f['cardNumber'].invalid">Enter a valid card number.</span>
+                </label>
+                <label class="flex flex-col gap-2 text-sm font-semibold text-[#032f30]">
+                  Expiry date
+                  <input
+                    type="month"
+                    formControlName="cardExpiry"
+                    class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none"
+                  />
+                </label>
+                <label class="flex flex-col gap-2 text-sm font-semibold text-[#032f30]">
+                  CVC
+                  <input
+                    type="text"
+                    maxlength="4"
+                    formControlName="cardCvc"
+                    class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none"
+                  />
+                </label>
+              </div>
+
+              <div *ngSwitchCase="'online_wallet'" class="grid gap-4 md:grid-cols-2">
+                <label class="flex flex-col gap-2 text-sm font-semibold text-[#032f30]">
+                  Wallet provider
+                  <input
+                    type="text"
+                    formControlName="walletProvider"
+                    class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none"
+                    placeholder="PayPal, Apple Pay..."
+                  />
+                </label>
+                <label class="flex flex-col gap-2 text-sm font-semibold text-[#032f30]">
+                  Wallet email
+                  <input
+                    type="email"
+                    formControlName="walletEmail"
+                    class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none"
+                  />
+                </label>
+              </div>
+
+              <div *ngSwitchCase="'bank_transfer'" class="space-y-4">
+                <label class="flex flex-col gap-2 text-sm font-semibold text-[#032f30]">
+                  Account holder name
+                  <input
+                    type="text"
+                    formControlName="bankAccountName"
+                    class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none"
+                  />
+                </label>
+                <label class="flex flex-col gap-2 text-sm font-semibold text-[#032f30]">
+                  Account number / IBAN
+                  <input
+                    type="text"
+                    formControlName="bankAccountNumber"
+                    class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none"
+                  />
+                </label>
+                <label class="flex flex-col gap-2 text-sm font-semibold text-[#032f30]">
+                  Transfer reference
+                  <input
+                    type="text"
+                    formControlName="bankReference"
+                    class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none"
+                    placeholder="e.g. TRANS-12345"
+                  />
+                </label>
+              </div>
+
+              <div *ngSwitchCase="'cash'" class="space-y-3">
+                <p class="rounded-2xl bg-[#f1fbfc] px-4 py-3 text-sm text-[#032f30]">
+                  Pay the remaining balance in person. Leave a note with special instructions if needed.
+                </p>
+                <label class="flex flex-col gap-2 text-sm font-semibold text-[#032f30]">
+                  Instructions
+                  <textarea
+                    rows="3"
+                    formControlName="cashNotes"
+                    class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none"
+                  ></textarea>
+                </label>
+              </div>
+            </ng-container>
+          </div>
+
+          <button
+            type="submit"
+            [disabled]="submitting"
+            class="w-full rounded-full bg-[#0c969c] px-6 py-3 text-sm font-semibold text-[#031716] shadow-lg shadow-[#0c969c]/30 transition hover:-translate-y-0.5 hover:bg-[#6ba3be] disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {{ submitting ? 'Processing...' : 'Confirm payment' }}
+          </button>
+        </form>
+      </section>
+
+    </div>
+  </div>
+</div>
+<app-footer></app-footer>
