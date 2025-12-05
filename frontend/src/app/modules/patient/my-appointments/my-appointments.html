@@ -10,28 +10,17 @@
         </h1>
         <p class="page-subtitle">View and manage your scheduled appointments</p>
       </div>
-      <div class="view-toggle">
-        <button (click)="toggleViewMode()" class="toggle-btn" [class.active]="viewMode === 'grid'" title="Grid View"
-          aria-label="Grid View">
-          <i class="fas fa-th"></i>
-        </button>
-        <button (click)="toggleViewMode()" class="toggle-btn" [class.active]="viewMode === 'list'" title="List View"
-          aria-label="List View">
-          <i class="fas fa-list"></i>
-        </button>
-      </div>
     </div>
   </section>
 
   <!-- Search and Filter Section -->
-  <section class="filters-section">
+  <section class="filters-section" *ngIf="loading || error || appointments.length > 0 || hasActiveFilters">
     <div class="filters-header">
       <h3 class="filters-title">
         <i class="fas fa-filter"></i>
         Search & Filters
       </h3>
-      <button *ngIf="searchQuery || dateFrom || dateTo || selectedDoctor || selectedStatus !== 'all'"
-        (click)="clearFilters()" class="clear-all-btn" title="Clear all filters">
+      <button *ngIf="hasActiveFilters" (click)="clearFilters()" class="clear-all-btn" title="Clear all filters">
         <i class="fas fa-times-circle"></i>
         Clear All
       </button>
@@ -108,11 +97,7 @@
       </div>
     </div>
 
-    <div *ngIf="filteredAppointments.length !== appointments.length" class="filter-info">
-      <i class="fas fa-info-circle"></i>
-      Showing <strong>{{ filteredAppointments.length }}</strong> of <strong>{{ appointments.length }}</strong>
-      appointments
-    </div>
+
   </section>
 
   <!-- Loading State -->
@@ -137,124 +122,73 @@
     </div>
   </div>
 
-  <!-- Content - Grid View -->
-  <section *ngIf="!loading && !error && viewMode === 'grid'" class="grid-view">
-    <div *ngFor="let appointment of filteredAppointments" class="appointment-card"
+  <!-- Horizontal Card View -->
+  <section *ngIf="!loading && !error && appointments.length > 0" class="horizontal-card-view">
+    <div *ngFor="let appointment of appointments" class="appointment-card-horizontal"
       (click)="viewDetails(appointment)">
-      <div class="card-header">
-        <div class="date-badge">
-          <i class="fas fa-calendar-check"></i>
-          <span>{{ formatDate(appointment.appointment_date) }}</span>
+      <!-- Left: Date Box -->
+      <div class="card-date-box">
+        <i class="fas fa-calendar-check"></i>
+        <div class="date-month">{{ formatDate(appointment.appointment_date).split(' ')[0] }}</div>
+        <div class="date-day">{{ formatDate(appointment.appointment_date).split(' ')[1].replace(',', '') }}</div>
+        <div class="date-year">{{ formatDate(appointment.appointment_date).split(', ')[1] }}</div>
+      </div>
+
+      <!-- Right: Content -->
+      <div class="card-content-horizontal">
+        <div class="content-main">
+          <h3 class="appointment-reason">{{ appointment.reason }}</h3>
+
+          <div class="doctor-row">
+            <i class="fas fa-user-md"></i>
+            <span>Dr. {{ appointment.doctor?.user?.name }}<span *ngIf="appointment.doctor?.specialization?.name"> • {{
+                appointment.doctor?.specialization?.name }}</span></span>
+          </div>
+
+          <div class="details-row">
+            <span class="detail-item">
+              <i class="fas fa-clock"></i>
+              {{ formatTime(appointment.start_time) }} - {{ formatTime(appointment.end_time) }}
+            </span>
+          </div>
         </div>
-        <div class="header-badges">
+
+        <div class="content-badges">
           <span class="age-badge">{{ getRecordAge(appointment.appointment_date) }}</span>
           <span class="status-badge" [ngClass]="getStatusClass(appointment.status)">
             {{ getStatusLabel(appointment.status) }}
           </span>
+          <i class="fas fa-chevron-right chevron-icon"></i>
         </div>
-      </div>
-
-      <div class="card-body">
-        <div class="time-slot">
-          <i class="fas fa-clock"></i>
-          <span>{{ formatTime(appointment.start_time) }} - {{ formatTime(appointment.end_time) }}</span>
-        </div>
-
-        <div class="doctor-info">
-          <div class="doctor-avatar">
-            <img *ngIf="appointment.doctor?.user?.profile_image" [src]="appointment.doctor?.user?.profile_image"
-              [alt]="'Dr. ' + appointment.doctor?.user?.name" class="avatar-image">
-            <i *ngIf="!appointment.doctor?.user?.profile_image" class="fas fa-user-md"></i>
-          </div>
-          <div>
-            <span class="doctor-name">Dr. {{ appointment.doctor?.user?.name }}</span>
-            <span *ngIf="appointment.doctor?.specialization?.name" class="specialization">
-              <i class="fas fa-certificate"></i>
-              {{ appointment.doctor?.specialization?.name }}
-            </span>
-          </div>
-        </div>
-
-        <div class="appointment-reason">
-          <span class="reason-label">
-            <i class="fas fa-stethoscope"></i>
-            Reason
-          </span>
-          <p class="reason-text">{{ appointment.reason }}</p>
-        </div>
-      </div>
-
-      <div class="card-footer">
-        <button *ngIf="canCancel(appointment.status)" (click)="cancelAppointment(appointment.id, $event)"
-          class="cancel-btn">
-          <i class="fas fa-times-circle"></i> Cancel
-        </button>
-        <button class="view-details-btn">
-          <i class="fas fa-eye"></i> View Details
-        </button>
       </div>
     </div>
   </section>
 
-  <!-- Content - List View -->
-  <section *ngIf="!loading && !error && viewMode === 'list'" class="list-view">
-    <div *ngFor="let appointment of filteredAppointments" class="list-item" (click)="viewDetails(appointment)">
-      <div class="list-date">
-        <i class="fas fa-calendar-check date-icon"></i>
-        <div class="date-day">{{ formatDate(appointment.appointment_date).split(',')[0] }}</div>
-        <div class="date-month">{{ formatDate(appointment.appointment_date).split(',')[1]?.trim() }}</div>
-      </div>
+  <!-- Simplified Pagination -->
+  <section *ngIf="!loading && !error && totalItems > 8" class="pagination-section">
+    <button (click)="previousPage()" [disabled]="!hasPreviousPage" class="pagination-btn">
+      <i class="fas fa-chevron-left"></i> Previous
+    </button>
 
-      <div class="list-content">
-        <div class="list-header">
-          <div>
-            <h3>{{ appointment.reason }}</h3>
-            <div class="list-time">
-              <i class="fas fa-clock"></i>
-              {{ formatTime(appointment.start_time) }} - {{ formatTime(appointment.end_time) }}
-            </div>
-          </div>
-          <div class="list-badges">
-            <span class="list-age">{{ getRecordAge(appointment.appointment_date) }}</span>
-            <span class="list-status" [ngClass]="getStatusClass(appointment.status)">
-              {{ getStatusLabel(appointment.status) }}
-            </span>
-          </div>
-        </div>
-        <div class="list-doctor">
-          <i class="fas fa-user-md"></i>
-          Dr. {{ appointment.doctor?.user?.name }}
-          <span *ngIf="appointment.doctor?.specialization?.name" class="list-specialization">
-            • {{ appointment.doctor?.specialization?.name }}
-          </span>
-        </div>
-      </div>
-
-      <div class="list-actions">
-        <button *ngIf="canCancel(appointment.status)" (click)="cancelAppointment(appointment.id, $event)"
-          class="list-cancel-btn" title="Cancel appointment">
-          <i class="fas fa-times"></i>
-        </button>
-        <i class="fas fa-chevron-right"></i>
-      </div>
-    </div>
+    <button (click)="nextPage()" [disabled]="!hasNextPage" class="pagination-btn">
+      Next <i class="fas fa-chevron-right"></i>
+    </button>
   </section>
 
   <!-- Empty State -->
-  <section *ngIf="!loading && !error && filteredAppointments.length === 0" class="empty-state">
+  <section *ngIf="!loading && !error && appointments.length === 0" class="empty-state">
     <div class="empty-icon">
       <i class="fas fa-calendar-times"></i>
     </div>
-    <h3>{{ searchQuery || dateFrom || dateTo || selectedDoctor || selectedStatus !== 'all' ? 'No appointments found' :
+    <h3>{{ hasActiveFilters ? 'No appointments found' :
       'No appointments found' }}</h3>
-    <p *ngIf="searchQuery || dateFrom || dateTo || selectedDoctor || selectedStatus !== 'all'">
+    <p *ngIf="hasActiveFilters">
       Try adjusting your filters or search criteria.
     </p>
-    <p *ngIf="!searchQuery && !dateFrom && !dateTo && !selectedDoctor && selectedStatus === 'all'">
+    <p *ngIf="!hasActiveFilters">
       You don't have any appointments yet. Book an appointment with a doctor to get started.
     </p>
-    <button *ngIf="searchQuery || dateFrom || dateTo || selectedDoctor || selectedStatus !== 'all'"
-      (click)="clearFilters()" class="clear-filters-btn">
+    <button *ngIf="hasActiveFilters" (click)="clearFilters()" class="clear-filters-btn">
       <i class="fas fa-redo"></i> Clear Filters
     </button>
   </section>
@@ -376,11 +310,6 @@
       </div>
 
       <div class="modal-footer">
-        <button *ngIf="canCancel(selectedAppointment.status)" (click)="cancelAppointment(selectedAppointment.id, $event)"
-          class="cancel-modal-btn">
-          <i class="fas fa-times-circle"></i>
-          Cancel Appointment
-        </button>
         <button (click)="closeDetailsModal()" class="close-modal-btn">
           <i class="fas fa-check"></i>
           Close

@@ -54,7 +54,8 @@ class PrescriptionController extends Controller
                 $query->where('status', $request->status);
             }
 
-            $prescriptions = $query->get();
+            $perPage = $request->input('per_page', 8);
+            $prescriptions = $query->paginate($perPage);
 
             return $this->success($prescriptions, 'Prescriptions retrieved successfully');
         } catch (\Exception $e) {

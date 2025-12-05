@@ -59,7 +59,15 @@ export class Dashboard implements OnInit {
     this.appointmentService.getAppointments().subscribe({
       next: (response: any) => {
         if (response.success && response.data) {
-          const allAppointments = response.data.appointments || [];
+          // Handle paginated response: check for .data, .appointments, or use directly if array
+          let allAppointments = [];
+          if (Array.isArray(response.data)) {
+            allAppointments = response.data;
+          } else if (response.data.data && Array.isArray(response.data.data)) {
+            allAppointments = response.data.data;
+          } else if (response.data.appointments && Array.isArray(response.data.appointments)) {
+            allAppointments = response.data.appointments;
+          }
 
           //  (confirmed + future date)
           const today = new Date();
@@ -67,11 +75,10 @@ export class Dashboard implements OnInit {
 
           this.upcomingAppointments = allAppointments.filter((appointment: any) => {
             const appointmentDate = new Date(appointment.appointment_date);
-            return appointment.status === 'confirmed' && appointmentDate >= today;
+            return (appointment.status === 'confirmed' || appointment.status === 'pending') && appointmentDate >= today;
           });
 
-
-          this.totalAppointmentsCount = allAppointments.length;
+          this.totalAppointmentsCount = response.data.total || allAppointments.length;
           this.upcomingAppointmentsCount = this.upcomingAppointments.length;
 
 
@@ -99,10 +106,14 @@ export class Dashboard implements OnInit {
     this.patientService.getMedicalHistory().subscribe({
       next: (response: any) => {
         if (response.success && response.data) {
-          this.totalMedicalHistoriesCount = response.data.length;
+          // Handle paginated response
+          const historyData = Array.isArray(response.data) ? response.data :
+            (response.data.data && Array.isArray(response.data.data) ? response.data.data : []);
+
+          this.totalMedicalHistoriesCount = response.data.total || historyData.length;
 
           // latest two
-          this.recentMedicalHistories = response.data
+          this.recentMedicalHistories = [...historyData]
             .sort((a: any, b: any) => new Date(b.visit_date).getTime() - new Date(a.visit_date).getTime())
             .slice(0, 2);
         }
@@ -118,15 +129,21 @@ export class Dashboard implements OnInit {
     this.patientService.getPrescriptions().subscribe({
       next: (response: any) => {
         if (response.success && response.data) {
-          const all = response.data;
+          // Handle paginated response
+          const all = Array.isArray(response.data) ? response.data :
+            (response.data.data && Array.isArray(response.data.data) ? response.data.data : []);
 
           // total count
-          this.totalPrescriptionsCount = all.length;
+          this.totalPrescriptionsCount = response.data.total || all.length;
 
           // latest prescription
-          this.latestPrescription = all
-            .sort((a: any, b: any) => new Date(b.prescribed_date).getTime() - new Date(a.prescribed_date).getTime())
-          [0]; // Take only the newest one
+          if (all.length > 0) {
+            this.latestPrescription = [...all]
+              .sort((a: any, b: any) => new Date(b.prescribed_date).getTime() - new Date(a.prescribed_date).getTime())
+            [0]; // Take only the newest one
+          } else {
+            this.latestPrescription = null;
+          }
         }
 
         this.cdr.detectChanges();
