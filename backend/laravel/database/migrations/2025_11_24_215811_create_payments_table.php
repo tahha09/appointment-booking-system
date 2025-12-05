@@ -10,11 +10,11 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('appointment_id')->constrained()->onDelete('cascade');
-            $table->foreignId('patient_id')->constrained()->onDelete('cascade');
+            $table->foreignId('appointment_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('patient_id')->nullable()->constrained()->nullOnDelete();
             $table->decimal('amount', 8, 2);
-            $table->string('currency')->default('USD');
-            $table->string('payment_method');
+            $table->string('currency', 3)->default('USD');
+            $table->enum('payment_method', ['credit_card', 'online_wallet', 'bank_transfer','cash'])->default('credit_card');
             $table->enum('status', ['pending', 'completed', 'failed', 'refunded'])->default('pending');
             $table->string('transaction_id')->nullable();
             $table->json('payment_details')->nullable();

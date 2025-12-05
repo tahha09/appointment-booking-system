@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DoctorController as AdminDoctorController;
 use App\Http\Controllers\Admin\AppointmentController as AdminAppointmentController;
+use App\Http\Controllers\Admin\AppointmentAnalyticsController;
 use App\Http\Controllers\Doctor\AppointmentController as DoctorAppointmentController;
 use App\Http\Controllers\Doctor\ScheduleController;
 use App\Http\Controllers\Doctor\PatientController as DoctorPatientController;
@@ -20,7 +21,7 @@ use App\Http\Controllers\AI\RecommendationController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Patient\SpecializationController;
 use App\Http\Controllers\ContactController;
-
+use App\Http\Controllers\AI\MedicalAssistantController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -31,7 +32,6 @@ use App\Http\Controllers\ContactController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::post('/send-email', [ContactController::class, 'sendEmail']);
 // Public Routes
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
@@ -45,6 +45,21 @@ Route::get('/specializations', [SpecializationController::class, 'index']);
 Route::get('/specializations/filter-list', [SpecializationController::class, 'filterList']);
 Route::get('/specializations/{id}', [SpecializationController::class, 'show']);
 
+Route::post('/send-email', [ContactController::class, 'sendEmail']);
+Route::middleware(['auth:sanctum', 'role:patient'])->post('/public/payments', [PaymentController::class, 'publicStore']);
+
+//airoutes
+// Add these routes to your api.php file
+Route::prefix('ai')->group(function () {
+    Route::get('/examples', [MedicalAssistantController::class, 'testExamples']);
+    Route::post('/ask', [MedicalAssistantController::class, 'ask']);
+    Route::post('/history', [MedicalAssistantController::class, 'getHistory']);
+
+    // Optional: Add authentication middleware for logged-in users
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/ask/secure', [MedicalAssistantController::class, 'ask']);
+    });
+});
 // Test route
 Route::get('/test', function () {
     return response()->json([
@@ -91,6 +106,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/appointments', [PatientAppointmentController::class, 'index']);
         Route::get('/appointments/{id}', [PatientAppointmentController::class, 'show']);
         Route::post('/appointments', [PatientAppointmentController::class, 'store']);
+        Route::put('/appointments/{id}/accept', [PatientAppointmentController::class, 'accept']);
         Route::put('/appointments/{id}/cancel', [PatientAppointmentController::class, 'cancel']);
         Route::put('/appointments/{id}/reschedule', [PatientAppointmentController::class, 'reschedule']);
 
@@ -154,7 +170,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('admin')->group(function () {
         // Stats/Dashboard
         Route::get('/stats', [UserController::class, 'stats']);
-        
+
         // User Management
         Route::get('/users', [UserController::class, 'index']);
         Route::get('/users/{id}', [UserController::class, 'show']);
@@ -175,6 +191,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // Reports
         Route::get('/reports/appointments', [AdminAppointmentController::class, 'appointmentReport']);
         Route::get('/reports/doctors', [AdminDoctorController::class, 'doctorReport']);
+
+        // Appointment Analytics
+        Route::prefix('analytics')->group(function () {
+            Route::get('/overview', [AppointmentAnalyticsController::class, 'overview']);
+            Route::get('/trends', [AppointmentAnalyticsController::class, 'appointmentTrends']);
+            Route::get('/revenue', [AppointmentAnalyticsController::class, 'revenueAnalytics']);
+            Route::get('/doctors', [AppointmentAnalyticsController::class, 'doctorPerformance']);
+            Route::get('/patients', [AppointmentAnalyticsController::class, 'patientAnalytics']);
+        });
     });
 
 

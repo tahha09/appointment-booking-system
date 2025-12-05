@@ -54,14 +54,14 @@
         </div> -->
 
         <div class="flex flex-wrap gap-4 text-sm">
-          <div class="flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3 ring-1 ring-white/10">
+          <!-- <div class="flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3 ring-1 ring-white/10">
             <span
               class="flex h-10 w-10 items-center justify-center rounded-full bg-[#0C969C]/30 text-lg font-bold text-[#6BA3BE]">4.8</span>
             <div>
               <div class="font-semibold">150k+ verified reviews</div>
               <div class="text-[#CFE9EC]">Real patient feedback</div>
             </div>
-          </div>
+          </div> -->
           <div class="flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3 ring-1 ring-white/10">
             <span
               class="flex h-10 w-10 items-center justify-center rounded-full bg-[#032F30] text-sm font-semibold text-[#6BA3BE]">24/7</span>
@@ -123,6 +123,8 @@
           See all
         </button>
       </div>
+<div class="flex justify-content-center items-center text-center">
+
 
       <div class="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         <ng-container *ngIf="loadingTopDoctors; else doctorsList">
@@ -142,7 +144,7 @@
           >
             <div class="relative h-40 overflow-hidden rounded-2xl">
               <img
-                [src]="doc?.user?.profile_image || 'assets/doctor1.jpg'"
+                [src]="doc?.user?.profile_image || 'assets/default-avatar.png'"
                 [alt]="doc?.user?.name || 'Doctor'"
                 class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
               />
@@ -175,6 +177,8 @@
             <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
              <button
                 class="flex-1 rounded-full bg-[#0C969C] px-4 py-2 text-sm font-semibold text-[#031716] shadow-lg shadow-[#0C969C]/30 transition hover:-translate-y-0.5 hover:bg-[#6BA3BE]"
+                type="button"
+                (click)="startBooking(doc)"
               >
                 Book appointment
               </button>
@@ -189,10 +193,10 @@
           </article>
         </ng-template>
       </div>
-    </div>
+    </div></div>
   </section>
 
-  <!-- --------------------------- -->
+  <!--  ////////////////////////////////// -->
   <div class="elementor-widget-container fade-in">
     <section class="relative overflow-hidden py-16">
       <div class="absolute inset-0 bg-gradient-to-br from-[#031716] via-[#032F30]/85 to-[#0A7075]"></div>

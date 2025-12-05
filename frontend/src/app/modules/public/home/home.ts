@@ -6,6 +6,7 @@ import { Header } from '../../../shared/components/header/header';
 import { Footer } from '../../../shared/components/footer/footer';
 import { Doctor, DoctorResponse } from '../../../models/doctor';
 import { DoctorService } from '../../../core/services/doctor';
+import { Auth } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-home',
@@ -22,7 +23,8 @@ export class Home implements OnInit {
   constructor(
     private doctorService: DoctorService,
     private cdr: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
+    private auth: Auth
   ) {}
 
   ngOnInit(): void {
@@ -36,13 +38,11 @@ export class Home implements OnInit {
   private fetchTopDoctors(): void {
     this.loadingTopDoctors = true;
     this.errorTopDoctors = '';
-    this.doctorService.getTopDoctors(5).subscribe({
+    this.doctorService.getTopDoctors(3).subscribe({
       next: (response: DoctorResponse) => {
-        console.log('API Response:', response);
         if (response.success && response.data) {
           if (Array.isArray(response.data)) {
             this.topDoctors = response.data;
-            console.log('Top doctors loaded:', this.topDoctors);
           } else if ('doctors' in response.data) {
             this.topDoctors = (response.data as any).doctors || [];
           } else {
@@ -50,13 +50,11 @@ export class Home implements OnInit {
           }
         } else {
           this.topDoctors = [];
-          console.warn('No data in response:', response);
         }
         this.loadingTopDoctors = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Error fetching top doctors:', err);
         this.errorTopDoctors =
           err?.error?.message || err?.message || 'Unable to load top rated doctors.';
         this.loadingTopDoctors = false;
@@ -70,5 +68,27 @@ export class Home implements OnInit {
       return;
     }
     this.router.navigate(['/doctors', doctor.id]);
+  }
+
+  startBooking(doctor: Doctor): void {
+    if (!doctor) {
+      return;
+    }
+    const queryParams: { [key: string]: unknown } = {
+      doctorId: doctor.id,
+      doctorName: doctor?.user?.name,
+      department: doctor?.specialization?.name,
+      fee: doctor?.consultation_fee,
+    };
+    const paymentUrl = this.router.createUrlTree(['/payment'], { queryParams }).toString();
+
+    if (!this.auth.isAuthenticated() || !this.auth.isPatient()) {
+      this.router.navigate(['/login'], {
+        queryParams: { returnUrl: paymentUrl },
+      });
+      return;
+    }
+
+    this.router.navigateByUrl(paymentUrl);
   }
 }

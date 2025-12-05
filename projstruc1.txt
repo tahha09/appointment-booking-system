@@ -13,14 +13,13 @@ Backend (backend/laravel):
 - README.md
 - vite.config.js
 - app/
-  - Console/
-    - Kernel.php
   - Exceptions/
     - Handler.php
   - Http/
-    - Kernel.php
     - Controllers/
+      - ContactController.php
       - Controller.php
+      - ProfileController.php
       - Admin/
         - AppointmentController.php
         - DoctorController.php
@@ -32,11 +31,18 @@ Backend (backend/laravel):
         - RegisterController.php
       - Doctor/
         - AppointmentController.php
+        - CertificateController.php
+        - FinancialManagementController.php
+        - OverviewController.php
         - PatientController.php
         - ScheduleController.php
       - Patient/
         - AppointmentController.php
         - DoctorController.php
+        - MedicalHistoryController.php
+        - PrescriptionController.php
+        - ProfileController.php
+        - SpecializationController.php
       - Payment/
         - PaymentController.php
     - Middleware/
@@ -66,10 +72,12 @@ Backend (backend/laravel):
     - Certificate.php
     - Doctor.php
     - Holiday.php
+    - MedicalHistory.php
     - MedicalNote.php
     - Notification.php
     - Patient.php
     - Payment.php
+    - Prescription.php
     - Schedule.php
     - Specialization.php
     - User.php
@@ -125,20 +133,27 @@ Backend (backend/laravel):
     - 2025_11_24_195906_create_medical_notes_table.php
     - 2025_11_24_195924_create_notifications_table.php
     - 2025_11_24_195944_create_holidays_table.php
-    - 2025_11_24_204259_create_personal_access_tokens_table.php
     - 2025_11_24_215811_create_payments_table.php
     - 2025_11_24_215831_add_payment_fields_to_appointments_table.php
     - 2025_11_29_000001_add_profile_fields_to_patients_table.php
     - 2025_11_30_000001_create_blocked_patients_table.php
     - 2025_11_30_000002_create_certificates_table.php
     - 2025_12_01_173948_add_status_to_users_table.php
-    - 2025_12_01_192129_add_api_token_to_users_table.php
+    - 2025_12_02_155605_create_medical_histories_table.php
+    - 2025_12_03_000000_create_prescriptions_table.php
+    - 2025_12_03_000555_create_admins_table.php
+    - 2025_12_03_001114_add_department_and_admin_level_to_admins_table.php
+    - 2025_12_03_002844_add_insurance_fields_to_patients_table.php
+    - 2025_12_03_003000_add_profile_fields_to_doctors_table.php
   - seeders/
+    - AdminSeeder.php
     - AppointmentSeeder.php
     - DatabaseSeeder.php
     - DoctorSeeder.php
+    - MedicalHistorySeeder.php
     - PatientSeeder.php
     - PaymentSeeder.php
+    - PrescriptionSeeder.php
     - ScheduleSeeder.php
     - SpecializationSeeder.php
     - UserSeeder.php
@@ -219,7 +234,6 @@ Frontend (frontend):
     - core/
       - core-module.ts
       - guards/
-      - interceptors/
         - admin-guard.spec.ts
         - admin-guard.ts
         - auth-guard.spec.ts
@@ -229,14 +243,24 @@ Frontend (frontend):
         - patient-guard.spec.ts
         - patient-guard.ts
       - services/
+        - admin.spec.ts
+        - admin.ts
         - api.spec.ts
         - api.ts
+        - appointment.spec.ts
+        - appointment.ts
         - auth.spec.ts
         - auth.ts
+        - doctor.spec.ts
+        - doctor.ts
+        - email.spec.ts
+        - email.ts
         - notification.spec.ts
         - notification.ts
         - specialization.spec.ts
         - specialization.ts
+        - user.spec.ts
+        - user.ts
     - models/
       - doctor.ts
       - specialization.model.spec.ts
@@ -322,15 +346,46 @@ Frontend (frontend):
           - doctor-search.ts
       - public/
         - public-module.ts
+        - about-us/
+          - about-us.html
+          - about-us.scss
+          - about-us.spec.ts
+          - about-us.ts
+        - contact/
+          - contact.html
+          - contact.scss
+          - contact.spec.ts
+          - contact.ts
+        - doctor-details/
+          - doctor-details.html
+          - doctor-details.scss
+          - doctor-details.spec.ts
+          - doctor-details.ts
         - doctor-listing/
           - doctor-listing.html
           - doctor-listing.scss
           - doctor-listing.spec.ts
           - doctor-listing.ts
+        - home/
+          - home.html
+          - home.scss
+          - home.spec.ts
+          - home.ts
+        - services/
+          - services.html
+          - services.scss
+          - services.spec.ts
+          - services.ts
         - specializations/
           - specializations.html
           - specializations.scss
+          - specializations.spec.ts
           - specializations.ts
+        - specialties/
+          - specialties.html
+          - specialties.scss
+          - specialties.spec.ts
+          - specialties.ts
     - shared/
       - shared-module.ts
       - components/

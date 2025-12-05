@@ -10,6 +10,8 @@ import { Contact } from './contact/contact';
 import { DoctorListing } from './doctor-listing/doctor-listing';
 import { DoctorDetails } from './doctor-details/doctor-details';
 import { Specializations } from './specializations/specializations';
+import { MedicalAssistant } from './medical-assistant/medical-assistant';
+import { Payment } from './payment/payment';
 
 
 const routes: Routes = [
@@ -19,7 +21,9 @@ const routes: Routes = [
   { path: 'specialties', component: Specializations},
   { path: 'about-us', component: AboutUs},
   { path: 'contact', component: Contact},
-  {path : 'doctors/:id',component:DoctorDetails}
+  {path : 'doctors/:id',component:DoctorDetails},
+  {path : 'medical-assistant',component:MedicalAssistant},
+  {path: 'payment', component: Payment}
 
   // ... other public routes
 ];
@@ -28,8 +32,7 @@ const routes: Routes = [
   declarations: [],
   imports: [
     CommonModule,
-    RouterModule.forChild(routes) // Add this line
-
+    RouterModule.forChild(routes)
   ],
   exports:[
     RouterModule

@@ -1,0 +1,226 @@
+<app-header></app-header>
+
+<main class="min-h-screen bg-gradient-to-br from-[#031716] via-[#032F30]/95 to-[#0A7075] relative overflow-hidden">
+  <!-- Background Effects -->
+  <div class="absolute inset-0">
+    <div class="absolute -left-32 top-20 h-96 w-96 rounded-full bg-[#0C969C]/20 blur-3xl"></div>
+    <div class="absolute -right-32 bottom-20 h-96 w-96 rounded-full bg-[#6BA3BE]/15 blur-3xl"></div>
+    <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-[#032F30]/30 blur-3xl"></div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="relative z-10 container mx-auto px-4 py-8">
+    <!-- Header Section -->
+    <div class="text-center mb-12 animate-fade-up">
+      <div class="inline-flex items-center gap-3 rounded-full bg-[#0A7075]/20 px-6 py-3 mb-6 ring-1 ring-[#0C969C]/30">
+        <div class="w-3 h-3 bg-[#0C969C] rounded-full animate-pulse"></div>
+        <span class="text-[#6BA3BE] font-semibold uppercase tracking-wide text-sm">AI Medical Assistant</span>
+        <div class="w-3 h-3 bg-[#6BA3BE] rounded-full animate-pulse delay-300"></div>
+      </div>
+
+      <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
+        Your Personal Health Guide
+      </h1>
+      <p class="text-xl text-[#CFE9EC] max-w-3xl mx-auto leading-relaxed">
+        Get instant medical guidance, find the right specialists, and access personalized health recommendations powered by advanced AI.
+      </p>
+    </div>
+
+    <!-- Chat Interface Container -->
+    <div class="max-w-4xl mx-auto">
+      <div class="bg-[#031716]/80 backdrop-blur-xl rounded-3xl shadow-2xl ring-1 ring-[#0C969C]/20 overflow-hidden">
+
+        <!-- Chat Header -->
+        <div class="bg-gradient-to-r from-[#032F30] to-[#0A7075] px-6 py-4 border-b border-[#0C969C]/20">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-[#0C969C] rounded-full flex items-center justify-center">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+            <div>
+              <h2 class="text-xl font-bold text-white">Medical Assistant</h2>
+              <p class="text-[#CFE9EC] text-sm">Online • Ready to help</p>
+            </div>
+            <div class="ml-auto flex items-center gap-2">
+              <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span class="text-[#CFE9EC] text-sm">Active</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Messages Area -->
+        <div class="h-[500px] overflow-y-auto p-6 space-y-6 bg-[#031716]/50" #chatContainer>
+
+          <!-- Welcome Message -->
+          <div class="flex gap-4 animate-fade-up" *ngIf="messages.length === 0">
+            <div class="w-10 h-10 bg-gradient-to-br from-[#0C969C] to-[#6BA3BE] rounded-full flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+            <div class="bg-[#032F30]/80 rounded-2xl rounded-tl-md px-6 py-4 max-w-[80%] shadow-lg ring-1 ring-[#0C969C]/10">
+              <div class="text-white font-medium mb-2">Medical Assistant</div>
+              <div class="text-[#CFE9EC] leading-relaxed" [innerHTML]="welcomeMessage"></div>
+              <div class="text-xs text-[#6BA3BE] mt-3 flex items-center gap-2">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                </svg>
+                Just now
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat Messages -->
+          <div *ngFor="let message of messages; let i = index; trackBy: trackByMessage"
+               class="flex gap-4 animate-fade-up"
+               [ngClass]="{'flex-row-reverse': message.isUser, 'animation-delay-200': i % 2 === 0, 'animation-delay-400': i % 2 === 1}">
+
+            <!-- Avatar -->
+            <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                 [ngClass]="message.isUser ? 'bg-gradient-to-br from-[#6BA3BE] to-[#0C969C]' : 'bg-gradient-to-br from-[#0C969C] to-[#6BA3BE]'">
+              <svg *ngIf="!message.isUser" class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+              <svg *ngIf="message.isUser" class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+            </div>
+
+            <!-- Message Bubble -->
+            <div class="max-w-[75%] rounded-2xl px-6 py-4 shadow-lg ring-1"
+                 [ngClass]="message.isUser
+                   ? 'bg-gradient-to-br from-[#0C969C] to-[#6BA3BE] text-white rounded-tr-md'
+                   : 'bg-[#032F30]/80 text-[#CFE9EC] rounded-tl-md ring-[#0C969C]/10'">
+
+              <div class="font-medium mb-2" [ngClass]="message.isUser ? 'text-white' : 'text-[#6BA3BE]'">
+                {{ message.isUser ? 'You' : 'Medical Assistant' }}
+              </div>
+
+              <div [innerHTML]="message.content | formatText" class="leading-relaxed"></div>
+
+              <!-- Suggested Actions -->
+              <div *ngIf="message.suggestedActions && message.suggestedActions.length > 0" class="mt-4 space-y-2">
+                <div class="text-xs font-medium text-[#CFE9EC]/70 uppercase tracking-wide">Suggested Actions</div>
+                <div class="flex flex-wrap gap-2">
+                  <button *ngFor="let action of message.suggestedActions"
+                          (click)="performAction(action)"
+                          class="px-3 py-1 bg-[#031716]/50 hover:bg-[#0C969C]/20 rounded-full text-xs text-[#CFE9EC] transition-colors border border-[#0C969C]/20 hover:border-[#0C969C]/40">
+                    {{ action }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Timestamp -->
+              <div class="text-xs mt-3 flex items-center gap-2"
+                   [ngClass]="message.isUser ? 'text-white/70' : 'text-[#6BA3BE]'">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                </svg>
+                {{ message.timestamp | date:'shortTime' }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Typing Indicator -->
+          <div *ngIf="isLoading" class="flex gap-4 animate-fade-up">
+            <div class="w-10 h-10 bg-gradient-to-br from-[#0C969C] to-[#6BA3BE] rounded-full flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+            <div class="bg-[#032F30]/80 rounded-2xl rounded-tl-md px-6 py-4 shadow-lg ring-1 ring-[#0C969C]/10">
+              <div class="flex items-center space-x-2">
+                <div class="w-2 h-2 bg-[#0C969C] rounded-full animate-bounce"></div>
+                <div class="w-2 h-2 bg-[#0C969C] rounded-full animate-bounce delay-150"></div>
+                <div class="w-2 h-2 bg-[#0C969C] rounded-full animate-bounce delay-300"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="border-t border-[#0C969C]/20 p-6 bg-[#031716]/90">
+          <form (ngSubmit)="sendMessage()" class="space-y-4">
+            <!-- Quick Suggestions -->
+            <div *ngIf="examples.length > 0 && messages.length <= 1" class="mb-4">
+              <div class="text-sm text-[#CFE9EC]/70 mb-3 font-medium">Try these suggestions:</div>
+              <div class="flex flex-wrap gap-2">
+                <button *ngFor="let example of examples"
+                        (click)="useExample(example.question)"
+                        type="button"
+                        class="px-4 py-2 bg-[#032F30]/60 hover:bg-[#0C969C]/20 rounded-full text-sm text-[#CFE9EC] transition-all border border-[#0C969C]/20 hover:border-[#0C969C]/40 hover:scale-105">
+                  {{ example.question }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Input Field -->
+            <div class="flex gap-3">
+              <div class="flex-1 relative">
+                <textarea
+                  [(ngModel)]="userInput"
+                  name="userInput"
+                  placeholder="Describe your symptoms or ask about medical specializations..."
+                  class="w-full resize-none rounded-2xl border border-[#0C969C]/30 bg-[#031716]/80 px-4 py-3 text-[#CFE9EC] placeholder-[#6BA3BE] focus:outline-none focus:ring-2 focus:ring-[#0C969C] focus:border-transparent transition-all min-h-[48px] max-h-32"
+                  rows="1"
+                  [disabled]="isLoading"
+                  (input)="autoResize($event)"
+                  (keydown.enter)="$event.preventDefault(); sendMessage()"></textarea>
+
+                <!-- Character Count -->
+                <div class="absolute bottom-2 right-3 text-xs text-[#6BA3BE]">
+                  {{ userInput.length }}/500
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                [disabled]="!userInput.trim() || isLoading || userInput.length > 500"
+                class="px-6 py-3 bg-gradient-to-r from-[#0C969C] to-[#6BA3BE] text-white rounded-2xl hover:from-[#0A7075] hover:to-[#5BA3AE] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl hover:scale-105 font-medium">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                </svg>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Stats Section -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+        <div class="bg-[#031716]/60 backdrop-blur-xl rounded-2xl p-6 text-center shadow-lg ring-1 ring-[#0C969C]/20 animate-fade-up">
+          <div class="w-12 h-12 bg-[#0C969C]/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-6 h-6 text-[#0C969C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div class="text-2xl font-bold text-white mb-2">24/7</div>
+          <div class="text-[#CFE9EC]">Always Available</div>
+        </div>
+
+        <div class="bg-[#031716]/60 backdrop-blur-xl rounded-2xl p-6 text-center shadow-lg ring-1 ring-[#0C969C]/20 animate-fade-up animation-delay-200">
+          <div class="w-12 h-12 bg-[#6BA3BE]/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-6 h-6 text-[#6BA3BE]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+          </div>
+          <div class="text-2xl font-bold text-white mb-2">Instant</div>
+          <div class="text-[#CFE9EC]">AI-Powered Responses</div>
+        </div>
+
+        <div class="bg-[#031716]/60 backdrop-blur-xl rounded-2xl p-6 text-center shadow-lg ring-1 ring-[#0C969C]/20 animate-fade-up animation-delay-400">
+          <div class="w-12 h-12 bg-[#0A7075]/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-6 h-6 text-[#0A7075]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+            </svg>
+          </div>
+          <div class="text-2xl font-bold text-white mb-2">Personalized</div>
+          <div class="text-[#CFE9EC]">Tailored Recommendations</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<app-footer></app-footer>

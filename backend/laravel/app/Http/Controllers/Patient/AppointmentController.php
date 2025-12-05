@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Patient;
 
 use App\Http\Controllers\Controller;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Appointment;
@@ -10,6 +11,7 @@ use App\Models\Doctor;
 
 class AppointmentController extends Controller
 {
+    use ApiResponse;
     /**
      * Get dashboard statistics
      */
@@ -19,10 +21,7 @@ class AppointmentController extends Controller
             $user = Auth::user();
 
             if (!$user || !$user->patient) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Authenticated patient not found.'
-                ], 404);
+                return $this->error('Authenticated patient not found.', 404);
             }
 
             $patientId = $user->patient->id;
@@ -68,23 +67,16 @@ class AppointmentController extends Controller
                     ->count(),
             ];
 
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'today_appointments' => $todayAppointments,
-                    'upcoming_appointments' => $upcomingAppointments,
-                    'total_appointments' => $totalAppointments,
-                    'recent_appointments' => $recentAppointments,
-                    'stats' => $stats,
-                ],
-                'message' => 'Dashboard data retrieved successfully'
-            ]);
+            return $this->success([
+                'today_appointments' => $todayAppointments,
+                'upcoming_appointments' => $upcomingAppointments,
+                'total_appointments' => $totalAppointments,
+                'recent_appointments' => $recentAppointments,
+                'stats' => $stats,
+            ], 'Dashboard data retrieved successfully');
             
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 500);
+            return $this->error($e->getMessage(), 500);
         }
     }
 
@@ -97,15 +89,27 @@ class AppointmentController extends Controller
             $user = Auth::user();
 
             if (!$user || !$user->patient) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Authenticated patient not found.'
-                ], 404);
+                return $this->error('Authenticated patient not found.', 404);
             }
 
             $patientId = $user->patient->id;
             $query = Appointment::with(['doctor.user', 'doctor.specialization'])
                 ->where('patient_id', $patientId);
+
+            // Search filter
+            if ($request->has('search') && $request->search) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('reason', 'like', "%{$search}%")
+                      ->orWhere('notes', 'like', "%{$search}%")
+                      ->orWhereHas('doctor.user', function ($q) use ($search) {
+                          $q->where('name', 'like', "%{$search}%");
+                      })
+                      ->orWhereHas('doctor.specialization', function ($q) use ($search) {
+                          $q->where('name', 'like', "%{$search}%");
+                      });
+                });
+            }
 
             // Filter by status
             if ($request->has('status') && $request->status !== 'all') {
@@ -130,46 +134,13 @@ class AppointmentController extends Controller
             $query->orderBy('appointment_date', 'desc')
                   ->orderBy('start_time', 'desc');
 
-            // Pagination
-            $perPage = $request->get('per_page', 15);
-            $appointments = $query->paginate($perPage);
+            // Get all results (no pagination for consistency with medical history)
+            $appointments = $query->get();
 
-            // Get appointment statistics
-            $stats = [
-                'pending' => Appointment::where('patient_id', $patientId)
-                    ->where('status', 'pending')
-                    ->count(),
-                'confirmed' => Appointment::where('patient_id', $patientId)
-                    ->where('status', 'confirmed')
-                    ->count(),
-                'completed' => Appointment::where('patient_id', $patientId)
-                    ->where('status', 'completed')
-                    ->count(),
-                'cancelled' => Appointment::where('patient_id', $patientId)
-                    ->where('status', 'cancelled')
-                    ->count(),
-            ];
-
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'appointments' => $appointments->items(),
-                    'pagination' => [
-                        'current_page' => $appointments->currentPage(),
-                        'last_page' => $appointments->lastPage(),
-                        'per_page' => $appointments->perPage(),
-                        'total' => $appointments->total(),
-                    ],
-                    'stats' => $stats
-                ],
-                'message' => 'Appointments retrieved successfully'
-            ]);
+            return $this->success($appointments, 'Appointments retrieved successfully');
             
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 500);
+            return $this->error($e->getMessage(), 500);
         }
     }
 
@@ -195,23 +166,62 @@ class AppointmentController extends Controller
                 ->find($id);
 
             if (!$appointment) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Appointment not found.'
-                ], 404);
+                return $this->error('Appointment not found.', 404);
             }
 
-            return response()->json([
-                'success' => true,
-                'data' => $appointment,
-                'message' => 'Appointment retrieved successfully'
-            ]);
+            return $this->success($appointment, 'Appointment retrieved successfully');
             
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 500);
+            return $this->error($e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Accept/Confirm appointment
+     */
+    public function accept(Request $request, $id)
+    {
+        try {
+            $user = Auth::user();
+
+            if (!$user || !$user->patient) {
+                return $this->error('Authenticated patient not found.', 404);
+            }
+
+            $patientId = $user->patient->id;
+
+            $appointment = Appointment::where('patient_id', $patientId)
+                ->where('id', $id)
+                ->first();
+
+            if (!$appointment) {
+                return $this->error('Appointment not found.', 404);
+            }
+
+            // Check if appointment can be accepted
+            if ($appointment->status === 'confirmed') {
+                return $this->error('Appointment is already confirmed.', 400);
+            }
+
+            if ($appointment->status === 'cancelled') {
+                return $this->error('Cannot accept cancelled appointment.', 400);
+            }
+
+            if ($appointment->status === 'completed') {
+                return $this->error('Cannot accept completed appointment.', 400);
+            }
+
+            // Confirm the appointment
+            $appointment->update([
+                'status' => 'confirmed'
+            ]);
+
+            $appointment->load(['doctor.user', 'doctor.specialization']);
+
+            return $this->success($appointment, 'Appointment confirmed successfully');
+            
+        } catch (\Exception $e) {
+            return $this->error($e->getMessage(), 500);
         }
     }
 
@@ -224,10 +234,7 @@ class AppointmentController extends Controller
             $user = Auth::user();
 
             if (!$user || !$user->patient) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Authenticated patient not found.'
-                ], 404);
+                return $this->error('Authenticated patient not found.', 404);
             }
 
             $patientId = $user->patient->id;
@@ -237,25 +244,16 @@ class AppointmentController extends Controller
                 ->first();
 
             if (!$appointment) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Appointment not found.'
-                ], 404);
+                return $this->error('Appointment not found.', 404);
             }
 
             // Check if appointment can be cancelled
             if ($appointment->status === 'cancelled') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Appointment is already cancelled.'
-                ], 400);
+                return $this->error('Appointment is already cancelled.', 400);
             }
 
             if ($appointment->status === 'completed') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Cannot cancel completed appointment.'
-                ], 400);
+                return $this->error('Cannot cancel completed appointment.', 400);
             }
 
             // Cancel the appointment
@@ -263,17 +261,12 @@ class AppointmentController extends Controller
                 'status' => 'cancelled'
             ]);
 
-            return response()->json([
-                'success' => true,
-                'data' => $appointment,
-                'message' => 'Appointment cancelled successfully'
-            ]);
+            $appointment->load(['doctor.user', 'doctor.specialization']);
+
+            return $this->success($appointment, 'Appointment cancelled successfully');
             
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 500);
+            return $this->error($e->getMessage(), 500);
         }
     }
 
@@ -286,10 +279,7 @@ class AppointmentController extends Controller
             $user = Auth::user();
 
             if (!$user || !$user->patient) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Authenticated patient not found.'
-                ], 404);
+                return $this->error('Authenticated patient not found.', 404);
             }
 
             // Validate request
@@ -307,10 +297,7 @@ class AppointmentController extends Controller
             // Check doctor availability
             $doctor = Doctor::find($validated['doctor_id']);
             if (!$doctor) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Doctor not found.'
-                ], 404);
+                return $this->error('Doctor not found.', 404);
             }
 
             // Check if slot is available
@@ -321,10 +308,7 @@ class AppointmentController extends Controller
                 ->first();
 
             if ($existingAppointment) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'This time slot is already booked.'
-                ], 400);
+                return $this->error('This time slot is already booked.', 400);
             }
 
             // Create appointment with available fields only
@@ -342,17 +326,10 @@ class AppointmentController extends Controller
 
             $appointment->load(['doctor.user', 'doctor.specialization']);
 
-            return response()->json([
-                'success' => true,
-                'data' => $appointment,
-                'message' => 'Appointment booked successfully'
-            ], 201);
+            return $this->success($appointment, 'Appointment booked successfully', 201);
             
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 500);
+            return $this->error($e->getMessage(), 500);
         }
     }
 
@@ -365,10 +342,7 @@ class AppointmentController extends Controller
             $user = Auth::user();
 
             if (!$user || !$user->patient) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Authenticated patient not found.'
-                ], 404);
+                return $this->error('Authenticated patient not found.', 404);
             }
 
             $patientId = $user->patient->id;
@@ -380,17 +354,10 @@ class AppointmentController extends Controller
                 ->orderBy('start_time', 'desc')
                 ->get();
 
-            return response()->json([
-                'success' => true,
-                'data' => $records,
-                'message' => 'Medical records retrieved successfully'
-            ]);
+            return $this->success($records, 'Medical records retrieved successfully');
             
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 500);
+            return $this->error($e->getMessage(), 500);
         }
     }
 
@@ -418,23 +385,13 @@ class AppointmentController extends Controller
                 ->first();
 
             if (!$appointment) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Medical record not found.'
-                ], 404);
+                return $this->error('Medical record not found.', 404);
             }
 
-            return response()->json([
-                'success' => true,
-                'data' => $appointment,
-                'message' => 'Medical record retrieved successfully'
-            ]);
+            return $this->success($appointment, 'Medical record retrieved successfully');
             
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 500);
+            return $this->error($e->getMessage(), 500);
         }
     }
 }
