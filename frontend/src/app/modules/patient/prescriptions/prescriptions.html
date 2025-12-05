@@ -10,28 +10,18 @@
         </h1>
         <p class="page-subtitle">View and manage your prescribed medications</p>
       </div>
-      <div class="view-toggle">
-        <button (click)="toggleViewMode()" class="toggle-btn" [class.active]="viewMode === 'grid'" title="Grid View"
-          aria-label="Grid View">
-          <i class="fas fa-th"></i>
-        </button>
-        <button (click)="toggleViewMode()" class="toggle-btn" [class.active]="viewMode === 'list'" title="List View"
-          aria-label="List View">
-          <i class="fas fa-list"></i>
-        </button>
-      </div>
+
     </div>
   </section>
 
   <!-- Search and Filter Section -->
-  <section class="filters-section">
+  <section class="filters-section" *ngIf="loading || error || prescriptions.length > 0 || hasActiveFilters">
     <div class="filters-header">
       <h3 class="filters-title">
         <i class="fas fa-filter"></i>
         Search & Filters
       </h3>
-      <button *ngIf="searchQuery || dateFrom || dateTo || selectedDoctor || selectedStatus !== 'all'"
-        (click)="clearFilters()" class="clear-all-btn" title="Clear all filters">
+      <button *ngIf="hasActiveFilters" (click)="clearFilters()" class="clear-all-btn" title="Clear all filters">
         <i class="fas fa-times-circle"></i>
         Clear All
       </button>
@@ -107,11 +97,7 @@
       </div>
     </div>
 
-    <div *ngIf="filteredPrescriptions.length !== prescriptions.length" class="filter-info">
-      <i class="fas fa-info-circle"></i>
-      Showing <strong>{{ filteredPrescriptions.length }}</strong> of <strong>{{ prescriptions.length }}</strong>
-      prescriptions
-    </div>
+
   </section>
 
   <!-- Loading State -->
@@ -130,154 +116,91 @@
       </div>
       <h3>Error Loading Prescriptions</h3>
       <p>{{ error }}</p>
-      <button (click)="fetchPrescriptions(false)" class="retry-btn">
+      <button (click)="retryLoad()" class="retry-btn">
         <i class="fas fa-redo"></i> Try Again
       </button>
     </div>
   </div>
 
-  <!-- Content - Grid View -->
-  <section *ngIf="!loading && !error && viewMode === 'grid'" class="grid-view">
-    <div *ngFor="let prescription of filteredPrescriptions" class="prescription-card"
+  <!-- Content - Horizontal Card View -->
+  <section *ngIf="!loading && !error" class="horizontal-card-view">
+    <div *ngFor="let prescription of prescriptions" class="prescription-card-horizontal"
       (click)="viewDetails(prescription)">
-      <div class="card-header">
-        <div class="date-badge">
-          <i class="fas fa-calendar-check"></i>
-          <span>{{ formatDate(prescription.prescribed_date) }}</span>
+      <!-- Left: Date Box -->
+      <div class="card-date-box">
+        <i class="fas fa-calendar"></i>
+        <div class="date-month">{{ formatDate(prescription.prescribed_date).split(' ')[0] }}</div>
+        <div class="date-day">{{ formatDate(prescription.prescribed_date).split(' ')[1].replace(',', '') }}</div>
+        <div class="date-year">{{ formatDate(prescription.prescribed_date).split(', ')[1] }}</div>
+      </div>
+
+      <!-- Right: Content -->
+      <div class="card-content-horizontal">
+        <div class="content-main">
+          <h3 class="medication-name">{{ prescription.medication_name }}</h3>
+
+          <div class="doctor-row">
+            <i class="fas fa-user-md"></i>
+            <span>Dr. {{ prescription.doctor?.user?.name }}<span *ngIf="prescription.doctor?.specialization?.name"> • {{
+                prescription.doctor?.specialization?.name }}</span></span>
+          </div>
+
+          <div class="details-row">
+            <span class="detail-item">
+              <i class="fas fa-prescription"></i>
+              {{ prescription.dosage }}
+            </span>
+            <span class="detail-separator">•</span>
+            <span class="detail-item">
+              <i class="fas fa-redo-alt"></i>
+              {{ prescription.frequency }}
+            </span>
+            <span class="detail-separator">•</span>
+            <span class="detail-item">
+              <i class="fas fa-hourglass-half"></i>
+              {{ prescription.duration || 'N/A' }}
+            </span>
+          </div>
         </div>
-        <div class="header-badges">
+
+        <div class="content-badges">
           <span class="age-badge">{{ getRecordAge(prescription.prescribed_date) }}</span>
           <span class="status-badge" [ngClass]="getStatusClass(prescription.status)">
             {{ getStatusLabel(prescription.status) }}
           </span>
+          <i class="fas fa-chevron-right chevron-icon"></i>
         </div>
-      </div>
-
-      <div class="card-body">
-        <h3 class="medication-title">
-          <i class="fas fa-pills"></i>
-          {{ prescription.medication_name }}
-        </h3>
-
-        <div class="doctor-info">
-          <div class="doctor-avatar">
-            <img *ngIf="prescription.doctor?.user?.profile_image" [src]="prescription.doctor?.user?.profile_image"
-              [alt]="'Dr. ' + prescription.doctor?.user?.name" class="avatar-image">
-            <i *ngIf="!prescription.doctor?.user?.profile_image" class="fas fa-user-md"></i>
-          </div>
-          <div>
-            <span class="doctor-name">Dr. {{ prescription.doctor?.user?.name }}</span>
-            <span *ngIf="prescription.doctor?.specialization?.name" class="specialization">
-              <i class="fas fa-certificate"></i>
-              {{ prescription.doctor?.specialization?.name }}
-            </span>
-          </div>
-        </div>
-
-        <div class="prescription-details">
-          <div class="detail-row">
-            <span class="detail-label">
-              <i class="fas fa-prescription"></i>
-              Dosage
-            </span>
-            <span class="detail-value">{{ prescription.dosage }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">
-              <i class="fas fa-redo-alt"></i>
-              Frequency
-            </span>
-            <span class="detail-value">{{ prescription.frequency }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">
-              <i class="fas fa-hourglass-half"></i>
-              Duration
-            </span>
-            <span class="detail-value">{{ prescription.duration || 'N/A' }}</span>
-          </div>
-        </div>
-
-        <div *ngIf="prescription.instructions" class="instructions-preview">
-          <span class="preview-label">
-            <i class="fas fa-clipboard-list"></i>
-            Instructions
-          </span>
-          <p class="preview-text">{{ prescription.instructions }}</p>
-        </div>
-      </div>
-
-      <div class="card-footer">
-        <button class="view-details-btn">
-          <i class="fas fa-eye"></i> View Details
-        </button>
       </div>
     </div>
   </section>
 
-  <!-- Content - List View -->
-  <section *ngIf="!loading && !error && viewMode === 'list'" class="list-view">
-    <div *ngFor="let prescription of filteredPrescriptions" class="list-item" (click)="viewDetails(prescription)">
-      <div class="list-date">
-        <i class="fas fa-calendar-check date-icon"></i>
-        <div class="date-day">{{ formatDate(prescription.prescribed_date).split(',')[0] }}</div>
-        <div class="date-month">{{ formatDate(prescription.prescribed_date).split(',')[1]?.trim() }}</div>
-      </div>
+  <!-- Pagination -->
+  <section *ngIf="!loading && !error && totalItems > 8" class="pagination-section">
+    <button (click)="previousPage()" [disabled]="!hasPreviousPage" class="pagination-btn">
+      <i class="fas fa-chevron-left"></i>
+      Previous
+    </button>
 
-      <div class="list-content">
-        <div class="list-header">
-          <h3>{{ prescription.medication_name }}</h3>
-          <div class="list-badges">
-            <span class="list-age">{{ getRecordAge(prescription.prescribed_date) }}</span>
-            <span class="list-status" [ngClass]="getStatusClass(prescription.status)">
-              {{ getStatusLabel(prescription.status) }}
-            </span>
-          </div>
-        </div>
-        <div class="list-doctor">
-          <i class="fas fa-user-md"></i>
-          Dr. {{ prescription.doctor?.user?.name }}
-          <span *ngIf="prescription.doctor?.specialization?.name" class="list-specialization">
-            • {{ prescription.doctor?.specialization?.name }}
-          </span>
-        </div>
-        <div class="list-medication-info">
-          <span>
-            <i class="fas fa-prescription"></i>
-            {{ prescription.dosage }}
-          </span> •
-          <span>
-            <i class="fas fa-redo-alt"></i>
-            {{ prescription.frequency }}
-          </span> •
-          <span>
-            <i class="fas fa-hourglass-half"></i>
-            {{ prescription.duration || 'N/A' }}
-          </span>
-        </div>
-      </div>
-
-      <div class="list-actions">
-        <i class="fas fa-chevron-right"></i>
-      </div>
-    </div>
+    <button (click)="nextPage()" [disabled]="!hasNextPage" class="pagination-btn">
+      Next
+      <i class="fas fa-chevron-right"></i>
+    </button>
   </section>
 
   <!-- Empty State -->
-  <section *ngIf="!loading && !error && filteredPrescriptions.length === 0" class="empty-state">
+  <section *ngIf="!loading && !error && prescriptions.length === 0" class="empty-state">
     <div class="empty-icon">
       <i class="fas fa-pills"></i>
     </div>
-    <h3>{{ searchQuery || dateFrom || dateTo || selectedDoctor || selectedStatus !== 'all' ? 'No prescriptions found' :
+    <h3>{{ hasActiveFilters ? 'No prescriptions found' :
       'No prescriptions found' }}</h3>
-    <p *ngIf="searchQuery || dateFrom || dateTo || selectedDoctor || selectedStatus !== 'all'">
+    <p *ngIf="hasActiveFilters">
       Try adjusting your filters or search criteria.
     </p>
-    <p *ngIf="!searchQuery && !dateFrom && !dateTo && !selectedDoctor && selectedStatus === 'all'">
+    <p *ngIf="!hasActiveFilters">
       You don't have any prescriptions yet. Your prescriptions will appear here after your appointments.
     </p>
-    <button *ngIf="searchQuery || dateFrom || dateTo || selectedDoctor || selectedStatus !== 'all'"
-      (click)="clearFilters()" class="clear-filters-btn">
+    <button *ngIf="hasActiveFilters" (click)="clearFilters()" class="clear-filters-btn">
       <i class="fas fa-redo"></i> Clear Filters
     </button>
   </section>

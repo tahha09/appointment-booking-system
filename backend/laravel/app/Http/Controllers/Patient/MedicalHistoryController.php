@@ -48,7 +48,8 @@ class MedicalHistoryController extends Controller
                 $query->where('doctor_id', $request->doctor_id);
             }
 
-            $history = $query->get();
+            $perPage = $request->input('per_page', 8);
+            $history = $query->paginate($perPage);
 
             return $this->success($history, 'Medical history retrieved successfully');
         } catch (\Exception $e) {

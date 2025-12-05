@@ -149,9 +149,16 @@ export class PatientService {
         next: (response: any) => {
           // Cache the data if we fetched all records (no params)
           if (!hasParams && response.success) {
-            // Clear old cache format and use new format
             this.appointmentsCache = null;
-            this.appointmentsCache = response.data.appointments || [];
+            if (Array.isArray(response.data)) {
+              this.appointmentsCache = response.data;
+            } else if (response.data.data && Array.isArray(response.data.data)) {
+              this.appointmentsCache = response.data.data;
+            } else if (response.data.appointments && Array.isArray(response.data.appointments)) {
+              this.appointmentsCache = response.data.appointments;
+            } else {
+              this.appointmentsCache = [];
+            }
           }
           observer.next(response);
           observer.complete();

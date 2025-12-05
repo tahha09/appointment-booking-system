@@ -134,12 +134,11 @@ class AppointmentController extends Controller
             $query->orderBy('appointment_date', 'desc')
                   ->orderBy('start_time', 'desc');
 
-            // Get all results (no pagination for consistency with medical history)
-            $appointments = $query->get();
 
-            return $this->success([
-                'appointments' => $appointments
-            ], 'Appointments retrieved successfully');
+            $perPage = $request->input('per_page', 8);
+            $appointments = $query->paginate($perPage);
+
+            return $this->success($appointments, 'Appointments retrieved successfully');
             
         } catch (\Exception $e) {
             return $this->error($e->getMessage(), 500);

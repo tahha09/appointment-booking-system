@@ -39,7 +39,6 @@ interface Prescription {
 })
 export class Prescriptions implements OnInit {
   prescriptions: Prescription[] = [];
-  filteredPrescriptions: Prescription[] = [];
   loading = true;
   error: string | null = null;
 
@@ -55,8 +54,11 @@ export class Prescriptions implements OnInit {
   selectedPrescription: Prescription | null = null;
   showDetailsModal = false;
 
-  // View mode
-  viewMode: 'grid' | 'list' = 'grid';
+  // Backend Pagination
+  currentPage: number = 1;
+  totalItems: number = 0;
+  hasNextPage: boolean = false;
+  hasPreviousPage: boolean = false;
 
   constructor(
     private patientService: PatientService,
@@ -64,36 +66,38 @@ export class Prescriptions implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // Check if we have filters applied
-    const hasFilters = this.searchQuery || this.dateFrom || this.dateTo || this.selectedDoctor || this.selectedStatus !== 'all';
-
-    // If no filters, try to use cache (service will handle it)
-    // If filters exist, fetch from API
-    this.fetchPrescriptions(!hasFilters);
+    this.fetchPrescriptions(1);
   }
 
-  fetchPrescriptions(useCache: boolean = true): void {
-    const params: any = {};
+  fetchPrescriptions(page: number = 1): void {
+    const params: any = { page, per_page: 8 };
     if (this.searchQuery) params.search = this.searchQuery;
     if (this.dateFrom) params.date_from = this.dateFrom;
     if (this.dateTo) params.date_to = this.dateTo;
     if (this.selectedStatus !== 'all') params.status = this.selectedStatus;
 
-    const hasFilters = Object.keys(params).length > 0;
-
-    // Only show loading if we're fetching from API (not using cache)
-    if (!useCache || hasFilters) {
-      this.loading = true;
-    }
+    this.loading = true;
     this.error = null;
 
-    // forceRefresh = true only if we have filters (need fresh data)
-    this.patientService.getPrescriptions(params, !useCache || hasFilters).subscribe({
+    this.patientService.getPrescriptions(params, true).subscribe({
       next: (response: any) => {
-        this.prescriptions = Array.isArray(response.data) ? response.data : [];
-        this.filteredPrescriptions = [...this.prescriptions];
+        const responseData = response.data;
+        // Check if response.data is the paginated object containing 'data' array
+        if (responseData && responseData.data && Array.isArray(responseData.data)) {
+          this.prescriptions = responseData.data;
+          this.currentPage = responseData.current_page || 1;
+          this.totalItems = responseData.total || 0;
+          this.hasNextPage = responseData.current_page < responseData.last_page;
+          this.hasPreviousPage = responseData.current_page > 1;
+        } else if (Array.isArray(responseData)) {
+          // Fallback if it is a plain array
+          this.prescriptions = responseData;
+          this.totalItems = responseData.length;
+        } else {
+          this.prescriptions = [];
+        }
+
         this.extractDoctors();
-        this.applyFilters();
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -115,66 +119,14 @@ export class Prescriptions implements OnInit {
     this.doctors = Array.from(uniqueDoctors).sort();
   }
 
-  applyFilters(): void {
-    let filtered = [...this.prescriptions];
-
-    // Search filter
-    if (this.searchQuery.trim()) {
-      const query = this.searchQuery.toLowerCase();
-      filtered = filtered.filter(prescription =>
-        prescription.medication_name?.toLowerCase().includes(query) ||
-        prescription.dosage?.toLowerCase().includes(query) ||
-        prescription.frequency?.toLowerCase().includes(query) ||
-        prescription.instructions?.toLowerCase().includes(query) ||
-        prescription.notes?.toLowerCase().includes(query)
-      );
-    }
-
-    // Date filters
-    if (this.dateFrom) {
-      filtered = filtered.filter(prescription =>
-        new Date(prescription.prescribed_date) >= new Date(this.dateFrom)
-      );
-    }
-    if (this.dateTo) {
-      filtered = filtered.filter(prescription =>
-        new Date(prescription.prescribed_date) <= new Date(this.dateTo)
-      );
-    }
-
-    // Doctor filter
-    if (this.selectedDoctor) {
-      filtered = filtered.filter(prescription =>
-        prescription.doctor?.user?.name === this.selectedDoctor
-      );
-    }
-
-    // Status filter
-    if (this.selectedStatus !== 'all') {
-      filtered = filtered.filter(prescription =>
-        prescription.status === this.selectedStatus
-      );
-    }
-
-    this.filteredPrescriptions = filtered;
-  }
-
   onSearch(): void {
-    // If search query exists, fetch from API, otherwise use cache
-    if (this.searchQuery || this.dateFrom || this.dateTo || this.selectedDoctor || this.selectedStatus !== 'all') {
-      this.fetchPrescriptions(false);
-    } else {
-      this.applyFilters();
-    }
+    this.currentPage = 1;
+    this.fetchPrescriptions(1);
   }
 
   onFilterChange(): void {
-    // If filters exist, fetch from API, otherwise use cache
-    if (this.searchQuery || this.dateFrom || this.dateTo || this.selectedDoctor || this.selectedStatus !== 'all') {
-      this.fetchPrescriptions(false);
-    } else {
-      this.applyFilters();
-    }
+    this.currentPage = 1;
+    this.fetchPrescriptions(1);
   }
 
   clearFilters(): void {
@@ -183,8 +135,8 @@ export class Prescriptions implements OnInit {
     this.dateTo = '';
     this.selectedDoctor = '';
     this.selectedStatus = 'all';
-    // Fetch all data again from cache
-    this.fetchPrescriptions(true);
+    this.currentPage = 1;
+    this.fetchPrescriptions(1);
   }
 
   viewDetails(prescription: Prescription): void {
@@ -207,14 +159,24 @@ export class Prescriptions implements OnInit {
     });
   }
 
-  toggleViewMode(): void {
-    this.viewMode = this.viewMode === 'grid' ? 'list' : 'grid';
+  nextPage(): void {
+    if (this.hasNextPage) {
+      this.fetchPrescriptions(this.currentPage + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  previousPage(): void {
+    if (this.hasPreviousPage) {
+      this.fetchPrescriptions(this.currentPage - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   getRecordAge(prescribedDate: string): string {
-    const date = new Date(prescribedDate);
+    const prescribed = new Date(prescribedDate);
     const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffTime = Math.abs(now.getTime() - prescribed.getTime());
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays === 0) return 'Today';
@@ -229,19 +191,23 @@ export class Prescriptions implements OnInit {
   }
 
   getStatusClass(status: string): string {
-    switch (status) {
-      case 'active':
-        return 'status-active';
-      case 'completed':
-        return 'status-completed';
-      case 'cancelled':
-        return 'status-cancelled';
-      default:
-        return '';
-    }
+    return `status-${status}`;
   }
 
   getStatusLabel(status: string): string {
-    return status.charAt(0).toUpperCase() + status.slice(1);
+    const labels: { [key: string]: string } = {
+      'active': 'Active',
+      'completed': 'Completed',
+      'cancelled': 'Cancelled'
+    };
+    return labels[status] || status;
+  }
+
+  get hasActiveFilters(): boolean {
+    return !!(this.searchQuery || this.dateFrom || this.dateTo || this.selectedDoctor || this.selectedStatus !== 'all');
+  }
+
+  retryLoad(): void {
+    this.fetchPrescriptions(this.currentPage);
   }
 }

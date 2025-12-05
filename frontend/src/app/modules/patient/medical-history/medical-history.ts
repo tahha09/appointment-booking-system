@@ -21,6 +21,7 @@ interface MedicalHistoryRecord {
     } | null;
     specialization?: {
       name: string;
+
     } | null;
   } | null;
 }
@@ -38,12 +39,23 @@ export class MedicalHistory implements OnInit {
   loading = true;
   error: string | null = null;
 
+  // Backend Pagination
+  currentPage: number = 1;
+  totalItems: number = 0;
+  hasNextPage: boolean = false;
+  hasPreviousPage: boolean = false;
+  itemsPerPage: number = 8;
+
   // Search and filter
   searchQuery: string = '';
   dateFrom: string = '';
   dateTo: string = '';
   selectedDoctor: string = '';
   doctors: string[] = [];
+
+  get hasActiveFilters(): boolean {
+    return !!(this.searchQuery || this.dateFrom || this.dateTo || this.selectedDoctor);
+  }
 
   // View details
   selectedRecord: MedicalHistoryRecord | null = null;
@@ -73,16 +85,22 @@ export class MedicalHistory implements OnInit {
 
     // If no filters, try to use cache (service will handle it)
     // If filters exist, fetch from API
-    this.fetchMedicalHistory(!hasFilters);
+    this.fetchMedicalHistory(1, !hasFilters);
   }
 
-  fetchMedicalHistory(useCache: boolean = true): void {
-    const params: any = {};
+  fetchMedicalHistory(page: number = 1, useCache: boolean = true): void {
+    this.currentPage = page;
+    const params: any = {
+      page: this.currentPage,
+      per_page: this.itemsPerPage
+    };
+
     if (this.searchQuery) params.search = this.searchQuery;
     if (this.dateFrom) params.date_from = this.dateFrom;
     if (this.dateTo) params.date_to = this.dateTo;
+    if (this.selectedDoctor) params.doctor = this.selectedDoctor;
 
-    const hasFilters = Object.keys(params).length > 0;
+    const hasFilters = !!(this.searchQuery || this.dateFrom || this.dateTo || this.selectedDoctor);
 
     // Only show loading if we're fetching from API (not using cache)
     if (!useCache || hasFilters) {
@@ -94,10 +112,22 @@ export class MedicalHistory implements OnInit {
     this.patientService.getMedicalHistory(params, !useCache || hasFilters).subscribe({
       next: (response: any) => {
         // Backend uses ApiResponse trait which returns { success, message, data }
-        this.medicalHistory = Array.isArray(response.data) ? response.data : [];
+        // The data property contains the paginated response
+        const responseData = response.data;
+
+        this.medicalHistory = Array.isArray(responseData.data) ? responseData.data : [];
         this.filteredHistory = [...this.medicalHistory];
+
+        // Update pagination info
+        this.currentPage = responseData.current_page || 1;
+        this.totalItems = responseData.total || 0;
+        this.hasNextPage = !!responseData.next_page_url;
+        this.hasPreviousPage = !!responseData.prev_page_url;
+
         this.extractDoctors();
-        this.applyFilters();
+        // No need to apply filters locally as backend handles it
+        // this.applyFilters(); 
+
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -107,6 +137,22 @@ export class MedicalHistory implements OnInit {
         console.error(err);
       }
     });
+  }
+
+  nextPage(): void {
+    if (this.hasNextPage) {
+      this.fetchMedicalHistory(this.currentPage + 1, false);
+    }
+  }
+
+  previousPage(): void {
+    if (this.hasPreviousPage) {
+      this.fetchMedicalHistory(this.currentPage - 1, false);
+    }
+  }
+
+  retryLoad(): void {
+    this.fetchMedicalHistory(this.currentPage, false);
   }
 
   extractDoctors(): void {
@@ -120,6 +166,8 @@ export class MedicalHistory implements OnInit {
   }
 
   applyFilters(): void {
+    // This method is kept for compatibility but logic is moved to backend
+    // We can still use it for client-side filtering if needed, but primarily we rely on backend
     let filtered = [...this.medicalHistory];
 
     // Search filter
@@ -156,21 +204,13 @@ export class MedicalHistory implements OnInit {
   }
 
   onSearch(): void {
-    // If search query exists, fetch from API, otherwise use cache
-    if (this.searchQuery || this.dateFrom || this.dateTo || this.selectedDoctor) {
-      this.fetchMedicalHistory(false);
-    } else {
-      this.applyFilters();
-    }
+    // Always fetch from API when searching
+    this.fetchMedicalHistory(1, false);
   }
 
   onFilterChange(): void {
-    // If filters exist, fetch from API, otherwise use cache
-    if (this.searchQuery || this.dateFrom || this.dateTo || this.selectedDoctor) {
-      this.fetchMedicalHistory(false);
-    } else {
-      this.applyFilters();
-    }
+    // Always fetch from API when filtering
+    this.fetchMedicalHistory(1, false);
   }
 
   clearFilters(): void {
@@ -179,7 +219,7 @@ export class MedicalHistory implements OnInit {
     this.dateTo = '';
     this.selectedDoctor = '';
     // Fetch all data again from cache
-    this.fetchMedicalHistory(true);
+    this.fetchMedicalHistory(1, true);
   }
 
   viewDetails(record: MedicalHistoryRecord): void {
