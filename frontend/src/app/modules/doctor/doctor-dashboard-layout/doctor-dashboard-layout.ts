@@ -56,14 +56,14 @@ export class DoctorDashboardLayout implements OnInit {
       this.cdr.detectChanges();
     }
 
-      // إرسال للسيرفر
+      
     this.notificationService.markAsRead(notificationId).subscribe({
       next: () => {
         console.log('Notification marked as read');
       },
       error: (err) => {
         console.error('Error marking notification as read:', err);
-        // إذا فشلت مع السيرفر، نرجع الحالة كما كانت
+        
         if (notification) {
           notification.read_at = null;
           this.unreadCount++;
