@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DoctorController as AdminDoctorController;
 use App\Http\Controllers\Admin\AppointmentController as AdminAppointmentController;
+use App\Http\Controllers\Admin\AppointmentAnalyticsController;
 use App\Http\Controllers\Doctor\AppointmentController as DoctorAppointmentController;
 use App\Http\Controllers\Doctor\ScheduleController;
 use App\Http\Controllers\Doctor\PatientController as DoctorPatientController;
@@ -189,6 +190,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // Reports
         Route::get('/reports/appointments', [AdminAppointmentController::class, 'appointmentReport']);
         Route::get('/reports/doctors', [AdminDoctorController::class, 'doctorReport']);
+
+        // Appointment Analytics
+        Route::prefix('analytics')->group(function () {
+            Route::get('/overview', [AppointmentAnalyticsController::class, 'overview']);
+            Route::get('/trends', [AppointmentAnalyticsController::class, 'appointmentTrends']);
+            Route::get('/revenue', [AppointmentAnalyticsController::class, 'revenueAnalytics']);
+            Route::get('/doctors', [AppointmentAnalyticsController::class, 'doctorPerformance']);
+            Route::get('/patients', [AppointmentAnalyticsController::class, 'patientAnalytics']);
+        });
     });
 
 
