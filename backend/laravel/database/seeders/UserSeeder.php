@@ -13,7 +13,7 @@ class UserSeeder extends Seeder
         // Admin User
         User::create([
             'name' => 'System Admin',
-            'email' => 'admin@booking.com',
+            'email' => 'tasneemgaballah16@gmail.com',
             'password' => Hash::make('password'),
             'role' => 'admin',
             'phone' => '+201000000001',
@@ -25,7 +25,7 @@ class UserSeeder extends Seeder
         $doctors = [
             [
                 'name' => 'Dr. Ahmed Taha',
-                'email' => 'doctor1@booking.com',
+                'email' => 'ahmed185taha@Gmail.com',
                 'password' => Hash::make('password'),
                 'role' => 'doctor',
                 'phone' => '+201000000002',
@@ -43,7 +43,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Dr. Tasneem Gaballah',
-                'email' => 'tasneem.gaballah@booking.com',
+                'email' => 'tasneemgaballah11@gmail.com',
                 'password' => Hash::make('password'),
                 'role' => 'doctor',
                 'phone' => '+201000000006',
@@ -96,7 +96,7 @@ class UserSeeder extends Seeder
         $patients = [
             [
                 'name' => 'Patient Test User',
-                'email' => 'patient@booking.com',
+                'email' => 'tasneem.m.g11@gmail.com',
                 'password' => Hash::make('password'),
                 'role' => 'patient',
                 'phone' => '+201000000004',

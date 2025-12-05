@@ -5,25 +5,37 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Notification extends Model
+class AllNotification extends Model
 {
     use HasFactory;
+    protected $table = 'all_notifications';
+    protected $keyType = 'string';
+    public $incrementing = false;
+
+    protected static function booted()
+    {
+        static::creating(function ($model) {
+            if (!$model->id) {
+                $model->id = (string) \Illuminate\Support\Str::uuid();
+            }
+        });
+    }
 
     protected $fillable = [
-        'user_id',
-        'title',
-        'message',
         'type',
-        'is_read',
-        'related_appointment_id',
+        'data',
+        'read_at',
+        'notifiable_type',
+        'notifiable_id',
     ];
 
     protected $casts = [
-        'is_read' => 'boolean',
+        'data' => 'array',
+        'read_at' => 'datetime',
     ];
 
     // مهم جداً: منع الـ recursive loop عند تحويل الـ model إلى JSON
-    protected $hidden = ['user'];
+    /* protected $hidden = ['user'];
 
     // Relationships
     public function user()
@@ -67,5 +79,5 @@ class Notification extends Model
     public function getIsUnreadAttribute()
     {
         return !$this->is_read;
-    }
+    } */
 }

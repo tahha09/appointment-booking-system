@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Doctor;
 use Illuminate\Http\Request;
+use App\Notifications\DoctorNotifications;
+
 
 class DoctorController extends Controller
 {
@@ -52,6 +54,15 @@ class DoctorController extends Controller
             $doctorDetails->save();
         }
 
+         // Send notification (database + email)
+        $doctor->notify(new DoctorNotifications('success',
+    [
+        'title' => 'Your account has been approved',
+        'message' => 'Your doctor account has been successfully approved.',
+        'type' => 'success'
+    ]));
+
+
         return response()->json([
             'success' => true,
             'message' => 'Doctor approved successfully',
@@ -71,6 +82,15 @@ class DoctorController extends Controller
             $doctorDetails->is_approved = 0;
             $doctorDetails->save();
         }
+
+        // Send notification (database + email)
+        $doctor->notify(new DoctorNotifications('error',
+    [
+        'title' => 'Your account has been rejected',
+        'message' => 'Sorry, your doctor account has been rejected.',
+        'type' => 'error'
+    ]));
+
 
         return response()->json([
             'success' => true,
