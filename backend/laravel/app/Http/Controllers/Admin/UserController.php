@@ -133,9 +133,24 @@ class UserController extends Controller
 
             $data['status'] = $status;
         }
+        $oldStatus = $user->getOriginal('status');
 
         $user->fill($data);
         $user->save();
+
+        if ($user->role === 'doctor' && $oldStatus !== $user->status) {
+
+    //  notification
+    $notificationData = [
+        'title' => 'Status Updated',
+        'message' => "Your account status has changed from {$oldStatus} to {$user->status}.",
+        'type' => 'status_change',
+        'related_appointment_id' => null, // 
+    ];
+
+    //  notification
+    $user->notify(new \App\Notifications\DoctorNotifications('status_change', $notificationData));
+}
 
         return response()->json($user);
     }

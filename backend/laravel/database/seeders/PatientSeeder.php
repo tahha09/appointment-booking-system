@@ -12,7 +12,7 @@ class PatientSeeder extends Seeder
     {
         $patients = [
             [
-                'email' => 'patient@booking.com',
+                'email' => 'tasneem.m.g11@gmail.com',
                 'emergency_contact' => '+201100000001',
                 'insurance_provider' => 'Health Insurance Company',
                 'insurance_policy_number' => 'INS123456',

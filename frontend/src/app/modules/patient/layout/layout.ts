@@ -1,7 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
+import { NotificationService } from '../../../core/services/notification-service';
 
 @Component({
   selector: 'app-layout',
@@ -10,7 +11,7 @@ import { Auth } from '../../../core/services/auth';
   templateUrl: './layout.html',
   styleUrl: './layout.scss',
 })
-export class Layout {
+export class Layout implements OnInit {
 
   isSidebarCollapsed = false;
 
@@ -19,8 +20,74 @@ export class Layout {
   avatarLoadError = false;
 
   private auth = inject(Auth);
+  private readonly notificationService = inject(NotificationService);
+  private cdr = inject(ChangeDetectorRef);
 
   constructor(public router: Router) {}
+
+  // notifications
+  notifications: any[] = [];
+  showNotifications = false;
+  unreadCount = 0;
+
+  ngOnInit() {
+    this.loadNotifications();
+  }
+
+  loadNotifications() {
+    this.notificationService.getNotifications().subscribe({
+      next: (res: any) => {
+        console.log("PATIENT NOTIFICATIONS:", res);
+        this.notifications = res;
+        this.unreadCount = this.notifications.filter(n => !n.read_at).length;
+        this.cdr.detectChanges();
+      },
+      error: err => console.error(err)
+    });
+  }
+
+  toggleNotifications() {
+    this.showNotifications = !this.showNotifications;
+    this.cdr.detectChanges();
+  }
+
+  markOneAsRead(notificationId: string) {
+    const n = this.notifications.find(x => x.id === notificationId);
+    if (n && !n.read_at) {
+      n.read_at = new Date();
+      this.unreadCount--;
+      this.cdr.detectChanges();
+    }
+
+    this.notificationService.markAsRead(notificationId).subscribe({
+      error: () => {
+        if (n) {
+          n.read_at = null;
+          this.unreadCount++;
+          this.cdr.detectChanges();
+        }
+      }
+    });
+  }
+
+  markAllAsRead() {
+    const unread = this.notifications.filter(n => !n.read_at);
+    const ids = unread.map(n => n.id);
+
+    if (ids.length === 0) return;
+
+    this.notifications.forEach(n => {
+      if (!n.read_at) n.read_at = new Date();
+    });
+
+    this.unreadCount = 0;
+    this.cdr.detectChanges();
+
+    ids.forEach(id => {
+      this.notificationService.markAsRead(id).subscribe();
+    });
+  }
+
 
 
   toggleSidebar() {

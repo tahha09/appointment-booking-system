@@ -10,7 +10,7 @@ class AdminSeeder extends Seeder
 {
     public function run()
     {
-        $adminUser = User::where('email', 'admin@booking.com')->first();
+        $adminUser = User::where('email', 'tasneemgaballah16@gmail.com')->first();
 
         if ($adminUser) {
             Admin::create([

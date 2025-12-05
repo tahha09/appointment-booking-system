@@ -12,7 +12,7 @@ class DoctorSeeder extends Seeder
     {
         $doctors = [
             [
-                'email' => 'doctor1@booking.com',
+                'email' => 'ahmed185taha@Gmail.com',
                 'specialization_id' => 1, // Cardiology
                 'license_number' => 'MED123456',
                 'experience_years' => 10,
@@ -32,7 +32,7 @@ class DoctorSeeder extends Seeder
                 'is_approved' => true,
             ],
             [
-                'email' => 'tasneem.gaballah@booking.com',
+                'email' => 'tasneemgaballah11@gmail.com',
                 'specialization_id' => 3, // Neurology
                 'license_number' => 'MED345678',
                 'experience_years' => 8,

@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Appointment;
 use App\Models\MedicalNote;
 use App\Traits\ApiResponse;
+use App\Notifications\PatientNotifications;
+
 
 class AppointmentController extends Controller
 {
@@ -105,6 +107,15 @@ class AppointmentController extends Controller
             }
 
             $appointment->update(['status' => $validated['status']]);
+
+            // Send notification to patient
+           $patientUser = $appointment->patient->user;
+           if ($patientUser) {
+               $patientUser->notify(new PatientNotifications($validated['status'], [
+                  'appointment_id' => $appointment->id,
+                  'appointment_date' => $appointment->appointment_date,
+               ]));
+            }
 
             return $this->success($appointment, 'Appointment status updated successfully');
 
