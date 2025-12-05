@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Patient;
 use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\DB;
+use App\Notifications\PatientBlockNotifications;
 
 class PatientController extends Controller
 {
@@ -158,6 +159,15 @@ class PatientController extends Controller
                 ]
             );
 
+            // Send notification to patient
+           $patient = Patient::find($id);
+           if ($patient && $patient->user) {
+              $patient->user->notify(new PatientBlockNotifications('warning', [
+                'title' => 'You have been blocked',
+                'message' => 'The doctor has blocked your profile. You may not be able to book new appointments.',
+              ]));
+           }
+
             return $this->success(null, 'Patient blocked successfully');
 
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -184,6 +194,14 @@ class PatientController extends Controller
                 ->delete();
 
             if ($deleted) {
+                // Send notification to patient
+               $patient = Patient::find($id);
+               if ($patient && $patient->user) {
+                  $patient->user->notify(new PatientBlockNotifications('success', [
+                    'title' => 'You have been unblocked',
+                    'message' => 'The doctor has unblocked your profile. You can now book appointments again.',
+                 ]));
+               }
                 return $this->success(null, 'Patient unblocked successfully');
             }
 
