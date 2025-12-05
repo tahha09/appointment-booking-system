@@ -37,7 +37,7 @@ class PaymentService
                 'appointment_id' => $appointmentId,
                 'patient_id' => $patientId,
                 'amount' => $amount,
-                'currency' => 'USD',
+                'currency' => '$',
                 'payment_method' => $paymentMethod,
                 'status' => 'pending',
             ]);
@@ -46,7 +46,7 @@ class PaymentService
             $paymentIntent = [
                 'payment_id' => $payment->id,
                 'amount' => $amount,
-                'currency' => 'USD',
+                'currency' => '$',
                 'client_secret' => 'demo_client_secret_' . uniqid(),
                 'status' => 'requires_payment_method',
             ];

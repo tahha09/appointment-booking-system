@@ -13,8 +13,8 @@ class PaymentSeeder extends Seeder
         // Get confirmed and completed appointments
         $appointments = Appointment::whereIn('status', ['confirmed', 'completed'])->get();
 
-        $paymentMethods = ['card', 'cash', 'bank_transfer', 'online'];
-        $currencies = ['USD', 'EGP'];
+        $paymentMethods = ['credit_card', 'online_wallet', 'bank_transfer','cash'];
+        $currencies = ['$', 'EGP'];
         $statuses = ['completed', 'pending', 'failed'];
 
         foreach ($appointments as $index => $appointment) {
@@ -27,8 +27,8 @@ class PaymentSeeder extends Seeder
                 $paymentStatus = 'completed';
             }
 
-            // Use EGP for most payments, USD for some
-            $currency = ($index % 3 == 0) ? 'USD' : 'EGP';
+            // Use EGP for most payments, $ for some
+            $currency = ($index % 3 == 0) ? '$' : 'EGP';
 
             // Convert fee to EGP if needed (approximate conversion)
             $amount = $appointment->doctor->consultation_fee;

@@ -46,6 +46,7 @@ Route::get('/specializations/filter-list', [SpecializationController::class, 'fi
 Route::get('/specializations/{id}', [SpecializationController::class, 'show']);
 
 Route::post('/send-email', [ContactController::class, 'sendEmail']);
+Route::middleware(['auth:sanctum', 'role:patient'])->post('/public/payments', [PaymentController::class, 'publicStore']);
 
 //airoutes
 // Add these routes to your api.php file

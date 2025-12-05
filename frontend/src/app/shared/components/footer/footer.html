@@ -6,15 +6,15 @@
         <div class="footer-cta__title">Chat with care coordinators any time.</div>
       </div>
       <div class="footer-cta__actions">
-        <button class="btn ghost">Call Support</button>
-        <button class="btn primary">Start Live Chat</button>
+        <a class="btn ghost" href="tel:+201154481315">Call Support</a>
+        <a class="btn primary" routerLink="/medical-assistant">Start Live Chat</a>
       </div>
     </div>
   </div>
 
   <div class="container footer-main">
     <div class="footer-brand">
-        <a href="#">
+        <a routerLink="/">
           <span class=""><img src="assets\logo.png" width=100px alt=""></span>
       </a>      <div>
         <div class="brand__name">Medical</div>
@@ -25,24 +25,21 @@
     <div class="footer-columns">
       <div class="footer-col">
         <h3>For Patients</h3>
-        <a href="#">Search Doctors</a>
-        <a href="#">Book Appointment</a>
-        <a href="#">Patient Dashboard</a>
-        <a href="#">Insurance Partners</a>
+        <a routerLink="/doctors">Search Doctors</a>
+        <a routerLink="/payment">Book Appointment</a>
+        <a routerLink="/patient/dashboard">Patient Dashboard</a>
       </div>
       <div class="footer-col">
         <h3>For Doctors</h3>
-        <a href="#">Join as Doctor</a>
-        <a href="#">Telehealth</a>
-        <a href="#">Doctor Dashboard</a>
-        <a href="#">Community</a>
+        <a routerLink="/register">Join as Doctor</a>
+        <a routerLink="/doctor/overview">Doctor Dashboard</a>
       </div>
       <div class="footer-col">
         <h3>Company</h3>
-        <a href="#">About</a>
-        <a href="#">Careers</a>
-        <a href="#">Spicialties</a>
-        <a href="#">Contact</a>
+        <a routerLink="/about-us">About</a>
+        <a routerLink="/medical-assistant">Medical Assistant</a>
+        <a routerLink="/specialties">Spicialties</a>
+        <a routerLink="/contact">Contact</a>
       </div>
       <div class="footer-col">
         <h3>Contact</h3>
@@ -74,9 +71,9 @@
     <div class="container footer-bottom__content">
       <span class="label">Ac 2026 Medical. Crafted for your appointment platform.</span>
       <div class="footer-bottom__links">
-        <a href="#">Privacy</a>
-        <a href="#">Terms</a>
-        <a href="#">Support</a>
+        <a routerLink="/privacy">Privacy</a>
+        <a routerLink="/terms">Terms</a>
+        <a routerLink="/contact">Support</a>
       </div>
     </div>
   </div>
