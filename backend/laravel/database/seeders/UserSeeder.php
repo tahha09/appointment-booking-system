@@ -25,7 +25,7 @@ class UserSeeder extends Seeder
         $doctors = [
             [
                 'name' => 'Dr. Ahmed Taha',
-                'email' => 'ahmed185taha@Gmail.com',
+                'email' => 'ahmedgaballah.2207@gmail.com',
                 'password' => Hash::make('password'),
                 'role' => 'doctor',
                 'phone' => '+201000000002',

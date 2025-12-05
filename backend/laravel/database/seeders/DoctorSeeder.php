@@ -12,7 +12,7 @@ class DoctorSeeder extends Seeder
     {
         $doctors = [
             [
-                'email' => 'ahmed185taha@Gmail.com',
+                'email' => 'ahmedgaballah.2207@gmail.com',
                 'specialization_id' => 1, // Cardiology
                 'license_number' => 'MED123456',
                 'experience_years' => 10,
