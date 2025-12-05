@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use App\Notifications\ContactMessageNotification;
 
 
 class ContactController extends Controller
@@ -29,6 +31,15 @@ class ContactController extends Controller
                         ->from($data['email'], $data['name']);
             }
         );
+
+        $admins = User::admins()->get(); // get all admins
+    foreach ($admins as $admin) {
+        $admin->notify(new ContactMessageNotification([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'message' => $data['message'],
+        ]));
+    }
 
         return response()->json(['success' => 'Message sent successfully ']);
     }

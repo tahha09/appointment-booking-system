@@ -124,14 +124,58 @@
         <!-- Right Section -->
         <div class="top-bar-right flex items-center gap-3">
           <!-- Notifications -->
-          <button type="button"
-            class="notification-btn flex h-12 w-12 items-center justify-center rounded-xl border border-[#0A7075]/30 bg-white text-[#143235] shadow-sm hover:border-[#0c969c] hover:-translate-y-1 transition-all duration-300"
-            aria-label="Notifications">
-            <svg class="h-6 w-6" viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                d="M12 3a6 6 0 0 0-6 6v3.51l-.8 1.6A1 1 0 0 0 6.09 16h11.82a1 1 0 0 0 .89-1.49l-.8-1.6V9a6 6 0 0 0-6-6Zm0 18a2.75 2.75 0 0 0 2.7-2h-5.4A2.75 2.75 0 0 0 12 21Z" />
-            </svg>
-          </button>
+          <div class="relative">
+            <button 
+              type="button"
+              (click)="toggleNotificationsDropdown()"
+              class="notification-btn relative flex h-12 w-12 items-center justify-center rounded-xl border border-[#0A7075]/30 bg-white text-[#143235] shadow-sm hover:border-[#0c969c] hover:-translate-y-1 transition-all duration-300"
+              aria-label="Notifications"
+            >
+              <svg class="h-6 w-6" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M12 3a6 6 0 0 0-6 6v3.51l-.8 1.6A1 1 0 0 0 6.09 16h11.82a1 1 0 0 0 .89-1.49l-.8-1.6V9a6 6 0 0 0-6-6Zm0 18a2.75 2.75 0 0 0 2.7-2h-5.4A2.75 2.75 0 0 0 12 21Z" />
+              </svg>
+              
+              <!-- unread count -->
+              <span
+                *ngIf="unreadCount > 0"
+                class="absolute -top-1 -right-1 rounded-full bg-red-500 text-white text-xs px-1.5 py-0.5 min-w-[20px] text-center"
+              >
+                {{ unreadCount }}
+              </span>
+            </button>
+
+            <!-- Notification Dropdown -->
+            <div
+              *ngIf="showNotificationsDropdown"
+              class="absolute right-0 mt-2 w-80 rounded-xl bg-white shadow-xl ring-1 ring-black/10 z-50"
+            >
+              <div class="flex items-center justify-between px-4 py-2 border-b">
+                <h3 class="font-semibold text-[#123]">Notifications</h3>
+                <button (click)="markAll()" class="text-sm text-blue-600 hover:underline" *ngIf="unreadCount > 0">
+                  Mark all as read
+                </button>
+              </div>
+
+              <div class="max-h-80 overflow-y-auto">
+                <div
+                  *ngFor="let n of notifications"
+                  (click)="markOneAsRead(n.id)"
+                  class="px-4 py-3 border-b hover:bg-gray-50 cursor-pointer"
+                  [class.opacity-50]="n.read_at"
+                >
+                  <p class="font-medium">{{ n.data?.title || 'New Notification' }}</p>
+                  <p class="text-sm text-gray-500">{{ n.data?.message }}</p>
+                  <span class="text-xs text-gray-400">{{ n.created_at | date:'short' }}</span>
+                </div>
+                
+                <!-- Empty state -->
+                <div *ngIf="notifications.length === 0" class="px-4 py-8 text-center">
+                  <p class="text-gray-500">No notifications</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </header>
