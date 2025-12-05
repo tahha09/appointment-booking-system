@@ -303,7 +303,7 @@ class AppointmentAnalyticsController extends Controller
                 $avgRating = 4.5; // Placeholder - you might have a ratings table
 
                 // Specialization
-                $specialization = $doctor->specialization ?? 'General';
+                $specialization = $doctor->specialization?->name ?? 'General';
 
                 $doctorStats[] = [
                     'id' => $doctor->id,
