@@ -185,10 +185,6 @@
       </div>
 
       <div class="card-footer">
-        <button *ngIf="canAccept(appointment.status)" (click)="acceptAppointment(appointment.id, $event)"
-          class="accept-btn">
-          <i class="fas fa-check-circle"></i> Accept
-        </button>
         <button *ngIf="canCancel(appointment.status)" (click)="cancelAppointment(appointment.id, $event)"
           class="cancel-btn">
           <i class="fas fa-times-circle"></i> Cancel
@@ -235,10 +231,6 @@
       </div>
 
       <div class="list-actions">
-        <button *ngIf="canAccept(appointment.status)" (click)="acceptAppointment(appointment.id, $event)"
-          class="list-accept-btn" title="Accept appointment">
-          <i class="fas fa-check"></i>
-        </button>
         <button *ngIf="canCancel(appointment.status)" (click)="cancelAppointment(appointment.id, $event)"
           class="list-cancel-btn" title="Cancel appointment">
           <i class="fas fa-times"></i>
@@ -384,11 +376,6 @@
       </div>
 
       <div class="modal-footer">
-        <button *ngIf="canAccept(selectedAppointment.status)" (click)="acceptAppointment(selectedAppointment.id, $event)"
-          class="accept-modal-btn">
-          <i class="fas fa-check-circle"></i>
-          Accept Appointment
-        </button>
         <button *ngIf="canCancel(selectedAppointment.status)" (click)="cancelAppointment(selectedAppointment.id, $event)"
           class="cancel-modal-btn">
           <i class="fas fa-times-circle"></i>

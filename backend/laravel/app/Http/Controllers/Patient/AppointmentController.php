@@ -137,7 +137,9 @@ class AppointmentController extends Controller
             // Get all results (no pagination for consistency with medical history)
             $appointments = $query->get();
 
-            return $this->success($appointments, 'Appointments retrieved successfully');
+            return $this->success([
+                'appointments' => $appointments
+            ], 'Appointments retrieved successfully');
             
         } catch (\Exception $e) {
             return $this->error($e->getMessage(), 500);

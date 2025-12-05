@@ -86,7 +86,7 @@ export class MyAppointments implements OnInit {
     // forceRefresh = true only if we have filters (need fresh data)
     this.patientService.getAppointments(params, !useCache || hasFilters).subscribe({
       next: (response: any) => {
-        this.appointments = Array.isArray(response.data) ? response.data : [];
+        this.appointments = Array.isArray(response.data.appointments) ? response.data.appointments : [];
         this.filteredAppointments = [...this.appointments];
         this.extractDoctors();
         this.applyFilters();
@@ -195,53 +195,6 @@ export class MyAppointments implements OnInit {
     this.selectedAppointment = null;
   }
 
-  acceptAppointment(id: number, event?: Event): void {
-    if (event) {
-      event.stopPropagation();
-    }
-    
-    this.notification.confirm(
-      'Accept Appointment',
-      'Are you sure you want to accept this appointment?',
-      {
-        confirmButtonText: 'Yes, Accept',
-        cancelButtonText: 'Cancel'
-      }
-    ).then((result) => {
-      if (result.isConfirmed) {
-        const token = sessionStorage.getItem('auth_token');
-        const headers: Record<string, string> = {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        };
-        
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
-        }
-        
-        fetch(`http://localhost:8000/api/patient/appointments/${id}/accept`, {
-          method: 'PUT',
-          headers: headers
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            this.notification.success('Success', 'Appointment accepted successfully!');
-            this.fetchAppointments(false);
-            if (this.showDetailsModal) {
-              this.closeDetailsModal();
-            }
-          } else {
-            this.notification.error('Error', data.message || 'Failed to accept appointment');
-          }
-        })
-        .catch(err => {
-          console.error('Error accepting appointment:', err);
-          this.notification.error('Error', 'Failed to accept appointment. Please try again.');
-        });
-      }
-    });
-  }
 
   cancelAppointment(id: number, event?: Event): void {
     if (event) {
@@ -355,9 +308,6 @@ export class MyAppointments implements OnInit {
     return status === 'pending' || status === 'confirmed';
   }
 
-  canAccept(status: string): boolean {
-    return status === 'pending';
-  }
 
   retryLoad(): void {
     this.notification.confirm(

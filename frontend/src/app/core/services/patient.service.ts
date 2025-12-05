@@ -122,9 +122,9 @@ export class PatientService {
     // We only use cache if there are no search params (fetching all data)
     const hasParams = params && Object.keys(params).length > 0;
 
-    if (!hasParams && !forceRefresh && this.appointmentsCache) {
+    if (!hasParams && !forceRefresh && this.appointmentsCache && Array.isArray(this.appointmentsCache)) {
       return new Observable(observer => {
-        observer.next({ success: true, data: this.appointmentsCache });
+        observer.next({ success: true, data: { appointments: this.appointmentsCache } });
         observer.complete();
       });
     }
@@ -149,7 +149,9 @@ export class PatientService {
         next: (response: any) => {
           // Cache the data if we fetched all records (no params)
           if (!hasParams && response.success) {
-            this.appointmentsCache = response.data;
+            // Clear old cache format and use new format
+            this.appointmentsCache = null;
+            this.appointmentsCache = response.data.appointments || [];
           }
           observer.next(response);
           observer.complete();
