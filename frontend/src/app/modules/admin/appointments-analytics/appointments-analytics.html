@@ -1,54 +1,44 @@
 <div class="space-y-6 text-[#032f30]">
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <h2 class="text-2xl font-bold text-[#031716]">Appointments Analytics</h2>
-    <button
-      (click)="refreshData()"
-      class="px-4 py-2 rounded-xl bg-[#0c969c] text-white font-semibold hover:bg-[#0a7075] transition flex items-center gap-2"
-    >
+    <button (click)="refreshData()"
+      class="px-3 sm:px-4 py-2 rounded-xl bg-[#0c969c] text-white font-semibold hover:bg-[#0a7075] transition flex items-center gap-1 sm:gap-2 text-sm sm:text-base">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+        </path>
       </svg>
-      Refresh
+      <span class="hidden xs:inline">Refresh</span>
     </button>
   </div>
 
   <!-- Tabs -->
-  <div class="flex flex-wrap gap-2 border-b border-[#d3e6eb]">
-    <button
-      (click)="setActiveTab('overview')"
-      [class]="'px-4 py-2 font-semibold transition ' + (activeTab === 'overview' ? 'border-b-2 border-[#0c969c] text-[#0c969c]' : 'text-[#6ba3be] hover:text-[#0c969c]')"
-    >
+  <div class="flex flex-wrap gap-1 sm:gap-2 border-b border-[#d3e6eb] pb-1">
+    <button (click)="setActiveTab('overview')"
+      [class]="'px-3 sm:px-4 py-2 font-semibold transition text-sm sm:text-base min-h-[44px] touch-manipulation ' + (activeTab === 'overview' ? 'border-b-2 border-[#0c969c] text-[#0c969c]' : 'text-[#6ba3be] hover:text-[#0c969c]')">
       Overview
     </button>
-    <button
-      (click)="setActiveTab('trends')"
-      [class]="'px-4 py-2 font-semibold transition ' + (activeTab === 'trends' ? 'border-b-2 border-[#0c969c] text-[#0c969c]' : 'text-[#6ba3be] hover:text-[#0c969c]')"
-    >
+    <button (click)="setActiveTab('trends')"
+      [class]="'px-3 sm:px-4 py-2 font-semibold transition text-sm sm:text-base min-h-[44px] touch-manipulation ' + (activeTab === 'trends' ? 'border-b-2 border-[#0c969c] text-[#0c969c]' : 'text-[#6ba3be] hover:text-[#0c969c]')">
       Trends
     </button>
-    <button
-      (click)="setActiveTab('revenue')"
-      [class]="'px-4 py-2 font-semibold transition ' + (activeTab === 'revenue' ? 'border-b-2 border-[#0c969c] text-[#0c969c]' : 'text-[#6ba3be] hover:text-[#0c969c]')"
-    >
+    <button (click)="setActiveTab('revenue')"
+      [class]="'px-3 sm:px-4 py-2 font-semibold transition text-sm sm:text-base min-h-[44px] touch-manipulation ' + (activeTab === 'revenue' ? 'border-b-2 border-[#0c969c] text-[#0c969c]' : 'text-[#6ba3be] hover:text-[#0c969c]')">
       Revenue
     </button>
-    <button
-      (click)="setActiveTab('doctors')"
-      [class]="'px-4 py-2 font-semibold transition ' + (activeTab === 'doctors' ? 'border-b-2 border-[#0c969c] text-[#0c969c]' : 'text-[#6ba3be] hover:text-[#0c969c]')"
-    >
+    <button (click)="setActiveTab('doctors')"
+      [class]="'px-3 sm:px-4 py-2 font-semibold transition text-sm sm:text-base min-h-[44px] touch-manipulation ' + (activeTab === 'doctors' ? 'border-b-2 border-[#0c969c] text-[#0c969c]' : 'text-[#6ba3be] hover:text-[#0c969c]')">
       Doctors
     </button>
-    <button
-      (click)="setActiveTab('patients')"
-      [class]="'px-4 py-2 font-semibold transition ' + (activeTab === 'patients' ? 'border-b-2 border-[#0c969c] text-[#0c969c]' : 'text-[#6ba3be] hover:text-[#0c969c]')"
-    >
+    <button (click)="setActiveTab('patients')"
+      [class]="'px-3 sm:px-4 py-2 font-semibold transition text-sm sm:text-base min-h-[44px] touch-manipulation ' + (activeTab === 'patients' ? 'border-b-2 border-[#0c969c] text-[#0c969c]' : 'text-[#6ba3be] hover:text-[#0c969c]')">
       Patients
     </button>
   </div>
 
   <!-- Error Messages -->
-  <div *ngIf="errors[activeTab]" class="rounded-lg bg-red-100 border border-red-300 text-red-800 p-3">
-    <p class="text-sm">{{ errors[activeTab] }}</p>
+  <div *ngIf="errors[activeTab]" class="rounded-lg bg-red-100 border border-red-300 text-red-800 p-3 mx-2 sm:mx-0">
+    <p class="text-xs sm:text-sm">{{ errors[activeTab] }}</p>
   </div>
 
   <!-- Overview Tab -->
@@ -57,25 +47,24 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 shadow-lg">
         <p class="text-xs sm:text-sm text-[#6ba3be] mb-1">Total Appointments</p>
-        <p class="text-xl sm:text-2xl font-bold text-[#031716]">{{ overview ? formatNumber(overview.total_appointments) : '0' }}</p>
+        <p class="text-xl sm:text-2xl font-bold text-[#031716]">{{ overview ? formatNumber(overview.total_appointments)
+          : '0' }}</p>
       </div>
       <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 shadow-lg">
         <p class="text-xs sm:text-sm text-[#6ba3be] mb-1">Today's Appointments</p>
-        <p class="text-xl sm:text-2xl font-bold text-[#031716]">{{ overview ? formatNumber(overview.todays_appointments) : '0' }}</p>
+        <p class="text-xl sm:text-2xl font-bold text-[#031716]">{{ overview ? formatNumber(overview.todays_appointments)
+          : '0' }}</p>
       </div>
       <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 shadow-lg">
         <p class="text-xs sm:text-sm text-[#6ba3be] mb-1">This Month</p>
-        <p class="text-xl sm:text-2xl font-bold text-[#031716]">{{ overview ? formatNumber(overview.this_month_appointments) : '0' }}</p>
-        <p *ngIf="overview" [class]="'text-xs mt-1 ' + (overview.appointment_change_percent >= 0 ? 'text-green-600' : 'text-red-600')">
-          {{ overview.appointment_change_percent >= 0 ? '+' : '' }}{{ overview.appointment_change_percent.toFixed(1) }}% from last month
-        </p>
+        <p class="text-xl sm:text-2xl font-bold text-[#031716]">{{ overview ?
+          formatNumber(overview.this_month_appointments) : '0' }}</p>
+
       </div>
       <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 shadow-lg">
         <p class="text-xs sm:text-sm text-[#6ba3be] mb-1">Total Revenue</p>
-        <p class="text-xl sm:text-2xl font-bold text-[#031716]">{{ overview ? formatCurrency(overview.total_revenue) : '$0.00' }}</p>
-        <p *ngIf="overview" [class]="'text-xs mt-1 ' + (overview.revenue_change_percent >= 0 ? 'text-green-600' : 'text-red-600')">
-          {{ overview.revenue_change_percent >= 0 ? '+' : '' }}{{ overview.revenue_change_percent.toFixed(1) }}% from last month
-        </p>
+        <p class="text-xl sm:text-2xl font-bold text-[#031716]">{{ overview ? formatCurrency(overview.total_revenue) :
+          '$0.00' }}</p>
       </div>
     </div>
 
@@ -84,12 +73,14 @@
       <h3 class="text-lg sm:text-xl font-bold text-[#031716] mb-4">Appointment Status Breakdown</h3>
       <div *ngIf="overview?.status_breakdown" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div *ngFor="let status of ['completed', 'confirmed', 'pending', 'cancelled']" class="text-center">
-          <div [class]="'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ' + getStatusColor(status)">
+          <div
+            [class]="'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ' + getStatusColor(status)">
             {{ status | titlecase }}
           </div>
           <p class="text-2xl font-bold text-[#031716] mt-2">{{ overview?.status_breakdown?.[status] || 0 }}</p>
           <p class="text-xs text-[#6ba3be]">
-            {{ (overview?.total_appointments ?? 0) > 0 ? (((overview?.status_breakdown?.[status] ?? 0) / (overview?.total_appointments ?? 1)) * 100).toFixed(1) : 0 }}%
+            {{ (overview?.total_appointments ?? 0) > 0 ? (((overview?.status_breakdown?.[status] ?? 0) /
+            (overview?.total_appointments ?? 1)) * 100).toFixed(1) : 0 }}%
           </p>
         </div>
       </div>
@@ -103,11 +94,8 @@
       <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
         <div>
           <label class="block text-sm font-semibold text-[#0a7075] mb-2">Time Period</label>
-          <select
-            [(ngModel)]="trendPeriod"
-            (change)="onTrendPeriodChange()"
-            class="px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/50 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
-          >
+          <select [(ngModel)]="trendPeriod" (change)="onTrendPeriodChange()"
+            class="px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/50 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]">
             <option value="month">Monthly</option>
             <option value="day">Daily</option>
           </select>
@@ -121,12 +109,10 @@
     <!-- Appointments Trend Chart -->
     <div class="rounded-2xl border border-[#d3e6eb] bg-white p-5 shadow-lg">
       <h3 class="text-lg sm:text-xl font-bold text-[#031716] mb-4">Appointments Trend</h3>
-      <div *ngIf="trends.length > 0; else noTrendsData" class="relative w-full overflow-hidden rounded-2xl bg-[#f8fafc] border border-[#e3eef2]">
-        <svg
-          [attr.viewBox]="lineChartViewBox"
-          preserveAspectRatio="none"
-          class="min-w-[520px] w-full h-48 sm:h-64 text-center mx-auto my-3 sm:my-4"
-        >
+      <div *ngIf="trends.length > 0; else noTrendsData"
+        class="relative w-full overflow-x-auto rounded-2xl bg-[#f8fafc] border border-[#e3eef2]">
+        <svg [attr.viewBox]="lineChartViewBox" preserveAspectRatio="none"
+          class="min-w-[520px] w-full h-48 sm:h-64 text-center mx-auto my-3 sm:my-4">
           <defs>
             <linearGradient [attr.id]="gradientId" x1="0" x2="0" y1="0" y2="1">
               <stop offset="0%" stop-color="#0c969c" stop-opacity="0.35"></stop>
@@ -135,88 +121,37 @@
           </defs>
 
           <g *ngFor="let _ of chartGridLines; let i = index">
-            <line
-              [attr.x1]="chartPaddingLeft"
-              [attr.x2]="chartWidth - chartPaddingRight"
-              [attr.y1]="getGridLineY(i)"
-              [attr.y2]="getGridLineY(i)"
-              stroke="#d3e6eb"
-              stroke-width="1"
-              stroke-dasharray="4 4"
-            ></line>
-            <text
-              [attr.x]="chartPaddingLeft - 10"
-              [attr.y]="getGridLineY(i) + 4"
-              font-size="10"
-              fill="#6ba3be"
-              text-anchor="end"
-            >
+            <line [attr.x1]="chartPaddingLeft" [attr.x2]="chartWidth - chartPaddingRight" [attr.y1]="getGridLineY(i)"
+              [attr.y2]="getGridLineY(i)" stroke="#d3e6eb" stroke-width="1" stroke-dasharray="4 4"></line>
+            <text [attr.x]="chartPaddingLeft - 10" [attr.y]="getGridLineY(i) + 4" font-size="10" fill="#6ba3be"
+              text-anchor="end">
               {{ getGridLabel(i, 'total_appointments') }}
             </text>
           </g>
 
-          <line
-            [attr.x1]="chartPaddingLeft"
-            [attr.x2]="chartWidth - chartPaddingRight"
-            [attr.y1]="getBaselineY()"
-            [attr.y2]="getBaselineY()"
-            stroke="#032f30"
-            stroke-width="1"
-            stroke-linecap="round"
-            opacity="0.2"
-          ></line>
+          <line [attr.x1]="chartPaddingLeft" [attr.x2]="chartWidth - chartPaddingRight" [attr.y1]="getBaselineY()"
+            [attr.y2]="getBaselineY()" stroke="#032f30" stroke-width="1" stroke-linecap="round" opacity="0.2"></line>
 
-          <path
-            *ngIf="trends.length"
-            [attr.d]="getAreaPath('total_appointments')"
-            [attr.fill]="'url(#' + gradientId + ')'"
-            opacity="0.8"
-          ></path>
+          <path *ngIf="trends.length" [attr.d]="getAreaPath('total_appointments')"
+            [attr.fill]="'url(#' + gradientId + ')'" opacity="0.8"></path>
 
-          <polyline
-            *ngIf="trends.length"
-            [attr.points]="getLinePoints('total_appointments')"
-            fill="none"
-            stroke="#0c969c"
-            stroke-width="3"
-            stroke-linejoin="round"
-            stroke-linecap="round"
-          ></polyline>
+          <polyline *ngIf="trends.length" [attr.points]="getLinePoints('total_appointments')" fill="none"
+            stroke="#0c969c" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></polyline>
 
           <g *ngFor="let trend of trends; let i = index">
-            <circle
-              [attr.cx]="getPointX(i)"
-              [attr.cy]="getPointY(trend.total_appointments, 'total_appointments')"
-              r="10"
-              fill="transparent"
-            >
+            <circle [attr.cx]="getPointX(i)" [attr.cy]="getPointY(trend.total_appointments, 'total_appointments')"
+              r="10" fill="transparent">
               <title>{{ trend.label }}: {{ trend.total_appointments }} appointments</title>
             </circle>
-            <circle
-              [attr.cx]="getPointX(i)"
-              [attr.cy]="getPointY(trend.total_appointments, 'total_appointments')"
-              r="3"
-              fill="#0c969c"
-            ></circle>
+            <circle [attr.cx]="getPointX(i)" [attr.cy]="getPointY(trend.total_appointments, 'total_appointments')" r="3"
+              fill="#0c969c"></circle>
           </g>
 
           <g *ngFor="let trend of trends; let i = index">
-            <line
-              [attr.x1]="getPointX(i)"
-              [attr.x2]="getPointX(i)"
-              [attr.y1]="getBaselineY()"
-              [attr.y2]="getBaselineY() + 6"
-              stroke="#0c969c"
-              stroke-width="1.5"
-              stroke-linecap="round"
-            ></line>
-            <text
-              [attr.x]="getPointX(i)"
-              [attr.y]="getBaselineY() + 18"
-              font-size="10"
-              fill="#032f30"
-              text-anchor="middle"
-            >
+            <line [attr.x1]="getPointX(i)" [attr.x2]="getPointX(i)" [attr.y1]="getBaselineY()"
+              [attr.y2]="getBaselineY() + 6" stroke="#0c969c" stroke-width="1.5" stroke-linecap="round"></line>
+            <text [attr.x]="getPointX(i)" [attr.y]="getBaselineY() + 18" font-size="10" fill="#032f30"
+              text-anchor="middle">
               {{ trend.label }}
             </text>
           </g>
@@ -230,9 +165,12 @@
     </div>
 
     <!-- Trends Table -->
-    <div class="rounded-2xl border border-[#d3e6eb] bg-white p-5 shadow-lg overflow-x-auto">
-      <h3 class="text-lg sm:text-xl font-bold text-[#031716] mb-4">Detailed Trends</h3>
-      <table class="w-full text-sm">
+    <div class="rounded-2xl border border-[#d3e6eb] bg-white p-3 sm:p-5 shadow-lg overflow-x-auto">
+      <h3 class="text-base sm:text-lg lg:text-xl font-bold text-[#031716] mb-4">Detailed Trends</h3>
+      <div class="text-xs sm:text-sm text-[#6ba3be] mb-3 sm:hidden">
+        ← Swipe to see all columns →
+      </div>
+      <table class="w-full text-xs sm:text-sm min-w-[600px]">
         <thead>
           <tr class="border-b border-[#d3e6eb]">
             <th class="text-left py-2 text-[#6ba3be] font-semibold">Period</th>
@@ -265,15 +203,18 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="rounded-2xl border border-[#d3e6eb] bg-white p-5 shadow-lg">
         <p class="text-sm text-[#6ba3be] mb-1">Today's Revenue</p>
-        <p class="text-2xl font-bold text-[#031716]">{{ revenueAnalytics ? formatCurrency(revenueAnalytics.today_revenue) : '$0.00' }}</p>
+        <p class="text-2xl font-bold text-[#031716]">{{ revenueAnalytics ?
+          formatCurrency(revenueAnalytics.today_revenue) : '$0.00' }}</p>
       </div>
       <div class="rounded-2xl border border-[#d3e6eb] bg-white p-5 shadow-lg">
         <p class="text-sm text-[#6ba3be] mb-1">This Week's Revenue</p>
-        <p class="text-2xl font-bold text-[#031716]">{{ revenueAnalytics ? formatCurrency(revenueAnalytics.this_week_revenue) : '$0.00' }}</p>
+        <p class="text-2xl font-bold text-[#031716]">{{ revenueAnalytics ?
+          formatCurrency(revenueAnalytics.this_week_revenue) : '$0.00' }}</p>
       </div>
       <div class="rounded-2xl border border-[#d3e6eb] bg-white p-5 shadow-lg">
         <p class="text-sm text-[#6ba3be] mb-1">Average Payment</p>
-        <p class="text-2xl font-bold text-[#031716]">{{ revenueAnalytics ? formatCurrency(revenueAnalytics.average_payment) : '$0.00' }}</p>
+        <p class="text-2xl font-bold text-[#031716]">{{ revenueAnalytics ?
+          formatCurrency(revenueAnalytics.average_payment) : '$0.00' }}</p>
       </div>
       <div class="rounded-2xl border border-[#d3e6eb] bg-white p-5 shadow-lg">
         <p class="text-sm text-[#6ba3be] mb-1">Pending Payments</p>
@@ -285,7 +226,8 @@
     <div class="rounded-2xl border border-[#d3e6eb] bg-white p-5 shadow-lg">
       <h3 class="text-xl font-bold text-[#031716] mb-4">Payment Methods Breakdown</h3>
       <div class="space-y-3">
-        <div *ngFor="let method of revenueAnalytics?.payment_methods" class="flex items-center justify-between p-3 rounded-lg bg-[#f1f9ff] border border-[#6ba3be]/30">
+        <div *ngFor="let method of revenueAnalytics?.payment_methods"
+          class="flex items-center justify-between p-3 rounded-lg bg-[#f1f9ff] border border-[#6ba3be]/30">
           <div>
             <p class="font-semibold text-[#032f30]">{{ method.payment_method | titlecase }}</p>
             <p class="text-sm text-[#6ba3be]">{{ method.count }} payment(s)</p>
@@ -302,7 +244,8 @@
     <div class="rounded-2xl border border-[#d3e6eb] bg-white p-5 shadow-lg">
       <h3 class="text-xl font-bold text-[#031716] mb-4">Monthly Revenue Trend</h3>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div *ngFor="let month of revenueAnalytics?.revenue_by_month" class="p-4 rounded-xl border border-[#d7ebef] bg-white shadow-sm">
+        <div *ngFor="let month of revenueAnalytics?.revenue_by_month"
+          class="p-4 rounded-xl border border-[#d7ebef] bg-white shadow-sm">
           <p class="text-sm text-[#6ba3be] mb-1">{{ month.label }}</p>
           <p class="text-xl font-bold text-[#031716]">{{ formatCurrency(month.revenue) }}</p>
           <p class="text-xs text-[#0a7075]">{{ month.payment_count }} payments</p>
@@ -316,26 +259,24 @@
     <div class="rounded-2xl border border-[#d3e6eb] bg-white p-5 shadow-lg">
       <h3 class="text-xl font-bold text-[#031716] mb-4">Doctor Performance</h3>
       <div class="space-y-4">
-        <div *ngFor="let doctor of doctorPerformance" class="border border-[#d7ebef] rounded-xl p-4 bg-white shadow-sm">
-          <div class="flex flex-col lg:flex-row gap-4">
-            <div class="flex-1">
-              <div class="flex items-center gap-3 mb-3">
-                <img
-                  *ngIf="doctor.profile_image"
-                  [src]="doctor.profile_image"
-                  [alt]="doctor.name"
-                  class="w-12 h-12 rounded-full object-cover"
-                />
-                <div *ngIf="!doctor.profile_image" class="w-12 h-12 rounded-full bg-[#0c969c] flex items-center justify-center text-white font-semibold">
+        <div *ngFor="let doctor of doctorPerformance"
+          class="border border-[#d7ebef] rounded-xl p-3 sm:p-4 bg-white shadow-sm">
+          <div class="flex flex-col md:flex-row gap-3 sm:gap-4">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 sm:gap-3 mb-3">
+                <img *ngIf="doctor.profile_image" [src]="doctor.profile_image" [alt]="doctor.name"
+                  class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover flex-shrink-0" />
+                <div *ngIf="!doctor.profile_image"
+                  class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#0c969c] flex items-center justify-center text-white font-semibold flex-shrink-0">
                   {{ doctor.name.charAt(0) }}
                 </div>
-                <div>
-                  <h4 class="text-lg font-bold text-[#031716]">{{ doctor.name }}</h4>
-                  <p class="text-sm text-[#6ba3be]">{{ doctor.specialization }}</p>
-                  <p class="text-xs text-[#6ba3be]">{{ doctor.email }}</p>
+                <div class="min-w-0 flex-1">
+                  <h4 class="text-base sm:text-lg font-bold text-[#031716] truncate">{{ doctor.name }}</h4>
+                  <p class="text-xs sm:text-sm text-[#6ba3be] truncate">{{ doctor.specialization }}</p>
+                  <p class="text-xs text-[#6ba3be] truncate">{{ doctor.email }}</p>
                 </div>
               </div>
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 text-xs sm:text-sm">
                 <div class="text-center">
                   <p class="text-[#6ba3be]">Total Appts</p>
                   <p class="font-bold text-[#031716]">{{ doctor.total_appointments }}</p>
@@ -366,42 +307,49 @@
   <!-- Patients Tab -->
   <div *ngIf="activeTab === 'patients'" class="space-y-6">
     <!-- Patient Overview Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-5 shadow-lg">
-        <p class="text-sm text-[#6ba3be] mb-1">Total Patients</p>
-        <p class="text-2xl font-bold text-[#031716]">{{ patientAnalytics ? formatNumber(patientAnalytics.total_patients) : '0' }}</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 shadow-lg">
+        <p class="text-xs sm:text-sm text-[#6ba3be] mb-1">Total Patients</p>
+        <p class="text-xl sm:text-2xl font-bold text-[#031716]">{{ patientAnalytics ?
+          formatNumber(patientAnalytics.total_patients) : '0' }}</p>
       </div>
-      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-5 shadow-lg">
-        <p class="text-sm text-[#6ba3be] mb-1">New This Month</p>
-        <p class="text-2xl font-bold text-[#031716]">{{ patientAnalytics ? formatNumber(patientAnalytics.new_patients_this_month) : '0' }}</p>
+      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 shadow-lg">
+        <p class="text-xs sm:text-sm text-[#6ba3be] mb-1">New This Month</p>
+        <p class="text-xl sm:text-2xl font-bold text-[#031716]">{{ patientAnalytics ?
+          formatNumber(patientAnalytics.new_patients_this_month) : '0' }}</p>
       </div>
-      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-5 shadow-lg">
-        <p class="text-sm text-[#6ba3be] mb-1">Active This Month</p>
-        <p class="text-2xl font-bold text-[#031716]">{{ patientAnalytics ? formatNumber(patientAnalytics.active_patients_this_month) : '0' }}</p>
+      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 shadow-lg">
+        <p class="text-xs sm:text-sm text-[#6ba3be] mb-1">Active This Month</p>
+        <p class="text-xl sm:text-2xl font-bold text-[#031716]">{{ patientAnalytics ?
+          formatNumber(patientAnalytics.active_patients_this_month) : '0' }}</p>
       </div>
-      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-5 shadow-lg">
-        <p class="text-sm text-[#6ba3be] mb-1">Avg Appts/Patient</p>
-        <p class="text-2xl font-bold text-[#031716]">{{ patientAnalytics ? patientAnalytics.avg_appointments_per_patient.toFixed(1) : '0.0' }}</p>
+      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 shadow-lg">
+        <p class="text-xs sm:text-sm text-[#6ba3be] mb-1">Avg Appts/Patient</p>
+        <p class="text-lg sm:text-xl lg:text-2xl font-bold text-[#031716]">{{ patientAnalytics ?
+          patientAnalytics.avg_appointments_per_patient.toFixed(1) : '0.0' }}</p>
       </div>
     </div>
 
     <!-- Top Patients -->
-    <div class="rounded-2xl border border-[#d3e6eb] bg-white p-5 shadow-lg">
-      <h3 class="text-xl font-bold text-[#031716] mb-4">Top Patients (Last 3 Months)</h3>
-      <div class="space-y-3">
-        <div *ngFor="let patient of patientAnalytics?.top_patients; let i = index" class="flex items-center justify-between p-3 rounded-lg bg-[#f1f9ff] border border-[#6ba3be]/30">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-[#0c969c] flex items-center justify-center text-white font-semibold text-sm">
+    <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 shadow-lg">
+      <h3 class="text-lg sm:text-xl font-bold text-[#031716] mb-4">Top Patients (Last 3 Months)</h3>
+      <div class="space-y-2 sm:space-y-3">
+        <div *ngFor="let patient of patientAnalytics?.top_patients; let i = index"
+          class="flex items-center justify-between p-3 rounded-lg bg-[#f1f9ff] border border-[#6ba3be]/30">
+          <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <div
+              class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#0c969c] flex items-center justify-center text-white font-semibold text-xs sm:text-sm flex-shrink-0">
               {{ i + 1 }}
             </div>
-            <div>
-              <p class="font-semibold text-[#032f30]">{{ patient.name }}</p>
-              <p class="text-sm text-[#6ba3be]">{{ patient.email }}</p>
+            <div class="min-w-0 flex-1">
+              <p class="font-semibold text-[#032f30] text-sm sm:text-base truncate">{{ patient.name }}</p>
+              <p class="text-xs sm:text-sm text-[#6ba3be] truncate">{{ patient.email }}</p>
             </div>
           </div>
-          <div class="text-right">
-            <p class="text-lg font-bold text-[#0a7075]">{{ patient.appointment_count }}</p>
-            <p class="text-xs text-[#6ba3be]">appointments</p>
+          <div class="text-right flex-shrink-0 ml-2">
+            <p class="text-base sm:text-lg font-bold text-[#0a7075]">{{ patient.appointment_count }}</p>
+            <p class="text-xs text-[#6ba3be] hidden sm:block">appointments</p>
+            <p class="text-xs text-[#6ba3be] sm:hidden">appts</p>
           </div>
         </div>
         <div *ngIf="!patientAnalytics?.top_patients?.length" class="text-sm text-[#6ba3be] italic text-center py-4">
@@ -412,10 +360,12 @@
   </div>
 
   <!-- Loading States -->
-  <div *ngIf="loading[activeTab]" class="flex items-center justify-center py-20">
-    <div class="text-center">
-      <div class="w-16 h-16 border-4 border-[#0c969c] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-      <p class="text-[#6ba3be]">Loading {{ activeTab }} data...</p>
+  <div *ngIf="loading[activeTab]" class="flex items-center justify-center py-12 sm:py-20">
+    <div class="text-center px-4">
+      <div
+        class="w-12 h-12 sm:w-16 sm:h-16 border-4 border-[#0c969c] border-t-transparent rounded-full animate-spin mx-auto mb-3 sm:mb-4">
+      </div>
+      <p class="text-sm sm:text-base text-[#6ba3be]">Loading {{ activeTab }} data...</p>
     </div>
   </div>
 </div>

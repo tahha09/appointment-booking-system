@@ -458,11 +458,44 @@
 }
 
 // Responsive Design
-@media (max-width: 640px) {
+@media (max-width: 480px) {
+  .analytics-container {
+    @apply px-2 py-4;
+  }
+
   .analytics-cards,
   .revenue-cards,
   .patient-cards {
+    @apply grid-cols-1 gap-2;
+  }
+
+  .status-breakdown .status-grid {
     @apply grid-cols-1;
+  }
+
+  .chart-container .chart-wrapper svg {
+    @apply h-32;
+  }
+
+  .doctor-performance .doctor-card {
+    @apply p-3;
+  }
+
+  .doctor-performance .doctor-stats {
+    @apply grid-cols-1 gap-2;
+  }
+
+  .doctor-performance .stat-item {
+    @apply text-center p-2 bg-gray-50 rounded;
+  }
+}
+
+@media (max-width: 640px) {
+
+  .analytics-cards,
+  .revenue-cards,
+  .patient-cards {
+    @apply grid-cols-1 gap-3;
   }
 
   .status-breakdown .status-grid {
@@ -470,17 +503,43 @@
   }
 
   .chart-container .chart-wrapper svg {
-    @apply h-40;
+    @apply h-36;
+  }
+
+  .doctor-performance .doctor-stats {
+    @apply grid-cols-2 gap-3;
   }
 }
 
 @media (max-width: 768px) {
   .analytics-tabs {
-    @apply flex-col;
+    @apply flex-wrap gap-1;
+  }
+
+  .analytics-tabs button {
+    @apply flex-1 min-w-[80px] text-sm;
   }
 
   .filters-row {
-    @apply flex-col items-start;
+    @apply flex-col items-start gap-3;
+  }
+
+  .filters-row .filter-group {
+    @apply w-full;
+  }
+
+  .filters-row .filter-group select {
+    @apply w-full;
+  }
+}
+
+@media (max-width: 1024px) {
+  .doctor-performance .doctor-card>div:first-child {
+    @apply flex-col gap-3;
+  }
+
+  .doctor-performance .doctor-stats {
+    @apply grid-cols-4;
   }
 }
 
