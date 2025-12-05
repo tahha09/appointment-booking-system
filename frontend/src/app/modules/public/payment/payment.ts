@@ -1,18 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { HttpClient, HttpClientModule, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpClientModule, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Auth } from '../../../core/services/auth';
 import { Appointment as AppointmentService } from '../../../core/services/appointment';
 import { finalize, switchMap, tap } from 'rxjs/operators';
 import { Header } from '../../../shared/components/header/header';
 import { Footer } from '../../../shared/components/footer/footer';
+import { DoctorService } from '../../../core/services/doctor';
+import { Doctor } from '../../../models/doctor';
 
 @Component({
   selector: 'app-payment',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, HttpClientModule, Header, Footer],
+  imports: [CommonModule, ReactiveFormsModule, HttpClientModule, Header, Footer],
   templateUrl: './payment.html',
   styleUrls: ['./payment.scss'],
 })
@@ -28,6 +30,13 @@ export class Payment implements OnInit {
   submitting = false;
   successMessage = '';
   errorMessage = '';
+  doctorDetails: Doctor | null = null;
+  doctorLoading = false;
+  doctorError = '';
+  availableSlots: string[] = [];
+  availabilityLoading = false;
+  availabilityMessage = '';
+  private pendingAvailabilityDate: string | null = null;
 
   paymentMethods = [
     { value: 'credit_card', label: 'Credit Card', description: 'Visa, Mastercard, Amex' },
@@ -45,13 +54,14 @@ export class Payment implements OnInit {
     private fb: FormBuilder,
     private http: HttpClient,
     private auth: Auth,
-    private appointmentService: AppointmentService
+    private appointmentService: AppointmentService,
+    private doctorService: DoctorService
   ) {
     this.paymentForm = this.fb.group({
       patientName: ['', Validators.required],
       patientEmail: ['', [Validators.email]],
       amount: [null, Validators.required],
-      appointmentDate: ['', Validators.required],
+      appointmentDate: [this.minAppointmentDate, Validators.required],
       startTime: ['', Validators.required],
       endTime: ['', Validators.required],
       reason: ['', [Validators.required, Validators.minLength(5)]],
@@ -90,11 +100,20 @@ export class Payment implements OnInit {
         amountControl.setValidators([Validators.required, Validators.min(minValue)]);
         amountControl.updateValueAndValidity();
       }
+      if (this.doctorInfo.id) {
+        this.loadDoctorDetails(this.doctorInfo.id);
+      }
     });
 
     this.configureMethodValidators(this.paymentForm.get('paymentMethod')?.value);
     this.paymentForm.get('paymentMethod')?.valueChanges.subscribe((method) => {
       this.configureMethodValidators(method);
+    });
+    this.paymentForm.get('appointmentDate')?.valueChanges.subscribe((date) => {
+      this.loadAvailability(date);
+    });
+    this.paymentForm.get('startTime')?.valueChanges.subscribe((slot) => {
+      this.updateEndTime(slot);
     });
 
     this.populatePatientDetails();
@@ -210,6 +229,160 @@ export class Payment implements OnInit {
     });
   }
 
+  private loadDoctorDetails(doctorId: number): void {
+    this.doctorLoading = true;
+    this.doctorError = '';
+    this.doctorService.getDoctorById(doctorId).subscribe({
+      next: (response: any) => {
+        const doctor = Array.isArray(response?.data)
+          ? response.data[0]
+          : response?.data;
+        if (doctor) {
+          this.doctorDetails = doctor;
+          this.doctorInfo.name = doctor?.user?.name || this.doctorInfo.name;
+          this.doctorInfo.department =
+            doctor?.specialization?.name || this.doctorInfo.department;
+          const fee = Number(doctor?.consultation_fee);
+          if (!isNaN(fee)) {
+            this.doctorInfo.fee = fee;
+            this.minimumDeposit = Number((fee * 0.5).toFixed(2));
+            const amountControl = this.paymentForm.get('amount');
+            if (amountControl) {
+              amountControl.setValidators([Validators.required, Validators.min(this.minimumDeposit)]);
+              amountControl.updateValueAndValidity();
+            }
+          }
+          const dateToCheck =
+            this.pendingAvailabilityDate || this.paymentForm.get('appointmentDate')?.value;
+          if (dateToCheck) {
+            this.loadAvailability(dateToCheck);
+          }
+        } else {
+          this.doctorError = 'Doctor information could not be loaded.';
+        }
+        this.doctorLoading = false;
+      },
+      error: () => {
+        this.doctorLoading = false;
+        this.doctorError = 'Failed to load doctor details. Please try again.';
+      },
+    });
+  }
+
+  private loadAvailability(date: string | null): void {
+    const startControl = this.paymentForm.get('startTime');
+    const clearSlotSelection = () => {
+      startControl?.setValue('', { emitEvent: false });
+      this.paymentForm.patchValue({ endTime: '' }, { emitEvent: false });
+    };
+
+    if (!date) {
+      this.pendingAvailabilityDate = null;
+      this.availableSlots = [];
+      clearSlotSelection();
+      this.updateControlError('appointmentDate', 'noSlots', false);
+      this.updateControlError('startTime', 'noSlots', false);
+      return;
+    }
+    if (!this.doctorInfo.id) {
+      this.pendingAvailabilityDate = date;
+      return;
+    }
+    this.pendingAvailabilityDate = null;
+    this.availabilityLoading = true;
+    this.availabilityMessage = '';
+    const params = new HttpParams().set('date', date);
+    this.http
+      .get<{ success: boolean; data?: { available_slots?: string[]; is_available?: boolean } }>(
+        `http://localhost:8000/api/doctors/${this.doctorInfo.id}/availability`,
+        { params }
+      )
+      .subscribe({
+        next: (res) => {
+          this.availableSlots = res?.data?.available_slots ?? [];
+          if (!this.availableSlots.length) {
+            this.availabilityMessage = 'No available slots for the selected date.';
+            clearSlotSelection();
+            this.updateControlError('appointmentDate', 'noSlots', true);
+            this.updateControlError('startTime', 'noSlots', true);
+            startControl?.markAsTouched();
+          } else {
+            this.availabilityMessage = '';
+            this.updateControlError('appointmentDate', 'noSlots', false);
+            this.updateControlError('startTime', 'noSlots', false);
+            const selectedSlot = this.paymentForm.get('startTime')?.value;
+            if (!selectedSlot || !this.availableSlots.includes(selectedSlot)) {
+              clearSlotSelection();
+            } else {
+              this.updateEndTime(selectedSlot);
+            }
+          }
+          this.availabilityLoading = false;
+        },
+        error: () => {
+          this.availableSlots = [];
+          this.availabilityMessage =
+            'Unable to fetch availability for this doctor. Please pick another date.';
+          clearSlotSelection();
+          this.updateControlError('appointmentDate', 'noSlots', true);
+          this.updateControlError('startTime', 'noSlots', true);
+          this.availabilityLoading = false;
+        },
+      });
+  }
+
+  private updateEndTime(slot: string | null): void {
+    if (!slot) {
+      this.paymentForm.patchValue({ endTime: '' }, { emitEvent: false });
+      return;
+    }
+    const endTime = this.deriveEndTime(slot);
+    this.paymentForm.patchValue({ endTime }, { emitEvent: false });
+  }
+
+  private deriveEndTime(slot: string): string {
+    if (slot.includes('-')) {
+      const [, end] = slot.split('-');
+      return end?.trim() || '';
+    }
+    const [hours, minutes] = slot.split(':').map((part) => parseInt(part, 10));
+    if (isNaN(hours) || isNaN(minutes)) {
+      return '';
+    }
+    const base = new Date();
+    base.setHours(hours, minutes, 0, 0);
+    base.setMinutes(base.getMinutes() + 60);
+    return base.toTimeString().slice(0, 5);
+  }
+
+  formatSlotLabel(slot: string): string {
+    if (!slot) {
+      return '';
+    }
+    if (slot.includes('-')) {
+      return slot;
+    }
+    const endTime = this.deriveEndTime(slot);
+    return endTime ? `${slot} - ${endTime}` : slot;
+  }
+
+  private updateControlError(controlName: string, errorKey: string, shouldSet: boolean): void {
+    const control = this.paymentForm.get(controlName);
+    if (!control) {
+      return;
+    }
+    const currentErrors = { ...(control.errors || {}) };
+    if (shouldSet) {
+      currentErrors[errorKey] = true;
+      control.setErrors(currentErrors);
+      control.markAsTouched();
+    } else if (currentErrors[errorKey]) {
+      delete currentErrors[errorKey];
+      const hasOtherErrors = Object.keys(currentErrors).length > 0 ? currentErrors : null;
+      control.setErrors(hasOtherErrors);
+    }
+  }
+
   submitPayment(): void {
     if (this.paymentForm.invalid) {
       this.paymentForm.markAllAsTouched();
@@ -272,12 +445,26 @@ export class Payment implements OnInit {
     this.successMessage = '';
     this.errorMessage = '';
 
-    let paymentRecorded = false;
-    this.http
-      .post('http://localhost:8000/api/public/payments', payload, { headers })
+    let createdAppointmentId: number | null = null;
+    this.appointmentService
+      .createAppointment(appointmentPayload)
       .pipe(
-        tap(() => (paymentRecorded = true)),
-        switchMap(() => this.appointmentService.createAppointment(appointmentPayload)),
+        tap((res) => {
+          createdAppointmentId = res?.data?.id ?? null;
+        }),
+        switchMap((res) => {
+          const appointmentId = res?.data?.id;
+          if (!appointmentId) {
+            throw new Error('Appointment was created but no ID was returned.');
+          }
+          const paymentPayload = {
+            ...payload,
+            appointment_id: appointmentId,
+          };
+          return this.http.post('http://localhost:8000/api/public/payments', paymentPayload, {
+            headers,
+          });
+        }),
         finalize(() => (this.submitting = false))
       )
       .subscribe({
@@ -288,12 +475,12 @@ export class Payment implements OnInit {
           void this.router.navigate(['/patient/my-appointments']);
         },
         error: (err) => {
-          if (paymentRecorded) {
-            const baseMessage =
-              err?.error?.message ||
-              'The appointment could not be booked after completing the payment. Please contact support.';
-            this.errorMessage = `Payment saved but appointment booking failed: ${baseMessage}`;
-            return;
+          if (createdAppointmentId) {
+            this.appointmentService.cancelAppointment(createdAppointmentId).subscribe({
+              error: () => {
+                // ignore cancellation error
+              },
+            });
           }
           if (err?.status === 401 || err?.status === 403) {
             this.errorMessage = 'Your session has expired. Please sign in again to continue.';

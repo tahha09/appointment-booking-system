@@ -1,20 +1,33 @@
 <app-header></app-header>
 <div class="min-h-screen bg-gradient-to-br from-[#031716] via-[#032f30] to-[#0a7075] px-4 py-10 text-white">
   <div class="mx-auto max-w-5xl space-y-6">
-    <div class="flex items-center gap-2 text-sm text-[#cfe9ec]">
-      <a routerLink="/" class="rounded-full border border-white/20 px-3 py-1 text-xs uppercase tracking-[0.2em] transition hover:bg-white/10">Back Home</a>
-      <span>→</span>
-      <p>Secure Payment</p>
-    </div>
-
     <div class="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
 
 
       <aside class="rounded-3xl border border-white/20 bg-white/5 p-6 backdrop-blur-xl">
         <div class="rounded-2xl border border-white/20 bg-white/10 p-5">
           <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#6ba3be]">Selected doctor</p>
-          <h3 class="mt-3 text-2xl font-bold">{{ doctorInfo.name }}</h3>
-          <p class="text-sm text-[#cfe9ec]">{{ doctorInfo.department }}</p>
+          <div class="mt-4 flex items-center gap-4">
+            <ng-container *ngIf="doctorDetails?.user?.profile_image; else doctorLetter">
+              <img
+                [src]="doctorDetails?.user?.profile_image"
+                alt="Doctor photo"
+                class="h-16 w-16 rounded-2xl border border-white/20 object-cover"
+              />
+            </ng-container>
+            <ng-template #doctorLetter>
+              <div class="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/20 bg-white/5 text-xl font-semibold text-white">
+                {{ doctorInfo.name ? (doctorInfo.name[0] | uppercase) : 'D' }}
+              </div>
+            </ng-template>
+            <div>
+              <h3 class="text-2xl font-bold">{{ doctorInfo.name }}</h3>
+              <p class="text-sm text-[#cfe9ec]">{{ doctorInfo.department }}</p>
+              <p class="text-xs text-[#6ba3be]" *ngIf="doctorDetails?.license_number">
+                License #{{ doctorDetails?.license_number }}
+              </p>
+            </div>
+          </div>
 
           <div class="mt-5 grid gap-3 text-sm">
             <div class="flex items-center justify-between rounded-2xl bg-white/5 px-4 py-3">
@@ -25,11 +38,30 @@
               <span class="text-[#cfe9ec]">Minimum deposit</span>
               <span class="font-semibold">{{ minimumDeposit | number: '1.2-2' }} {{ currencySymbol }}</span>
             </div>
+            <div class="flex items-center justify-between rounded-2xl bg-white/5 px-4 py-3" *ngIf="doctorDetails?.experience_years">
+              <span class="text-[#cfe9ec]">Experience</span>
+              <span class="font-semibold">{{ doctorDetails?.experience_years }} yrs</span>
+            </div>
+            <div class="flex items-center justify-between rounded-2xl bg-white/5 px-4 py-3" *ngIf="doctorDetails?.rating">
+              <span class="text-[#cfe9ec]">Rating</span>
+              <span class="font-semibold">{{ doctorDetails?.rating }}/5</span>
+            </div>
           </div>
 
-          <p class="mt-4 text-xs text-[#cfe9ec]">
-            Deposits are recorded instantly and sent to the doctor. Any balance will be due at the clinic or through your preferred method.
-          </p>
+          <div class="mt-4 grid gap-3 text-xs">
+            <p class="rounded-2xl bg-white/5 px-4 py-3 text-[#cfe9ec]">
+              Deposits are recorded instantly and sent to the doctor. Any balance will be due at the clinic or through your preferred method.
+            </p>
+            <div class="flex items-center justify-between rounded-2xl border border-white/10 px-4 py-3" *ngIf="doctorDetails?.user?.phone">
+              <span class="text-[#6ba3be] uppercase tracking-[0.2em]">Phone</span>
+              <span class="text-[#cfe9ec]">{{ doctorDetails?.user?.phone }}</span>
+            </div>
+            <div class="flex items-center justify-between rounded-2xl border border-white/10 px-4 py-3" *ngIf="doctorDetails?.user?.email">
+              <span class="text-[#6ba3be] uppercase tracking-[0.2em]">Email</span>
+              <span class="text-[#cfe9ec]">{{ doctorDetails?.user?.email }}</span>
+            </div>
+          </div>
+          <p class="mt-4 text-xs text-[#cfe9ec]" *ngIf="doctorError">{{ doctorError }}</p>
         </div>
 
         <div class="mt-6 space-y-3 rounded-2xl border border-white/20 bg-white/5 p-5 text-sm">
@@ -114,24 +146,37 @@
                 <span class="text-xs text-red-500" *ngIf="f['appointmentDate'].touched && f['appointmentDate'].invalid">
                   Please select a valid date.
                 </span>
-              </label>
-              <label class="flex flex-col gap-2 font-semibold">
-                Start time
-                <input
-                  type="time"
-                  formControlName="startTime"
-                  class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none"
-                />
-                <span class="text-xs text-red-500" *ngIf="f['startTime'].touched && f['startTime'].invalid">
-                  Start time is required.
+                <span class="text-xs text-red-500" *ngIf="!availabilityLoading && f['appointmentDate'].errors?.['noSlots']">
+                  {{ availabilityMessage }}
                 </span>
               </label>
               <label class="flex flex-col gap-2 font-semibold">
-                End time
+                Available slots
+                <select
+                  formControlName="startTime"
+                  class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none"
+                  [disabled]="availabilityLoading || !availableSlots.length"
+                >
+                  <option value="">Select available time</option>
+                  <option *ngFor="let slot of availableSlots" [value]="slot">
+                    {{ formatSlotLabel(slot) }}
+                  </option>
+                </select>
+                <span class="text-xs text-[#0a7075]" *ngIf="availabilityLoading">Checking schedule...</span>
+                <span class="text-xs text-red-500" *ngIf="!availabilityLoading && f['startTime'].errors?.['noSlots']">
+                  {{ availabilityMessage || 'No available slots for the selected date.' }}
+                </span>
+                <span class="text-xs text-red-500" *ngIf="f['startTime'].touched && f['startTime'].errors?.['required']">
+                  Please select an available slot.
+                </span>
+              </label>
+              <label class="flex flex-col gap-2 font-semibold">
+                End time (auto)
                 <input
                   type="time"
                   formControlName="endTime"
-                  class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none"
+                  readonly
+                  class="rounded-2xl border border-[#e0eff2] bg-[#e0eff2]/40 px-4 py-3 text-sm text-[#031716] focus:outline-none"
                 />
                 <span class="text-xs text-red-500" *ngIf="f['endTime'].touched && f['endTime'].invalid">
                   End time is required.

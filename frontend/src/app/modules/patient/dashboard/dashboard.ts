@@ -58,8 +58,6 @@ export class Dashboard implements OnInit {
 
     this.appointmentService.getAppointments().subscribe({
       next: (response: any) => {
-        console.log('Dashboard appointments data:', response);
-
         if (response.success && response.data) {
           const allAppointments = response.data.appointments || [];
 
@@ -89,7 +87,6 @@ export class Dashboard implements OnInit {
         this.cdr.detectChanges();
       },
       error: (err: any) => {
-        console.error('Error loading appointments:', err);
         this.error = 'Failed to load appointments data';
         this.loading = false;
 
@@ -101,8 +98,6 @@ export class Dashboard implements OnInit {
   loadMedicalHistoryData(): void {
     this.patientService.getMedicalHistory().subscribe({
       next: (response: any) => {
-        console.log("Medical histories:", response);
-
         if (response.success && response.data) {
           this.totalMedicalHistoriesCount = response.data.length;
 
@@ -115,7 +110,6 @@ export class Dashboard implements OnInit {
       },
       error: (err) => {
         this.cdr.detectChanges();
-        console.error("Error loading medical histories:", err);
       }
     });
   }
@@ -123,8 +117,6 @@ export class Dashboard implements OnInit {
   loadPrescriptionsData(): void {
     this.patientService.getPrescriptions().subscribe({
       next: (response: any) => {
-        console.log("Prescriptions:", response);
-
         if (response.success && response.data) {
           const all = response.data;
 
@@ -140,7 +132,6 @@ export class Dashboard implements OnInit {
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error("Error loading prescriptions:", err);
         this.cdr.detectChanges();
       }
     });
