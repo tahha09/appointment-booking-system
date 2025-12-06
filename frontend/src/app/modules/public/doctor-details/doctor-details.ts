@@ -18,6 +18,7 @@ export class DoctorDetails implements OnInit {
   loading: boolean = true;
   error: string = '';
   activeTab: string = 'overview';
+  certificateImageIndexes: Record<number, number> = {};
 
   constructor(
     private route: ActivatedRoute,
@@ -45,6 +46,7 @@ export class DoctorDetails implements OnInit {
       next: (response: any) => {
         if (response.success && response.data) {
           this.doctor = response.data;
+          this.initializeCertificateIndexes();
         } else {
           this.error = 'Doctor not found';
         }
@@ -115,5 +117,69 @@ export class DoctorDetails implements OnInit {
   }
   goBack(): void {
     this.router.navigate(['/doctors']);
+  }
+
+  getCertificateImage(images?: string[] | null, index = 0): string | null {
+    if (!images || images.length === 0) {
+      return null;
+    }
+    const safeIndex = Math.min(Math.max(index, 0), images.length - 1);
+    const selectedImage = images[safeIndex];
+    if (!selectedImage) {
+      return null;
+    }
+    if (/^https?:\/\//i.test(selectedImage)) {
+      return selectedImage;
+    }
+    const normalized = selectedImage.replace(/^\/+/, '').replace(/^storage\//i, '');
+    return `http://localhost:8000/storage/${normalized}`;
+  }
+
+  private initializeCertificateIndexes(): void {
+    if (!this.doctor?.certificates) {
+      this.certificateImageIndexes = {};
+      return;
+    }
+    const indexes: Record<number, number> = {};
+    this.doctor.certificates.forEach((certificate) => {
+      const count = certificate.images?.length ?? 0;
+      if (count > 0) {
+        const prev = this.certificateImageIndexes[certificate.id] ?? 0;
+        indexes[certificate.id] = prev % count;
+      } else {
+        indexes[certificate.id] = 0;
+      }
+    });
+    this.certificateImageIndexes = indexes;
+  }
+
+  getCertificateImageAt(certificateId: number): string | null {
+    if (!this.doctor?.certificates) {
+      return null;
+    }
+    const certificate = this.doctor.certificates.find((c) => c.id === certificateId);
+    if (!certificate?.images || certificate.images.length === 0) {
+      return null;
+    }
+    const index = this.certificateImageIndexes[certificateId] ?? 0;
+    const safeIndex = Math.min(Math.max(index, 0), certificate.images.length - 1);
+    return this.getCertificateImage(certificate.images, safeIndex);
+  }
+
+  changeCertificateSlide(certificateId: number, direction: number): void {
+    if (!this.doctor?.certificates) {
+      return;
+    }
+    const certificate = this.doctor.certificates.find((c) => c.id === certificateId);
+    if (!certificate?.images || certificate.images.length === 0) {
+      return;
+    }
+    const total = certificate.images.length;
+    const current = this.certificateImageIndexes[certificateId] ?? 0;
+    const nextIndex = (current + direction + total) % total;
+    this.certificateImageIndexes = {
+      ...this.certificateImageIndexes,
+      [certificateId]: nextIndex,
+    };
   }
 }
