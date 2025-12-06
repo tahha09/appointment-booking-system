@@ -7,6 +7,7 @@ import { MyAppointments } from './my-appointments/my-appointments';
 import { MedicalHistory } from './medical-history/medical-history';
 import { Prescriptions } from './prescriptions/prescriptions';
 import { AppointmentDetails } from './appointment-details/appointment-details';
+import { MedicalImages } from './medical-images/medical-images';
 import { authGuard } from '../../core/guards/auth-guard';
 import { UserProfile } from '../../shared/components/profile/profile';
 
@@ -20,6 +21,7 @@ const routes: Routes = [
       { path: 'my-appointments', component: MyAppointments },
       { path: 'medical-history', component: MedicalHistory },
       { path: 'prescriptions', component: Prescriptions },
+      { path: 'medical-images', component: MedicalImages },
       { path: 'appointment-details/:id', component: AppointmentDetails},
       { path: 'profile', component:UserProfile},
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
@@ -39,6 +41,7 @@ const routes: Routes = [
     MyAppointments,
     MedicalHistory,
     Prescriptions,
+    MedicalImages,
     AppointmentDetails,
     RouterModule.forChild(routes)
   ],

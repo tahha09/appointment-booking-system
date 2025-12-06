@@ -1,0 +1,49 @@
+.medical-images-container {
+  padding: 1.5rem;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  /* Standard property */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// Modal scrollbar styling
+.max-h-\[90vh\]::-webkit-scrollbar {
+  width: 4px;
+  /* Thinner scrollbar */
+}
+
+.max-h-\[90vh\]::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.max-h-\[90vh\]::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  /* Lighter color */
+  border-radius: 4px;
+}
+
+.max-h-\[90vh\]::-webkit-scrollbar-thumb:hover {
+  background: #0A7075;
+}
+
+/* Add smooth transition for the input appearance */
+.other-input-transition {
+  transition: all 0.3s ease-in-out;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.other-input-hidden {
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+  height: 0;
+  margin: 0;
+  overflow: hidden;
+}
