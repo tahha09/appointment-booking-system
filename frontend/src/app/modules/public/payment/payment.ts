@@ -719,7 +719,7 @@ export class Payment implements OnInit {
             });
           }
           if (err?.status === 401 || err?.status === 403) {
-            this.errorMessage = 'Your session has expired. Please sign in again to continue.';
+            this.errorMessage = 'You can`t book an appointment with this doctor.';
             return;
           }
           if (err?.status === 422 && err?.error?.message) {
