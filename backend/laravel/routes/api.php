@@ -119,6 +119,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // Prescriptions
         Route::get('/prescriptions', [\App\Http\Controllers\Patient\PrescriptionController::class, 'index']);
+
+        // Medical Images
+        Route::get('/medical-images', [\App\Http\Controllers\Patient\MedicalImageController::class, 'index']);
+        Route::post('/medical-images', [\App\Http\Controllers\Patient\MedicalImageController::class, 'store']);
+        Route::get('/medical-images/{id}', [\App\Http\Controllers\Patient\MedicalImageController::class, 'show']);
+        Route::put('/medical-images/{id}', [\App\Http\Controllers\Patient\MedicalImageController::class, 'update']);
+        Route::delete('/medical-images/{id}', [\App\Http\Controllers\Patient\MedicalImageController::class, 'destroy']);
     });
 
     // Doctor Routes

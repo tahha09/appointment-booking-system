@@ -29,6 +29,18 @@ export class PatientService {
     });
   }
 
+  private getAuthHeadersForFormData(): HttpHeaders {
+    const token = this.auth.getToken();
+    if (!token) {
+      return new HttpHeaders();
+    }
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/json'
+      // Don't set Content-Type for FormData, let browser set it with boundary
+    });
+  }
+
   getMedicalHistory(params?: any, forceRefresh: boolean = false): Observable<any> {
     // If we have cached data and don't need to force refresh, return it
     // We only use cache if there are no search params (fetching all data)
@@ -168,6 +180,28 @@ export class PatientService {
         }
       });
     });
+  }
+
+  getMedicalImages(): Observable<any> {
+    const url = `${this.apiUrl}/medical-images`;
+    return this.http.get(url, { headers: this.getAuthHeaders() });
+  }
+
+  uploadMedicalImage(formData: FormData): Observable<any> {
+    const url = `${this.apiUrl}/medical-images`;
+    return this.http.post(url, formData, { headers: this.getAuthHeadersForFormData() });
+  }
+
+  updateMedicalImage(id: number, formData: FormData): Observable<any> {
+    const url = `${this.apiUrl}/medical-images/${id}`;
+    // Add _method for Laravel to recognize PUT request
+    formData.append('_method', 'PUT');
+    return this.http.post(url, formData, { headers: this.getAuthHeadersForFormData() });
+  }
+
+  deleteMedicalImage(id: number): Observable<any> {
+    const url = `${this.apiUrl}/medical-images/${id}`;
+    return this.http.delete(url, { headers: this.getAuthHeaders() });
   }
 }
 
