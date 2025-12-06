@@ -719,7 +719,7 @@ export class Payment implements OnInit {
             });
           }
           if (err?.status === 401 || err?.status === 403) {
-            this.errorMessage = 'You can`t book an appointment with this doctor.';
+            this.errorMessage = 'You can`t book an appointment with this doctor. Please choose another doctor.';
             return;
           }
           if (err?.status === 422 && err?.error?.message) {
