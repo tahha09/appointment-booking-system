@@ -27,7 +27,7 @@
 
   <!-- Error State -->
   <div *ngIf="error && !loading" class="rounded-2xl border border-red-500/40 bg-red-500/10 p-4">
-    <p class="text-red-300">{{ error }}</p>
+    <p class="text-red-500">{{ error }}</p>
   </div>
 
   <!-- Schedule Display -->
@@ -52,7 +52,7 @@
                     {{ formatTime(schedule.start_time) }} - {{ formatTime(schedule.end_time) }}
                   </span>
                   <span
-                    [class]="'px-3 py-1 rounded-full text-xs font-semibold self-start md:self-auto ' + (schedule.is_available ? 'bg-green-500/20 text-green-300' : 'bg-gray-500/20 text-gray-300')"
+                    [class]="'px-3 py-1 rounded-full text-xs font-semibold self-start md:self-auto ' + (schedule.is_available ? 'bg-green-500/20 text-green-500' : 'bg-gray-500/20 text-gray-500')"
                   >
                     {{ schedule.is_available ? 'Available' : 'Unavailable' }}
                   </span>
@@ -117,14 +117,14 @@
         <h3 class="text-2xl font-bold text-[#031716]">{{ selectedSchedule ? 'Edit' : 'Add' }} Schedule</h3>
         <button
           (click)="closeModals()"
-          class="w-8 h-8 rounded-full bg-red-500/20 text-red-300 hover:bg-red-500/30 transition flex items-center justify-center"
+          class="w-8 h-8 rounded-full bg-red-500/20 text-red-500 hover:bg-red-500/30 transition flex items-center justify-center"
         >
           x
         </button>
       </div>
 
       <form (ngSubmit)="submitSchedule()" class="space-y-4">
-        <div *ngIf="scheduleFormErrors.form" class="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+        <div *ngIf="scheduleFormErrors.form" class="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-500">
           {{ scheduleFormErrors.form }}
         </div>
         <div>
@@ -217,14 +217,14 @@
         <h3 class="text-2xl font-bold text-[#031716]">Add Holiday</h3>
         <button
           (click)="closeModals()"
-          class="w-8 h-8 rounded-full bg-red-500/20 text-red-300 hover:bg-red-500/30 transition flex items-center justify-center"
+          class="w-8 h-8 rounded-full bg-red-500/20 text-red-500 hover:bg-red-500/30 transition flex items-center justify-center"
         >
           x
         </button>
       </div>
 
       <form (ngSubmit)="submitHoliday()" class="space-y-4">
-        <div *ngIf="holidayFormErrors.form" class="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+        <div *ngIf="holidayFormErrors.form" class="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-500">
           {{ holidayFormErrors.form }}
         </div>
         <div>

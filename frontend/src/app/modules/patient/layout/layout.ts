@@ -128,7 +128,7 @@ export class Layout implements OnInit {
   logout() {
     this.auth.logout();
     this.closeUserDropdown();
-    this.router.navigateByUrl('/login');
+    this.router.navigateByUrl('/');
   }
 
   // go to profile 

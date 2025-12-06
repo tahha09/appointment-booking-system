@@ -6,8 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\DoctorResource;
 use App\Models\Doctor;
 use App\Models\Specialization;
+use App\Models\Schedule;
+use App\Models\Holiday;
+use App\Models\Appointment;
 use App\Traits\ApiResponse;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DoctorController extends Controller
 {
@@ -110,20 +115,16 @@ class DoctorController extends Controller
     {
         try {
             $doctor = Doctor::where('is_approved', true)->findOrFail($id);
+            $date = $this->resolveDate($request->get('date'));
 
-            $date = $request->get('date', now()->format('Y-m-d'));
-
-            $availability = [
-                'doctor_id' => $doctor->id,
-                'date' => $date,
-                'available_slots' => ['09:00', '10:00', '11:00', '14:00', '15:00'],
-                'is_available' => true
-            ];
+            $availability = $this->buildAvailabilityPayload($doctor, $date);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Availability checked successfully',
-                'data' => $availability
+                'message' => $availability['is_available']
+                    ? 'Availability checked successfully'
+                    : ($availability['reason'] ?? 'Doctor is not available on the selected date.'),
+                'data' => $availability,
             ]);
 
         } catch (\Exception $e) {
@@ -132,5 +133,145 @@ class DoctorController extends Controller
                 'message' => 'Doctor not found'
             ], 404);
         }
+    }
+
+    // Authenticated patients - check availability with block validation
+    public function availability($id, Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            if (!$user || !$user->patient) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Authenticated patient not found.',
+                ], 404);
+            }
+
+            $doctor = Doctor::where('is_approved', true)->findOrFail($id);
+
+            $patientId = $user->patient->id;
+            $isBlocked = DB::table('blocked_patients')
+                ->where('doctor_id', $doctor->id)
+                ->where('patient_id', $patientId)
+                ->exists();
+
+            if ($isBlocked) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You are blocked from booking appointments with this doctor.',
+                ], 403);
+            }
+
+            $date = $this->resolveDate($request->get('date'));
+            $availability = $this->buildAvailabilityPayload($doctor, $date);
+
+            return response()->json([
+                'success' => true,
+                'message' => $availability['is_available']
+                    ? 'Availability checked successfully'
+                    : ($availability['reason'] ?? 'Doctor is not available on the selected date.'),
+                'data' => $availability,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Doctor not found'
+            ], 404);
+        }
+    }
+
+    private function resolveDate(?string $dateInput): Carbon
+    {
+        try {
+            return $dateInput
+                ? Carbon::parse($dateInput)->startOfDay()
+                : Carbon::today();
+        } catch (\Exception $e) {
+            return Carbon::today();
+        }
+    }
+
+    private function buildAvailabilityPayload(Doctor $doctor, Carbon $date): array
+    {
+        $dateString = $date->toDateString();
+
+        $holiday = Holiday::where('doctor_id', $doctor->id)
+            ->whereDate('holiday_date', $dateString)
+            ->first();
+
+        if ($holiday) {
+            return [
+                'doctor_id' => $doctor->id,
+                'date' => $dateString,
+                'available_slots' => [],
+                'is_available' => false,
+                'reason' => 'Doctor is on holiday',
+                'holiday_reason' => $holiday->reason,
+            ];
+        }
+
+        $dayOfWeek = $date->dayOfWeek;
+
+        $schedules = Schedule::where('doctor_id', $doctor->id)
+            ->where('day_of_week', $dayOfWeek)
+            ->where('is_available', true)
+            ->orderBy('start_time')
+            ->get();
+
+        if ($schedules->isEmpty()) {
+            return [
+                'doctor_id' => $doctor->id,
+                'date' => $dateString,
+                'available_slots' => [],
+                'is_available' => false,
+                'reason' => 'No working hours configured for this day.',
+            ];
+        }
+
+        $existingAppointments = Appointment::where('doctor_id', $doctor->id)
+            ->whereDate('appointment_date', $dateString)
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->get()
+            ->map(function ($appointment) use ($dateString) {
+                return [
+                    'start' => Carbon::parse("{$dateString} {$appointment->start_time}"),
+                    'end' => Carbon::parse("{$dateString} {$appointment->end_time}"),
+                ];
+            });
+
+        $slotDurationMinutes = 60;
+        $availableSlots = [];
+
+        foreach ($schedules as $schedule) {
+            $slotStart = Carbon::parse("{$dateString} {$schedule->start_time}");
+            $scheduleEnd = Carbon::parse("{$dateString} {$schedule->end_time}");
+
+            while ($slotStart->lt($scheduleEnd)) {
+                $slotEnd = $slotStart->copy()->addMinutes($slotDurationMinutes);
+
+                if ($slotEnd->gt($scheduleEnd)) {
+                    break;
+                }
+
+                $hasConflict = $existingAppointments->contains(function ($appointment) use ($slotStart, $slotEnd) {
+                    return $slotStart->lt($appointment['end']) && $slotEnd->gt($appointment['start']);
+                });
+
+                if (!$hasConflict) {
+                    $availableSlots[] = $slotStart->format('H:i');
+                }
+
+                $slotStart->addMinutes($slotDurationMinutes);
+            }
+        }
+
+        return [
+            'doctor_id' => $doctor->id,
+            'date' => $dateString,
+            'available_slots' => $availableSlots,
+            'is_available' => count($availableSlots) > 0,
+        ];
     }
 }
