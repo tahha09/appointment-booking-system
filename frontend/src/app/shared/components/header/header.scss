@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 :host {
   display: block;
 }//// Palette driven by provided swatches plus white
@@ -272,7 +274,7 @@ $border: rgba(#6ba3be, 0.35);
     color: white;
 
     &:hover {
-      background: lighten($nav, 5%);
+      background: color.adjust($nav, $lightness: 5%);
       transform: translateY(-1px);
       box-shadow: 0 10px 20px rgba($nav, 0.35);
     }
@@ -287,7 +289,7 @@ $border: rgba(#6ba3be, 0.35);
   border: 1px solid $border;
   border-radius: 10px;
   min-width: 240px;
-  background: mix($primary, white, 12%);
+  background: color.mix($primary, white, $weight: 12%);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   svg {
     width: 18px;
@@ -476,7 +478,7 @@ $border: rgba(#6ba3be, 0.35);
     transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 
     &:hover {
-      background: mix($primary, white, 10%);
+      background: color.mix($primary, white, $weight: 10%);
       box-shadow: 0 6px 14px rgba($primary, 0.18);
       transform: translateY(-1px);
     }
@@ -491,7 +493,7 @@ $border: rgba(#6ba3be, 0.35);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: mix($primary, white, 8%);
+    background: color.mix($primary, white, $weight: 8%);
 
     img {
       width: 100%;
@@ -545,7 +547,7 @@ $border: rgba(#6ba3be, 0.35);
     gap: 0.6rem;
 
     &:hover {
-      background: mix($primary, white, 14%);
+      background: color.mix($primary, white, $weight: 14%);
       color: $primary;
     }
 

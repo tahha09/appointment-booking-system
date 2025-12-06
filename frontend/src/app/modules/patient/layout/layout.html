@@ -27,7 +27,7 @@
         <div class="flex items-center space-x-2 sm:space-x-4">
           
           <!-- Book Appointment Button -->
-          <button class="hidden sm:flex text-white px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium" 
+          <button type="button" (click)="bookNewAppointment()" class="hidden sm:flex text-white px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium" 
                   style="background-color: #167277"
                   onmouseover="this.style.backgroundColor='#0c969c'; this.style.transform='translateY(-2px)'" 
                   onmouseout="this.style.backgroundColor='#167277'; this.style.transform='translateY(0)'">
@@ -35,7 +35,7 @@
           </button>
           
           <!-- Mobile Book Button (Icon Only) -->
-          <button class="sm:hidden p-2 rounded-lg transition-colors duration-200" style="color: #0A7075; background: rgba(10, 112, 117, 0.1)">
+          <button type="button" (click)="bookNewAppointment()" class="sm:hidden p-2 rounded-lg transition-colors duration-200" style="color: #0A7075; background: rgba(10, 112, 117, 0.1)">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>

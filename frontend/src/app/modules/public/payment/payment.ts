@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -9,7 +9,9 @@ import { finalize, switchMap, tap } from 'rxjs/operators';
 import { Header } from '../../../shared/components/header/header';
 import { Footer } from '../../../shared/components/footer/footer';
 import { DoctorService } from '../../../core/services/doctor';
-import { Doctor } from '../../../models/doctor';
+import { SpecializationService } from '../../../core/services/specialization';
+import { Doctor, DoctorResponse } from '../../../models/doctor';
+import { Specialization } from '../../../models/specialization.model';
 
 @Component({
   selector: 'app-payment',
@@ -20,12 +22,7 @@ import { Doctor } from '../../../models/doctor';
 })
 export class Payment implements OnInit {
   paymentForm: FormGroup;
-  doctorInfo: { id: number | null; name: string; department: string; fee: number } = {
-    id: null,
-    name: 'Selected Doctor',
-    department: 'General Medicine',
-    fee: 0,
-  };
+  doctorInfo: { id: number | null; name: string; department: string; fee: number } = this.createDefaultDoctorInfo();
   minimumDeposit = 0;
   submitting = false;
   successMessage = '';
@@ -37,6 +34,23 @@ export class Payment implements OnInit {
   availabilityLoading = false;
   availabilityMessage = '';
   private pendingAvailabilityDate: string | null = null;
+  manualSelectionMode = false;
+  private manualSelectionInitialized = false;
+  specializations: Specialization[] = [];
+  specializationLoading = false;
+  specializationError = '';
+  doctorOptions: Doctor[] = [];
+  doctorOptionsLoading = false;
+  doctorOptionsError = '';
+
+  private createDefaultDoctorInfo(): { id: number | null; name: string; department: string; fee: number } {
+    return {
+      id: null,
+      name: 'Selected Doctor',
+      department: 'General Medicine',
+      fee: 0,
+    };
+  }
 
   paymentMethods = [
     { value: 'credit_card', label: 'Credit Card', description: 'Visa, Mastercard, Amex' },
@@ -55,9 +69,13 @@ export class Payment implements OnInit {
     private http: HttpClient,
     private auth: Auth,
     private appointmentService: AppointmentService,
-    private doctorService: DoctorService
+    private doctorService: DoctorService,
+    private specializationService: SpecializationService,
+    private cdr: ChangeDetectorRef
   ) {
     this.paymentForm = this.fb.group({
+      specializationId: [{ value: null, disabled: true }],
+      doctorId: [{ value: null, disabled: true }],
       patientName: ['', Validators.required],
       patientEmail: ['', [Validators.email]],
       amount: [null, Validators.required],
@@ -77,32 +95,58 @@ export class Payment implements OnInit {
       bankReference: [''],
       cashNotes: [''],
     });
+    this.setDoctorDependentControlsEnabled(false);
   }
 
   ngOnInit(): void {
-    if (!this.auth.isAuthenticated() || !this.auth.isPatient()) {
+    if (!this.auth.isAuthenticated()) {
       const returnUrl = this.router.url || '/payment';
       this.router.navigate(['/login'], {
         queryParams: { returnUrl },
       });
       return;
     }
+    if (!this.auth.isPatient()) {
+      alert('Only patients can book appointments. Please switch to a patient account.');
+      void this.router.navigate(['/']);
+      return;
+    }
     this.route.queryParams.subscribe((params) => {
-      this.doctorInfo.id = params?.['doctorId'] ? Number(params['doctorId']) : null;
-      this.doctorInfo.name = params?.['doctorName'] || this.doctorInfo.name;
-      this.doctorInfo.department = params?.['department'] || this.doctorInfo.department;
-      const fee = params?.['fee'] ? Number(params['fee']) : this.doctorInfo.fee;
-      this.doctorInfo.fee = isNaN(fee) ? 0 : fee;
-      this.minimumDeposit = Number((this.doctorInfo.fee * 0.5).toFixed(2));
-      const amountControl = this.paymentForm.get('amount');
-      if (amountControl) {
-        const minValue = this.minimumDeposit > 0 ? this.minimumDeposit : 0;
-        amountControl.setValidators([Validators.required, Validators.min(minValue)]);
-        amountControl.updateValueAndValidity();
+      const doctorId = params?.['doctorId'] ? Number(params['doctorId']) : null;
+      const doctorName = params?.['doctorName'];
+      const department = params?.['department'];
+      const feeParam = params?.['fee'] ? Number(params['fee']) : NaN;
+
+      this.doctorInfo = this.createDefaultDoctorInfo();
+      if (doctorId) {
+        this.doctorInfo.id = doctorId;
       }
-      if (this.doctorInfo.id) {
+      if (doctorName) {
+        this.doctorInfo.name = doctorName;
+      }
+      if (department) {
+        this.doctorInfo.department = department;
+      }
+      if (!isNaN(feeParam)) {
+        this.doctorInfo.fee = feeParam;
+      }
+
+      const hasDoctor = !!this.doctorInfo.id;
+      this.manualSelectionMode = !hasDoctor;
+      this.minimumDeposit = this.doctorInfo.fee > 0 ? Number((this.doctorInfo.fee * 0.5).toFixed(2)) : 0;
+      this.setAmountValidator(this.minimumDeposit);
+
+      if (hasDoctor && this.doctorInfo.id) {
+        this.disableManualSelectionControls();
+        this.setDoctorDependentControlsEnabled(true);
+        this.paymentForm.patchValue({ doctorId: this.doctorInfo.id }, { emitEvent: false });
         this.loadDoctorDetails(this.doctorInfo.id);
+      } else {
+        this.manualSelectionMode = true;
+        this.initializeManualSelectionControls();
+        this.resetManualDoctorSelection();
       }
+      this.cdr.detectChanges();
     });
 
     this.configureMethodValidators(this.paymentForm.get('paymentMethod')?.value);
@@ -181,6 +225,42 @@ export class Payment implements OnInit {
     });
   }
 
+  private setAmountValidator(minValue: number): void {
+    const amountControl = this.paymentForm.get('amount');
+    if (amountControl) {
+      amountControl.setValidators([Validators.required, Validators.min(Math.max(minValue, 0))]);
+      amountControl.updateValueAndValidity({ emitEvent: false });
+    }
+  }
+
+  private setDoctorDependentControlsEnabled(enabled: boolean): void {
+    const doctorDependentControls = ['amount', 'appointmentDate', 'startTime', 'endTime', 'reason', 'notes'];
+    doctorDependentControls.forEach((controlName) => {
+      const control = this.paymentForm.get(controlName);
+      if (!control) {
+        return;
+      }
+      if (enabled) {
+        control.enable({ emitEvent: false });
+      } else {
+        control.disable({ emitEvent: false });
+      }
+    });
+  }
+
+  private toggleStartTimeControl(enable: boolean): void {
+    const control = this.paymentForm.get('startTime');
+    if (!control) {
+      return;
+    }
+    if (enable && control.disabled) {
+      control.enable({ emitEvent: false });
+    }
+    if (!enable && control.enabled) {
+      control.disable({ emitEvent: false });
+    }
+  }
+
   private buildMethodPayload(): Record<string, unknown> {
     const value = this.paymentForm.value;
     switch (this.selectedMethod) {
@@ -229,6 +309,150 @@ export class Payment implements OnInit {
     });
   }
 
+  private initializeManualSelectionControls(): void {
+    const specializationControl = this.paymentForm.get('specializationId');
+    const doctorControl = this.paymentForm.get('doctorId');
+    specializationControl?.enable({ emitEvent: false });
+    doctorControl?.enable({ emitEvent: false });
+    specializationControl?.setValidators([Validators.required]);
+    doctorControl?.setValidators([Validators.required]);
+    specializationControl?.updateValueAndValidity({ emitEvent: false });
+    doctorControl?.updateValueAndValidity({ emitEvent: false });
+
+    if (!this.manualSelectionInitialized) {
+      specializationControl?.valueChanges.subscribe((value) => this.onSpecializationSelected(value));
+      doctorControl?.valueChanges.subscribe((value) => this.onManualDoctorSelected(value));
+      this.manualSelectionInitialized = true;
+    }
+
+    if (!this.specializations.length) {
+      this.loadSpecializations();
+    }
+  }
+
+  private disableManualSelectionControls(): void {
+    const specializationControl = this.paymentForm.get('specializationId');
+    const doctorControl = this.paymentForm.get('doctorId');
+    specializationControl?.setValue(null, { emitEvent: false });
+    doctorControl?.setValue(null, { emitEvent: false });
+    specializationControl?.clearValidators();
+    doctorControl?.clearValidators();
+    specializationControl?.disable({ emitEvent: false });
+    doctorControl?.disable({ emitEvent: false });
+    specializationControl?.updateValueAndValidity({ emitEvent: false });
+    doctorControl?.updateValueAndValidity({ emitEvent: false });
+  }
+
+  private loadSpecializations(): void {
+    this.specializationLoading = true;
+    this.specializationError = '';
+    this.specializationService.getSpecializations().subscribe({
+      next: (list) => {
+        this.specializations = list;
+        this.specializationLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.specializations = [];
+        this.specializationLoading = false;
+        this.specializationError = 'Unable to load specializations at the moment.';
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  private loadDoctorsForSpecialization(specializationId: number): void {
+    if (!specializationId) {
+      this.doctorOptions = [];
+      return;
+    }
+    this.doctorOptionsLoading = true;
+    this.doctorOptionsError = '';
+    this.doctorService.getDoctorsByFilters({ specialization_id: specializationId }).subscribe({
+      next: (response: DoctorResponse) => {
+        this.doctorOptions = this.extractDoctorsFromResponse(response);
+        if (!this.doctorOptions.length) {
+          this.doctorOptionsError = 'No doctors available for the selected specialization.';
+        }
+        this.doctorOptionsLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.doctorOptions = [];
+        this.doctorOptionsLoading = false;
+        this.doctorOptionsError = 'Failed to load doctors. Please choose another specialization.';
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  private extractDoctorsFromResponse(response: DoctorResponse): Doctor[] {
+    if (!response?.data) {
+      return [];
+    }
+    if (Array.isArray(response.data)) {
+      return response.data;
+    }
+    if ('doctors' in response.data) {
+      return (response.data as any).doctors || [];
+    }
+    return [];
+  }
+
+  private onSpecializationSelected(value: unknown): void {
+    const specializationId = Number(value);
+    this.doctorOptions = [];
+    this.doctorOptionsError = '';
+    this.paymentForm.get('doctorId')?.setValue(null, { emitEvent: false });
+    this.resetManualDoctorSelection();
+    if (specializationId) {
+      this.loadDoctorsForSpecialization(specializationId);
+    }
+  }
+
+  private onManualDoctorSelected(value: unknown): void {
+    const doctorId = Number(value);
+    if (!doctorId) {
+      this.resetManualDoctorSelection();
+      return;
+    }
+    const selectedDoctor = this.doctorOptions.find((doctor) => doctor.id === doctorId) || null;
+    if (selectedDoctor) {
+      const fee = Number(selectedDoctor.consultation_fee);
+      this.doctorInfo = {
+        id: selectedDoctor.id,
+        name: selectedDoctor?.user?.name || 'Selected Doctor',
+        department: selectedDoctor?.specialization?.name || 'General Medicine',
+        fee: isNaN(fee) ? 0 : fee,
+      };
+      this.minimumDeposit = this.doctorInfo.fee > 0 ? Number((this.doctorInfo.fee * 0.5).toFixed(2)) : 0;
+      this.setAmountValidator(this.minimumDeposit);
+    } else {
+      this.doctorInfo = this.createDefaultDoctorInfo();
+      this.doctorInfo.id = doctorId;
+    }
+    this.setDoctorDependentControlsEnabled(true);
+    this.loadDoctorDetails(doctorId);
+    this.cdr.detectChanges();
+  }
+
+  private resetManualDoctorSelection(): void {
+    this.doctorInfo = this.createDefaultDoctorInfo();
+    this.doctorDetails = null;
+    this.minimumDeposit = 0;
+    this.availableSlots = [];
+    this.availabilityMessage = '';
+    this.pendingAvailabilityDate = null;
+    this.paymentForm.patchValue(
+      { amount: null, startTime: '', endTime: '' },
+      { emitEvent: false }
+    );
+    this.setAmountValidator(0);
+    if (this.manualSelectionMode) {
+      this.setDoctorDependentControlsEnabled(false);
+    }
+  }
+
   private loadDoctorDetails(doctorId: number): void {
     this.doctorLoading = true;
     this.doctorError = '';
@@ -246,11 +470,7 @@ export class Payment implements OnInit {
           if (!isNaN(fee)) {
             this.doctorInfo.fee = fee;
             this.minimumDeposit = Number((fee * 0.5).toFixed(2));
-            const amountControl = this.paymentForm.get('amount');
-            if (amountControl) {
-              amountControl.setValidators([Validators.required, Validators.min(this.minimumDeposit)]);
-              amountControl.updateValueAndValidity();
-            }
+            this.setAmountValidator(this.minimumDeposit);
           }
           const dateToCheck =
             this.pendingAvailabilityDate || this.paymentForm.get('appointmentDate')?.value;
@@ -261,10 +481,12 @@ export class Payment implements OnInit {
           this.doctorError = 'Doctor information could not be loaded.';
         }
         this.doctorLoading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.doctorLoading = false;
         this.doctorError = 'Failed to load doctor details. Please try again.';
+        this.cdr.detectChanges();
       },
     });
   }
@@ -291,6 +513,7 @@ export class Payment implements OnInit {
     this.pendingAvailabilityDate = null;
     this.availabilityLoading = true;
     this.availabilityMessage = '';
+    this.toggleStartTimeControl(false);
     const params = new HttpParams().set('date', date);
     this.http
       .get<{ success: boolean; data?: { available_slots?: string[]; is_available?: boolean } }>(
@@ -306,10 +529,12 @@ export class Payment implements OnInit {
             this.updateControlError('appointmentDate', 'noSlots', true);
             this.updateControlError('startTime', 'noSlots', true);
             startControl?.markAsTouched();
+            this.toggleStartTimeControl(false);
           } else {
             this.availabilityMessage = '';
             this.updateControlError('appointmentDate', 'noSlots', false);
             this.updateControlError('startTime', 'noSlots', false);
+            this.toggleStartTimeControl(true);
             const selectedSlot = this.paymentForm.get('startTime')?.value;
             if (!selectedSlot || !this.availableSlots.includes(selectedSlot)) {
               clearSlotSelection();
@@ -318,6 +543,7 @@ export class Payment implements OnInit {
             }
           }
           this.availabilityLoading = false;
+          this.cdr.detectChanges();
         },
         error: () => {
           this.availableSlots = [];
@@ -327,6 +553,8 @@ export class Payment implements OnInit {
           this.updateControlError('appointmentDate', 'noSlots', true);
           this.updateControlError('startTime', 'noSlots', true);
           this.availabilityLoading = false;
+          this.toggleStartTimeControl(false);
+          this.cdr.detectChanges();
         },
       });
   }
@@ -494,5 +722,9 @@ export class Payment implements OnInit {
             err?.error?.message || 'Unable to process the payment at the moment. Please try again.';
         },
       });
+  }
+
+  get appointmentDetailsDisabled(): boolean {
+    return !this.doctorInfo.id;
   }
 }

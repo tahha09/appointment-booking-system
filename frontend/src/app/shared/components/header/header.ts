@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
@@ -10,9 +10,10 @@ import { Auth } from '../../../core/services/auth';
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
-export class Header {
+export class Header implements AfterViewInit {
   private readonly auth = inject(Auth);
   private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   protected readonly menuOpen = signal(false);
   protected readonly userMenuOpen = signal(false);
@@ -90,5 +91,9 @@ export class Header {
     } else {
       this.router.navigateByUrl('/patient/profile'); // Default fallback
     }
+  }
+
+  ngAfterViewInit(): void {
+    this.cdr.detectChanges();
   }
 }

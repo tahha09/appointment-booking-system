@@ -4,4 +4,5 @@ export interface Specialization {
   description: string;
   created_at: string;
   updated_at: string;
+  doctors_count?: number;
 }

@@ -5,8 +5,9 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ChangeDetectorRef } from '@angular/core';
 import { he } from 'date-fns/locale';
-import { Header } from "../../../shared/components/header/header";
-import { Footer } from "../../../shared/components/footer/footer";
+import { Header } from '../../../shared/components/header/header';
+import { Footer } from '../../../shared/components/footer/footer';
+import { BookingService } from '../../../core/services/booking.service';
 @Component({
   selector: 'app-doctor-listing',
   standalone: true,
@@ -23,11 +24,9 @@ export class DoctorListing implements OnInit {
   constructor(
     private doctorService: DoctorService,
     private router: Router,
-    private cdr: ChangeDetectorRef
-
-  ) {
-
-  };
+    private cdr: ChangeDetectorRef,
+    private bookingService: BookingService
+  ) {}
 
   ngOnInit(): void {
     this.loadDoctors();
@@ -78,13 +77,18 @@ export class DoctorListing implements OnInit {
   }
 
   bookAppointment(doctor: Doctor): void {
-    // You can implement booking logic here
-    console.log('Booking appointment with:', doctor.user.name);
-    // For now, we'll just show an alert
-    alert(`Booking appointment with ${doctor.user.name}`);
-
-    // Later you can navigate to booking page:
-    // this.router.navigate(['/booking', doctor.id]);
+    if (!doctor) {
+      return;
+    }
+    this.bookingService.startBooking({
+      doctor: {
+        id: doctor.id,
+        name: doctor.user?.name,
+        specialization: doctor.specialization?.name,
+        fee: doctor.consultation_fee,
+      },
+      extras: { source: 'doctor-listing' },
+    });
   }
 
   // Method to view doctor details

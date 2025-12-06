@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DoctorService } from '../../../core/services/doctor';
 import { Doctor } from '../../../models/doctor';
-import { Header } from "../../../shared/components/header/header";
+import { Header } from '../../../shared/components/header/header';
 import { Footer } from '../../../shared/components/footer/footer';
+import { BookingService } from '../../../core/services/booking.service';
 @Component({
   selector: 'app-doctor-details',
   standalone: true,
@@ -22,7 +23,8 @@ export class DoctorDetails implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private doctorService: DoctorService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private bookingService: BookingService
   ) { }
 
   ngOnInit(): void {
@@ -74,12 +76,18 @@ export class DoctorDetails implements OnInit {
   }
 
   bookAppointment(): void {
-    if (this.doctor) {
-      console.log('Booking appointment with:', this.doctor.user.name);
-      alert(`Booking appointment with ${this.doctor.user.name}`);
-      // Navigate to booking page
-      // this.router.navigate(['/booking', this.doctor.id]);
+    if (!this.doctor) {
+      return;
     }
+    this.bookingService.startBooking({
+      doctor: {
+        id: this.doctor.id,
+        name: this.doctor.user?.name,
+        specialization: this.doctor.specialization?.name,
+        fee: this.doctor.consultation_fee,
+      },
+      extras: { source: 'doctor-details' },
+    });
   }
 
   // Add these methods to your DoctorDetails class
