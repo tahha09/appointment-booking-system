@@ -57,6 +57,11 @@ class Doctor extends Model
         return $this->hasManyThrough(MedicalNote::class, Appointment::class);
     }
 
+    public function certificates()
+    {
+        return $this->hasMany(Certificate::class);
+    }
+
     // Scopes
     public function scopeApproved($query)
     {

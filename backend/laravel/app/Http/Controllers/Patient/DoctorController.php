@@ -87,7 +87,7 @@ class DoctorController extends Controller
     public function showPublic($id)
     {
         try {
-            $doctor = Doctor::with(['user', 'specialization'])
+            $doctor = Doctor::with(['user', 'specialization', 'certificates'])
                 ->where('is_approved', true)
                 ->findOrFail($id);
 

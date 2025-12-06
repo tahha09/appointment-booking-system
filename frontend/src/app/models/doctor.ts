@@ -20,6 +20,19 @@ export interface Specialization {
   updated_at: string;
 }
 
+export interface DoctorCertificate {
+  id: number;
+  doctor_id: number;
+  title: string;
+  description: string | null;
+  issuing_organization: string | null;
+  issue_date: string | null;
+  expiry_date: string | null;
+  images: string[] | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface Doctor {
   id: number;
   user_id: number;
@@ -34,6 +47,7 @@ export interface Doctor {
   updated_at: string;
   user: User;
   specialization: Specialization;
+  certificates?: DoctorCertificate[];
 }
 
 export interface Pagination {
