@@ -137,6 +137,7 @@
           <path d="M3 12h18M3 6h18M3 18h18" />
         </svg>
           </label>
+
           <div>
             <p class="text-[0.65rem] uppercase tracking-[0.4em] text-[#0a7075]">Welcome back</p>
             <h1 class="bg-gradient-to-r from-[#0f3033] to-[#0b7070] bg-clip-text text-2xl font-bold text-transparent md:text-3xl">
@@ -200,28 +201,20 @@
               </div>
             </div>
           </div>
-          
 
-          <!-- <button
-          
-            type="button"
-            class="flex h-12 w-12 items-center justify-center rounded-xl border border-[#0a7075]/30 bg-white text-[#143235] shadow-lg transition hover:-translate-y-0.5 hover:border-[#0c969c]"
-            aria-label="Notifications"
+
+            <a
+            routerLink="/"
+            class="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[#0a7075]/30 bg-white text-black-500 shadow-md transition hover:-translate-y-0.5 hover:border-[#0c969c]"
+            aria-label="Go to home"
           >
-            <svg class="h-6 w-6" viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                d="M12 3a6 6 0 0 0-6 6v3.51l-.8 1.6A1 1 0 0 0 6.09 16h11.82a1 1 0 0 0 .89-1.49l-.8-1.6V9a6 6 0 0 0-6-6Zm0 18a2.75 2.75 0 0 0 2.7-2h-5.4A2.75 2.75 0 0 0 12 21Z"
-              />
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-5H10v5H5a1 1 0 0 1-1-1z" stroke-linejoin="round" />
             </svg>
-          </button> -->
-          <!-- <button
-            type="button"
-            class="rounded-xl bg-gradient-to-r from-[#0a7075] to-[#0c969c] px-5 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0c969c]"
-          >
-            View Holidays
-          </button> -->
+          </a>
         </div>
       </div>
+
     </header>
 
     <section class="flex-1 overflow-y-auto bg-gradient-to-br from-[#f8fafc] via-[#f1f9ff] to-[#e8f4f8] px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
@@ -229,5 +222,7 @@
         <router-outlet></router-outlet>
       </div>
     </section>
+
   </div>
+
 </div>

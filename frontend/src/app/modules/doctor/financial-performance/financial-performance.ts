@@ -220,7 +220,7 @@ export class FinancialPerformance implements OnInit {
 
     let params: any = {
       page,
-      per_page: 15,
+      per_page: 5,
     };
 
     if (this.statusFilter !== 'all') {
@@ -286,10 +286,10 @@ export class FinancialPerformance implements OnInit {
 
   getStatusColor(status: string): string {
     const colors: { [key: string]: string } = {
-      completed: 'bg-green-500/20 text-green-300 border-green-500/30',
-      pending: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
-      failed: 'bg-red-500/20 text-red-300 border-red-500/30',
-      refunded: 'bg-gray-500/20 text-gray-300 border-gray-500/30',
+      completed: 'bg-green-500/20 text-green-500 border-green-500/30',
+      pending: 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30',
+      failed: 'bg-red-500/20 text-red-500 border-red-500/30',
+      refunded: 'bg-gray-500/20 text-gray-500 border-gray-500/30',
     };
     return colors[status] || 'bg-gray-500/20 text-gray-300 border-gray-500/30';
   }

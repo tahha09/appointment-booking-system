@@ -76,7 +76,7 @@ export class PatientsManagement implements OnInit {
 
     let params: any = {
       page,
-      per_page: 15,
+      per_page: 5,
     };
 
     if (this.searchQuery) {

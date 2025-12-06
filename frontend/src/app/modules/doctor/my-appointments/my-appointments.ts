@@ -75,7 +75,7 @@ export class MyAppointments implements OnInit {
 
     let params: any = {
       page,
-      per_page: 15,
+      per_page: 5,
     };
 
     if (this.statusFilter !== 'all') {
@@ -180,10 +180,10 @@ export class MyAppointments implements OnInit {
 
   getStatusColor(status: string): string {
     const colors: { [key: string]: string } = {
-      pending: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
-      confirmed: 'bg-green-500/20 text-green-300 border-green-500/30',
-      completed: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-      cancelled: 'bg-red-500/20 text-red-300 border-red-500/30',
+      pending: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/30',
+      confirmed: 'bg-green-500/10 text-green-500 border-green-500/30',
+      completed: 'bg-blue-500/10 text-blue-500 border-blue-500/30',
+      cancelled: 'bg-red-500/10 text-red-500 border-red-500/30',
     };
     return colors[status] || 'bg-gray-500/20 text-gray-300 border-gray-500/30';
   }
