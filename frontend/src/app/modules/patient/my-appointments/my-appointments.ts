@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PatientService } from '../../../core/services/patient.service';
 import { Notification } from '../../../core/services/notification';
+import { Appointment as AppointmentService, AppointmentModel } from '../../../core/services/appointment';
 
 interface Appointment {
   id: number;
@@ -36,6 +37,14 @@ export class MyAppointments implements OnInit {
   appointments: Appointment[] = [];
   loading = true;
   error: string | null = null;
+  showRescheduleModal = false;
+  rescheduleAppointment: AppointmentModel | null = null;
+  rescheduleForm = {
+    appointment_date: '',
+    start_time: '',
+    end_time: '',
+    reason_for_reschedule: ''
+  };
 
   // Search and filter
   searchQuery: string = '';
@@ -58,6 +67,7 @@ export class MyAppointments implements OnInit {
 
   constructor(
     private patientService: PatientService,
+    private appointmentService: AppointmentService,
     private cdr: ChangeDetectorRef,
     private notification: Notification
   ) { }
@@ -194,6 +204,255 @@ export class MyAppointments implements OnInit {
     });
   }
 
+  submitReschedule(): void {
+  if (!this.rescheduleAppointment) return;
+  
+  console.log('Before processing:', this.rescheduleForm);
+  
+  // Step 1: Clean the data
+  this.prepareRescheduleData();
+  
+  // Step 2: Validate the data
+  if (!this.validateRescheduleForm()) {
+    return;
+  }
+  
+  // Step 3: Prepare data for submission
+  const formattedData = this.formatRescheduleData();
+  
+  console.log('Sending to backend:', formattedData);
+  
+  // Step 4: Get confirmation from the user
+  this.confirmReschedule(formattedData);
+}
+
+private prepareRescheduleData(): void {
+  // 1. Clean the time
+  if (this.rescheduleForm.start_time) {
+    // Ensure the time is HH:mm only
+    this.rescheduleForm.start_time = this.rescheduleForm.start_time.substring(0, 5);
+    
+    // 2. Update end_time if necessary
+    this.updateEndTimeBasedOnStartTime();
+  }
+  
+  // 3. Clean the date
+  this.rescheduleForm.appointment_date = this.formatDateForBackend(this.rescheduleForm.appointment_date);
+  
+  // 4. Calculate end_time if it doesn't exist
+  if (!this.rescheduleForm.end_time && this.rescheduleForm.start_time) {
+    this.rescheduleForm.end_time = this.calculateEndTime(this.rescheduleForm.start_time);
+  }
+  
+  // 5. Clean end_time as well
+  if (this.rescheduleForm.end_time) {
+    this.rescheduleForm.end_time = this.rescheduleForm.end_time.substring(0, 5);
+  }
+  
+  console.log('After processing:', this.rescheduleForm);
+}
+
+
+private validateRescheduleForm(): boolean {
+  // 1. Check required fields
+  if (!this.rescheduleForm.appointment_date) {
+    this.notification.error('Error', 'Please select a date');
+    return false;
+  }
+  
+  if (!this.rescheduleForm.start_time) {
+    this.notification.error('Error', 'Please select a time');
+    return false;
+  }
+  
+  // 2. Check time format
+  const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+  if (!timeRegex.test(this.rescheduleForm.start_time)) {
+    this.notification.error('Error', 'Invalid time format. Please use HH:mm (e.g., 14:00)');
+    return false;
+  }
+  
+  // 3. Check that the date is not in the past
+  const selectedDate = new Date(this.rescheduleForm.appointment_date);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Remove time to compare only the date
+  
+  if (selectedDate < today) {
+    this.notification.error('Error', 'Cannot reschedule to a past date');
+    return false;
+  }
+  
+  // 4. Check that end_time is after start_time
+  if (this.rescheduleForm.end_time) {
+    const start = new Date(`1970-01-01T${this.rescheduleForm.start_time}`);
+    const end = new Date(`1970-01-01T${this.rescheduleForm.end_time}`);
+    
+    if (end <= start) {
+      this.notification.error('Error', 'End time must be after start time');
+      return false;
+    }
+  }
+  
+  return true;
+}
+
+private formatRescheduleData() {
+  return {
+    appointment_date: this.rescheduleForm.appointment_date, // Selected appointment date
+    start_time: this.rescheduleForm.start_time,             // Selected start time
+    end_time: this.rescheduleForm.end_time,                 // Calculated or selected end time
+    reason_for_reschedule: this.rescheduleForm.reason_for_reschedule.trim() || undefined // Optional reason
+  };
+}
+
+private confirmReschedule(formattedData: any): void {
+  // Show a confirmation dialog to the user before rescheduling
+  this.notification.confirm(
+    'Reschedule Appointment',
+    `Are you sure you want to reschedule this appointment to ${this.formatDate(formattedData.appointment_date)} at ${this.formatTime(formattedData.start_time)}? The doctor will need to confirm the new time.`,
+    {
+      confirmButtonText: 'Yes, Reschedule',
+      cancelButtonText: 'Cancel'
+    }
+  ).then((result) => {
+    // If the user confirms, execute the rescheduling
+    if (result.isConfirmed) {
+      this.executeReschedule(formattedData);
+    }
+  });
+}
+
+private executeReschedule(formattedData: any): void {
+  // Call the backend service to reschedule the appointment
+  this.appointmentService.rescheduleAppointment(
+    this.rescheduleAppointment!.id, // The ID of the appointment to reschedule
+    formattedData                   // The formatted data for rescheduling
+  ).subscribe({
+    next: (response) => {
+      // Handle successful rescheduling
+      this.handleRescheduleSuccess(response);
+    },
+    error: (err) => {
+      // Handle errors from the backend
+      this.handleRescheduleError(err);
+    }
+  });
+}
+
+private handleRescheduleSuccess(response: any): void {
+  if (response.success) {
+    this.notification.success(
+      'Success', 
+      `Appointment rescheduled successfully! Waiting for doctor confirmation. 
+      You have ${response.data.remaining_reschedules} reschedules remaining.`
+    );
+    
+    // Update appointment data
+    this.fetchAppointments(this.currentPage);
+    this.closeRescheduleModal();
+    
+    if (this.showDetailsModal) {
+      this.closeDetailsModal();
+    }
+  } else {
+    this.notification.error('Error', response.message || 'Failed to reschedule appointment');
+  }
+}
+
+private handleRescheduleError(err: any): void {
+  console.error('Error rescheduling appointment:', err);
+  
+  let errorMessage = 'Failed to reschedule appointment';
+  
+  if (err.error?.message) {
+    errorMessage = err.error.message;
+  } else if (err.error?.errors) {
+    // Handle validation errors from Laravel
+    const errors = err.error.errors;
+    const errorMessages = [];
+    
+    for (const key in errors) {
+      if (errors.hasOwnProperty(key)) {
+        errorMessages.push(...errors[key]);
+      }
+    }
+    
+    errorMessage = errorMessages.join(', ');
+  }
+  
+  this.notification.error('Error', errorMessage);
+}
+  
+  openRescheduleModal(appointment: any, event?: Event): void {
+  if (event) {
+    event.stopPropagation();
+  }
+  
+  this.rescheduleAppointment = appointment as AppointmentModel;
+  
+  // Clean data before displaying it
+  const cleanDate = this.formatDateForBackend(appointment.appointment_date);
+  const cleanStartTime = appointment.start_time.substring(0, 5);
+  
+  // Calculate new end time based on start time
+  const cleanEndTime = this.calculateEndTime(cleanStartTime);
+  
+  this.rescheduleForm = {
+    appointment_date: cleanDate,
+    start_time: cleanStartTime,
+    end_time: cleanEndTime, // Use the calculated end_time
+    reason_for_reschedule: ''
+  };
+  
+  console.log('Opening modal with:', this.rescheduleForm);
+  
+  this.showRescheduleModal = true;
+}
+
+updateEndTimeBasedOnStartTime(): void {
+  if (this.rescheduleForm.start_time && this.rescheduleAppointment) {
+    // Calculate the new end_time based on the start_time
+    this.rescheduleForm.end_time = this.calculateEndTime(this.rescheduleForm.start_time);
+  }
+}
+
+// Modify calculateEndTime function to calculate correctly:
+calculateEndTime(startTime: string): string {
+  if (!startTime) return '';
+  
+  // Ensure correct format
+  const time = startTime.substring(0, 5);
+  const [hours, minutes] = time.split(':').map(Number);
+  
+  let newHours = hours;
+  let newMinutes = minutes + 30; // Add 30 minutes as default duration
+  
+  if (newMinutes >= 60) {
+    newHours += 1;
+    newMinutes -= 60;
+  }
+  
+  // Ensure hours do not exceed 23
+  if (newHours >= 24) {
+    newHours = 23;
+    newMinutes = 59;
+  }
+  
+  // Format the result
+  return `${newHours.toString().padStart(2, '0')}:${newMinutes.toString().padStart(2, '0')}`;
+}
+
+formatTimeForDisplay(time: string): string {
+  return this.formatTime(time);
+}
+
+getDateFilter = (date: Date): boolean => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return date >= today;
+};
+  
+
   formatDate(date: string): string {
     if (!date) return 'N/A';
     const d = new Date(date);
@@ -256,9 +515,63 @@ export class MyAppointments implements OnInit {
     return status === 'pending' || status === 'confirmed';
   }
 
+  canReschedule(status: string): boolean {
+  return status === 'confirmed';
+  }
+
   get hasActiveFilters(): boolean {
     return !!(this.searchQuery || this.dateFrom || this.dateTo || this.selectedDoctor || this.selectedStatus !== 'all');
   }
+
+  getMinDate(): string {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = (today.getMonth() + 1).toString().padStart(2, '0');
+  const day = today.getDate().toString().padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+formatTimeInput(): void {
+  if (this.rescheduleForm.start_time) {
+    // Ensure the time is in HH:mm format only (without seconds)
+    this.rescheduleForm.start_time = this.rescheduleForm.start_time.substring(0, 5);
+    
+    // Update end_time when start_time changes
+    this.updateEndTimeBasedOnStartTime();
+  }
+  
+  if (this.rescheduleForm.end_time) {
+    this.rescheduleForm.end_time = this.rescheduleForm.end_time.substring(0, 5);
+  }
+}
+
+closeRescheduleModal(): void {
+  this.showRescheduleModal = false;
+  this.rescheduleAppointment = null;
+  this.rescheduleForm = {
+    appointment_date: '',
+    start_time: '',
+    end_time: '',
+    reason_for_reschedule: ''
+  };
+}
+
+// This function converts a date from ISO format to YYYY-MM-DD
+formatDateForBackend(dateString: string): string {
+  if (!dateString) return '';
+  
+  if (dateString.includes('T')) {
+    // If the date is in ISO format (e.g., 2025-12-08T00:00:00.000000Z)
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  
+  return dateString; // If it's already in YYYY-MM-DD
+}
+
 
   retryLoad(): void {
     this.fetchAppointments(this.currentPage);

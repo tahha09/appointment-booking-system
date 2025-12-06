@@ -7,46 +7,53 @@
       <aside class="rounded-3xl border border-white/20 bg-white/5 p-6 backdrop-blur-xl">
         <div class="rounded-2xl border border-white/20 bg-white/10 p-5">
           <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#6ba3be]">Selected doctor</p>
-          <div class="mt-4 flex items-center gap-4">
-            <ng-container *ngIf="doctorDetails?.user?.profile_image; else doctorLetter">
-              <img
-                [src]="doctorDetails?.user?.profile_image"
-                alt="Doctor photo"
-                class="h-16 w-16 rounded-2xl border border-white/20 object-cover"
-              />
-            </ng-container>
-            <ng-template #doctorLetter>
-              <div class="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/20 bg-white/5 text-xl font-semibold text-white">
-                {{ doctorInfo.name ? (doctorInfo.name[0] | uppercase) : 'D' }}
+          <ng-container *ngIf="doctorInfo.id; else doctorPlaceholder">
+            <div class="mt-4 flex items-center gap-4">
+              <ng-container *ngIf="doctorDetails?.user?.profile_image; else doctorLetter">
+                <img
+                  [src]="doctorDetails?.user?.profile_image"
+                  alt="Doctor photo"
+                  class="h-16 w-16 rounded-2xl border border-white/20 object-cover"
+                />
+              </ng-container>
+              <ng-template #doctorLetter>
+                <div class="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/20 bg-white/5 text-xl font-semibold text-white">
+                  {{ doctorInfo.name ? (doctorInfo.name[0] | uppercase) : 'D' }}
+                </div>
+              </ng-template>
+              <div>
+                <h3 class="text-2xl font-bold">{{ doctorInfo.name }}</h3>
+                <p class="text-sm text-[#cfe9ec]">{{ doctorInfo.department }}</p>
+                <p class="text-xs text-[#6ba3be]" *ngIf="doctorDetails?.license_number">
+                  License #{{ doctorDetails?.license_number }}
+                </p>
               </div>
-            </ng-template>
-            <div>
-              <h3 class="text-2xl font-bold">{{ doctorInfo.name }}</h3>
-              <p class="text-sm text-[#cfe9ec]">{{ doctorInfo.department }}</p>
-              <p class="text-xs text-[#6ba3be]" *ngIf="doctorDetails?.license_number">
-                License #{{ doctorDetails?.license_number }}
-              </p>
             </div>
-          </div>
 
-          <div class="mt-5 grid gap-3 text-sm">
-            <div class="flex items-center justify-between rounded-2xl bg-white/5 px-4 py-3">
-              <span class="text-[#cfe9ec]">Consultation fee</span>
-              <span class="font-semibold">{{ doctorInfo.fee | number: '1.2-2' }} {{ currencySymbol }}</span>
+            <div class="mt-5 grid gap-3 text-sm">
+              <div class="flex items-center justify-between rounded-2xl bg-white/5 px-4 py-3">
+                <span class="text-[#cfe9ec]">Consultation fee</span>
+                <span class="font-semibold">{{ doctorInfo.fee | number: '1.2-2' }} {{ currencySymbol }}</span>
+              </div>
+              <div class="flex items-center justify-between rounded-2xl bg-white/5 px-4 py-3">
+                <span class="text-[#cfe9ec]">Minimum deposit</span>
+                <span class="font-semibold">{{ minimumDeposit | number: '1.2-2' }} {{ currencySymbol }}</span>
+              </div>
+              <div class="flex items-center justify-between rounded-2xl bg-white/5 px-4 py-3" *ngIf="doctorDetails?.experience_years">
+                <span class="text-[#cfe9ec]">Experience</span>
+                <span class="font-semibold">{{ doctorDetails?.experience_years }} yrs</span>
+              </div>
+              <div class="flex items-center justify-between rounded-2xl bg-white/5 px-4 py-3" *ngIf="doctorDetails?.rating">
+                <span class="text-[#cfe9ec]">Rating</span>
+                <span class="font-semibold">{{ doctorDetails?.rating }}/5</span>
+              </div>
             </div>
-            <div class="flex items-center justify-between rounded-2xl bg-white/5 px-4 py-3">
-              <span class="text-[#cfe9ec]">Minimum deposit</span>
-              <span class="font-semibold">{{ minimumDeposit | number: '1.2-2' }} {{ currencySymbol }}</span>
+          </ng-container>
+          <ng-template #doctorPlaceholder>
+            <div class="mt-4 rounded-2xl bg-white/5 px-4 py-3 text-sm text-[#cfe9ec]">
+              Choose a specialization and doctor to preview their profile, consultation fee, and availability.
             </div>
-            <div class="flex items-center justify-between rounded-2xl bg-white/5 px-4 py-3" *ngIf="doctorDetails?.experience_years">
-              <span class="text-[#cfe9ec]">Experience</span>
-              <span class="font-semibold">{{ doctorDetails?.experience_years }} yrs</span>
-            </div>
-            <div class="flex items-center justify-between rounded-2xl bg-white/5 px-4 py-3" *ngIf="doctorDetails?.rating">
-              <span class="text-[#cfe9ec]">Rating</span>
-              <span class="font-semibold">{{ doctorDetails?.rating }}/5</span>
-            </div>
-          </div>
+          </ng-template>
 
           <div class="mt-4 grid gap-3 text-xs">
             <p class="rounded-2xl bg-white/5 px-4 py-3 text-[#cfe9ec]">
@@ -91,6 +98,51 @@
         </div>
 
         <form [formGroup]="paymentForm" (ngSubmit)="submitPayment()" class="mt-6 space-y-6">
+          <div
+            *ngIf="manualSelectionMode"
+            class="rounded-2xl border border-[#e0eff2] bg-[#f7fbfc] px-4 py-5 text-sm text-[#032f30]"
+          >
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#6ba3be]">Select doctor</p>
+            <div class="mt-4 grid gap-4 md:grid-cols-2">
+              <label class="flex flex-col gap-2 font-semibold">
+                Specialization
+                <select
+                  formControlName="specializationId"
+                  class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none"
+                >
+                  <option value="">Choose specialization</option>
+                  <option *ngFor="let specialization of specializations" [value]="specialization.id">
+                    {{ specialization.name }}
+                    {{ specialization.doctors_count ? '(' + specialization.doctors_count + ' doctor' + (specialization.doctors_count === 1 ? '' : 's') + ')' : '' }}
+                  </option>
+                </select>
+                <span class="text-xs text-[#0a7075]" *ngIf="specializationLoading">Loading specializations...</span>
+                <span class="text-xs text-red-500" *ngIf="specializationError">{{ specializationError }}</span>
+                <span class="text-xs text-red-500" *ngIf="f['specializationId'].touched && f['specializationId'].invalid">
+                  Please choose a specialization.
+                </span>
+              </label>
+              <label class="flex flex-col gap-2 font-semibold">
+                Doctor
+                <select
+                  formControlName="doctorId"
+                  class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none"
+                >
+                  <option value="">Select doctor</option>
+                  <option *ngFor="let doctor of doctorOptions" [value]="doctor.id">
+                    {{ doctor.user.name }} &middot; {{ doctor.specialization.name }}
+                  </option>
+                </select>
+                <span class="text-xs text-[#0a7075]" *ngIf="doctorOptionsLoading">Loading doctors...</span>
+                <span class="text-xs text-red-500" *ngIf="doctorOptionsError">{{ doctorOptionsError }}</span>
+                <span class="text-xs text-red-500" *ngIf="f['doctorId'].touched && f['doctorId'].invalid">
+                  Please select a doctor to continue.
+                </span>
+              </label>
+            </div>
+            <p class="mt-3 text-xs text-[#6ba3be]">Selecting a doctor unlocks appointment slots and payment options.</p>
+          </div>
+
           <div class="grid gap-4 md:grid-cols-2">
             <label class="flex flex-col gap-2 text-sm font-semibold text-[#032f30]">
               Full name
@@ -124,9 +176,12 @@
               class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none"
               formControlName="amount"
             />
-            <span class="text-xs text-[#0a7075]">
+            <span class="text-xs text-[#0a7075]" *ngIf="doctorInfo.id; else depositHint">
               Minimum deposit: {{ minimumDeposit | number: '1.2-2' }} {{ currencySymbol }}
             </span>
+            <ng-template #depositHint>
+              <span class="text-xs text-[#0a7075]">Select a doctor to see the required deposit.</span>
+            </ng-template>
             <span class="text-xs text-red-500" *ngIf="f['amount'].touched && f['amount'].invalid">
               Please enter an amount greater than or equal to {{ minimumDeposit | number: '1.2-2' }}.
             </span>
@@ -136,7 +191,7 @@
             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#6ba3be]">Appointment details</p>
             <div class="mt-4 grid gap-4 md:grid-cols-3">
               <label class="flex flex-col gap-2 font-semibold">
-                Appointment date
+                 date
                 <input
                   type="date"
                   formControlName="appointmentDate"
@@ -155,7 +210,6 @@
                 <select
                   formControlName="startTime"
                   class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none"
-                  [disabled]="availabilityLoading || !availableSlots.length"
                 >
                   <option value="">Select available time</option>
                   <option *ngFor="let slot of availableSlots" [value]="slot">
@@ -183,6 +237,9 @@
                 </span>
               </label>
             </div>
+            <p class="mt-3 text-xs text-red-500" *ngIf="appointmentDetailsDisabled">
+              Choose a doctor to unlock appointment scheduling and available time slots.
+            </p>
             <label class="mt-4 flex flex-col gap-2 font-semibold text-sm text-[#032f30]">
               Reason for visit
               <textarea

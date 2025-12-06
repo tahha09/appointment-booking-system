@@ -27,7 +27,7 @@
 
   <!-- Error State -->
   <div *ngIf="error && !loading" class="rounded-2xl border border-red-500/40 bg-red-500/10 p-4">
-    <p class="text-red-300">{{ error }}</p>
+    <p class="text-red-500">{{ error }}</p>
   </div>
 
   <!-- Schedule Display -->
@@ -52,7 +52,7 @@
                     {{ formatTime(schedule.start_time) }} - {{ formatTime(schedule.end_time) }}
                   </span>
                   <span
-                    [class]="'px-3 py-1 rounded-full text-xs font-semibold self-start md:self-auto ' + (schedule.is_available ? 'bg-green-500/20 text-green-300' : 'bg-gray-500/20 text-gray-300')"
+                    [class]="'px-3 py-1 rounded-full text-xs font-semibold self-start md:self-auto ' + (schedule.is_available ? 'bg-green-500/20 text-green-500' : 'bg-gray-500/20 text-gray-500')"
                   >
                     {{ schedule.is_available ? 'Available' : 'Unavailable' }}
                   </span>
@@ -60,13 +60,13 @@
                 <div class="flex flex-wrap gap-2">
                   <button
                     (click)="openScheduleModal(schedule)"
-                    class="px-4 py-2 rounded-xl border border-blue-500/40 text-blue-200 bg-blue-500/10 font-semibold hover:bg-blue-500/20 transition text-sm"
+                    class="px-4 py-2 rounded-xl border border-blue-500/50 text-blue-500 bg-blue-500/10 font-semibold hover:bg-blue-500/20 transition text-sm"
                   >
                     Edit
                   </button>
                   <button
                     (click)="confirmDeleteSchedule(schedule)"
-                    class="px-4 py-2 rounded-xl border border-red-500/40 text-red-200 bg-red-500/10 font-semibold hover:bg-red-500/20 transition text-sm"
+                    class="px-4 py-2 rounded-xl border border-red-500/40 text-red-500 bg-red-500/10 font-semibold hover:bg-red-500/20 transition text-sm"
                   >
                     Delete
                   </button>
@@ -92,7 +92,7 @@
               </div>
               <button
                 (click)="confirmDeleteHoliday(holiday)"
-                class="px-3 py-1 rounded-xl border border-red-500/40 text-red-200 bg-red-500/10 font-semibold hover:bg-red-500/20 transition text-xs"
+                class="px-3 py-1 rounded-xl border border-red-500/40 text-red-500 bg-red-500/10 font-semibold hover:bg-red-500/20 transition text-xs"
               >
                 Delete
               </button>
@@ -117,13 +117,16 @@
         <h3 class="text-2xl font-bold text-[#031716]">{{ selectedSchedule ? 'Edit' : 'Add' }} Schedule</h3>
         <button
           (click)="closeModals()"
-          class="w-8 h-8 rounded-full bg-red-500/20 text-red-300 hover:bg-red-500/30 transition flex items-center justify-center"
+          class="w-8 h-8 rounded-full bg-red-500/20 text-red-500 hover:bg-red-500/30 transition flex items-center justify-center"
         >
           x
         </button>
       </div>
 
       <form (ngSubmit)="submitSchedule()" class="space-y-4">
+        <div *ngIf="scheduleFormErrors.form" class="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-500">
+          {{ scheduleFormErrors.form }}
+        </div>
         <div>
           <label class="block text-sm font-semibold text-[#0a7075] mb-2">Day of Week *</label>
           <select
@@ -134,6 +137,9 @@
           >
             <option *ngFor="let day of daysOfWeek" [value]="day.value">{{ day.label }}</option>
           </select>
+          <p class="mt-1 text-xs text-red-500" *ngIf="scheduleFormErrors.day_of_week">
+            {{ scheduleFormErrors.day_of_week }}
+          </p>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
@@ -146,6 +152,9 @@
               required
               class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/40 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
             />
+            <p class="mt-1 text-xs text-red-500" *ngIf="scheduleFormErrors.start_time">
+              {{ scheduleFormErrors.start_time }}
+            </p>
           </div>
           <div>
             <label class="block text-sm font-semibold text-[#0a7075] mb-2">End Time *</label>
@@ -156,6 +165,9 @@
               required
               class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/40 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
             />
+            <p class="mt-1 text-xs text-red-500" *ngIf="scheduleFormErrors.end_time">
+              {{ scheduleFormErrors.end_time }}
+            </p>
           </div>
         </div>
 
@@ -205,13 +217,16 @@
         <h3 class="text-2xl font-bold text-[#031716]">Add Holiday</h3>
         <button
           (click)="closeModals()"
-          class="w-8 h-8 rounded-full bg-red-500/20 text-red-300 hover:bg-red-500/30 transition flex items-center justify-center"
+          class="w-8 h-8 rounded-full bg-red-500/20 text-red-500 hover:bg-red-500/30 transition flex items-center justify-center"
         >
           x
         </button>
       </div>
 
       <form (ngSubmit)="submitHoliday()" class="space-y-4">
+        <div *ngIf="holidayFormErrors.form" class="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-500">
+          {{ holidayFormErrors.form }}
+        </div>
         <div>
           <label class="block text-sm font-semibold text-[#0a7075] mb-2">Date *</label>
           <input
@@ -222,6 +237,9 @@
             [min]="minHolidayDate"
             class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/40 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
           />
+          <p class="mt-1 text-xs text-red-500" *ngIf="holidayFormErrors.holiday_date">
+            {{ holidayFormErrors.holiday_date }}
+          </p>
         </div>
 
         <div>
@@ -234,6 +252,9 @@
             class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/40 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
             placeholder="e.g., Public Holiday, Personal Leave"
           />
+          <p class="mt-1 text-xs text-red-500" *ngIf="holidayFormErrors.reason">
+            {{ holidayFormErrors.reason }}
+          </p>
         </div>
 
         <div class="flex gap-4 pt-4">

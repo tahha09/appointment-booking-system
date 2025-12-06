@@ -79,7 +79,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/logout', [LoginController::class, 'logout']);
 
     // General Profile Routes (for all users - patients, doctors, admins)
-    Route::prefix('profile')->group(function () {
+    Route::middleware('auth:sanctum')->prefix('profile')->group(function () {
         Route::get('/', [ProfileController::class, 'show']);
         Route::put('/', [ProfileController::class, 'update']);
         Route::patch('/password', [ProfileController::class, 'updatePassword']);
@@ -103,12 +103,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/doctors/{id}/availability', [PatientDoctorController::class, 'availability']);
 
         // Appointments
-        Route::get('/appointments', [PatientAppointmentController::class, 'index']);
-        Route::get('/appointments/{id}', [PatientAppointmentController::class, 'show']);
-        Route::post('/appointments', [PatientAppointmentController::class, 'store']);
-        Route::put('/appointments/{id}/accept', [PatientAppointmentController::class, 'accept']);
-        Route::put('/appointments/{id}/cancel', [PatientAppointmentController::class, 'cancel']);
-        Route::put('/appointments/{id}/reschedule', [PatientAppointmentController::class, 'reschedule']);
+        Route::get('/appointments', [PatientAppointmentController::class, 'index']); 
+        Route::get('/appointments/{id}', [PatientAppointmentController::class, 'show']); 
+        Route::post('/appointments', [PatientAppointmentController::class, 'store']); 
+        Route::put('/appointments/{id}/accept', [PatientAppointmentController::class, 'accept']); 
+        Route::put('/appointments/{id}/cancel', [PatientAppointmentController::class, 'cancel']); 
+        Route::put('/appointments/{id}/reschedule', [PatientAppointmentController::class, 'reschedule']); 
 
         // Medical Records
         Route::get('/medical-records', [PatientAppointmentController::class, 'medicalRecords']);
@@ -129,7 +129,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     // Doctor Routes
-    Route::prefix('doctor')->group(function () {
+    Route::middleware('auth:sanctum')->prefix('doctor')->group(function () {
         // Dashboard
         Route::get('/dashboard', [DoctorAppointmentController::class, 'dashboard']);
 
@@ -174,7 +174,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     // Admin Routes - temporarily without authentication for testing
-    Route::prefix('admin')->group(function () {
+    Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
         // Stats/Dashboard
         Route::get('/stats', [UserController::class, 'stats']);
 

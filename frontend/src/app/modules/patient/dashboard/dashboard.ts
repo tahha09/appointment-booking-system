@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Auth } from '../../../core/services/auth'
 import { Appointment } from '../../../core/services/appointment';
 import { PatientService } from '../../../core/services/patient.service'
+import { BookingService } from '../../../core/services/booking.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,7 +21,8 @@ export class Dashboard implements OnInit {
     private router: Router,
     private appointmentService: Appointment,
     private patientService: PatientService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private bookingService: BookingService
 
   ) { }
 
@@ -221,11 +223,7 @@ export class Dashboard implements OnInit {
   }
 
   bookAppointment() {
-    this.router.navigate(['/doctors']);
-  }
-
-  trackById(index: number, item: any): any {
-    return item.id;
+    this.bookingService.startBooking({ extras: { source: 'patient-dashboard' } });
   }
 
   formatDate(dateString: string): string {

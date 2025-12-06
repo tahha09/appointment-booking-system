@@ -250,6 +250,101 @@
               </h3>
               <p class="text-[#0C969C] leading-relaxed">{{ getShortBio(doctor.biography) }}</p>
             </div>
+
+            <div
+              *ngIf="doctor.certificates?.length"
+              class="bg-gradient-to-br from-[#031716] to-[#032F30] rounded-xl p-6 border border-[#274D60]"
+            >
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <h3 class="text-xl font-bold text-[#6BA3BE] flex items-center gap-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="m9 12 2 2 4-4m4-2V6a2 2 0 0 0-2-2h-1.34a1 1 0 0 1-.95-.68l-.3-.92A2 2 0 0 0 11.48 2H8.52a2 2 0 0 0-1.93 1.4l-.3.92a1 1 0 0 1-.95.68H4a2 2 0 0 0-2 2v2M5 7h14v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" />
+                  </svg>
+                  Professional Certifications
+                </h3>
+                <span class="text-xs uppercase tracking-[0.3em] text-[#0C969C]">
+                  {{ doctor.certificates?.length || 0 }} listed
+                </span>
+              </div>
+
+              <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div
+                  *ngFor="let certificate of doctor.certificates"
+                  class="rounded-2xl border border-[#274D60] bg-[#021b1c] p-5 shadow-lg hover:border-[#0C969C] transition-colors duration-300"
+                >
+                  <div class="flex items-start justify-between gap-4">
+                    <div class="space-y-1">
+                      <p class="text-lg font-bold text-[#6BA3BE]">{{ certificate.title }}</p>
+                      <p class="text-sm text-[#0C969C]">
+                        {{ certificate.issuing_organization || 'Independent Institution' }}
+                      </p>
+                    </div>
+                    <div
+                      *ngIf="certificate.images?.length"
+                      class="relative w-96 h-52 shrink-0 overflow-hidden rounded-2xl border border-[#0A7075]/40"
+                    >
+                      <img
+                        [src]="getCertificateImage(certificate.images, certificateImageIndexes[certificate.id] || 0)"
+                        alt="Certificate preview"
+                        class="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        (click)="changeCertificateSlide(certificate.id, -1)"
+                        *ngIf="(certificate.images?.length || 0) > 1"
+                        class="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-1 text-white hover:bg-black/70 transition"
+                        aria-label="Previous certificate image"
+                      >
+                        ‹
+                      </button>
+                      <button
+                        type="button"
+                        (click)="changeCertificateSlide(certificate.id, 1)"
+                        *ngIf="(certificate.images?.length || 0) > 1"
+                        class="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-1 text-white hover:bg-black/70 transition"
+                        aria-label="Next certificate image"
+                      >
+                        ›
+                      </button>
+                      <div
+                        *ngIf="(certificate.images?.length || 0) > 1"
+                        class="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1"
+                      >
+                        <span
+                          *ngFor="let _ of certificate.images || []; let idx = index"
+                          class="h-1 w-4 rounded-full"
+                          [class.bg-white]="(certificateImageIndexes[certificate.id] || 0) === idx"
+                          [class.bg-white/40]="(certificateImageIndexes[certificate.id] || 0) !== idx"
+                        ></span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p class="text-xs uppercase tracking-[0.3em] text-[#274D60]">Issued</p>
+                      <p class="text-[#0C969C] font-semibold">
+                        {{ certificate.issue_date ? formatDate(certificate.issue_date) : 'N/A' }}
+                      </p>
+                    </div>
+                    <div>
+                      <p class="text-xs uppercase tracking-[0.3em] text-[#274D60]">Expires</p>
+                      <p class="text-[#0C969C] font-semibold">
+                        {{ certificate.expiry_date ? formatDate(certificate.expiry_date) : 'No expiry' }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <p
+                    *ngIf="certificate.description"
+                    class="mt-4 text-sm text-[#6BA3BE] leading-relaxed border-t border-[#274D60] pt-3"
+                  >
+                    {{ certificate.description }}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Biography Tab -->

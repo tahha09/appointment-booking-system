@@ -71,11 +71,22 @@ export class Schedule implements OnInit {
     end_time: '',
     is_available: true,
   };
+  scheduleFormErrors: {
+    form?: string;
+    day_of_week?: string;
+    start_time?: string;
+    end_time?: string;
+  } = {};
 
   holidayForm = {
     holiday_date: '',
     reason: '',
   };
+  holidayFormErrors: {
+    form?: string;
+    holiday_date?: string;
+    reason?: string;
+  } = {};
 
   constructor(
     private readonly http: HttpClient,
@@ -96,6 +107,7 @@ export class Schedule implements OnInit {
       this.resetScheduleForm();
     }
 
+    this.scheduleFormErrors = {};
     this.showScheduleModal = true;
     this.showHolidayModal = false;
     this.showDeleteConfirm = false;
@@ -105,6 +117,7 @@ export class Schedule implements OnInit {
     this.selectedSchedule = null;
     this.selectedHoliday = null;
     this.resetHolidayForm();
+    this.holidayFormErrors = {};
     this.showHolidayModal = true;
     this.showScheduleModal = false;
     this.showDeleteConfirm = false;
@@ -119,15 +132,30 @@ export class Schedule implements OnInit {
     this.submitting = false;
     this.resetScheduleForm();
     this.resetHolidayForm();
+    this.scheduleFormErrors = {};
+    this.holidayFormErrors = {};
   }
 
   submitSchedule(): void {
-    if (!this.scheduleForm.start_time || !this.scheduleForm.end_time) {
-      return;
-    }
+    this.scheduleFormErrors = {};
+    const scheduleErrors: typeof this.scheduleFormErrors = {};
 
     const dayOfWeek = Number(this.scheduleForm.day_of_week);
     if (Number.isNaN(dayOfWeek)) {
+      scheduleErrors.day_of_week = 'Please select a valid day.';
+    }
+    if (!this.scheduleForm.start_time) {
+      scheduleErrors.start_time = 'Start time is required.';
+    }
+    if (!this.scheduleForm.end_time) {
+      scheduleErrors.end_time = 'End time is required.';
+    }
+    if (!scheduleErrors.start_time && !scheduleErrors.end_time && this.scheduleForm.start_time >= this.scheduleForm.end_time) {
+      scheduleErrors.end_time = 'End time must be later than start time.';
+    }
+
+    if (Object.keys(scheduleErrors).length > 0) {
+      this.scheduleFormErrors = scheduleErrors;
       return;
     }
 
@@ -156,7 +184,9 @@ export class Schedule implements OnInit {
         this.cdr.detectChanges();
       },
       error: (err) => {
-        this.error = err?.error?.message || err?.message || 'Failed to save schedule.';
+        this.scheduleFormErrors = {
+          form: err?.error?.message || err?.message || 'Failed to save schedule.',
+        };
         this.submitting = false;
         this.cdr.detectChanges();
       },
@@ -164,7 +194,21 @@ export class Schedule implements OnInit {
   }
 
   submitHoliday(): void {
-    if (!this.holidayForm.holiday_date || !this.holidayForm.reason.trim()) {
+    this.holidayFormErrors = {};
+    const holidayErrors: typeof this.holidayFormErrors = {};
+
+    if (!this.holidayForm.holiday_date) {
+      holidayErrors.holiday_date = 'Holiday date is required.';
+    }
+
+    if (!this.holidayForm.reason || !this.holidayForm.reason.trim()) {
+      holidayErrors.reason = 'Please enter a reason.';
+    } else {
+      this.holidayForm.reason = this.holidayForm.reason.trim();
+    }
+
+    if (Object.keys(holidayErrors).length > 0) {
+      this.holidayFormErrors = holidayErrors;
       return;
     }
 
@@ -186,7 +230,9 @@ export class Schedule implements OnInit {
         this.cdr.detectChanges();
       },
       error: (err) => {
-        this.error = err?.error?.message || err?.message || 'Failed to add holiday.';
+        this.holidayFormErrors = {
+          form: err?.error?.message || err?.message || 'Failed to add holiday.',
+        };
         this.submitting = false;
         this.cdr.detectChanges();
       },

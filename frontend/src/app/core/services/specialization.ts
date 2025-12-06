@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Specialization } from '../../models/specialization.model';
 
 @Injectable({
@@ -12,6 +13,8 @@ export class SpecializationService {
   constructor(private http: HttpClient) { }
 
   getSpecializations(): Observable<Specialization[]> {
-    return this.http.get<Specialization[]>(this.apiUrl);
+    return this.http
+      .get<{ success: boolean; data?: Specialization[] }>(`${this.apiUrl}/filter-list`)
+      .pipe(map((response) => response?.data ?? []));
   }
 }

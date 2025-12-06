@@ -4,6 +4,7 @@ import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Auth } from '../../../core/services/auth';
 import { NotificationService } from '../../../core/services/notification-service';
+import { BookingService } from '../../../core/services/booking.service';
 
 @Component({
   selector: 'app-layout',
@@ -25,7 +26,7 @@ export class Layout implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private cdr = inject(ChangeDetectorRef);
 
-  constructor(public router: Router) { }
+  constructor(public router: Router, private bookingService: BookingService) {}
 
   // notifications
   notifications: any[] = [];
@@ -129,7 +130,7 @@ export class Layout implements OnInit {
   logout() {
     this.auth.logout();
     this.closeUserDropdown();
-    this.router.navigateByUrl('/login');
+    this.router.navigateByUrl('/');
   }
 
   // go to profile 
@@ -144,12 +145,8 @@ export class Layout implements OnInit {
     this.router.navigateByUrl('/');
   }
 
-  trackById(index: number, item: any): any {
-    return item.id;
+  bookNewAppointment(): void {
+    this.bookingService.startBooking({ extras: { source: 'patient-shell' } });
   }
 
-  // Navigate to doctors page for booking
-  bookAppointment() {
-    this.router.navigate(['/doctors']);
-  }
 }

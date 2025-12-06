@@ -19,7 +19,7 @@
 
   <!-- Error State -->
   <div *ngIf="error && !loading" class="rounded-2xl border border-red-500/40 bg-red-500/10 p-4">
-    <p class="text-red-300">{{ error }}</p>
+    <p class="text-red-z00">{{ error }}</p>
   </div>
 
   <!-- Certificates Grid -->
@@ -32,17 +32,17 @@
       <div class="space-y-4 text-[#032f30]">
         <h3 class="text-xl font-bold text-[#031716]">{{ certificate.title }}</h3>
 
-        <div *ngIf="certificate.issuing_organization" class="text-sm text-teal-200">
+        <div *ngIf="certificate.issuing_organization" class="text-sm text-teal-500">
           <strong>Organization:</strong> {{ certificate.issuing_organization }}
         </div>
 
         <div class="grid grid-cols-2 gap-2 text-sm">
           <div>
-            <span class="text-teal-200">Issue Date:</span>
+            <span class="text-teal-500">Issue Date:</span>
             <p class="text-[#032f30]">{{ formatDate(certificate.issue_date) }}</p>
           </div>
           <div>
-            <span class="text-teal-200">Expiry Date:</span>
+            <span class="text-teal-500">Expiry Date:</span>
             <p class="text-[#032f30]">{{ formatDate(certificate.expiry_date) }}</p>
           </div>
         </div>
@@ -78,7 +78,7 @@
             >›
             </button>
           </div>
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-teal-200">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-teal-500">
             <span>
               {{ getImageIndex(certificate) + 1 }} / {{ certificate.images.length }}
             </span>
@@ -95,13 +95,13 @@
         <div class="flex gap-2 pt-4 border-t border-[#6ba3be]/30">
           <button
             (click)="openEditModal(certificate)"
-            class="flex-1 px-4 py-2 rounded-xl border border-blue-500/40 text-blue-200 bg-blue-500/10 font-semibold hover:bg-blue-500/20 transition text-sm"
+            class="flex-1 px-4 py-2 rounded-xl border border-blue-500/40 text-blue-500 bg-blue-500/10 font-semibold hover:bg-blue-500/20 transition text-sm"
           >
             Edit
           </button>
           <button
             (click)="confirmDelete(certificate)"
-            class="flex-1 px-4 py-2 rounded-xl border border-red-500/40 text-red-200 bg-red-500/10 font-semibold hover:bg-red-500/20 transition text-sm"
+            class="flex-1 px-4 py-2 rounded-xl border border-red-500/40 text-red-500 bg-red-500/10 font-semibold hover:bg-red-500/20 transition text-sm"
           >
             Delete
           </button>
@@ -124,15 +124,18 @@
         <h3 class="text-2xl font-bold text-[#031716]">{{ showEditModal ? 'Edit' : 'Add' }} Certificate</h3>
         <button
           (click)="closeModals()"
-          class="w-8 h-8 rounded-full bg-red-500/20 text-red-300 hover:bg-red-500/30 transition flex items-center justify-center"
+          class="w-8 h-8 rounded-full bg-red-500/20 text-red-500 hover:bg-red-500/30 transition flex items-center justify-center"
         >
           x
         </button>
       </div>
 
       <form (ngSubmit)="submitForm()" class="space-y-4">
+        <div *ngIf="formErrors.form" class="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-500">
+          {{ formErrors.form }}
+        </div>
         <div>
-          <label class="block text-sm font-semibold text-teal-200 mb-2">Title *</label>
+          <label class="block text-sm font-semibold text-teal-500 mb-2">Title *</label>
           <input
             type="text"
             [(ngModel)]="formData.title"
@@ -140,10 +143,13 @@
             required
             class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/40 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
           />
+          <p class="mt-1 text-xs text-red-500" *ngIf="formErrors.title">
+            {{ formErrors.title }}
+          </p>
         </div>
 
         <div>
-          <label class="block text-sm font-semibold text-teal-200 mb-2">Description</label>
+          <label class="block text-sm font-semibold text-teal-500 mb-2">Description</label>
           <textarea
             [(ngModel)]="formData.description"
             name="description"
@@ -154,7 +160,7 @@
 
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-semibold text-teal-200 mb-2">Issuing Organization</label>
+            <label class="block text-sm font-semibold text-teal-500 mb-2">Issuing Organization</label>
             <input
               type="text"
               [(ngModel)]="formData.issuing_organization"
@@ -166,7 +172,7 @@
 
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-semibold text-teal-200 mb-2">Issue Date</label>
+            <label class="block text-sm font-semibold text-teal-500 mb-2">Issue Date</label>
             <input
               type="date"
               [(ngModel)]="formData.issue_date"
@@ -175,7 +181,7 @@
             />
           </div>
           <div>
-            <label class="block text-sm font-semibold text-teal-200 mb-2">Expiry Date</label>
+            <label class="block text-sm font-semibold text-teal-500 mb-2">Expiry Date</label>
             <input
               type="date"
               [(ngModel)]="formData.expiry_date"
@@ -186,7 +192,7 @@
         </div>
 
         <div>
-          <label class="block text-sm font-semibold text-teal-200 mb-2">Images</label>
+          <label class="block text-sm font-semibold text-teal-500 mb-2">Images</label>
           <input
             type="file"
             (change)="onImageSelect($event)"
@@ -198,7 +204,7 @@
 
         <!-- Existing Images (Edit Mode) -->
         <div *ngIf="showEditModal && existingImages.length > 0" class="space-y-2">
-          <label class="block text-sm font-semibold text-teal-200">Existing Images</label>
+          <label class="block text-sm font-semibold text-teal-500">Existing Images</label>
           <div class="grid grid-cols-3 gap-2">
             <div *ngFor="let image of existingImages" class="relative">
               <img [src]="getImageUrl(image)" alt="Certificate" class="w-full h-24 object-cover rounded-lg" />
@@ -215,7 +221,7 @@
 
         <!-- New Image Previews -->
         <div *ngIf="imagePreviews.length > 0" class="space-y-2">
-          <label class="block text-sm font-semibold text-teal-200">New Images</label>
+          <label class="block text-sm font-semibold text-teal-500">New Images</label>
           <div class="grid grid-cols-3 gap-2">
             <div *ngFor="let preview of imagePreviews; let i = index" class="relative">
               <img [src]="preview" alt="Preview" class="w-full h-24 object-cover rounded-lg" />
@@ -241,7 +247,7 @@
           <button
             type="button"
             (click)="closeModals()"
-            class="px-6 py-2 rounded-xl border border-[#6ba3be]/40 text-teal-200 hover:bg-white/5 transition"
+            class="px-6 py-2 rounded-xl border border-[#6ba3be]/40 text-teal-500 hover:bg-white/5 transition"
           >
             Cancel
           </button>
@@ -271,7 +277,7 @@
         </button>
         <button
           (click)="closeModals()"
-          class="flex-1 px-6 py-2 rounded-xl border border-[#6ba3be]/40 text-teal-200 hover:bg-white/5 transition"
+          class="flex-1 px-6 py-2 rounded-xl border border-[#6ba3be]/40 text-teal-500 hover:bg-white/5 transition"
         >
           Cancel
         </button>

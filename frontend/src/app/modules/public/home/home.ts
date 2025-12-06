@@ -6,7 +6,7 @@ import { Header } from '../../../shared/components/header/header';
 import { Footer } from '../../../shared/components/footer/footer';
 import { Doctor, DoctorResponse } from '../../../models/doctor';
 import { DoctorService } from '../../../core/services/doctor';
-import { Auth } from '../../../core/services/auth';
+import { BookingService } from '../../../core/services/booking.service';
 
 @Component({
   selector: 'app-home',
@@ -24,7 +24,7 @@ export class Home implements OnInit {
     private doctorService: DoctorService,
     private cdr: ChangeDetectorRef,
     private router: Router,
-    private auth: Auth
+    private bookingService: BookingService
   ) {}
 
   ngOnInit(): void {
@@ -74,21 +74,14 @@ export class Home implements OnInit {
     if (!doctor) {
       return;
     }
-    const queryParams: { [key: string]: unknown } = {
-      doctorId: doctor.id,
-      doctorName: doctor?.user?.name,
-      department: doctor?.specialization?.name,
-      fee: doctor?.consultation_fee,
-    };
-    const paymentUrl = this.router.createUrlTree(['/payment'], { queryParams }).toString();
-
-    if (!this.auth.isAuthenticated() || !this.auth.isPatient()) {
-      this.router.navigate(['/login'], {
-        queryParams: { returnUrl: paymentUrl },
-      });
-      return;
-    }
-
-    this.router.navigateByUrl(paymentUrl);
+    this.bookingService.startBooking({
+      doctor: {
+        id: doctor.id,
+        name: doctor?.user?.name,
+        specialization: doctor?.specialization?.name,
+        fee: doctor?.consultation_fee,
+      },
+      extras: { source: 'home' },
+    });
   }
 }
