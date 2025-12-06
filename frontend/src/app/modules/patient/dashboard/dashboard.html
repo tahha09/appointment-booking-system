@@ -1,312 +1,309 @@
-<div class="py-4 sm:py-6 space-y-4 sm:space-y-6">
-  <!-- Welcome Section -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-      <div>
-        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Welcome, {{ userName }}! 👋</h1>
-        <p class="text-sm sm:text-base text-gray-600">Here's what's happening with your health today</p>
-      </div>
-      <div class="text-left sm:text-right">
-        <p class="text-sm text-gray-500">Today is</p>
-        <p class="text-base sm:text-lg font-semibold text-gray-800">{{ currentDate | date:'fullDate' }}</p>
-      </div>
+<div class="space-y-6 text-[#032f30] animate-fade-in">
+
+  <!-- Header Section -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h2 class="text-2xl font-bold text-[#031716]">Dashboard</h2>
+      <p class="text-sm text-[#5a717d] mt-1">Overview of your health activities</p>
     </div>
+
+    <button (click)="bookAppointment()"
+      class="px-5 py-2.5 bg-[#0a7075] text-white rounded-xl font-semibold shadow-lg hover:bg-[#085a5e] transition-all flex items-center gap-2 self-start sm:self-auto">
+      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+      </svg>
+      Book Appointment
+    </button>
   </div>
 
   <!-- Loading State -->
-  @if (loading) {
-  <div class="text-center py-10">
-    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-    <p class="mt-2 text-gray-600">Loading dashboard data...</p>
+  <div *ngIf="loading" class="py-20 flex flex-col items-center justify-center">
+    <div class="w-16 h-16 border-4 border-teal-100 border-t-[#0A7075] rounded-full animate-spin mb-4"></div>
+    <p class="text-gray-500 font-medium">Loading your health dashboard...</p>
   </div>
-  }
 
   <!-- Error State -->
-  @if (error && !loading) {
-  <div class="bg-red-50 border border-red-200 rounded-xl p-4">
-    <p class="text-red-700">{{ error }}</p>
+  <div *ngIf="error && !loading"
+    class="bg-red-50 border-l-4 border-red-500 rounded-r-xl p-6 shadow-sm flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <div class="p-3 bg-red-100 rounded-full text-red-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <div>
+        <h3 class="text-red-800 font-semibold">Unable to load dashboard</h3>
+        <p class="text-red-600 text-sm">{{ error }}</p>
+      </div>
+    </div>
     <button (click)="loadAppointmentsData()"
-      class="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700">
+      class="px-5 py-2.5 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700 hover:shadow-lg transition-all">
       Retry
     </button>
   </div>
-  }
 
-  <!-- Quick Stats -->
-  @if (!loading && !error) {
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+  <!-- Quick Stats Grid -->
+  <div *ngIf="!loading && !error" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
     <!-- Upcoming Appointments -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-sm font-medium text-gray-600">Upcoming Appointments</h3>
-        <div class="p-2 bg-blue-50 rounded-lg">
-          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+    <div
+      class="rounded-2xl border border-[#0c969c]/30 bg-gradient-to-br from-[#0a7075] to-[#0c969c] p-5 shadow-lg transition hover:-translate-y-1 hover:shadow-2xl text-white group cursor-pointer"
+      (click)="goToMyAppointments()">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs uppercase tracking-wide text-[#6ba3be] group-hover:text-white transition-colors">Upcoming
+          </p>
+          <div class="mt-2 text-3xl font-bold">{{ upcomingAppointmentsCount }}</div>
+          <p class="text-xs text-[#a5e9f0] mt-1">Appointments</p>
+        </div>
+        <div
+          class="h-12 w-12 rounded-2xl bg-[#032f30]/40 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" class="h-6 w-6">
+            <path stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
               d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
         </div>
       </div>
-      <p class="text-3xl font-bold text-gray-900 mb-2">{{ upcomingAppointmentsCount }}</p>
-      <p class="text-sm text-green-600 font-medium" *ngIf="upcomingAppointmentsCount > 0">
-        {{ upcomingAppointmentsCount === 1 ? '1 appointment' : upcomingAppointmentsCount + ' appointments' }}
-      </p>
-      <p class="text-sm text-gray-500" *ngIf="upcomingAppointmentsCount === 0">
-        No upcoming appointments
-      </p>
     </div>
 
-    <!-- Total Appointments -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-sm font-medium text-gray-600">Total Appointments</h3>
-        <div class="p-2 bg-green-50 rounded-lg">
-          <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+    <!-- Total Appointments / Visits -->
+    <div
+      class="rounded-2xl border border-[#0a7075]/40 bg-gradient-to-br from-[#032f30] to-[#0a7075] p-5 shadow-lg transition hover:-translate-y-1 hover:shadow-2xl text-white">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs uppercase tracking-wide text-[#6ba3be]">Total Visits</p>
+          <div class="mt-2 text-3xl font-bold">{{ totalAppointmentsCount }}</div>
+          <p class="text-xs text-[#8fd0d9] mt-1">All-time</p>
+        </div>
+        <div class="h-12 w-12 rounded-2xl bg-[#031716]/40 flex items-center justify-center text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" class="h-6 w-6">
+            <path stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+              d="M9 7a3 3 0 1 0 6 0 3 3 0 0 0-6 0Zm-4 12a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v1H5v-1Z" />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Prescriptions -->
+    <div
+      class="rounded-2xl border border-[#031716]/40 bg-gradient-to-br from-[#031716] to-[#032f30] p-5 shadow-lg transition hover:-translate-y-1 hover:shadow-2xl text-white group cursor-pointer"
+      (click)="viewPrescriptions()">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs uppercase tracking-wide text-[#6ba3be] group-hover:text-white transition-colors">Active Rx
+          </p>
+          <div class="mt-2 text-3xl font-bold">{{ totalPrescriptionsCount }}</div>
+          <p class="text-xs text-[#8fd0d9] mt-1">Prescriptions</p>
+        </div>
+        <div
+          class="h-12 w-12 rounded-2xl bg-[#0a7075]/30 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" class="h-6 w-6">
+            <path stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
               d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
         </div>
       </div>
-      <p class="text-3xl font-bold text-gray-900 mb-2">{{ totalAppointmentsCount }}</p>
-    </div>
-
-    <!-- Pending Prescriptions -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-sm font-medium text-gray-600">Total Prescriptions</h3>
-        <div class="p-2 bg-purple-50 rounded-lg">
-          <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-          </svg>
-        </div>
-      </div>
-      <p class="text-3xl font-bold text-gray-900 mb-2">{{ totalPrescriptionsCount }}</p>
-      <p class="text-sm text-gray-600">Total prescriptions</p>
     </div>
 
     <!-- Medical Records -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-sm font-medium text-gray-600">Total Medical Histories</h3>
-        <div class="p-2 bg-orange-50 rounded-lg">
-          <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    <div
+      class="rounded-2xl border border-[#0a7075]/40 bg-gradient-to-br from-[#124e52] to-[#0a7075] p-5 shadow-lg transition hover:-translate-y-1 hover:shadow-2xl text-white group cursor-pointer"
+      (click)="viewMedicalRecords()">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs uppercase tracking-wide text-[#6ba3be] group-hover:text-white transition-colors">History
+          </p>
+          <div class="mt-2 text-3xl font-bold">{{ totalMedicalHistoriesCount }}</div>
+          <p class="text-xs text-[#8fd0d9] mt-1">Medical Records</p>
+        </div>
+        <div
+          class="h-12 w-12 rounded-2xl bg-[#032f30]/40 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" class="h-6 w-6">
+            <path stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
           </svg>
         </div>
       </div>
-      <p class="text-3xl font-bold text-gray-900 mb-2">{{ totalMedicalHistoriesCount }}</p>
-      <p class="text-sm text-gray-600">Total documents</p>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-    <!-- Upcoming Appointments List -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100">
-      <div class="p-4 sm:p-6 border-b border-gray-100">
-        <h2 class="text-lg sm:text-xl font-bold text-gray-900">Upcoming Appointments</h2>
-        <p class="text-sm text-gray-600 mt-1">Your confirmed appointments</p>
-      </div>
-
-      <div class="p-4 sm:p-6 space-y-4">
-        @if (upcomingAppointments.length > 0) {
-        @for (appointment of upcomingAppointments; track appointment.id) {
-        <div
-          class="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-blue-50 rounded-xl border border-blue-100 space-y-3 sm:space-y-0">
-          <div class="flex items-center space-x-3 sm:space-x-4">
-            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </div>
-            <div>
-              <p class="font-semibold text-gray-900">{{ getDoctorName(appointment) }}</p>
-              <p class="text-sm text-gray-600">{{ getSpecialization(appointment) }}</p>
-              <p class="text-sm text-gray-500">
-                {{ formatDate(appointment.appointment_date) }} •
-                {{ getTimeFromDate(appointment.appointment_date, appointment.start_time) }}
-              </p>
-              <p class="text-xs text-gray-400 mt-1">
-                Reason: {{ appointment.reason || 'General checkup' }}
-              </p>
-            </div>
-          </div>
-          <button
-            class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors w-full sm:w-auto"
-            (click)="viewDetails(appointment.id)">
-            View Details
-          </button>
+  <div *ngIf="!loading && !error" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Appointments List -->
+    <div class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden flex flex-col">
+      <div
+        class="p-6 border-b border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4 bg-gray-50/50">
+        <div>
+          <h2 class="text-xl font-bold text-gray-900">Appointments</h2>
+          <p class="text-sm text-gray-500">Manage your schedule</p>
         </div>
-        }
-        } @else {
-        <div class="text-center py-8">
-          <div class="w-16 h-16 mx-auto mb-4 text-gray-300">
-            <svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
-          <p class="text-gray-500 mb-2">No upcoming appointments</p>
-          <button (click)="bookAppointment()"
-            class="px-4 py-2 bg-[#0A7075] text-white rounded-lg text-sm font-medium hover:bg-[#085A5E] transition-colors">
-            Book Your First Appointment
-          </button>
-        </div>
-        }
-      </div>
-
-      @if (upcomingAppointmentsCount > 2) {
-      <div class="p-4 sm:p-6 border-t border-gray-100">
         <button (click)="goToMyAppointments()"
-          class="flex items-center justify-center space-x-2 text-blue-600 hover:text-blue-700 font-medium mx-auto">
-          <span>View All Appointments</span>
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
+          class="text-sm font-semibold text-[#0A7075] hover:text-[#085A5E] hover:underline">
+          View All
         </button>
       </div>
-      }
-    </div>
 
-    <!-- Recent Medical Histories & Pending Prescriptions -->
-    <div class="space-y-4 sm:space-y-6">
-      <!-- Recent Medical Histories Card -->
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100">
-        <div class="p-4 sm:p-6 border-b border-gray-100">
-          <div class="flex items-center justify-between">
-            <div>
-              <h2 class="text-lg sm:text-xl font-bold text-gray-900">Recent Medical Histories</h2>
-              <p class="text-sm text-gray-600 mt-1">Your latest health records</p>
+      <div class="p-6 flex-1 flex flex-col gap-4">
+        <div *ngIf="filteredAppointments.length > 0; else noAppointments">
+          <div *ngFor="let appointment of filteredAppointments; trackBy: trackById"
+            class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 mb-4 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md hover:border-teal-100 transition-all duration-300 group">
+
+            <div class="flex items-center gap-4 w-full sm:w-auto">
+              <div
+                class="w-14 h-14 bg-gradient-to-br from-teal-50 to-teal-100 rounded-2xl flex items-center justify-center flex-shrink-0 text-[#0A7075] group-hover:scale-110 transition-transform">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <h3 class="font-bold text-gray-900 text-lg truncate">{{ getDoctorName(appointment) }}</h3>
+                  <!-- Status Badge -->
+                  <span class="px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider rounded border"
+                    [ngClass]="getStatusColor(appointment.status)">
+                    {{ appointment.status }}
+                  </span>
+                </div>
+                <p class="text-sm text-gray-500 font-medium mb-1">{{ getSpecialization(appointment) }}</p>
+                <div class="flex flex-wrap items-center gap-3 text-xs text-gray-400">
+                  <span class="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-md">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    {{ formatDate(appointment.appointment_date) }}
+                  </span>
+                  <span class="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-md">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {{ getTimeFromDate(appointment.appointment_date, appointment.start_time) }}
+                  </span>
+                </div>
+              </div>
             </div>
-            <button (click)="viewMedicalRecords()" class="text-sm text-[#0A7075] hover:text-[#0A7075] font-medium">
-              View All
-            </button>
+
+            <!-- Actions -->
+            <div class="mt-4 sm:mt-0 w-full sm:w-auto flex items-center gap-2">
+              <button
+                class="px-4 py-2 bg-gray-50 text-gray-700 font-semibold rounded-xl hover:bg-[#0A7075] hover:text-white transition-all duration-300 text-xs flex-1 sm:flex-none border border-gray-100"
+                (click)="goToMyAppointments()">
+                View
+              </button>
+            </div>
           </div>
         </div>
 
-        <div class="p-4 sm:p-6">
-          @if (recentMedicalHistories.length > 0) {
-          <div class="space-y-3">
-            @for (history of recentMedicalHistories; track history.id) {
-            <div
-              class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors border border-gray-100">
+        <ng-template #noAppointments>
+          <div
+            class="h-64 flex flex-col items-center justify-center text-center p-8 bg-gray-50/50 rounded-2xl border-2 border-dashed border-gray-100">
+            <div class="w-16 h-16 bg-white rounded-full shadow-sm flex items-center justify-center mb-4 text-gray-300">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-1">No appointments found</h3>
+            <p class="text-gray-500 mb-6 max-w-xs mx-auto text-sm">There are no appointments with the selected status.
+            </p>
+            <button (click)="bookAppointment()"
+              class="px-6 py-2.5 bg-[#0A7075] text-white rounded-xl font-bold shadow-lg shadow-teal-900/10 hover:bg-[#085A5E] hover:scale-105 transition-all text-sm">
+              Book New Appointment
+            </button>
+          </div>
+        </ng-template>
+      </div>
+    </div>
 
-              <div class="flex items-center space-x-3 flex-1 min-w-0">
-                <div class="w-10 h-10 bg-[#e8f4f8] rounded-lg flex items-center justify-center flex-shrink-0">
-                  <svg class="w-5 h-5 text-[#6BA3BE]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- Recent Medical & Prescriptions -->
+    <div class="space-y-8">
+      <!-- Recent Medical Histories -->
+      <div class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
+        <div class="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+          <h2 class="text-xl font-bold text-gray-900">Recent Medical History</h2>
+          <button (click)="viewMedicalRecords()"
+            class="text-sm font-semibold text-[#0A7075] hover:text-[#085A5E] hover:underline">View All</button>
+        </div>
+
+        <div class="p-6">
+          <div *ngIf="recentMedicalHistories.length > 0; else noMedicalHistory" class="space-y-4">
+            <div *ngFor="let history of recentMedicalHistories; trackBy: trackById"
+              class="flex items-center justify-between p-4 rounded-2xl bg-white border border-gray-100 hover:shadow-md hover:border-teal-200 transition-all duration-300 group cursor-pointer"
+              (click)="viewMedicalRecords()">
+              <div class="flex items-center gap-4">
+                <div
+                  class="w-12 h-12 bg-teal-50 text-[#0A7075] rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-[#0A7075] group-hover:text-white transition-colors duration-300">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
-
-                <div class="min-w-0 flex-1">
-                  <p class="font-medium text-gray-900 truncate">
-                    {{ history.condition || 'Medical Report' }}
-                  </p>
-                  <div class="flex items-center space-x-3 mt-1">
-                    <span class="text-sm text-gray-600">
-                      {{ history.visit_date | date:'mediumDate' }}
-                    </span>
-                    @if (history.doctor_name) {
-                    <span class="text-xs text-gray-400">•</span>
-                    <span class="text-sm text-gray-600 truncate">
-                      Dr. {{ history.doctor_name }}
-                    </span>
-                    }
-                  </div>
+                <div>
+                  <h4 class="font-bold text-gray-900 group-hover:text-[#0A7075] transition-colors">{{ history.condition
+                    || 'Medical Checker' }}</h4>
+                  <p class="text-sm text-gray-500">{{ history.visit_date | date:'mediumDate' }} • Dr. {{
+                    history.doctor_name || 'Unknown' }}</p>
                 </div>
               </div>
-
-              <button (click)="viewMedicalRecords()"
-                class="ml-3 px-3 py-1.5 text-sm bg-[#e8f4f8] text-[#0A7075] hover:bg-blue-100 rounded-lg font-medium flex-shrink-0 transition-colors">
-                View
-              </button>
-            </div>
-            }
-          </div>
-          } @else {
-          <div class="text-center py-8">
-            <div class="w-16 h-16 mx-auto mb-4 text-gray-300">
-              <svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <svg class="w-5 h-5 text-gray-300 group-hover:text-[#0A7075] group-hover:translate-x-1 transition-all"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
             </div>
-            <p class="text-gray-500 mb-3">No medical records found</p>
-            <p class="text-sm text-gray-400">Your medical histories will appear here</p>
           </div>
-          }
+          <ng-template #noMedicalHistory>
+            <div class="text-center py-10 text-gray-400">
+              <p>No recent medical records found.</p>
+            </div>
+          </ng-template>
         </div>
       </div>
 
-      <!-- Latest Prescriptions -->
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100">
-        <div class="p-4 sm:p-6 border-b border-gray-100">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-[#e8f4f8] rounded-lg flex items-center justify-center">
-                <svg class="w-5 h-5 text-[#6BA3BE]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-              </div>
-              <div>
-                <h2 class="text-lg sm:text-xl font-bold text-gray-900">Recent Prescriptions</h2>
-                <p class="text-sm text-gray-600 mt-1">New prescriptions ready for review</p>
-              </div>
-            </div>
-          </div>
+      <!-- Latest Prescription -->
+      <div class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
+        <div class="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+          <h2 class="text-xl font-bold text-gray-900">Latest Prescription</h2>
+          <button (click)="viewPrescriptions()"
+            class="text-sm font-semibold text-[#0A7075] hover:text-[#085A5E] hover:underline">View All</button>
         </div>
 
-        <div class="p-4 sm:p-6">
-          <div
-            class="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-[#e8f4f8] rounded-xl border border-[#c2e0ee] space-y-3 sm:space-y-0">
-            <div class="flex items-center space-x-3 flex-1 min-w-0">
-              <div
-                class="w-12 h-12 bg-white rounded-xl flex items-center justify-center flex-shrink-0 border border-[#a3d4e9]">
-                <svg class="w-6 h-6 text-[#6BA3BE]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
+        <div class="p-6">
+          <div *ngIf="latestPrescription; else noPrescription">
+            <div
+              class="flex items-center justify-between p-4 rounded-2xl bg-white border border-gray-100 hover:shadow-md hover:border-teal-200 transition-all duration-300 group cursor-pointer"
+              (click)="viewPrescriptions()">
+              <div class="flex items-center gap-4 flex-1">
+                <div
+                  class="w-12 h-12 bg-teal-50 text-[#0A7075] rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-[#0A7075] group-hover:text-white transition-colors duration-300">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h4 class="font-bold text-gray-900 group-hover:text-[#0A7075] transition-colors truncate">{{
+                    latestPrescription.medication_name }}</h4>
+                  <p class="text-sm text-gray-500">{{ latestPrescription.prescribed_date | date:'mediumDate' }} • Dr. {{
+                    latestPrescription.doctor_name }}</p>
+                  <p class="text-xs text-gray-400 mt-1">{{ latestPrescription.dosage || 'Standard Dosage' }}</p>
+                </div>
               </div>
-              <div class="min-w-0">
-                <p class="font-medium text-gray-900">{{ latestPrescription?.medication_name || 'Prescription' }}</p>
-                <p class="text-sm text-gray-600 truncate">Issued by {{ latestPrescription?.doctor_name || 'Unknown
-                  Doctor' }}</p>
-                <p class="text-xs text-gray-500 mt-1">Prescribed on: {{ latestPrescription?.prescribed_date |
-                  date:'mediumDate' }}</p>
-              </div>
+              <svg
+                class="w-5 h-5 text-gray-300 group-hover:text-[#0A7075] group-hover:translate-x-1 transition-all flex-shrink-0"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
             </div>
-            <button (click)="viewPrescriptions()"
-              class="px-4 py-2 bg-[#0A7075] text-white rounded-lg text-sm font-medium hover:bg-[#5489a6] transition-colors w-full sm:w-auto flex-shrink-0">
-              Review Now
-            </button>
           </div>
 
-
-
+          <ng-template #noPrescription>
+            <div class="text-center py-10 text-gray-400">
+              <p>No recent prescriptions available.</p>
+            </div>
+          </ng-template>
         </div>
       </div>
     </div>
   </div>
-  }
-
-  <!-- Scroll to Top Button -->
-  <button type="button" class="fixed bottom-6 right-6 z-50" *ngIf="showScrollTop" (click)="scrollToTop()"
-    aria-label="Scroll to top">
-    <div
-      class="h-11 w-11 rounded-full flex items-center justify-center border border-white/60 shadow-xl backdrop-blur-md"
-      [ngStyle]="{
-        'background-image':
-          'conic-gradient(#0C969C ' + scrollProgress + '%, rgba(15,23,42,0.9) 0)'
-      }">
-      <div
-        class="h-8 w-8 rounded-full flex items-center justify-center bg-white text-[#0C969C] shadow-[0_0_14px_rgba(255,255,255,0.9)]">
-        <svg class="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M12 5L5 12h4v7h6v-7h4z" fill="currentColor" />
-        </svg>
-      </div>
-    </div>
-  </button>
 </div>

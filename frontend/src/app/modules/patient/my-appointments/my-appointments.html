@@ -158,6 +158,10 @@
           <span class="status-badge" [ngClass]="getStatusClass(appointment.status)">
             {{ getStatusLabel(appointment.status) }}
           </span>
+          <button *ngIf="canCancel(appointment.status)" (click)="cancelAppointment(appointment.id, $event)"
+            class="cancel-btn-small" title="Cancel Appointment">
+            <i class="fas fa-times"></i> Cancel
+          </button>
           <i class="fas fa-chevron-right chevron-icon"></i>
         </div>
       </div>
@@ -310,6 +314,10 @@
       </div>
 
       <div class="modal-footer">
+        <button *ngIf="canCancel(selectedAppointment.status)" (click)="cancelAppointment(selectedAppointment.id)"
+          class="cancel-modal-btn">
+          <i class="fas fa-times"></i> Cancel Appointment
+        </button>
         <button (click)="closeDetailsModal()" class="close-modal-btn">
           <i class="fas fa-check"></i>
           Close

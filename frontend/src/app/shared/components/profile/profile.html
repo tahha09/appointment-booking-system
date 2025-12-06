@@ -3,8 +3,9 @@
     <section class="user-profile__header">
       <div class="user-profile__avatar-container">
         <div class="user-profile__avatar">
-          <ng-container *ngIf="profileImage; else initialsAvatar">
-            <img [src]="profileImage" alt="User avatar" class="user-profile__avatar-img" />
+          <ng-container *ngIf="profileImage && !avatarLoadError; else initialsAvatar">
+            <img [src]="profileImage" alt="User avatar" class="user-profile__avatar-img"
+              (error)="handleAvatarError()" />
           </ng-container>
           <ng-template #initialsAvatar>
             <span class="user-profile__avatar-initials">
@@ -15,9 +16,10 @@
             <label class="user-profile__avatar-upload">
               <input type="file" accept="image/*" class="user-profile__upload-input"
                 (change)="onProfileImageSelected($event)" />
-              <svg class="user-profile__upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2v11z"/>
-                <circle cx="12" cy="13" r="4"/>
+              <svg class="user-profile__upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2v11z" />
+                <circle cx="12" cy="13" r="4" />
               </svg>
             </label>
           </div>
@@ -47,8 +49,8 @@
         <div class="user-profile__card-header">
           <h2 class="user-profile__card-title">
             <svg class="user-profile__card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
             </svg>
             Personal Information
           </h2>
@@ -80,9 +82,10 @@
                   placeholder="you@example.com" readonly />
                 <div class="user-profile__input-border"></div>
                 <div class="user-profile__readonly-indicator">
-                  <svg class="user-profile__lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  <svg class="user-profile__lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                   </svg>
                 </div>
               </div>
@@ -96,8 +99,7 @@
             <label class="user-profile__label">
               Phone
               <div class="user-profile__input-container">
-                <input type="text" formControlName="phone" class="user-profile__input"
-                  placeholder="+20 123 456 7890" />
+                <input type="text" formControlName="phone" class="user-profile__input" placeholder="+20 123 456 7890" />
                 <div class="user-profile__input-border"></div>
               </div>
             </label>
@@ -117,8 +119,7 @@
             <label class="user-profile__label">
               Address
               <div class="user-profile__input-container">
-                <input type="text" formControlName="address" class="user-profile__input"
-                  placeholder="Your address" />
+                <input type="text" formControlName="address" class="user-profile__input" placeholder="Your address" />
                 <div class="user-profile__input-border"></div>
               </div>
             </label>
@@ -132,8 +133,9 @@
         <div class="user-profile__card user-profile__card--medical" *ngIf="userRole === 'patient'">
           <div class="user-profile__card-header">
             <h2 class="user-profile__card-title">
-              <svg class="user-profile__card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+              <svg class="user-profile__card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
               </svg>
               Medical Information
             </h2>
@@ -194,11 +196,12 @@
         <div class="user-profile__card user-profile__card--professional" *ngIf="userRole === 'doctor'">
           <div class="user-profile__card-header">
             <h2 class="user-profile__card-title">
-              <svg class="user-profile__card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                <circle cx="9" cy="7" r="4"/>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              <svg class="user-profile__card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
               </svg>
               Professional Information
             </h2>
@@ -257,8 +260,8 @@
                 Consultation Fee
                 <div class="user-profile__input-container user-profile__input-container--currency">
                   <span class="user-profile__currency-symbol">$</span>
-                  <input type="number" formControlName="consultationFee" class="user-profile__input"
-                    placeholder="0.00" min="0" step="0.01" />
+                  <input type="number" formControlName="consultationFee" class="user-profile__input" placeholder="0.00"
+                    min="0" step="0.01" />
                   <div class="user-profile__input-border"></div>
                 </div>
               </label>
@@ -287,8 +290,10 @@
         <div class="user-profile__card user-profile__card--admin" *ngIf="userRole === 'admin'">
           <div class="user-profile__card-header">
             <h2 class="user-profile__card-title">
-              <svg class="user-profile__card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 15v2m-6 4h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2zm10-10V7a4 4 0 0 0-8 0v4h8z"/>
+              <svg class="user-profile__card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <path
+                  d="M12 15v2m-6 4h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2zm10-10V7a4 4 0 0 0-8 0v4h8z" />
               </svg>
               Administrative Information
             </h2>
@@ -317,7 +322,7 @@
                   </select>
                   <div class="user-profile__select-arrow">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M6 9l6 6 6-6"/>
+                      <path d="M6 9l6 6 6-6" />
                     </svg>
                   </div>
                   <div class="user-profile__input-border"></div>
@@ -330,10 +335,11 @@
                 <textarea formControlName="permissions" class="user-profile__textarea user-profile__textarea--code"
                   placeholder='["permission1", "permission2"]' rows="3"></textarea>
                 <small class="user-profile__hint">
-                  <svg class="user-profile__hint-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <path d="M12 16v-4"/>
-                    <path d="M12 8h.01"/>
+                  <svg class="user-profile__hint-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 16v-4" />
+                    <path d="M12 8h.01" />
                   </svg>
                   Enter permissions as a JSON array
                 </small>
@@ -346,9 +352,10 @@
         <div class="user-profile__card user-profile__card--security">
           <div class="user-profile__card-header">
             <h2 class="user-profile__card-title">
-              <svg class="user-profile__card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              <svg class="user-profile__card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
               </svg>
               Security
             </h2>
@@ -395,9 +402,9 @@
         [disabled]="form.invalid || isLoading || isSaving || !isFormDirty()">
         <span class="user-profile__save-btn-text" *ngIf="!isSaving">
           <svg class="user-profile__save-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-            <polyline points="17 21 17 13 7 13 7 21"/>
-            <polyline points="7 3 7 8 15 8"/>
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+            <polyline points="17 21 17 13 7 13 7 21" />
+            <polyline points="7 3 7 8 15 8" />
           </svg>
           Save Changes
         </span>
@@ -417,15 +424,16 @@
         <div class="user-profile__field user-profile__field--full">
           <span class="user-profile__label">Current password</span>
           <div class="user-profile__input-wrapper">
-            <input type="password" formControlName="currentPassword"
-              class="user-profile__input" autocomplete="current-password" placeholder="Enter your current password" />
+            <input type="password" formControlName="currentPassword" class="user-profile__input"
+              autocomplete="current-password" placeholder="Enter your current password" />
             <button type="button" class="user-profile__toggle-password"
               (click)="showCurrentPassword = !showCurrentPassword">
               <span *ngIf="!showCurrentPassword">👁️</span>
               <span *ngIf="showCurrentPassword">🙈</span>
             </button>
           </div>
-          <span class="user-profile__error" *ngIf="passwordForm.get('currentPassword')?.touched && passwordForm.get('currentPassword')?.invalid">
+          <span class="user-profile__error"
+            *ngIf="passwordForm.get('currentPassword')?.touched && passwordForm.get('currentPassword')?.invalid">
             Current password is required.
           </span>
         </div>
@@ -441,7 +449,8 @@
                 <span *ngIf="showNewPassword">🙈</span>
               </button>
             </div>
-            <span class="user-profile__error" *ngIf="passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.invalid">
+            <span class="user-profile__error"
+              *ngIf="passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.invalid">
               New password must be at least 6 characters.
             </span>
           </div>
@@ -457,7 +466,8 @@
                 <span *ngIf="showConfirmNewPassword">🙈</span>
               </button>
             </div>
-            <span class="user-profile__error" *ngIf="passwordForm.get('confirmNewPassword')?.touched && passwordForm.get('confirmNewPassword')?.invalid">
+            <span class="user-profile__error"
+              *ngIf="passwordForm.get('confirmNewPassword')?.touched && passwordForm.get('confirmNewPassword')?.invalid">
               Please confirm your new password.
             </span>
           </div>
@@ -498,7 +508,8 @@
               <span *ngIf="showDeletePassword">🙈</span>
             </button>
           </div>
-          <span class="user-profile__error" *ngIf="deleteForm.get('password')?.touched && deleteForm.get('password')?.invalid">
+          <span class="user-profile__error"
+            *ngIf="deleteForm.get('password')?.touched && deleteForm.get('password')?.invalid">
             Password is required to delete your account.
           </span>
         </div>

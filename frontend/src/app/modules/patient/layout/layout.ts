@@ -1,19 +1,21 @@
 import { Component, inject, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { Auth } from '../../../core/services/auth';
 import { NotificationService } from '../../../core/services/notification-service';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './layout.html',
   styleUrl: './layout.scss',
 })
 export class Layout implements OnInit {
 
   isSidebarCollapsed = false;
+  currentDate = new Date();
 
   isUserDropdownOpen = false;
 
@@ -23,7 +25,7 @@ export class Layout implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private cdr = inject(ChangeDetectorRef);
 
-  constructor(public router: Router) {}
+  constructor(public router: Router) { }
 
   // notifications
   notifications: any[] = [];
@@ -113,7 +115,7 @@ export class Layout implements OnInit {
   }
 
   // get the first character of the name
-   get userInitial(): string {
+  get userInitial(): string {
     const name = this.userName;
     return name.charAt(0).toUpperCase();
   }
@@ -121,7 +123,7 @@ export class Layout implements OnInit {
   handleAvatarError() {
     this.avatarLoadError = true;
   }
-  
+
 
   // logout
   logout() {
@@ -142,4 +144,7 @@ export class Layout implements OnInit {
     this.router.navigateByUrl('/');
   }
 
+  trackById(index: number, item: any): any {
+    return item.id;
+  }
 }

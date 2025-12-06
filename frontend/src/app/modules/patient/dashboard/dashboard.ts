@@ -13,9 +13,7 @@ import { PatientService } from '../../../core/services/patient.service'
   styleUrl: './dashboard.scss',
 })
 export class Dashboard implements OnInit {
-  // Scroll to top properties
-  showScrollTop = false;
-  scrollProgress = 0;
+  /* Scroll logic removed */
 
   constructor(
     private auth: Auth,
@@ -45,6 +43,11 @@ export class Dashboard implements OnInit {
     return this.auth.getUserName() || 'Patient';
   }
 
+  // Data properties
+  allAppointments: any[] = [];
+  filteredAppointments: any[] = [];
+  // No longer using currentFilter property as we display only a simplified view
+
   ngOnInit(): void {
     this.loadAppointmentsData();
     this.loadMedicalHistoryData();
@@ -59,47 +62,87 @@ export class Dashboard implements OnInit {
     this.appointmentService.getAppointments().subscribe({
       next: (response: any) => {
         if (response.success && response.data) {
-          // Handle paginated response: check for .data, .appointments, or use directly if array
-          let allAppointments = [];
+          // Handle paginated response
+          let rawData = [];
           if (Array.isArray(response.data)) {
-            allAppointments = response.data;
+            rawData = response.data;
           } else if (response.data.data && Array.isArray(response.data.data)) {
-            allAppointments = response.data.data;
+            rawData = response.data.data;
           } else if (response.data.appointments && Array.isArray(response.data.appointments)) {
-            allAppointments = response.data.appointments;
+            rawData = response.data.appointments;
           }
 
-          //  (confirmed + future date)
+          this.allAppointments = rawData;
+          this.totalAppointmentsCount = response.data.total || rawData.length;
+
+          // Calculate upcoming count separately for the stats card
           const today = new Date();
           today.setHours(0, 0, 0, 0);
+          this.upcomingAppointmentsCount = this.allAppointments.filter((app: any) => {
+            const appDate = new Date(app.appointment_date);
+            return (app.status === 'confirmed' || app.status === 'pending') && appDate >= today;
+          }).length;
 
-          this.upcomingAppointments = allAppointments.filter((appointment: any) => {
-            const appointmentDate = new Date(appointment.appointment_date);
-            return (appointment.status === 'confirmed' || appointment.status === 'pending') && appointmentDate >= today;
-          });
+          // Default display: Upcoming Appointments logic (Confirmed/Pending & Future)
+          // Sort by date ascending (soonest first)
+          this.filteredAppointments = this.allAppointments
+            .filter((app: any) => {
+              const appDate = new Date(app.appointment_date);
+              return (app.status === 'confirmed' || app.status === 'pending') && appDate >= today;
+            })
+            .sort((a: any, b: any) => new Date(a.appointment_date).getTime() - new Date(b.appointment_date).getTime())
+            .slice(0, 5);
 
-          this.totalAppointmentsCount = response.data.total || allAppointments.length;
-          this.upcomingAppointmentsCount = this.upcomingAppointments.length;
-
-
-          this.upcomingAppointments = this.upcomingAppointments
-            .sort((a: any, b: any) =>
-              new Date(a.appointment_date).getTime() - new Date(b.appointment_date).getTime()
-            )
-            .slice(0, 2); // take first 2 appointments
+          this.upcomingAppointments = this.filteredAppointments;
         }
 
         this.loading = false;
-
         this.cdr.detectChanges();
       },
       error: (err: any) => {
         this.error = 'Failed to load appointments data';
         this.loading = false;
-
         this.cdr.detectChanges();
       }
     });
+  }
+
+  cancelAppointment(id: number) {
+    if (!confirm('Are you sure you want to cancel this appointment?')) return;
+
+    // Optimistic update
+    const previousAppointments = [...this.allAppointments];
+    const appIndex = this.allAppointments.findIndex(a => a.id === id);
+    if (appIndex > -1) {
+      this.allAppointments[appIndex] = { ...this.allAppointments[appIndex], status: 'cancelled' };
+      // Re-filter to remove the cancelled appointment from the list if it's no longer 'upcoming'
+      // Or just reload data. Since logic is simple, we can just reload for correctness.
+      this.loadAppointmentsData();
+      this.cdr.detectChanges();
+    }
+
+    this.appointmentService.cancelAppointment(id).subscribe({
+      next: (response: any) => {
+        this.loadAppointmentsData(); // Reload to ensure sync
+      },
+      error: (err: any) => {
+        // Revert on error
+        this.allAppointments = previousAppointments;
+        this.loadAppointmentsData();
+        this.cdr.detectChanges();
+        alert('Failed to cancel appointment');
+      }
+    });
+  }
+
+  getStatusColor(status: string): string {
+    switch (status) {
+      case 'confirmed': return 'text-teal-600 bg-teal-50 border-teal-100';
+      case 'pending': return 'text-amber-600 bg-amber-50 border-amber-100';
+      case 'cancelled': return 'text-red-600 bg-red-50 border-red-100';
+      case 'completed': return 'text-blue-600 bg-blue-50 border-blue-100';
+      default: return 'text-gray-600 bg-gray-50 border-gray-100';
+    }
   }
 
   loadMedicalHistoryData(): void {
@@ -178,7 +221,11 @@ export class Dashboard implements OnInit {
   }
 
   bookAppointment() {
-    // Navigate to booking page
+    this.router.navigate(['/patient/my-appointments']);
+  }
+
+  trackById(index: number, item: any): any {
+    return item.id;
   }
 
   formatDate(dateString: string): string {
@@ -219,38 +266,5 @@ export class Dashboard implements OnInit {
       'General';
   }
 
-  @HostListener('window:scroll')
-  onWindowScroll(): void {
-    const doc = document.documentElement;
-    const scrollTop = window.scrollY || doc.scrollTop || 0;
-    const height = doc.scrollHeight - doc.clientHeight;
-    this.showScrollTop = height > 0 && scrollTop > 80;
-    this.scrollProgress = height > 0 ? Math.min(100, Math.round((scrollTop / height) * 100)) : 0;
-  }
-
-  scrollToTop(): void {
-    const doc = document.documentElement;
-    const start = window.scrollY || doc.scrollTop || 0;
-    const duration = 600;
-    const startTime = performance.now();
-
-    const easeInOutCubic = (t: number): number => {
-      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-    };
-
-    const scroll = (currentTime: number) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = easeInOutCubic(progress);
-      const nextScroll = start * (1 - eased);
-
-      window.scrollTo(0, nextScroll);
-
-      if (progress < 1) {
-        requestAnimationFrame(scroll);
-      }
-    };
-
-    requestAnimationFrame(scroll);
-  }
+  /* Scroll logic removed */
 }
