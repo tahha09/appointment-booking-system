@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Auth } from './auth';
+import { Notification } from './notification';
 
 export interface BookingDoctorContext {
   id: number;
@@ -20,7 +21,11 @@ export interface BookingOptions {
 export class BookingService {
   private readonly bookingRoute: string[] = ['/payment'];
 
-  constructor(private readonly router: Router, private readonly auth: Auth) {}
+  constructor(
+    private readonly router: Router,
+    private readonly auth: Auth,
+    private readonly notification: Notification,
+  ) {}
 
   startBooking(options?: BookingOptions): void {
     const bookingParams = this.buildQueryParams(options);
@@ -37,7 +42,10 @@ export class BookingService {
     }
 
     if (!this.auth.isPatient()) {
-      alert('Only patients can book appointments. Please sign in with a patient account.');
+      void this.notification.error(
+        'Patient account required',
+        'Only patients can book appointments. Please sign in with a patient account.',
+      );
       return;
     }
 

@@ -12,6 +12,7 @@ import { DoctorService } from '../../../core/services/doctor';
 import { SpecializationService } from '../../../core/services/specialization';
 import { Doctor, DoctorResponse } from '../../../models/doctor';
 import { Specialization } from '../../../models/specialization.model';
+import { Notification } from '../../../core/services/notification';
 
 @Component({
   selector: 'app-payment',
@@ -71,7 +72,8 @@ export class Payment implements OnInit {
     private appointmentService: AppointmentService,
     private doctorService: DoctorService,
     private specializationService: SpecializationService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private notification: Notification,
   ) {
     this.paymentForm = this.fb.group({
       specializationId: [{ value: null, disabled: true }],
@@ -107,8 +109,14 @@ export class Payment implements OnInit {
       return;
     }
     if (!this.auth.isPatient()) {
-      alert('Only patients can book appointments. Please switch to a patient account.');
-      void this.router.navigate(['/']);
+      void this.notification
+        .error(
+          'Patient account required',
+          'Only patients can book appointments. Please switch to a patient account.',
+        )
+        .then(() => {
+          void this.router.navigate(['/']);
+        });
       return;
     }
     this.route.queryParams.subscribe((params) => {
