@@ -147,4 +147,9 @@ export class Layout implements OnInit {
   trackById(index: number, item: any): any {
     return item.id;
   }
+
+  // Navigate to doctors page for booking
+  bookAppointment() {
+    this.router.navigate(['/doctors']);
+  }
 }
