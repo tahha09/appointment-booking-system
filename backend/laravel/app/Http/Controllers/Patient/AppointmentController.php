@@ -438,4 +438,150 @@ class AppointmentController extends Controller
             return $this->error($e->getMessage(), 500);
         }
     }
+
+    /**
+ * Reschedule appointment
+ */
+public function reschedule(Request $request, $id)
+{
+    try {
+        $user = Auth::user();
+
+        if (!$user || !$user->patient) {
+            return $this->error('Authenticated patient not found.', 404);
+        }
+
+        $patientId = $user->patient->id;
+
+        $validated = $request->validate([
+            'appointment_date' => 'required|date|after_or_equal:today',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'reason_for_reschedule' => 'nullable|string|max:500',
+        ]);
+
+        $appointment = Appointment::where('patient_id', $patientId)
+            ->where('id', $id)
+            ->first();
+
+        if (!$appointment) {
+            return $this->error('Appointment not found.', 404);
+        }
+
+        if ($appointment->status !== 'confirmed') {
+            return $this->error('Only confirmed appointments can be rescheduled.', 400);
+        }
+
+        if ($appointment->reschedule_count >= 3) {
+            return $this->error('This appointment has reached the maximum reschedule limit (3 times).', 400);
+        }
+
+        // Clean the date
+        $appointmentDate = $validated['appointment_date'];
+        if (str_contains($appointmentDate, 'T')) {
+            $appointmentDate = substr($appointmentDate, 0, 10);
+        }
+
+        // FIX: Use Carbon::parse correctly
+        $startDateTime = Carbon::parse($appointmentDate . ' ' . $validated['start_time']);
+        $endDateTime = Carbon::parse($appointmentDate . ' ' . $validated['end_time']);
+        
+        // FIX: Calculate originalDateTime correctly
+        // Correct way:
+        $originalDateTime = Carbon::parse(
+            $appointment->appointment_date->format('Y-m-d') . ' ' . $appointment->start_time
+        );
+        
+        // Alternative way:
+        // $originalDateTime = $appointment->appointment_date->copy()
+        //     ->setTimeFromTimeString($appointment->start_time);
+
+        if ($startDateTime->lt($originalDateTime)) {
+            return $this->error('You cannot reschedule to a time earlier than the original appointment.', 422);
+        }
+
+        if ($startDateTime->lt(Carbon::now())) {
+            return $this->error('You cannot reschedule to a past time.', 422);
+        }
+
+        // Remaining checks...
+        // Check if there is another appointment with the same doctor on the same day
+        $sameDayAppointment = Appointment::where('patient_id', $patientId)
+            ->where('doctor_id', $appointment->doctor_id)
+            ->where('id', '!=', $id)
+            ->whereDate('appointment_date', $appointmentDate)
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->exists();
+
+        if ($sameDayAppointment) {
+            return $this->error('You already have another appointment with this doctor on the selected day.', 422);
+        }
+
+        // Check if there is another appointment at the same time with a different doctor
+        $sameTimeOtherDoctor = Appointment::where('patient_id', $patientId)
+            ->where('doctor_id', '!=', $appointment->doctor_id)
+            ->where('id', '!=', $id)
+            ->whereDate('appointment_date', $appointmentDate)
+            ->where('start_time', $validated['start_time'])
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->exists();
+
+        if ($sameTimeOtherDoctor) {
+            return $this->error('You have another appointment at the same time with a different doctor.', 422);
+        }
+
+        // Check if the time slot is already booked with the same doctor
+        $timeConflictSameDoctor = Appointment::where('doctor_id', $appointment->doctor_id)
+            ->where('id', '!=', $id)
+            ->whereDate('appointment_date', $appointmentDate)
+            ->where('start_time', $validated['start_time'])
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->exists();
+
+        if ($timeConflictSameDoctor) {
+            return $this->error('This time slot is already booked with the doctor.', 400);
+        }
+
+        if ($endDateTime->lte($startDateTime)) {
+            return $this->error('End time must be after start time.', 422);
+        }
+
+        // Save original appointment data (only the first time)
+        if (is_null($appointment->rescheduled_at)) {
+            $appointment->update([
+                'original_appointment_date' => $appointment->appointment_date,
+                'original_start_time' => $appointment->start_time,
+                'original_end_time' => $appointment->end_time,
+            ]);
+        }
+
+        // Update the appointment
+        $appointment->update([
+            'appointment_date' => $appointmentDate,
+            'start_time' => $validated['start_time'],
+            'end_time' => $validated['end_time'],
+            'status' => 'pending',
+            'rescheduled_at' => now(),
+            'reschedule_reason' => $validated['reason_for_reschedule'] ?? null,
+            'reschedule_count' => $appointment->reschedule_count + 1,
+        ]);
+
+        $appointment->load(['doctor.user', 'doctor.specialization']);
+
+        return $this->success([
+            'appointment' => $appointment,
+            'message' => 'Appointment rescheduled successfully. Waiting for doctor confirmation.',
+            'reschedule_count' => $appointment->reschedule_count,
+            'remaining_reschedules' => 3 - $appointment->reschedule_count
+        ], 'Appointment rescheduled successfully');
+        
+    } catch (\Exception $e) {
+        \Log::error('Reschedule error: ' . $e->getMessage());
+        \Log::error('Error trace: ' . $e->getTraceAsString());
+        return $this->error('Failed to reschedule appointment: ' . $e->getMessage(), 500);
+    }
+}
+
+
+
 }

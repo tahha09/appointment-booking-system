@@ -158,6 +158,19 @@
           <span class="status-badge" [ngClass]="getStatusClass(appointment.status)">
             {{ getStatusLabel(appointment.status) }}
           </span>
+          <button *ngIf="canCancel(appointment.status)" 
+            (click)="cancelAppointment(appointment.id, $event)"
+            class="cancel-action-btn"
+            title="Cancel Appointment">
+            <i class="fas fa-ban"></i> Cancel
+          </button>
+
+          <button *ngIf="canReschedule(appointment.status)" 
+          (click)="openRescheduleModal(appointment, $event)"
+          class="reschedule-action-btn"
+          title="Reschedule Appointment">
+    <i class="fas fa-calendar-alt"></i> Reschedule
+  </button>
           <i class="fas fa-chevron-right chevron-icon"></i>
         </div>
       </div>
@@ -317,4 +330,130 @@
       </div>
     </div>
   </div>
+
+  <div *ngIf="showRescheduleModal && rescheduleAppointment" class="modal-overlay" (click)="closeRescheduleModal()">
+  <div class="modal-content reschedule-modal" (click)="$event.stopPropagation()">
+    
+    
+    <div class="modal-header">
+      <div class="modal-header-content">
+        <div class="modal-icon-wrapper">
+          <i class="fas fa-calendar-alt"></i>
+        </div>
+        <div>
+          <h2>Reschedule Appointment</h2>
+          <p class="modal-subtitle">Select a new date and time for your appointment</p>
+        </div>
+      </div>
+      <button (click)="closeRescheduleModal()" class="close-btn" aria-label="Close modal">
+        ×
+      </button>
+    </div>
+
+    
+    <div class="modal-body">
+      
+      
+      <div class="detail-section detail-section--highlighted">
+        <div class="detail-header">
+          <div class="detail-icon-wrapper">
+            <i class="fas fa-info-circle"></i>
+          </div>
+          <div class="detail-content">
+            <h3>Current Appointment</h3>
+            <p class="detail-value">
+              {{ formatDate(rescheduleAppointment.appointment_date) }} 
+              at {{ formatTime(rescheduleAppointment.start_time) }}
+            </p>
+            <p class="detail-subtext">
+              With Dr. {{ rescheduleAppointment.doctor?.user?.name }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      
+      <div class="reschedule-form">
+        
+        
+        <div class="form-group">
+          <label for="reschedule-date">
+            <i class="fas fa-calendar-day"></i>
+            New Date
+          </label>
+          <input type="date" 
+                 id="reschedule-date"
+                 [(ngModel)]="rescheduleForm.appointment_date"
+                 [min]="getMinDate()"
+                 class="form-control"
+                 required>
+          <small class="form-text">
+            Select a date from today onwards
+          </small>
+        </div>
+
+        
+        <div class="form-group">
+          <label for="reschedule-time">
+            <i class="fas fa-clock"></i>
+            New Time
+          </label>
+          <input type="time" 
+       id="start_time" 
+    name="start_time" 
+    [(ngModel)]="rescheduleForm.start_time"
+    (change)="updateEndTimeBasedOnStartTime()"
+    required>
+          <small class="form-text">
+            Select a new time for your appointment
+          </small>
+
+          <div class="form-group">
+  <label for="end_time">End Time</label>
+  <input 
+    type="time" 
+    id="end_time" 
+    name="end_time" 
+    [(ngModel)]="rescheduleForm.end_time"
+    readonly 
+    class="readonly-field"
+  />
+</div>
+        </div>
+
+        
+        <div class="form-group">
+          <label for="reschedule-reason">
+            <i class="fas fa-sticky-note"></i>
+            Reason for Rescheduling (Optional)
+          </label>
+          <textarea 
+            id="reschedule-reason"
+            [(ngModel)]="rescheduleForm.reason_for_reschedule"
+            class="form-control"
+            rows="3"
+            placeholder="Please provide a reason for rescheduling..."></textarea>
+          <small class="form-text">
+            This will help the doctor understand your request
+          </small>
+        </div>
+        
+      </div>
+      
+    </div>
+
+    
+    <div class="modal-footer">
+      <button (click)="closeRescheduleModal()" class="cancel-modal-btn">
+        <i class="fas fa-times"></i> Cancel
+      </button>
+      <button (click)="submitReschedule()" 
+              [disabled]="!rescheduleForm.appointment_date || !rescheduleForm.start_time"
+              class="submit-reschedule-btn">
+        <i class="fas fa-calendar-check"></i> Confirm Reschedule
+      </button>
+    </div>
+    
+  </div>
+</div>
 </main>
