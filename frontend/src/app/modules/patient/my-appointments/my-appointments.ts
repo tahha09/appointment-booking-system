@@ -361,11 +361,13 @@ private handleRescheduleSuccess(response: any): void {
 
 private handleRescheduleError(err: any): void {
   console.error('Error rescheduling appointment:', err);
+  console.error('Full error response:', err.error);
   
   let errorMessage = 'Failed to reschedule appointment';
   
   if (err.error?.message) {
     errorMessage = err.error.message;
+    console.error('Backend message:', err.error.message);
   } else if (err.error?.errors) {
     // Handle validation errors from Laravel
     const errors = err.error.errors;
@@ -378,6 +380,7 @@ private handleRescheduleError(err: any): void {
     }
     
     errorMessage = errorMessages.join(', ');
+    console.error('Validation errors:', errors);
   }
   
   this.notification.error('Error', errorMessage);
