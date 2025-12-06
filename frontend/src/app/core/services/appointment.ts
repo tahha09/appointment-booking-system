@@ -45,6 +45,25 @@ export interface AppointmentResponse {
   data: AppointmentModel;
 }
 
+export interface RescheduleRequest {
+  appointment_date: string;
+  start_time: string;
+  end_time: string;
+  reason_for_reschedule?: string;
+}
+
+export interface RescheduleResponse {
+  success: boolean;
+  message: string;
+  data: {
+    appointment: AppointmentModel;
+    message: string;
+    reschedule_count: number;
+    remaining_reschedules: number;
+    status_changed_to: string;
+  };
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -86,6 +105,17 @@ export class Appointment {
     return this.http.put<AppointmentResponse>(`${this.apiUrl}/${id}/cancel`, {}, {
       headers: this.getAuthHeaders()
     });
+  }
+
+  // reschedule an appointment
+  rescheduleAppointment(id: number, data: RescheduleRequest): Observable<RescheduleResponse> {
+    return this.http.put<RescheduleResponse>(
+      `${this.apiUrl}/${id}/reschedule`,
+      data,
+      {
+        headers: this.getAuthHeaders()
+      }
+    );
   }
 
   

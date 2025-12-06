@@ -19,10 +19,18 @@ class Appointment extends Model
         'status',
         'reason',
         'notes',
+        'rescheduled_at',
+        'original_appointment_date',
+        'original_start_time',
+        'original_end_time',
+        'reschedule_reason',
+        'reschedule_count'
     ];
 
     protected $casts = [
         'appointment_date' => 'date',
+        'original_appointment_date' => 'date',
+        'rescheduled_at' => 'datetime',
     ];
 
     // Relationships
@@ -135,5 +143,20 @@ class Appointment extends Model
     public function confirm()
     {
         $this->update(['status' => 'confirmed']);
+    }
+
+    public function getCanBeRescheduledAttribute()
+    {
+        return $this->status === 'confirmed' && $this->reschedule_count < 3;
+    }
+    
+    public function getIsRescheduledAttribute()
+    {
+        return !is_null($this->rescheduled_at);
+    }
+    
+    public function getRemainingReschedulesAttribute()
+    {
+        return 3 - $this->reschedule_count;
     }
 }
