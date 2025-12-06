@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { DoctorResponse } from '../../models/doctor';
 
@@ -13,6 +13,18 @@ export class DoctorService {
 
   getDoctors(): Observable<DoctorResponse> {
     return this.http.get<DoctorResponse>(this.apiUrl);
+  }
+
+  getDoctorsByFilters(params?: Record<string, string | number | undefined>): Observable<DoctorResponse> {
+    let httpParams = new HttpParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          httpParams = httpParams.set(key, String(value));
+        }
+      });
+    }
+    return this.http.get<DoctorResponse>(this.apiUrl, { params: httpParams });
   }
 
   getDoctorById(id: number): Observable<DoctorResponse> {

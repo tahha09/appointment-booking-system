@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
 import { NotificationService } from '../../../core/services/notification-service';
+import { BookingService } from '../../../core/services/booking.service';
 
 @Component({
   selector: 'app-layout',
@@ -23,7 +24,7 @@ export class Layout implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private cdr = inject(ChangeDetectorRef);
 
-  constructor(public router: Router) {}
+  constructor(public router: Router, private bookingService: BookingService) {}
 
   // notifications
   notifications: any[] = [];
@@ -140,6 +141,10 @@ export class Layout implements OnInit {
   goToHome() {
     this.closeUserDropdown();
     this.router.navigateByUrl('/');
+  }
+
+  bookNewAppointment(): void {
+    this.bookingService.startBooking({ extras: { source: 'patient-shell' } });
   }
 
 }
