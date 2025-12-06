@@ -87,7 +87,7 @@
         <!-- Image Counter -->
         <div
           class="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-xs backdrop-blur-sm">
-          {{ getImageIndex(image) + 1 }} / {{ image.images?.length || 0 }}
+          {{ getImageIndex(image) + 1 }} / {{ image.images.length }}
         </div>
         <!-- Image Indicators -->
         @if (image.images && image.images.length > 1) {

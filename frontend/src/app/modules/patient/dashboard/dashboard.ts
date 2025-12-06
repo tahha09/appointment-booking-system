@@ -265,4 +265,8 @@ export class Dashboard implements OnInit {
   }
 
   /* Scroll logic removed */
+
+  trackById(index: number, item: any): any {
+    return item.id;
+  }
 }

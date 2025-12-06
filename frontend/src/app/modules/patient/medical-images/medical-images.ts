@@ -273,7 +273,7 @@ export class MedicalImages implements OnInit {
 
       this.patientService.updateMedicalImage(this.selectedImage.id, formData).subscribe({
         next: () => {
-          this.notification.success('Medical image updated successfully.');
+          this.notification.success('updated successfully.');
           this.fetchMedicalImages();
           this.closeModals();
           this.submitting = false;

@@ -133,7 +133,7 @@ export class Layout implements OnInit {
     this.router.navigateByUrl('/');
   }
 
-  // go to profile 
+  // go to profile
   goToProfile() {
     this.closeUserDropdown();
     this.router.navigateByUrl('/patient/profile');
@@ -147,6 +147,10 @@ export class Layout implements OnInit {
 
   bookNewAppointment(): void {
     this.bookingService.startBooking({ extras: { source: 'patient-shell' } });
+  }
+
+  trackById(index: number, item: any): any {
+    return item.id;
   }
 
 }
