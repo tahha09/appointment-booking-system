@@ -57,6 +57,7 @@ export class UserProfile implements OnInit {
   private selectedImageDataUrl: string | null = null;
   isLoading = true;
   isSaving = false;
+  avatarLoadError = false;
   showPasswordModal = false;
   isPasswordSaving = false;
   showCurrentPassword = false;
@@ -140,6 +141,7 @@ export class UserProfile implements OnInit {
     this.auth.getUserProfile().subscribe({
       next: (profile: UserProfileData) => {
         this.profileImage = profile.profileImage || null;
+        this.avatarLoadError = false;
         this.userRole = profile.role as UserRole;
 
         // Patch common fields
@@ -213,6 +215,10 @@ export class UserProfile implements OnInit {
     return this.form.get('fullName')?.value || '';
   }
 
+  handleAvatarError() {
+    this.avatarLoadError = true;
+  }
+
   getInitials(name: string): string {
     const parts = name.trim().split(/\s+/).filter((part) => !!part);
     if (parts.length === 0) return '';
@@ -239,6 +245,7 @@ export class UserProfile implements OnInit {
     reader.onload = () => {
       this.selectedImageDataUrl = reader.result as string;
       this.profileImage = this.selectedImageDataUrl;
+      this.avatarLoadError = false;
       this.form.markAsDirty();
     };
     reader.readAsDataURL(file);
