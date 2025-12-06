@@ -131,6 +131,9 @@
       </div>
 
       <form (ngSubmit)="submitForm()" class="space-y-4">
+        <div *ngIf="formErrors.form" class="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          {{ formErrors.form }}
+        </div>
         <div>
           <label class="block text-sm font-semibold text-teal-200 mb-2">Title *</label>
           <input
@@ -140,6 +143,9 @@
             required
             class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/40 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
           />
+          <p class="mt-1 text-xs text-red-500" *ngIf="formErrors.title">
+            {{ formErrors.title }}
+          </p>
         </div>
 
         <div>
