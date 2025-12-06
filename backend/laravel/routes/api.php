@@ -79,7 +79,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/logout', [LoginController::class, 'logout']);
 
     // General Profile Routes (for all users - patients, doctors, admins)
-    Route::prefix('profile')->group(function () {
+    Route::middleware('auth:sanctum')->prefix('profile')->group(function () {
         Route::get('/', [ProfileController::class, 'show']);
         Route::put('/', [ProfileController::class, 'update']);
         Route::patch('/password', [ProfileController::class, 'updatePassword']);
@@ -129,7 +129,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     // Doctor Routes
-    Route::prefix('doctor')->group(function () {
+    Route::middleware('auth:sanctum')->prefix('doctor')->group(function () {
         // Dashboard
         Route::get('/dashboard', [DoctorAppointmentController::class, 'dashboard']);
 
@@ -174,7 +174,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     // Admin Routes - temporarily without authentication for testing
-    Route::prefix('admin')->group(function () {
+    Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
         // Stats/Dashboard
         Route::get('/stats', [UserController::class, 'stats']);
 
