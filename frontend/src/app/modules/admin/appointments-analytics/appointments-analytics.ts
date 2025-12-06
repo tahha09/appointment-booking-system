@@ -79,7 +79,6 @@ interface PatientAnalytics {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './appointments-analytics.html',
-  styleUrls: ['./appointments-analytics.scss'],
 })
 export class AppointmentsAnalytics implements OnInit {
   private readonly apiBase = 'http://localhost:8000/api';
