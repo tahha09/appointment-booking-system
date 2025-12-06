@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Models\Appointment;
 use App\Models\Doctor;
+use App\Models\Holiday;
 use Carbon\Carbon;
 
 class AppointmentController extends Controller
@@ -298,6 +300,8 @@ class AppointmentController extends Controller
             $doctorId = $validated['doctor_id'];
             $appointmentDate = Carbon::parse($validated['appointment_date']);
             $startDateTime = Carbon::parse($validated['appointment_date'] . ' ' . $validated['start_time']);
+            $startTime = $validated['start_time'];
+            $endTime = $validated['end_time'];
 
             if ($startDateTime->lt(Carbon::now())) {
                 return $this->error('You cannot book an appointment in the past.', 422);
@@ -309,44 +313,35 @@ class AppointmentController extends Controller
                 return $this->error('Doctor not found.', 404);
             }
 
-            // Prevent multiple pending appointments
-            $pendingWithDoctor = Appointment::where('patient_id', $patientId)
+            $isBlockedByDoctor = DB::table('blocked_patients')
                 ->where('doctor_id', $doctorId)
-                ->where('status', 'pending')
+                ->where('patient_id', $patientId)
                 ->exists();
 
-            if ($pendingWithDoctor) {
-                return $this->error('You already have a pending appointment with this doctor.', 422);
+            if ($isBlockedByDoctor) {
+                return $this->error('This doctor has restricted new appointments with your account.', 403);
             }
 
-            $pendingWithAnotherDoctor = Appointment::where('patient_id', $patientId)
-                ->where('doctor_id', '!=', $doctorId)
-                ->where('status', 'pending')
+            $isDoctorOnHoliday = Holiday::where('doctor_id', $doctorId)
+                ->whereDate('holiday_date', $appointmentDate->format('Y-m-d'))
                 ->exists();
 
-            if ($pendingWithAnotherDoctor) {
-                return $this->error('You already have another pending appointment awaiting confirmation.', 422);
+            if ($isDoctorOnHoliday) {
+                return $this->error('The doctor is unavailable on the selected date due to a scheduled holiday.', 422);
             }
 
-            // Prevent duplicate day bookings
-            $sameDoctorSameDay = Appointment::where('patient_id', $patientId)
+            $overlappingAppointment = Appointment::where('patient_id', $patientId)
                 ->where('doctor_id', $doctorId)
                 ->whereDate('appointment_date', $appointmentDate->format('Y-m-d'))
                 ->whereIn('status', ['pending', 'confirmed'])
+                ->where(function ($query) use ($startTime, $endTime) {
+                    $query->where('start_time', '<', $endTime)
+                        ->where('end_time', '>', $startTime);
+                })
                 ->exists();
 
-            if ($sameDoctorSameDay) {
-                return $this->error('You already have an appointment with this doctor on the selected day.', 422);
-            }
-
-            $activeOtherDoctorSameDay = Appointment::where('patient_id', $patientId)
-                ->where('doctor_id', '!=', $doctorId)
-                ->whereDate('appointment_date', $appointmentDate->format('Y-m-d'))
-                ->whereIn('status', ['pending', 'confirmed'])
-                ->exists();
-
-            if ($activeOtherDoctorSameDay) {
-                return $this->error('You already have an active appointment with another doctor on this day.', 422);
+            if ($overlappingAppointment) {
+                return $this->error('You already have an appointment with this doctor during the selected time.', 422);
             }
 
             // Check if slot is available
