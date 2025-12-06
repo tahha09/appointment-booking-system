@@ -49,7 +49,7 @@ export class Header implements AfterViewInit {
   protected logout(): void {
     this.auth.logout();
     this.userMenuOpen.set(false);
-    this.router.navigateByUrl('/login');
+    this.router.navigateByUrl('/');
   }
 
   protected goToDashboard(): void {

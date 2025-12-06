@@ -130,6 +130,6 @@ export class DoctorDashboardLayout implements OnInit {
 
   logout(): void {
     this.auth.logout();
-    this.router.navigateByUrl('/login');
+    this.router.navigateByUrl('/');
   }
 }
