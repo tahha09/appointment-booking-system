@@ -29,6 +29,10 @@ export class Certificates implements OnInit {
   certificates: Certificate[] = [];
   loading = true;
   error = '';
+  formErrors: {
+    form?: string;
+    title?: string;
+  } = {};
   
   // Modal states
   showAddModal = false;
@@ -109,6 +113,7 @@ export class Certificates implements OnInit {
     this.selectedImages = [];
     this.imagePreviews = [];
     this.showEditModal = true;
+    this.formErrors = {};
   }
 
   closeModals(): void {
@@ -116,6 +121,7 @@ export class Certificates implements OnInit {
     this.showEditModal = false;
     this.showDeleteConfirm = false;
     this.resetForm();
+    this.formErrors = {};
   }
 
   resetForm(): void {
@@ -131,6 +137,7 @@ export class Certificates implements OnInit {
     this.existingImages = [];
     this.imagesToRemove = [];
     this.selectedCertificate = null;
+    this.formErrors = {};
   }
 
   onImageSelect(event: Event): void {
@@ -201,13 +208,17 @@ export class Certificates implements OnInit {
   }
 
   submitForm(): void {
-    if (!this.formData.title) {
-      this.error = 'Title is required.';
+    this.formErrors = {};
+    const trimmedTitle = (this.formData.title || '').trim();
+    if (!trimmedTitle) {
+      this.formErrors = {
+        title: 'Title is required.',
+        form: 'Please fix the highlighted fields.',
+      };
       return;
     }
-
+    this.formData.title = trimmedTitle;
     this.submitting = true;
-    this.error = '';
 
     const token = this.auth.getToken();
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
@@ -247,7 +258,9 @@ export class Certificates implements OnInit {
             this.cdr.detectChanges();
           },
           error: (err) => {
-            this.error = err?.error?.message || 'Failed to update certificate.';
+            this.formErrors = {
+              form: err?.error?.message || 'Failed to update certificate.',
+            };
             this.submitting = false;
             this.cdr.detectChanges();
           },
@@ -268,7 +281,9 @@ export class Certificates implements OnInit {
             this.cdr.detectChanges();
           },
           error: (err) => {
-            this.error = err?.error?.message || 'Failed to create certificate.';
+            this.formErrors = {
+              form: err?.error?.message || 'Failed to create certificate.',
+            };
             this.submitting = false;
             this.cdr.detectChanges();
           },

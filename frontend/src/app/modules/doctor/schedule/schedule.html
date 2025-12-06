@@ -124,6 +124,9 @@
       </div>
 
       <form (ngSubmit)="submitSchedule()" class="space-y-4">
+        <div *ngIf="scheduleFormErrors.form" class="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          {{ scheduleFormErrors.form }}
+        </div>
         <div>
           <label class="block text-sm font-semibold text-[#0a7075] mb-2">Day of Week *</label>
           <select
@@ -134,6 +137,9 @@
           >
             <option *ngFor="let day of daysOfWeek" [value]="day.value">{{ day.label }}</option>
           </select>
+          <p class="mt-1 text-xs text-red-500" *ngIf="scheduleFormErrors.day_of_week">
+            {{ scheduleFormErrors.day_of_week }}
+          </p>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
@@ -146,6 +152,9 @@
               required
               class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/40 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
             />
+            <p class="mt-1 text-xs text-red-500" *ngIf="scheduleFormErrors.start_time">
+              {{ scheduleFormErrors.start_time }}
+            </p>
           </div>
           <div>
             <label class="block text-sm font-semibold text-[#0a7075] mb-2">End Time *</label>
@@ -156,6 +165,9 @@
               required
               class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/40 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
             />
+            <p class="mt-1 text-xs text-red-500" *ngIf="scheduleFormErrors.end_time">
+              {{ scheduleFormErrors.end_time }}
+            </p>
           </div>
         </div>
 
@@ -212,6 +224,9 @@
       </div>
 
       <form (ngSubmit)="submitHoliday()" class="space-y-4">
+        <div *ngIf="holidayFormErrors.form" class="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          {{ holidayFormErrors.form }}
+        </div>
         <div>
           <label class="block text-sm font-semibold text-[#0a7075] mb-2">Date *</label>
           <input
@@ -222,6 +237,9 @@
             [min]="minHolidayDate"
             class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/40 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
           />
+          <p class="mt-1 text-xs text-red-500" *ngIf="holidayFormErrors.holiday_date">
+            {{ holidayFormErrors.holiday_date }}
+          </p>
         </div>
 
         <div>
@@ -234,6 +252,9 @@
             class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/40 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
             placeholder="e.g., Public Holiday, Personal Leave"
           />
+          <p class="mt-1 text-xs text-red-500" *ngIf="holidayFormErrors.reason">
+            {{ holidayFormErrors.reason }}
+          </p>
         </div>
 
         <div class="flex gap-4 pt-4">
