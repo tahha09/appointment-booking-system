@@ -42,6 +42,7 @@ class DoctorNotifications extends Notification implements ShouldQueue
             ->subject($subject)
             ->greeting("Hello {$notifiable->name},")
             ->line($message)
+            ->line('Please check your appointments for more details.')
             ->line('Thank you for using our platform!');
     }
 

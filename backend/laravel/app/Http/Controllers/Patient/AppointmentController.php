@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use Carbon\Carbon;
+use App\Notifications\DoctorNotifications;
 
 class AppointmentController extends Controller
 {
@@ -263,6 +264,22 @@ class AppointmentController extends Controller
                 'status' => 'cancelled'
             ]);
 
+            $appointmentDate = $appointment->appointment_date;
+            $appointmentTime = $appointment->start_time;
+
+            if ($appointment->doctor) {
+                $doctor = Doctor::with('user')->find($appointment->doctor_id);
+                if ($doctor && $doctor->user) {
+                    $doctor->user->notify(new DoctorNotifications('appointment_cancelled', [
+                        'title' => 'Appointment Cancelled',
+                        'message' => "A patient has cancelled an appointment scheduled for {$appointmentDate} at {$appointmentTime}.",
+                        'type' => 'warning',
+                        'related_appointment_id' => $appointment->id,
+                        'subject' => 'Appointment Cancellation Notification',
+                    ]));
+                }
+            }
+
             $appointment->load(['doctor.user', 'doctor.specialization']);
 
             return $this->success($appointment, 'Appointment cancelled successfully');
@@ -372,6 +389,18 @@ class AppointmentController extends Controller
                 'notes' => $validated['notes'] ?? null,
                 // Note: fee, appointment_type, is_emergency not included as they don't exist in migration
             ]);
+
+            $doctor = Doctor::with('user')->find($appointment->doctor_id);
+
+if ($doctor && $doctor->user) {
+    $doctor->user->notify(new DoctorNotifications('appointment_booked', [
+        'title' => 'New Appointment Booked',
+        'message' => "A patient has booked a new appointment on {$validated['appointment_date']} at {$validated['start_time']}.",
+        'type' => 'info',
+        'related_appointment_id' => $appointment->id,
+        'subject' => 'New Appointment Booking Notification',
+    ]));
+}
 
             $appointment->load(['doctor.user', 'doctor.specialization']);
 
@@ -551,6 +580,10 @@ public function reschedule(Request $request, $id)
             return $this->error('End time must be after start time.', 422);
         }
 
+        $oldDate = $appointment->appointment_date;
+        $oldTime = $appointment->start_time;
+        $oldDateFormatted = Carbon::parse($oldDate)->format('Y-m-d');
+
         // Save original appointment data (only the first time)
         if (is_null($appointment->rescheduled_at)) {
             $appointment->update([
@@ -570,6 +603,28 @@ public function reschedule(Request $request, $id)
             'reschedule_reason' => $validated['reason_for_reschedule'] ?? null,
             'reschedule_count' => $appointment->reschedule_count + 1,
         ]);
+
+        if ($appointment->doctor) {
+                $doctor = Doctor::with('user')->find($appointment->doctor_id);
+                if ($doctor && $doctor->user) {
+                    $newTime = $validated['start_time'];
+                    $reason = $validated['reason_for_reschedule'] ?? 'No reason provided';
+                    
+                    $doctor->user->notify(new DoctorNotifications('appointment_rescheduled', [
+                        'title' => 'Appointment Rescheduled',
+                        'message' => "A patient has rescheduled an appointment:\n\n" .
+                                    "Old Date: {$oldDateFormatted}\n" .
+                                    "Old Time: {$oldTime}\n" .
+                                    "New Date: {$appointmentDate}\n" .
+                                    "New Time: {$newTime}\n" .
+                                    "Reason: {$reason}\n\n" .
+                                    "Please confirm the new appointment time.",
+                        'type' => 'info',
+                        'related_appointment_id' => $appointment->id,
+                        'subject' => 'Appointment Rescheduling Notification',
+                    ]));
+                }
+            }
 
         $appointment->load(['doctor.user', 'doctor.specialization']);
 
