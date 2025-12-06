@@ -221,7 +221,7 @@ export class Dashboard implements OnInit {
   }
 
   bookAppointment() {
-    this.router.navigate(['/patient/my-appointments']);
+    this.router.navigate(['/doctors']);
   }
 
   trackById(index: number, item: any): any {
