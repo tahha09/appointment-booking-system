@@ -19,300 +19,132 @@ class AppointmentSeeder extends Seeder
             return;
         }
 
-        $appointments = [
-            // ========== PAST APPOINTMENTS (Completed) ==========
-            [
-                'patient_index' => 0,
-                'doctor_index' => 0, // Cardiology
-                'date_offset' => -7,
-                'time' => '10:00',
-                'duration' => 30,
-                'status' => 'completed',
-                'reason' => 'Cardiac checkup',
-                'notes' => 'ECG performed, results normal. Blood pressure well controlled.',
-            ],
-            [
-                'patient_index' => 1,
-                'doctor_index' => 1, // Dermatology
-                'date_offset' => -5,
-                'time' => '14:00',
-                'duration' => 45,
-                'status' => 'completed',
-                'reason' => 'Skin allergy treatment',
-                'notes' => 'Prescribed topical cream. Follow-up in 2 weeks.',
-            ],
-            [
-                'patient_index' => 2,
-                'doctor_index' => 2, // Neurology
-                'date_offset' => -10,
-                'time' => '11:00',
-                'duration' => 60,
-                'status' => 'completed',
-                'reason' => 'Migraine consultation',
-                'notes' => 'Neurological examination normal. Prescribed preventive medication.',
-            ],
-            [
-                'patient_index' => 3,
-                'doctor_index' => 3, // Pediatrics
-                'date_offset' => -3,
-                'time' => '09:00',
-                'duration' => 30,
-                'status' => 'completed',
-                'reason' => 'Child vaccination',
-                'notes' => 'Vaccination administered successfully. No adverse reactions.',
-            ],
-            [
-                'patient_index' => 4,
-                'doctor_index' => 0, // Cardiology
-                'date_offset' => -14,
-                'time' => '15:00',
-                'duration' => 45,
-                'status' => 'completed',
-                'reason' => 'Hypertension follow-up',
-                'notes' => 'Blood pressure improved. Continue current medication.',
-            ],
-            [
-                'patient_index' => 5,
-                'doctor_index' => 4, // Orthopedics
-                'date_offset' => -8,
-                'time' => '13:00',
-                'duration' => 60,
-                'status' => 'completed',
-                'reason' => 'Knee pain evaluation',
-                'notes' => 'X-ray shows improvement. Physical therapy recommended.',
-            ],
-            [
-                'patient_index' => 6,
-                'doctor_index' => 1, // Dermatology
-                'date_offset' => -12,
-                'time' => '10:30',
-                'duration' => 30,
-                'status' => 'completed',
-                'reason' => 'Acne treatment',
-                'notes' => 'Skin condition improving. Continue treatment plan.',
-            ],
-            [
-                'patient_index' => 7,
-                'doctor_index' => 5, // Gynecology
-                'date_offset' => -6,
-                'time' => '14:30',
-                'duration' => 45,
-                'status' => 'completed',
-                'reason' => 'Annual checkup',
-                'notes' => 'Routine examination completed. All tests normal.',
-            ],
+        // Current date is December 7, 2025
+        $currentDate = now()->format('Y-m-d'); // 2025-12-07
 
-            // ========== PAST APPOINTMENTS (Cancelled) ==========
-            [
-                'patient_index' => 0,
-                'doctor_index' => 1,
-                'date_offset' => -4,
-                'time' => '11:00',
-                'duration' => 30,
-                'status' => 'cancelled',
-                'reason' => 'Skin consultation',
-                'notes' => 'Patient cancelled due to travel',
-            ],
-            [
-                'patient_index' => 2,
-                'doctor_index' => 0,
-                'date_offset' => -6,
-                'time' => '16:00',
-                'duration' => 45,
-                'status' => 'cancelled',
-                'reason' => 'Cardiology appointment',
-                'notes' => 'Cancelled by patient - rescheduled',
-            ],
+        // Each patient needs 2 appointments with 2 different doctors
+        $appointments = [];
 
-            // ========== TODAY ==========
-            [
-                'patient_index' => 0,
-                'doctor_index' => 0,
-                'date_offset' => 0,
-                'time' => '09:00',
-                'duration' => 30,
-                'status' => 'confirmed',
-                'reason' => 'Cardiology follow-up',
-            ],
-            [
-                'patient_index' => 1,
-                'doctor_index' => 2,
-                'date_offset' => 0,
-                'time' => '10:00',
-                'duration' => 45,
-                'status' => 'pending',
-                'reason' => 'Headache consultation',
-            ],
-            [
-                'patient_index' => 3,
-                'doctor_index' => 3,
-                'date_offset' => 0,
-                'time' => '14:00',
-                'duration' => 30,
-                'status' => 'confirmed',
-                'reason' => 'Child health check',
-            ],
-            [
-                'patient_index' => 8,
-                'doctor_index' => 4,
-                'date_offset' => 0,
-                'time' => '15:00',
-                'duration' => 60,
-                'status' => 'pending',
-                'reason' => 'Back pain evaluation',
-            ],
-
-            // ========== TOMORROW ==========
-            [
-                'patient_index' => 2,
-                'doctor_index' => 2,
-                'date_offset' => 1,
-                'time' => '09:00',
-                'duration' => 60,
-                'status' => 'confirmed',
-                'reason' => 'Neurological follow-up',
-            ],
-            [
-                'patient_index' => 4,
-                'doctor_index' => 0,
-                'date_offset' => 1,
-                'time' => '11:00',
-                'duration' => 45,
-                'status' => 'confirmed',
-                'reason' => 'Diabetes and heart check',
-            ],
-            [
-                'patient_index' => 5,
-                'doctor_index' => 1,
-                'date_offset' => 1,
-                'time' => '13:00',
-                'duration' => 30,
-                'status' => 'confirmed',
-                'reason' => 'Dermatology consultation',
-            ],
-            [
-                'patient_index' => 9,
-                'doctor_index' => 3,
-                'date_offset' => 1,
-                'time' => '15:00',
-                'duration' => 30,
-                'status' => 'pending',
-                'reason' => 'Pediatric consultation',
-            ],
-
-            // ========== UPCOMING DAYS (2-7 days) ==========
-            [
-                'patient_index' => 1,
-                'doctor_index' => 0,
-                'date_offset' => 2,
-                'time' => '10:00',
-                'duration' => 30,
-                'status' => 'confirmed',
-                'reason' => 'Cardiac screening',
-            ],
-            [
-                'patient_index' => 6,
-                'doctor_index' => 1,
-                'date_offset' => 2,
-                'time' => '14:00',
-                'duration' => 45,
-                'status' => 'pending',
-                'reason' => 'Skin condition follow-up',
-            ],
-            [
-                'patient_index' => 7,
-                'doctor_index' => 5,
-                'date_offset' => 3,
-                'time' => '10:00',
-                'duration' => 45,
-                'status' => 'confirmed',
-                'reason' => 'Gynecology consultation',
-            ],
-            [
-                'patient_index' => 10,
-                'doctor_index' => 2,
-                'date_offset' => 3,
-                'time' => '11:00',
-                'duration' => 60,
-                'status' => 'confirmed',
-                'reason' => 'Neurological examination',
-            ],
-            [
-                'patient_index' => 2,
-                'doctor_index' => 4,
-                'date_offset' => 4,
-                'time' => '13:00',
-                'duration' => 60,
-                'status' => 'pending',
-                'reason' => 'Orthopedic consultation',
-            ],
-            [
-                'patient_index' => 11,
-                'doctor_index' => 5,
-                'date_offset' => 4,
-                'time' => '15:00',
-                'duration' => 45,
-                'status' => 'confirmed',
-                'reason' => 'Women\'s health checkup',
-            ],
-            [
-                'patient_index' => 3,
-                'doctor_index' => 3,
-                'date_offset' => 5,
-                'time' => '09:00',
-                'duration' => 30,
-                'status' => 'confirmed',
-                'reason' => 'Pediatric follow-up',
-            ],
-            [
-                'patient_index' => 8,
-                'doctor_index' => 0,
-                'date_offset' => 5,
-                'time' => '14:00',
-                'duration' => 45,
-                'status' => 'pending',
-                'reason' => 'Cardiology consultation',
-            ],
-            [
-                'patient_index' => 4,
-                'doctor_index' => 2,
-                'date_offset' => 6,
-                'time' => '10:00',
-                'duration' => 60,
-                'status' => 'confirmed',
-                'reason' => 'Neurological follow-up',
-            ],
-            [
-                'patient_index' => 5,
-                'doctor_index' => 4,
-                'date_offset' => 7,
-                'time' => '11:00',
-                'duration' => 60,
-                'status' => 'confirmed',
-                'reason' => 'Sports injury evaluation',
-            ],
+        // Define appointment reasons by specialization
+        $appointmentReasons = [
+            1 => ['Cardiac checkup', 'Heart screening', 'Hypertension follow-up', 'Chest pain evaluation', 'ECG consultation', 'Cardiac rehabilitation'],
+            2 => ['Skin allergy treatment', 'Acne consultation', 'Dermatology screening', 'Skin cancer check', 'Cosmetic dermatology', 'Hair loss treatment'],
+            3 => ['Migraine consultation', 'Neurological examination', 'Headache evaluation', 'Seizure consultation', 'Memory assessment', 'Stroke prevention'],
+            4 => ['Child vaccination', 'Pediatric checkup', 'Growth monitoring', 'Developmental screening', 'Child illness', 'Well-baby visit'],
+            5 => ['Knee pain evaluation', 'Sports injury assessment', 'Joint pain consultation', 'Fracture follow-up', 'Back pain treatment', 'Physical therapy referral'],
+            6 => ['Annual checkup', 'Pregnancy consultation', 'Gynecology screening', 'Menopause management', 'Contraception counseling', 'Fertility consultation'],
+            7 => ['Dental cleaning', 'Tooth pain consultation', 'Orthodontic consultation', 'Oral surgery', 'Dental implant consultation', 'Periodontal treatment'],
+            8 => ['Mental health consultation', 'Depression treatment', 'Anxiety management', 'Therapy session', 'Psychiatric evaluation', 'Medication management'],
+            9 => ['Eye examination', 'Vision screening', 'Cataract consultation', 'Glaucoma check', 'Retinal evaluation', 'Contact lens fitting'],
+            10 => ['General checkup', 'Preventive screening', 'Chronic disease management', 'Health maintenance', 'Routine examination', 'Health consultation']
         ];
 
-        foreach ($appointments as $appt) {
-            $patient = $patients[$appt['patient_index'] % $patients->count()];
-            $doctor = $doctors[$appt['doctor_index'] % $doctors->count()];
+        // Create 2 appointments per patient
+        foreach ($patients as $patientIndex => $patient) {
+            // Get 2 random doctors from different specializations for each patient
+            $doctorIndices = [];
+            $specializationIds = [];
 
-            $appointmentDate = now()->addDays($appt['date_offset'])->format('Y-m-d');
-            $startTime = $appt['time'];
-            $endTime = date('H:i', strtotime($startTime . ' +' . $appt['duration'] . ' minutes'));
+            // First appointment - random doctor
+            do {
+                $doctorIndex1 = rand(0, $doctors->count() - 1);
+                $doctor1 = $doctors[$doctorIndex1];
+                $specId1 = $doctor1->specialization_id;
+            } while (in_array($specId1, $specializationIds));
 
-            Appointment::create([
-                'patient_id' => $patient->id,
-                'doctor_id' => $doctor->id,
-                'appointment_date' => $appointmentDate,
-                'start_time' => $startTime,
-                'end_time' => $endTime,
-                'status' => $appt['status'],
-                'reason' => $appt['reason'],
-                'notes' => $appt['notes'] ?? null,
-            ]);
+            $doctorIndices[] = $doctorIndex1;
+            $specializationIds[] = $specId1;
+
+            // Second appointment - different specialization
+            do {
+                $doctorIndex2 = rand(0, $doctors->count() - 1);
+                $doctor2 = $doctors[$doctorIndex2];
+                $specId2 = $doctor2->specialization_id;
+            } while (in_array($specId2, $specializationIds));
+
+            $doctorIndices[] = $doctorIndex2;
+
+            // Create appointments for this patient
+            for ($apptNum = 0; $apptNum < 2; $apptNum++) {
+                $doctorIndex = $doctorIndices[$apptNum];
+                $doctor = $doctors[$doctorIndex];
+                $specializationId = $doctor->specialization_id;
+
+                // Determine appointment date based on current date (Dec 7, 2025)
+                $dateOptions = [];
+
+                // Dec 5-6: Past dates (completed/cancelled)
+                for ($day = 5; $day <= 6; $day++) {
+                    $dateOptions[] = ['date' => "2025-12-{$day}", 'status_options' => ['completed', 'cancelled']];
+                }
+
+                // Dec 7: Today (mixed statuses)
+                $dateOptions[] = ['date' => '2025-12-07', 'status_options' => ['confirmed', 'pending', 'completed']];
+
+                // Dec 8-20: Future dates (upcoming)
+                for ($day = 8; $day <= 20; $day++) {
+                    $dateOptions[] = ['date' => "2025-12-{$day}", 'status_options' => ['confirmed', 'pending']];
+                }
+
+                $selectedDateOption = $dateOptions[array_rand($dateOptions)];
+                $appointmentDate = $selectedDateOption['date'];
+                $statusOptions = $selectedDateOption['status_options'];
+                $status = $statusOptions[array_rand($statusOptions)];
+
+                // Time slots
+                $timeSlots = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'];
+                $startTime = $timeSlots[array_rand($timeSlots)];
+
+                // Duration based on specialization
+                $durations = [20, 30, 45, 60];
+                $duration = $durations[array_rand($durations)];
+
+                // Reason based on specialization
+                $reasons = $appointmentReasons[$specializationId];
+                $reason = $reasons[array_rand($reasons)];
+
+                // Notes for completed appointments
+                $notes = null;
+                if ($status === 'completed') {
+                    $completionNotes = [
+                        'Consultation completed successfully. Follow-up recommended.',
+                        'Treatment plan discussed and implemented.',
+                        'Examination completed. Results discussed with patient.',
+                        'Procedure performed successfully.',
+                        'Consultation completed. Medication prescribed.',
+                        'Check-up completed. All vitals normal.',
+                        'Examination completed. Further tests recommended.',
+                        'Consultation completed. Patient educated on condition.'
+                    ];
+                    $notes = $completionNotes[array_rand($completionNotes)];
+                } elseif ($status === 'cancelled') {
+                    $cancelNotes = [
+                        'Patient cancelled due to personal reasons.',
+                        'Doctor unavailable - rescheduled.',
+                        'Patient requested cancellation.',
+                        'Emergency situation - appointment postponed.'
+                    ];
+                    $notes = $cancelNotes[array_rand($cancelNotes)];
+                }
+
+                $appointments[] = [
+                    'patient_id' => $patient->id,
+                    'doctor_id' => $doctor->id,
+                    'appointment_date' => $appointmentDate,
+                    'start_time' => $startTime,
+                    'end_time' => date('H:i', strtotime($startTime . ' +' . $duration . ' minutes')),
+                    'status' => $status,
+                    'reason' => $reason,
+                    'notes' => $notes,
+                ];
+            }
         }
 
-        $this->command->info('Appointments seeded successfully!');
+        // Create appointments in database
+        foreach ($appointments as $appointmentData) {
+            Appointment::create($appointmentData);
+        }
+
+        $this->command->info('Appointments seeded successfully! Created ' . count($appointments) . ' appointments for ' . $patients->count() . ' patients.');
     }
 }

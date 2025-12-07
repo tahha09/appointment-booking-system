@@ -178,6 +178,183 @@ class MedicalHistorySeeder extends Seeder
                 'notes' => 'Irregular periods. Weight management and exercise recommended.',
                 'visit_date' => now()->subMonths(3),
             ],
+
+            // Additional Medical Histories for expanded dataset
+            // Patient 10 - Anxiety
+            [
+                'patient_index' => 10,
+                'doctor_index' => 7, // Psychiatry
+                'condition' => 'Generalized Anxiety Disorder',
+                'diagnosis' => 'Moderate anxiety with panic attacks',
+                'treatment' => 'Sertraline 50mg daily. Cognitive behavioral therapy recommended.',
+                'notes' => 'Patient experiencing frequent panic attacks. Progressing well with treatment.',
+                'visit_date' => now()->subMonths(4),
+            ],
+
+            // Patient 11 - Back pain
+            [
+                'patient_index' => 11,
+                'doctor_index' => 4, // Orthopedics
+                'condition' => 'Lower Back Pain',
+                'diagnosis' => 'Lumbar disc herniation',
+                'treatment' => 'Physical therapy twice weekly. Pain management with NSAIDs.',
+                'notes' => 'MRI confirmed disc herniation at L4-L5. Conservative treatment first.',
+                'visit_date' => now()->subMonths(2),
+            ],
+
+            // Patient 12 - Depression
+            [
+                'patient_index' => 12,
+                'doctor_index' => 7, // Psychiatry
+                'condition' => 'Major Depressive Disorder',
+                'diagnosis' => 'Moderate depression',
+                'treatment' => 'Fluoxetine 20mg daily. Weekly therapy sessions.',
+                'notes' => 'Patient showing improvement. Sleep and appetite returning to normal.',
+                'visit_date' => now()->subMonths(6),
+            ],
+
+            // Patient 13 - Arthritis
+            [
+                'patient_index' => 13,
+                'doctor_index' => 4, // Orthopedics
+                'condition' => 'Rheumatoid Arthritis',
+                'diagnosis' => 'Early rheumatoid arthritis',
+                'treatment' => 'Methotrexate 15mg weekly. Disease-modifying antirheumatic drugs.',
+                'notes' => 'Joint inflammation reduced. Regular monitoring of liver function.',
+                'visit_date' => now()->subMonths(3),
+            ],
+
+            // Patient 14 - Cataracts
+            [
+                'patient_index' => 14,
+                'doctor_index' => 8, // Ophthalmology
+                'condition' => 'Cataracts',
+                'diagnosis' => 'Bilateral cataracts',
+                'treatment' => 'Cataract surgery recommended for right eye.',
+                'notes' => 'Vision significantly impaired. Surgery scheduled for next month.',
+                'visit_date' => now()->subMonths(1),
+            ],
+
+            // Patient 15 - GERD
+            [
+                'patient_index' => 15,
+                'doctor_index' => 9, // General Practice
+                'condition' => 'Gastroesophageal Reflux Disease',
+                'diagnosis' => 'Chronic GERD',
+                'treatment' => 'Omeprazole 20mg daily. Dietary modifications. Elevate head of bed.',
+                'notes' => 'Symptoms well controlled with medication. Lifestyle changes helping.',
+                'visit_date' => now()->subMonths(5),
+            ],
+
+            // Patient 16 - Osteoporosis
+            [
+                'patient_index' => 16,
+                'doctor_index' => 4, // Orthopedics
+                'condition' => 'Osteoporosis',
+                'diagnosis' => 'Postmenopausal osteoporosis',
+                'treatment' => 'Calcium and vitamin D supplements. Bisphosphonates prescribed.',
+                'notes' => 'Bone density scan shows significant bone loss. Fall prevention counseling provided.',
+                'visit_date' => now()->subMonths(7),
+            ],
+
+            // Patient 17 - COPD
+            [
+                'patient_index' => 17,
+                'doctor_index' => 0, // Cardiology (respiratory issues)
+                'condition' => 'Chronic Obstructive Pulmonary Disease',
+                'diagnosis' => 'Moderate COPD',
+                'treatment' => 'Bronchodilators and inhaled corticosteroids. Smoking cessation support.',
+                'notes' => 'Lung function tests show moderate obstruction. Pulmonary rehabilitation recommended.',
+                'visit_date' => now()->subMonths(4),
+            ],
+
+            // Patient 18 - Endometriosis
+            [
+                'patient_index' => 18,
+                'doctor_index' => 5, // Gynecology
+                'condition' => 'Endometriosis',
+                'diagnosis' => 'Stage II endometriosis',
+                'treatment' => 'Hormonal therapy. Laparoscopic surgery may be needed.',
+                'notes' => 'Severe pelvic pain during menstruation. Pain management optimized.',
+                'visit_date' => now()->subMonths(2),
+            ],
+
+            // Patient 19 - Glaucoma
+            [
+                'patient_index' => 19,
+                'doctor_index' => 8, // Ophthalmology
+                'condition' => 'Open Angle Glaucoma',
+                'diagnosis' => 'Primary open angle glaucoma',
+                'treatment' => 'Latanoprost eye drops daily. Regular intraocular pressure monitoring.',
+                'notes' => 'IOP well controlled. Visual field testing stable.',
+                'visit_date' => now()->subMonths(3),
+            ],
+
+            // Patient 20 - Kidney stones
+            [
+                'patient_index' => 20,
+                'doctor_index' => 9, // General Practice
+                'condition' => 'Kidney Stones',
+                'diagnosis' => 'Calcium oxalate kidney stones',
+                'treatment' => 'Increased fluid intake. Dietary modifications. Pain management.',
+                'notes' => 'Passed stone spontaneously. Recurrence prevention measures discussed.',
+                'visit_date' => now()->subMonths(6),
+            ],
+
+            // Patient 21 - Sleep apnea
+            [
+                'patient_index' => 21,
+                'doctor_index' => 2, // Neurology
+                'condition' => 'Obstructive Sleep Apnea',
+                'diagnosis' => 'Moderate obstructive sleep apnea',
+                'treatment' => 'CPAP therapy initiated. Weight management counseling.',
+                'notes' => 'Sleep study confirmed OSA. Patient tolerating CPAP well.',
+                'visit_date' => now()->subMonths(2),
+            ],
+
+            // Patient 22 - Atrial fibrillation
+            [
+                'patient_index' => 22,
+                'doctor_index' => 0, // Cardiology
+                'condition' => 'Atrial Fibrillation',
+                'diagnosis' => 'Paroxysmal atrial fibrillation',
+                'treatment' => 'Anticoagulation therapy. Rate control medications.',
+                'notes' => 'Cardioversion successful. Anticoagulation continued for stroke prevention.',
+                'visit_date' => now()->subMonths(1),
+            ],
+
+            // Patient 23 - Psoriasis
+            [
+                'patient_index' => 23,
+                'doctor_index' => 1, // Dermatology
+                'condition' => 'Psoriasis',
+                'diagnosis' => 'Plaque psoriasis',
+                'treatment' => 'Topical corticosteroids. Phototherapy recommended.',
+                'notes' => 'Skin lesions responding well to treatment. PASI score improved.',
+                'visit_date' => now()->subMonths(3),
+            ],
+
+            // Patient 24 - Epilepsy
+            [
+                'patient_index' => 24,
+                'doctor_index' => 2, // Neurology
+                'condition' => 'Epilepsy',
+                'diagnosis' => 'Temporal lobe epilepsy',
+                'treatment' => 'Levetiracetam 1000mg twice daily. Seizure diary maintained.',
+                'notes' => 'Seizure frequency reduced. Driving restrictions discussed.',
+                'visit_date' => now()->subMonths(5),
+            ],
+
+            // Patient 25 - Hepatitis C
+            [
+                'patient_index' => 25,
+                'doctor_index' => 9, // General Practice
+                'condition' => 'Hepatitis C',
+                'diagnosis' => 'Chronic hepatitis C',
+                'treatment' => 'Antiviral therapy initiated. Regular monitoring of liver function.',
+                'notes' => 'Treatment course started. Close monitoring for side effects.',
+                'visit_date' => now()->subMonths(1),
+            ],
         ];
 
         foreach ($medicalHistories as $history) {
