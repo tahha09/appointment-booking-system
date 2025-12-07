@@ -206,22 +206,22 @@ export class MyAppointments implements OnInit {
 
   submitReschedule(): void {
   if (!this.rescheduleAppointment) return;
-  
+
   console.log('Before processing:', this.rescheduleForm);
-  
+
   // Step 1: Clean the data
   this.prepareRescheduleData();
-  
+
   // Step 2: Validate the data
   if (!this.validateRescheduleForm()) {
     return;
   }
-  
+
   // Step 3: Prepare data for submission
   const formattedData = this.formatRescheduleData();
-  
+
   console.log('Sending to backend:', formattedData);
-  
+
   // Step 4: Get confirmation from the user
   this.confirmReschedule(formattedData);
 }
@@ -231,24 +231,24 @@ private prepareRescheduleData(): void {
   if (this.rescheduleForm.start_time) {
     // Ensure the time is HH:mm only
     this.rescheduleForm.start_time = this.rescheduleForm.start_time.substring(0, 5);
-    
+
     // 2. Update end_time if necessary
     this.updateEndTimeBasedOnStartTime();
   }
-  
+
   // 3. Clean the date
   this.rescheduleForm.appointment_date = this.formatDateForBackend(this.rescheduleForm.appointment_date);
-  
+
   // 4. Calculate end_time if it doesn't exist
   if (!this.rescheduleForm.end_time && this.rescheduleForm.start_time) {
     this.rescheduleForm.end_time = this.calculateEndTime(this.rescheduleForm.start_time);
   }
-  
+
   // 5. Clean end_time as well
   if (this.rescheduleForm.end_time) {
     this.rescheduleForm.end_time = this.rescheduleForm.end_time.substring(0, 5);
   }
-  
+
   console.log('After processing:', this.rescheduleForm);
 }
 
@@ -259,40 +259,40 @@ private validateRescheduleForm(): boolean {
     this.notification.error('Error', 'Please select a date');
     return false;
   }
-  
+
   if (!this.rescheduleForm.start_time) {
     this.notification.error('Error', 'Please select a time');
     return false;
   }
-  
+
   // 2. Check time format
   const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
   if (!timeRegex.test(this.rescheduleForm.start_time)) {
     this.notification.error('Error', 'Invalid time format. Please use HH:mm (e.g., 14:00)');
     return false;
   }
-  
+
   // 3. Check that the date is not in the past
   const selectedDate = new Date(this.rescheduleForm.appointment_date);
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Remove time to compare only the date
-  
+
   if (selectedDate < today) {
     this.notification.error('Error', 'Cannot reschedule to a past date');
     return false;
   }
-  
+
   // 4. Check that end_time is after start_time
   if (this.rescheduleForm.end_time) {
     const start = new Date(`1970-01-01T${this.rescheduleForm.start_time}`);
     const end = new Date(`1970-01-01T${this.rescheduleForm.end_time}`);
-    
+
     if (end <= start) {
       this.notification.error('Error', 'End time must be after start time');
       return false;
     }
   }
-  
+
   return true;
 }
 
@@ -342,15 +342,15 @@ private executeReschedule(formattedData: any): void {
 private handleRescheduleSuccess(response: any): void {
   if (response.success) {
     this.notification.success(
-      'Success', 
-      `Appointment rescheduled successfully! Waiting for doctor confirmation. 
+      'Success',
+      `Appointment rescheduled successfully! Waiting for doctor confirmation.
       You have ${response.data.remaining_reschedules} reschedules remaining.`
     );
-    
+
     // Update appointment data
     this.fetchAppointments(this.currentPage);
     this.closeRescheduleModal();
-    
+
     if (this.showDetailsModal) {
       this.closeDetailsModal();
     }
@@ -362,9 +362,9 @@ private handleRescheduleSuccess(response: any): void {
 private handleRescheduleError(err: any): void {
   console.error('Error rescheduling appointment:', err);
   console.error('Full error response:', err.error);
-  
+
   let errorMessage = 'Failed to reschedule appointment';
-  
+
   if (err.error?.message) {
     errorMessage = err.error.message;
     console.error('Backend message:', err.error.message);
@@ -372,43 +372,43 @@ private handleRescheduleError(err: any): void {
     // Handle validation errors from Laravel
     const errors = err.error.errors;
     const errorMessages = [];
-    
+
     for (const key in errors) {
       if (errors.hasOwnProperty(key)) {
         errorMessages.push(...errors[key]);
       }
     }
-    
+
     errorMessage = errorMessages.join(', ');
     console.error('Validation errors:', errors);
   }
-  
+
   this.notification.error('Error', errorMessage);
 }
-  
+
   openRescheduleModal(appointment: any, event?: Event): void {
   if (event) {
     event.stopPropagation();
   }
-  
+
   this.rescheduleAppointment = appointment as AppointmentModel;
-  
+
   // Clean data before displaying it
   const cleanDate = this.formatDateForBackend(appointment.appointment_date);
   const cleanStartTime = appointment.start_time.substring(0, 5);
-  
+
   // Calculate new end time based on start time
   const cleanEndTime = this.calculateEndTime(cleanStartTime);
-  
+
   this.rescheduleForm = {
     appointment_date: cleanDate,
     start_time: cleanStartTime,
     end_time: cleanEndTime, // Use the calculated end_time
     reason_for_reschedule: ''
   };
-  
+
   console.log('Opening modal with:', this.rescheduleForm);
-  
+
   this.showRescheduleModal = true;
 }
 
@@ -422,25 +422,25 @@ updateEndTimeBasedOnStartTime(): void {
 // Modify calculateEndTime function to calculate correctly:
 calculateEndTime(startTime: string): string {
   if (!startTime) return '';
-  
+
   // Ensure correct format
   const time = startTime.substring(0, 5);
   const [hours, minutes] = time.split(':').map(Number);
-  
+
   let newHours = hours;
   let newMinutes = minutes + 30; // Add 30 minutes as default duration
-  
+
   if (newMinutes >= 60) {
     newHours += 1;
     newMinutes -= 60;
   }
-  
+
   // Ensure hours do not exceed 23
   if (newHours >= 24) {
     newHours = 23;
     newMinutes = 59;
   }
-  
+
   // Format the result
   return `${newHours.toString().padStart(2, '0')}:${newMinutes.toString().padStart(2, '0')}`;
 }
@@ -454,7 +454,7 @@ getDateFilter = (date: Date): boolean => {
   today.setHours(0, 0, 0, 0);
   return date >= today;
 };
-  
+
 
   formatDate(date: string): string {
     if (!date) return 'N/A';
@@ -492,18 +492,32 @@ getDateFilter = (date: Date): boolean => {
   getRecordAge(appointmentDate: string): string {
     const date = new Date(appointmentDate);
     const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const diffTime = now.getTime() - date.getTime();
+    const diffDays = Math.floor(Math.abs(diffTime) / (1000 * 60 * 60 * 24));
 
     if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 30) return `${diffDays} days ago`;
-    if (diffDays < 365) {
-      const months = Math.floor(diffDays / 30);
-      return `${months} ${months === 1 ? 'month' : 'months'} ago`;
+
+    if (diffTime > 0) {
+      // Past date
+      if (diffDays === 1) return 'Yesterday';
+      if (diffDays < 30) return `${diffDays} days ago`;
+      if (diffDays < 365) {
+        const months = Math.floor(diffDays / 30);
+        return `${months} ${months === 1 ? 'month' : 'months'} ago`;
+      }
+      const years = Math.floor(diffDays / 365);
+      return `${years} ${years === 1 ? 'year' : 'years'} ago`;
+    } else {
+      // Future date
+      if (diffDays === 1) return 'Tomorrow';
+      if (diffDays < 30) return `in ${diffDays} days`;
+      if (diffDays < 365) {
+        const months = Math.floor(diffDays / 30);
+        return `in ${months} ${months === 1 ? 'month' : 'months'}`;
+      }
+      const years = Math.floor(diffDays / 365);
+      return `in ${years} ${years === 1 ? 'year' : 'years'}`;
     }
-    const years = Math.floor(diffDays / 365);
-    return `${years} ${years === 1 ? 'year' : 'years'} ago`;
   }
 
   getStatusClass(status: string): string {
@@ -538,11 +552,11 @@ formatTimeInput(): void {
   if (this.rescheduleForm.start_time) {
     // Ensure the time is in HH:mm format only (without seconds)
     this.rescheduleForm.start_time = this.rescheduleForm.start_time.substring(0, 5);
-    
+
     // Update end_time when start_time changes
     this.updateEndTimeBasedOnStartTime();
   }
-  
+
   if (this.rescheduleForm.end_time) {
     this.rescheduleForm.end_time = this.rescheduleForm.end_time.substring(0, 5);
   }
@@ -562,7 +576,7 @@ closeRescheduleModal(): void {
 // This function converts a date from ISO format to YYYY-MM-DD
 formatDateForBackend(dateString: string): string {
   if (!dateString) return '';
-  
+
   if (dateString.includes('T')) {
     // If the date is in ISO format (e.g., 2025-12-08T00:00:00.000000Z)
     const date = new Date(dateString);
@@ -571,7 +585,7 @@ formatDateForBackend(dateString: string): string {
     const day = date.getDate().toString().padStart(2, '0');
     return `${year}-${month}-${day}`;
   }
-  
+
   return dateString; // If it's already in YYYY-MM-DD
 }
 
