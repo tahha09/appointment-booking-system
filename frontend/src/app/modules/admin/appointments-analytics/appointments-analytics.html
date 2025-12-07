@@ -264,12 +264,8 @@
           <div class="flex flex-col md:flex-row gap-3 sm:gap-4">
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 sm:gap-3 mb-3">
-                <img *ngIf="doctor.profile_image" [src]="doctor.profile_image" [alt]="doctor.name"
+                <img [src]="getProcessedProfileImage(doctor.profile_image)" [alt]="doctor.name"
                   class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover flex-shrink-0" />
-                <div *ngIf="!doctor.profile_image"
-                  class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#0c969c] flex items-center justify-center text-white font-semibold flex-shrink-0">
-                  {{ doctor.name.charAt(0) }}
-                </div>
                 <div class="min-w-0 flex-1">
                   <h4 class="text-base sm:text-lg font-bold text-[#031716] truncate">{{ doctor.name }}</h4>
                   <p class="text-xs sm:text-sm text-[#6ba3be] truncate">{{ doctor.specialization }}</p>

@@ -9,18 +9,11 @@
           <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#6ba3be]">Selected doctor</p>
           <ng-container *ngIf="doctorInfo.id; else doctorPlaceholder">
             <div class="mt-4 flex items-center gap-4">
-              <ng-container *ngIf="doctorDetails?.user?.profile_image; else doctorLetter">
-                <img
-                  [src]="doctorDetails?.user?.profile_image"
-                  alt="Doctor photo"
-                  class="h-16 w-16 rounded-2xl border border-white/20 object-cover"
-                />
-              </ng-container>
-              <ng-template #doctorLetter>
-                <div class="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/20 bg-white/5 text-xl font-semibold text-white">
-                  {{ doctorInfo.name ? (doctorInfo.name[0] | uppercase) : 'D' }}
-                </div>
-              </ng-template>
+              <img
+                [src]="doctorDetails?.user?.profile_image || 'assets/default-avatar.png'"
+                alt="Doctor photo"
+                class="h-16 w-16 rounded-2xl border border-white/20 object-cover"
+              />
               <div>
                 <h3 class="text-2xl font-bold">{{ doctorInfo.name }}</h3>
                 <p class="text-sm text-[#cfe9ec]">{{ doctorInfo.department }}</p>

@@ -1,4 +1,4 @@
-import { Component, signal, inject, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, signal, inject, AfterViewInit, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
@@ -10,7 +10,7 @@ import { Auth } from '../../../core/services/auth';
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
-export class Header implements AfterViewInit {
+export class Header implements OnInit, AfterViewInit {
   private readonly auth = inject(Auth);
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -42,8 +42,12 @@ export class Header implements AfterViewInit {
     return this.auth.isAdmin();
   }
 
-  protected get avatarUrl(): string {
-    return this.auth.getProfileImage() || 'assets/default-avatar.png';
+  protected get avatarUrl(): string | null {
+    return this.auth.getProfileImage();
+  }
+
+  protected get userInitial(): string {
+    return (this.auth.getUserName() || 'U').charAt(0).toUpperCase();
   }
 
   protected logout(): void {
@@ -90,6 +94,19 @@ export class Header implements AfterViewInit {
       this.router.navigateByUrl(route);
     } else {
       this.router.navigateByUrl('/patient/profile'); // Default fallback
+    }
+  }
+
+  ngOnInit(): void {
+    // Load user profile to ensure avatar data is available
+    if (this.isLoggedIn()) {
+      this.auth.getUserProfile().subscribe({
+        next: (profile) => {
+          // Profile data is automatically updated in the auth service
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error('Failed to load user profile in header:', err)
+      });
     }
   }
 

@@ -390,4 +390,19 @@ export class AppointmentsAnalytics implements OnInit {
     this.loadDoctorPerformance();
     this.loadPatientAnalytics();
   }
+
+  // Process profile image URL like auth service does
+  getProcessedProfileImage(profileImage: string | null | undefined): string {
+    if (!profileImage) {
+      return 'assets/default-avatar.png';
+    }
+    if (profileImage === 'assets/default-avatar.png' || profileImage.includes('/assets/default-avatar.png')) {
+      return 'assets/default-avatar.png';
+    }
+    if (profileImage.startsWith('http://') || profileImage.startsWith('https://')) {
+      return profileImage;
+    } else {
+      return `http://localhost:8000/storage/${profileImage}`;
+    }
+  }
 }

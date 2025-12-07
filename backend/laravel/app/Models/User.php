@@ -79,7 +79,7 @@ class User extends Authenticatable
     {
         return $this->profile_image
             ? asset('storage/' . $this->profile_image)
-            : asset('images/default-avatar.png');
+            : asset('assets/default-avatar.png');
     }
 
     public function getAgeAttribute()

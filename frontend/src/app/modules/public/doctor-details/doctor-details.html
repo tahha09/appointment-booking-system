@@ -25,11 +25,7 @@
             <div class="flex-shrink-0">
               <div
                 class="bg-gradient-to-br from-[#0A7075] to-[#0C969C] text-white rounded-2xl w-32 h-32 flex items-center justify-center shadow-2xl">
-                <!-- Show initials if no profile image -->
-                <span class="text-3xl font-bold" *ngIf="!doctor.user.profile_image">
-                  {{ getInitials(doctor.user.name) }}
-                </span>
-                <img *ngIf="doctor.user.profile_image" [src]="doctor.user.profile_image" [alt]="doctor.user.name"
+                <img [src]="doctor.user.profile_image || 'assets/default-avatar.png'" [alt]="doctor.user.name"
                   class="w-full h-full rounded-2xl object-cover">
               </div>
             </div>

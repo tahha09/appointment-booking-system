@@ -22,6 +22,7 @@ export class AdminDashboard implements OnInit {
   showNotificationsDropdown = false;
   unreadCount: number = 0;
   markingAllInProgress: boolean = false;
+  avatarLoadError = false;
 
 
   constructor(private cdr: ChangeDetectorRef) {}
@@ -123,6 +124,19 @@ markAll(): void {
     });
   }
 
+  // Avatar properties
+  get avatarUrl(): string {
+    return this.auth.getProfileImage() || 'assets/default-avatar.png';
+  }
+
+  get userInitial(): string {
+    const name = this.userName;
+    return name.charAt(0).toUpperCase();
+  }
+
+  handleAvatarError() {
+    this.avatarLoadError = true;
+  }
 
   // Get user name from auth service
   get userName(): string {

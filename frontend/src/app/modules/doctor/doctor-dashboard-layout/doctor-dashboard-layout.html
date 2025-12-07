@@ -148,6 +148,18 @@
         </div>
 
         <div class="flex items-center gap-3">
+          <!-- User Avatar -->
+          <div class="relative">
+            <div class="h-12 w-12 rounded-xl overflow-hidden border-2 border-[#0a7075]/30 shadow-lg">
+              <img *ngIf="avatarUrl && !avatarLoadError; else doctorInitialTpl" [src]="avatarUrl" alt="Doctor Avatar" class="h-full w-full object-cover" (error)="handleAvatarError()" />
+              <ng-template #doctorInitialTpl>
+                <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-[#0a7075] to-[#0c969c] border-2 border-[#0a7075]/30 shadow-lg flex items-center justify-center">
+                  <span class="text-white font-bold text-lg">{{ userInitial }}</span>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+
           <!-- dropdown button-->
           <div class="relative">
             <button

@@ -23,11 +23,27 @@ export class DoctorDashboardLayout implements OnInit {
   showDropdown = false;
   unreadCount: number = 0;
   markingAllInProgress: boolean = false;
- 
+
+  avatarLoadError = false;
+
+  get avatarUrl(): string {
+    return this.auth.getProfileImage() || 'assets/default-avatar.png';
+  }
+
+  get userInitial(): string {
+    const name = this.doctorName;
+    return name.charAt(0).toUpperCase();
+  }
+
+  handleAvatarError() {
+    this.avatarLoadError = true;
+  }
+
   constructor(private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.loadNotifications();
+    this.loadUserProfile();
   }
 
   loadNotifications() {
@@ -42,10 +58,20 @@ export class DoctorDashboardLayout implements OnInit {
     });
   }
 
+  loadUserProfile() {
+    this.auth.getUserProfile().subscribe({
+      next: (profile) => {
+        // Profile data is automatically updated in the auth service
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Failed to load user profile:', err)
+    });
+  }
+
   toggleDropdown() {
     this.showDropdown = !this.showDropdown;
     this.cdr.detectChanges();
-  
+
   }
 
   markOneAsRead(notificationId: string) {
@@ -56,14 +82,14 @@ export class DoctorDashboardLayout implements OnInit {
       this.cdr.detectChanges();
     }
 
-      
+
     this.notificationService.markAsRead(notificationId).subscribe({
       next: () => {
         console.log('Notification marked as read');
       },
       error: (err) => {
         console.error('Error marking notification as read:', err);
-        
+
         if (notification) {
           notification.read_at = null;
           this.unreadCount++;
@@ -77,11 +103,11 @@ export class DoctorDashboardLayout implements OnInit {
   // 1. Collect all IDs of unread notifications
   const unreadNotifications = this.notifications.filter(n => !n.read_at);
   const unreadIds = unreadNotifications.map(n => n.id);
-  
+
   if (unreadIds.length === 0) {
     return; // No unread notifications
   }
-  
+
   // 2. Update locally first (for speed)
   this.notifications.forEach(notification => {
     if (!notification.read_at) {
@@ -90,17 +116,17 @@ export class DoctorDashboardLayout implements OnInit {
   });
   this.unreadCount = 0;
   this.cdr.detectChanges();
-  
+
   // 3. Mark each notification individually
   let completedCount = 0;
   let failedCount = 0;
-  
+
   unreadIds.forEach(id => {
     this.notificationService.markAsRead(id).subscribe({
       next: () => {
         completedCount++;
         console.log(`Successfully marked notification ${completedCount}/${unreadIds.length} as read`);
-        
+
         // When all are processed
         if (completedCount + failedCount === unreadIds.length) {
           console.log(`Marked ${completedCount} notifications as read`);
@@ -112,7 +138,7 @@ export class DoctorDashboardLayout implements OnInit {
       error: (err) => {
         failedCount++;
         console.error(`Failed to mark notification ${id}:`, err);
-        
+
         // When all are processed
         if (completedCount + failedCount === unreadIds.length) {
           console.log(`Processed all ${unreadIds.length} notifications`);

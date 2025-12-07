@@ -43,7 +43,10 @@
                 [attr.aria-expanded]="userMenuOpen()"
               >
                 <span class="user-menu__avatar">
-                  <img [src]="avatarUrl" alt="User avatar" />
+                  <img *ngIf="avatarUrl" [src]="avatarUrl" alt="User avatar" />
+                  <div *ngIf="!avatarUrl" class="user-menu__avatar-placeholder">
+                    {{ userInitial }}
+                  </div>
                 </span>
                 <span class="user-menu__chevron" aria-hidden="true">
                   <svg viewBox="0 0 24 24">
