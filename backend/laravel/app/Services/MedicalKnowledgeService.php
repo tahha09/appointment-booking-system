@@ -12,14 +12,6 @@ class MedicalKnowledgeService
 {
     private $cachePrefix = 'medical_knowledge_';
     private $cacheDuration = 3600; // 1 hour
-    private $knowledgeBasePath;
-
-    public function __construct()
-    {
-        $this->knowledgeBasePath = function_exists('base_path')
-            ? base_path('medical_knowledge_base.md')
-            : __DIR__ . '/../../medical_knowledge_base.md';
-    }
 
     /**
      * Retrieve relevant medical knowledge based on query
@@ -248,150 +240,81 @@ class MedicalKnowledgeService
     }
 
     /**
-     * Get detailed doctor information from knowledge base
+     * Get detailed doctor information from database only
+     * Doctor data is now fully managed in the database
      */
     public function getDoctorInfo(string $doctorName): ?array
     {
         $cacheKey = $this->cachePrefix . 'doctor_info_' . md5($doctorName) . '_' . time(); // Add timestamp to avoid caching
 
         return Cache::remember($cacheKey, $this->cacheDuration, function () use ($doctorName) {
-            \Log::info('Getting doctor info for: ' . $doctorName);
-            if (!file_exists($this->knowledgeBasePath)) {
-                \Log::error('Knowledge base file not found: ' . $this->knowledgeBasePath);
-                return null;
+            \Log::info('Getting doctor info from database for: ' . $doctorName);
+
+            // Get doctor info from database only
+            $databaseInfo = $this->getDoctorInfoFromDatabase($doctorName);
+            if ($databaseInfo) {
+                \Log::info('Found doctor info in database', ['doctor' => $databaseInfo]);
+                return $databaseInfo;
             }
 
-            $content = file_get_contents($this->knowledgeBasePath);
-            $doctorName = strtolower(trim($doctorName));
-
-            // Look for all doctor sections
-            $pattern = '/### (Dr\..*?)\s*\n(.*?)(?=\n###|\n##|$)/si';
-            if (preg_match_all($pattern, $content, $matches, PREG_SET_ORDER)) {
-                foreach ($matches as $match) {
-                    $doctorTitle = $match[1];
-                    $doctorInfo = $match[2];
-
-                    // Check if this doctor matches the search (more flexible matching)
-                    $titleLower = strtolower($doctorTitle);
-                    $searchLower = strtolower($doctorName);
-
-                    if (stripos($titleLower, $searchLower) !== false ||
-                        stripos($titleLower, str_replace(' ', '', $searchLower)) !== false) {
-                        // Parse the doctor information
-                        $info = [];
-                        $lines = explode("\n", trim($doctorInfo));
-
-                        \Log::info('Parsing doctor info lines', ['lines' => $lines]);
-
-                        foreach ($lines as $line) {
-                            if (strpos($line, '- **') === 0) {
-                                $line = substr($line, 3);
-                                if (strpos($line, '**: ') !== false) {
-                                    list($key, $value) = explode('**: ', $line, 2);
-                                    $key = str_replace(['**', '*', ':'], '', $key);
-                                    $parsedKey = strtolower(str_replace(' ', '_', trim($key)));
-                                    $info[$parsedKey] = trim($value);
-                                    \Log::info('Parsed doctor field', ['key' => $parsedKey, 'value' => trim($value)]);
-                                }
-                            }
-                        }
-
-                        \Log::info('Final doctor info', ['info' => $info]);
-                        return $info;
-                    }
-                }
-            }
-
+            \Log::info('Doctor not found in database: ' . $doctorName);
             return null;
         });
     }
 
     /**
-     * Get detailed specialization information from knowledge base
+     * Get doctor information from database
      */
-    public function getSpecializationInfo(string $specializationName): ?array
+    private function getDoctorInfoFromDatabase(string $doctorName): ?array
     {
-        $cacheKey = $this->cachePrefix . 'spec_info_' . md5($specializationName);
+        // Clean up the doctor name for better matching
+        $cleanName = $this->cleanDoctorName($doctorName);
 
-        return Cache::remember($cacheKey, $this->cacheDuration, function () use ($specializationName) {
-            if (!file_exists($this->knowledgeBasePath)) {
-                return null;
-            }
+        // Search for doctors in database
+        $doctor = \App\Models\Doctor::with(['user', 'specialization'])
+            ->whereHas('user', function ($query) use ($cleanName) {
+                $query->where('name', 'like', '%' . $cleanName . '%')
+                      ->orWhere('name', 'like', '%' . str_replace(' ', '%', $cleanName) . '%');
+            })
+            ->where('is_approved', true)
+            ->first();
 
-            $content = file_get_contents($this->knowledgeBasePath);
-            $specializationName = strtolower(trim($specializationName));
-
-            // Look for specialization section
-            $pattern = '/### ' . preg_quote(ucfirst($specializationName), '/') . '\s*\n(.*?)(?=\n###|\n##|$)/si';
-            if (preg_match($pattern, $content, $matches)) {
-                $specInfo = $matches[1];
-
-                // Parse the specialization information
-                $info = [];
-                $lines = explode("\n", trim($specInfo));
-
-                foreach ($lines as $line) {
-                    if (strpos($line, '- **') === 0) {
-                        $line = substr($line, 3);
-                        if (strpos($line, '**: ') !== false) {
-                            list($key, $value) = explode('**: ', $line, 2);
-                            $key = str_replace(['**', '*', ':'], '', $key);
-                            $info[strtolower(str_replace(' ', '_', trim($key)))] = trim($value);
-                        }
-                    }
-                }
-
-                return $info;
-            }
-
+        if (!$doctor) {
             return null;
-        });
+        }
+
+        // Format the doctor information consistently with knowledge base structure
+        return [
+            'full_name' => $doctor->user->name,
+            'email' => $doctor->user->email,
+            'phone' => $doctor->user->phone,
+            'date_of_birth' => $doctor->user->date_of_birth ? $doctor->user->date_of_birth->format('Y-m-d') : null,
+            'address' => $doctor->user->address,
+            'specialization' => $doctor->specialization ? $doctor->specialization->name : 'General Practice',
+            'license_number' => $doctor->license_number,
+            'experience' => $doctor->experience_years ? $doctor->experience_years . ' years' : null,
+            'consultation_fee' => $doctor->consultation_fee ? '$' . number_format($doctor->consultation_fee, 2) : null,
+            'rating' => $doctor->rating ? number_format($doctor->rating, 1) . '/5.0' : null,
+            'status' => $doctor->is_approved ? 'Approved and Active' : 'Pending Approval',
+            'biography' => $doctor->biography,
+            'key_expertise' => $doctor->specialization ? $doctor->specialization->description : null,
+        ];
     }
+
 
     /**
-     * Search for doctors by name patterns
+     * Clean doctor name for better database matching
      */
-    public function searchDoctors(string $query): array
+    private function cleanDoctorName(string $doctorName): string
     {
-        $cacheKey = $this->cachePrefix . 'doctor_search_' . md5($query);
+        // Remove common prefixes
+        $cleanName = preg_replace('/^(dr\.?|doctor)\s+/i', '', trim($doctorName));
 
-        return Cache::remember($cacheKey, $this->cacheDuration, function () use ($query) {
-            if (!file_exists($this->knowledgeBasePath)) {
-                return [];
-            }
-
-            $content = file_get_contents($this->knowledgeBasePath);
-            $query = strtolower(trim($query));
-            $results = [];
-
-            // Find all doctor sections
-            $pattern = '/### (Dr\..*?)\s*\n(.*?)(?=\n###|\n##|$)/si';
-            if (preg_match_all($pattern, $content, $matches)) {
-                foreach ($matches[1] as $index => $doctorName) {
-                    if (strpos(strtolower($doctorName), $query) !== false) {
-                        $doctorInfo = $matches[2][$index];
-
-                        // Extract basic info
-                        $info = ['name' => $doctorName];
-
-                        // Get email if available
-                        if (preg_match('/- \*\*Email\*\*: ([^\n]+)/i', $doctorInfo, $emailMatch)) {
-                            $info['email'] = $emailMatch[1];
-                        }
-
-                        // Get specialization if available
-                        if (preg_match('/- \*\*Specialization\*\*: ([^\n]+)/i', $doctorInfo, $specMatch)) {
-                            $info['specialization'] = $specMatch[1];
-                        }
-
-                        $results[] = $info;
-                    }
-                }
-            }
-
-            return $results;
-        });
+        // Remove extra spaces
+        return preg_replace('/\s+/', ' ', $cleanName);
     }
+
+
 
     /**
      * Clear knowledge cache (for maintenance)

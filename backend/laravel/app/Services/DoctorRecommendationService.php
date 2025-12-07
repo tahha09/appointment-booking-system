@@ -56,6 +56,11 @@ class DoctorRecommendationService
                     $response['response'] = $this->handleDoctorInfo($analysis);
                     break;
 
+                case 'doctor_availability':
+                    Log::info('Handling doctor_availability query');
+                    $response['response'] = $this->handleDoctorAvailability($analysis);
+                    break;
+
                 case 'doctor_recommendation':
                     Log::info('Handling doctor_recommendation query');
                     $response['response'] = $this->handleDoctorRecommendation($analysis, $knowledge);
@@ -131,10 +136,24 @@ class DoctorRecommendationService
         \Log::info('Doctor info result', ['doctorInfo' => $doctorInfo]);
 
         if (!$doctorInfo) {
-            // Try to search for similar doctor names
-            $searchResults = $this->knowledgeService->searchDoctors($doctorName);
+            // Try to find doctors with similar names in database
+            $similarDoctors = \App\Models\User::where('role', 'doctor')
+                ->whereHas('doctor', function($query) {
+                    $query->where('is_approved', true);
+                })
+                ->where('name', 'like', '%' . $doctorName . '%')
+                ->with('doctor.specialization')
+                ->limit(5)
+                ->get();
 
-            if (!empty($searchResults)) {
+            if ($similarDoctors->count() > 0) {
+                $searchResults = $similarDoctors->map(function($user) {
+                    return [
+                        'name' => $user->name,
+                        'specialization' => $user->doctor->specialization->name ?? 'General Practice'
+                    ];
+                })->toArray();
+
                 $answer = "I found doctors matching '$doctorName':\n\n";
                 foreach ($searchResults as $result) {
                     $answer .= "**{$result['name']}**";
@@ -155,8 +174,11 @@ class DoctorRecommendationService
                 ];
             }
 
+            // Format doctor name (avoid double "Dr." prefix)
+            $displayName = strpos($doctorName, 'Dr.') === 0 ? $doctorName : 'Dr. ' . $doctorName;
+
             return [
-                'answer' => "I couldn't find information about Dr. $doctorName. They might not be in our current doctor database.",
+                'answer' => "I couldn't find information about $displayName. They might not be in our current doctor database.",
                 'type' => 'doctor_not_found',
                 'suggested_actions' => ['Check our list of available doctors', 'Contact support for more information']
             ];
@@ -218,14 +240,111 @@ class DoctorRecommendationService
             $answer .= "\n**Key Expertise**\n{$doctorInfo['key_expertise']}\n";
         }
 
+        // Format doctor name for suggestions (avoid double "Dr." prefix)
+        $displayName = $doctorInfo['full_name'] ?? $doctorName;
+        $displayNameForSuggestions = strpos($displayName, 'Dr.') === 0 ? $displayName : 'Dr. ' . $displayName;
+
         return [
             'answer' => $answer,
             'type' => 'doctor_info',
             'data' => $doctorInfo,
             'suggested_actions' => [
-                'Book appointment with Dr. ' . ($doctorInfo['full_name'] ?? $doctorName),
+                'Book appointment with ' . $displayNameForSuggestions,
                 'View doctor profile',
-                'Contact Dr. ' . ($doctorInfo['full_name'] ?? $doctorName)
+                'Contact ' . $displayNameForSuggestions
+            ]
+        ];
+    }
+
+    private function handleDoctorAvailability(array $analysis): array
+    {
+        $doctorName = $this->extractDoctorName($analysis['query']);
+
+        if (!$doctorName) {
+            return [
+                'answer' => 'I need to know which doctor\'s availability you\'re asking about. Could you please specify the doctor\'s name?',
+                'type' => 'clarification_needed',
+                'suggested_actions' => ['Tell me the doctor\'s name first', 'Ask "When is Dr. Ahmed Taha available?"']
+            ];
+        }
+
+        // Find the doctor
+        $doctor = \App\Models\Doctor::with(['user', 'schedules'])
+            ->whereHas('user', function($query) use ($doctorName) {
+                $query->where('name', 'like', '%' . $doctorName . '%');
+            })
+            ->where('is_approved', true)
+            ->first();
+
+        if (!$doctor) {
+            return [
+                'answer' => "I couldn't find a doctor named '$doctorName' in our system.",
+                'type' => 'doctor_not_found',
+                'suggested_actions' => ['Check doctor name spelling', 'Ask about a different doctor']
+            ];
+        }
+
+        $schedules = $doctor->schedules()->available()->orderBy('day_of_week')->orderBy('start_time')->get();
+
+        if ($schedules->isEmpty()) {
+            return [
+                'answer' => "Dr. {$doctor->user->name} doesn't have any scheduled availability at the moment. Please contact our clinic for more information.",
+                'type' => 'no_availability',
+                'suggested_actions' => ['Contact clinic directly', 'Ask about another doctor']
+            ];
+        }
+
+        $displayName = strpos($doctor->user->name, 'Dr.') === 0 ? $doctor->user->name : 'Dr. ' . $doctor->user->name;
+        $answer = "**{$displayName} - Weekly Schedule**\n\n";
+
+        $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        $scheduleByDay = [];
+
+        foreach ($schedules as $schedule) {
+            $dayName = $days[$schedule->day_of_week];
+            if (!isset($scheduleByDay[$dayName])) {
+                $scheduleByDay[$dayName] = [];
+            }
+            $scheduleByDay[$dayName][] = $schedule->start_time . ' - ' . $schedule->end_time;
+        }
+
+        foreach ($days as $dayName) {
+            if (isset($scheduleByDay[$dayName])) {
+                $answer .= "**{$dayName}**: " . implode(', ', $scheduleByDay[$dayName]) . "\n";
+            } else {
+                $answer .= "**{$dayName}**: Not available\n";
+            }
+        }
+
+        // Check for holidays
+        $holidays = $doctor->holidays()->where('holiday_date', '>=', now()->toDateString())->orderBy('holiday_date')->limit(3)->get();
+        if ($holidays->count() > 0) {
+            $answer .= "\n**Upcoming Days Off:**\n";
+            foreach ($holidays as $holiday) {
+                $answer .= "• " . $holiday->date->format('M j, Y') . " - " . ($holiday->reason ?? 'Holiday') . "\n";
+            }
+        }
+
+        return [
+            'answer' => $answer,
+            'type' => 'doctor_availability',
+            'data' => [
+                'doctor_id' => $doctor->id,
+                'doctor_name' => $doctor->user->name,
+                'schedules' => $schedules->map(function($schedule) {
+                    return [
+                        'day_of_week' => $schedule->day_of_week,
+                        'day_name' => $schedule->day_name,
+                        'start_time' => $schedule->start_time,
+                        'end_time' => $schedule->end_time
+                    ];
+                })->toArray(),
+                'holidays' => $holidays->toArray()
+            ],
+            'suggested_actions' => [
+                'Book appointment with ' . $displayName,
+                'Check current availability',
+                'View doctor profile'
             ]
         ];
     }
@@ -242,44 +361,10 @@ class DoctorRecommendationService
             ];
         }
 
-        // First try to get info from knowledge base
-        $kbInfo = $this->knowledgeService->getSpecializationInfo($specializationName);
+        // Get specialization info from database
+        $specialization = \App\Models\Specialization::where('name', 'like', '%' . $specializationName . '%')->first();
 
-        if ($kbInfo) {
-            $answer = "**{$specializationName}**\n\n";
-            $answer .= "**Description**: " . (isset($kbInfo['description']) ? $kbInfo['description'] : 'Medical specialization') . "\n";
-
-            if (isset($kbInfo['common_conditions'])) {
-                $answer .= "**Common Conditions**: {$kbInfo['common_conditions']}\n";
-            }
-
-            if (isset($kbInfo['procedures'])) {
-                $answer .= "**Common Procedures**: {$kbInfo['procedures']}\n";
-            }
-
-            if (isset($kbInfo['when_to_see'])) {
-                $answer .= "**When to See This Specialist**: {$kbInfo['when_to_see']}\n";
-            }
-
-            if (isset($kbInfo['available_doctors'])) {
-                $answer .= "**Available Doctors**: {$kbInfo['available_doctors']}\n";
-            }
-
-            return [
-                'answer' => $answer,
-                'type' => 'specialization_info',
-                'data' => $kbInfo,
-                'suggested_actions' => [
-                    'Book appointment with a ' . $specializationName . ' specialist',
-                    'Learn more about our ' . $specializationName . ' services'
-                ]
-            ];
-        }
-
-        // Fallback to database info
-        $info = $this->specializationMatcher->findSpecializationInfo($specializationName);
-
-        if (!$info) {
+        if (!$specialization) {
             return [
                 'answer' => "I couldn't find information about '$specializationName'. We might not have that specialty in our system.",
                 'type' => 'specialization_not_found',
@@ -287,25 +372,73 @@ class DoctorRecommendationService
             ];
         }
 
-        $answer = "**{$info['name']}**\n\n";
-        $answer .= "{$info['description']}\n\n";
-        $answer .= "We have **{$info['doctors_count']}** {$info['name']} specialists in our system.\n\n";
+        // Get available doctors for this specialization
+        $availableDoctors = \App\Models\Doctor::with(['user', 'specialization'])
+            ->where('specialization_id', $specialization->id)
+            ->where('is_approved', true)
+            ->get();
 
-        if ($info['doctors_count'] > 0) {
-            $answer .= "**Top Doctors in {$info['name']}:**\n";
-            foreach ($info['top_doctors'] as $doctor) {
-                $answer .= "• Dr. {$doctor['name']} - {$doctor['experience_years']} years experience, Rating: {$doctor['rating']}/5\n";
+        $answer = "**{$specialization->name}**\n\n";
+        $answer .= "**Description**: {$specialization->description}\n";
+
+        if ($specialization->common_conditions) {
+            $answer .= "**Common Conditions**: {$specialization->common_conditions}\n";
+        }
+
+        if ($specialization->procedures) {
+            $answer .= "**Common Procedures**: {$specialization->procedures}\n";
+        }
+
+        if ($specialization->when_to_see) {
+            $answer .= "**When to See This Specialist**: {$specialization->when_to_see}\n";
+        }
+
+        if ($specialization->emergency_signs) {
+            $answer .= "**Emergency Signs**: {$specialization->emergency_signs}\n";
+        }
+
+        $answer .= "\n**Available Doctors**: {$availableDoctors->count()} specialists\n";
+
+        if ($availableDoctors->count() > 0) {
+            $answer .= "\n**Our {$specialization->name} Specialists:**\n";
+            foreach ($availableDoctors as $doctor) {
+                $answer .= "• Dr. {$doctor->user->name} - {$doctor->experience_years} years experience, Rating: {$doctor->rating}/5";
+                if ($doctor->consultation_fee) {
+                    $answer .= ", Fee: \${$doctor->consultation_fee}";
+                }
+                $answer .= "\n";
             }
-            $answer .= "\nAverage consultation fee: $" . number_format($info['average_fee'], 2);
+
+            if ($specialization->avg_cost) {
+                $answer .= "\nAverage consultation fee: $" . number_format($specialization->avg_cost, 2);
+            }
         }
 
         return [
             'answer' => $answer,
             'type' => 'specialization_info',
-            'data' => $info,
+            'data' => [
+                'id' => $specialization->id,
+                'name' => $specialization->name,
+                'description' => $specialization->description,
+                'common_conditions' => $specialization->common_conditions,
+                'procedures' => $specialization->procedures,
+                'when_to_see' => $specialization->when_to_see,
+                'emergency_signs' => $specialization->emergency_signs,
+                'doctors_count' => $availableDoctors->count(),
+                'available_doctors' => $availableDoctors->map(function($doctor) {
+                    return [
+                        'id' => $doctor->id,
+                        'name' => $doctor->user->name,
+                        'experience_years' => $doctor->experience_years,
+                        'rating' => $doctor->rating,
+                        'consultation_fee' => $doctor->consultation_fee
+                    ];
+                })->toArray()
+            ],
             'suggested_actions' => [
-                'Book appointment with a ' . $info['name'] . ' specialist',
-                'Learn more about our ' . $info['name'] . ' services',
+                'Book appointment with a ' . $specialization->name . ' specialist',
+                'Learn more about our ' . $specialization->name . ' services',
                 'Compare different doctors'
             ]
         ];
@@ -338,7 +471,8 @@ class DoctorRecommendationService
 
         foreach ($recommendations as $index => $rec) {
             $doctor = $rec['doctor'];
-            $answer .= ($index + 1) . ". **Dr. {$doctor['name']}** - {$doctor['specialization']}\n";
+            $displayName = strpos($doctor['name'], 'Dr.') === 0 ? $doctor['name'] : 'Dr. ' . $doctor['name'];
+            $answer .= ($index + 1) . ". **{$displayName}** - {$doctor['specialization']}\n";
             $answer .= "   Experience: {$doctor['experience_years']} years | Rating: {$doctor['rating']}/5 | Fee: \${$doctor['consultation_fee']}\n";
             $answer .= "   Reason: {$doctor['match_reason']}\n\n";
         }
@@ -385,20 +519,50 @@ class DoctorRecommendationService
         }
 
         if (!empty($recommendations)) {
+            $doctorName = $recommendations[0]['doctor']['name'];
+            $displayName = strpos($doctorName, 'Dr.') === 0 ? $doctorName : 'Dr. ' . $doctorName;
+
             $answer .= "Based on your symptoms, I recommend consulting with a **{$recommendations[0]['doctor']['specialization']}** specialist.\n\n";
             $answer .= "**Top Recommendation:**\n";
-            $answer .= "• Dr. {$recommendations[0]['doctor']['name']} - {$recommendations[0]['doctor']['experience_years']} years experience\n";
+            $answer .= "• {$displayName} - {$recommendations[0]['doctor']['experience_years']} years experience\n";
             $answer .= "• Rating: {$recommendations[0]['doctor']['rating']}/5\n";
             $answer .= "• Consultation fee: \${$recommendations[0]['doctor']['consultation_fee']}\n\n";
 
             $actions = [
-                'Book an appointment with Dr. ' . $recommendations[0]['doctor']['name'],
+                'Book an appointment with ' . $displayName,
                 'View complete doctor profile',
                 'Check available appointment slots'
             ];
         } else {
-            $answer .= "I recommend visiting a **General Practice** doctor for proper evaluation of your symptoms.\n\n";
-            $actions = ['Book appointment with General Practice', 'Contact our medical helpline'];
+            // No specialist doctors found, recommend General Practice
+            $generalPracticeDoctors = \App\Models\Doctor::with(['user', 'specialization'])
+                ->whereHas('specialization', function($query) {
+                    $query->where('name', 'General Practice');
+                })
+                ->where('is_approved', true)
+                ->orderBy('rating', 'desc')
+                ->limit(2)
+                ->get();
+
+            if ($generalPracticeDoctors->count() > 0) {
+                $answer .= "For your symptoms, I recommend starting with a **General Practice** doctor for initial evaluation.\n\n";
+                $answer .= "**Recommended General Practice Doctors:**\n";
+
+                foreach ($generalPracticeDoctors as $gpDoctor) {
+                    $displayName = strpos($gpDoctor->user->name, 'Dr.') === 0 ? $gpDoctor->user->name : 'Dr. ' . $gpDoctor->user->name;
+                    $answer .= "• {$displayName} - Rating: {$gpDoctor->rating}/5\n";
+                }
+                $answer .= "\n";
+
+                $actions = [
+                    'Book appointment with General Practice',
+                    'Contact our medical helpline',
+                    'Schedule initial consultation'
+                ];
+            } else {
+                $answer .= "I recommend visiting a healthcare professional for proper evaluation of your symptoms. Please contact our clinic for assistance.\n\n";
+                $actions = ['Contact clinic directly', 'Call medical helpline'];
+            }
         }
 
         // Add self-care tips based on symptoms
@@ -442,28 +606,65 @@ class DoctorRecommendationService
             }
         }
 
-        // Try to extract from doctor names in our knowledge base
-        $doctorNames = [
-            'Ahmed Taha', 'Aya Basheer', 'Tasneem Gaballah', 'Islam Ghanem',
-            'Mohamed Hassan', 'Sara Ali', 'Omar Khaled',
-            'ahmed taha', 'aya basheer', 'tasneem gaballah', 'islam ghanem',
-            'mohamed hassan', 'sara ali', 'omar khaled'
-        ];
+        // Get doctor names from database
+        $doctorNames = \App\Models\User::where('role', 'doctor')
+            ->pluck('name')
+            ->toArray();
 
+        $queryLower = strtolower($query);
+
+        // Search for exact matches (with and without Dr. prefix)
         foreach ($doctorNames as $doctorName) {
-            if (stripos($query, $doctorName) !== false) {
-                return $doctorName;
+            $doctorNameLower = strtolower($doctorName);
+            $doctorNameWithoutDr = strtolower(preg_replace('/^dr\.?\s*/i', '', $doctorName));
+
+            if (stripos($queryLower, $doctorNameLower) !== false ||
+                stripos($queryLower, $doctorNameWithoutDr) !== false) {
+                return $doctorName; // Return the full name with Dr. prefix
             }
         }
 
-        // Try partial matches for first names
-        $firstNames = ['ahmed', 'aya', 'tasneem', 'islam', 'mohamed', 'sara', 'omar'];
-        foreach ($firstNames as $firstName) {
-            if (stripos($query, $firstName) !== false) {
-                // Return the first matching doctor with this first name
-                foreach ($doctorNames as $fullName) {
-                    if (stripos($fullName, $firstName) === 0) {
-                        return $fullName;
+        // Try partial matches for first and last names
+        $queryWords = array_filter(explode(' ', $queryLower));
+        if (count($queryWords) >= 2) {
+            foreach ($doctorNames as $doctorName) {
+                $doctorWords = array_filter(explode(' ', strtolower(preg_replace('/^dr\.?\s*/i', '', $doctorName))));
+                if (count($doctorWords) >= 2) {
+                    // Check if query contains both first and last name from doctor
+                    $firstNameMatch = false;
+                    $lastNameMatch = false;
+                    foreach ($queryWords as $queryWord) {
+                        if (stripos($doctorWords[0], $queryWord) !== false || stripos($queryWord, $doctorWords[0]) !== false) {
+                            $firstNameMatch = true;
+                        }
+                        if (count($doctorWords) > 1 && (stripos($doctorWords[1], $queryWord) !== false || stripos($queryWord, $doctorWords[1]) !== false)) {
+                            $lastNameMatch = true;
+                        }
+                    }
+                    if ($firstNameMatch && $lastNameMatch) {
+                        return $doctorName;
+                    }
+                }
+            }
+        }
+
+        // Try single name matches (first or last name only)
+        foreach ($queryWords as $queryWord) {
+            foreach ($doctorNames as $doctorName) {
+                $doctorWords = array_filter(explode(' ', strtolower(preg_replace('/^dr\.?\s*/i', '', $doctorName))));
+                foreach ($doctorWords as $doctorWord) {
+                    if (stripos($doctorWord, $queryWord) !== false || stripos($queryWord, $doctorWord) !== false) {
+                        // Check if this is a unique match
+                        $matches = [];
+                        foreach ($doctorNames as $checkName) {
+                            $checkWords = array_filter(explode(' ', strtolower(preg_replace('/^dr\.?\s*/i', '', $checkName))));
+                            if (in_array($doctorWord, $checkWords)) {
+                                $matches[] = $checkName;
+                            }
+                        }
+                        if (count($matches) === 1) {
+                            return $matches[0];
+                        }
                     }
                 }
             }
