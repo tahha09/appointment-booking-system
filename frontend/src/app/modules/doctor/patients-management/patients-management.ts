@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Auth } from '../../../core/services/auth';
+import { environment } from '../../../../environments/environment';
 
 interface Patient {
   id: number;
@@ -21,7 +22,8 @@ interface Patient {
     phone: string;
     date_of_birth: string;
     address: string;
-    profile_image: string | null;
+    profile_image: string |'assets/default-avatar.png' | null;
+    profile_image_url?: string | 'assets/default-avatar.png' | null;
   } | null;
 }
 
@@ -41,6 +43,7 @@ interface Pagination {
 })
 export class PatientsManagement implements OnInit {
   private readonly apiBase = 'http://localhost:8000/api';
+  private readonly backendBaseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
   patients: Patient[] = [];
   loading = true;
   error = '';
@@ -224,5 +227,28 @@ export class PatientsManagement implements OnInit {
     if (page >= 1 && page <= (this.pagination?.last_page || 1)) {
       this.fetchPatients(page);
     }
+  }
+
+  getUserImage(user?: { profile_image?: string | null; profile_image_url?: string | null } | null): string {
+    const fallback = 'assets/default-avatar.png';
+    if (!user) {
+      return fallback;
+    }
+
+    const source = user.profile_image_url || user.profile_image;
+    if (!source) {
+      return fallback;
+    }
+
+    if (/^(https?:)?\/\//.test(source) || source.startsWith('data:')) {
+      return source;
+    }
+
+    if (source.startsWith('/')) {
+      return `${this.backendBaseUrl}${source}`;
+    }
+
+    const normalized = source.startsWith('storage/') ? source : `storage/${source}`;
+    return `${this.backendBaseUrl}/${normalized}`;
   }
 }

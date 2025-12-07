@@ -71,7 +71,7 @@
           <div class="flex items-start gap-3 sm:gap-4">
             <div class="w-12 sm:w-16 h-12 sm:h-16 rounded-full bg-[#0c969c]/15 border-2 border-[#0c969c]/40 overflow-hidden flex-shrink-0">
               <img
-                [src]="patient.user?.profile_image || 'assets/default-avatar.png'"
+                [src]="getUserImage(patient.user || null)"
                 [alt]="patient.user?.name"
                 class="w-full h-full object-cover"
               />
@@ -177,11 +177,11 @@ x
       <div *ngIf="selectedPatient" class="space-y-4">
         <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <div class="w-20 h-20 rounded-full bg-[#0c969c]/10 border-2 border-[#0c969c]/40 overflow-hidden flex-shrink-0">
-            <img
-              [src]="selectedPatient.user?.profile_image || 'assets/default-avatar.png'"
-              [alt]="selectedPatient.user?.name"
-              class="w-full h-full object-cover"
-            />
+          <img
+            [src]="getUserImage(selectedPatient.user || null)"
+            [alt]="selectedPatient.user?.name"
+            class="w-full h-full object-cover"
+          />
           </div>
           <div class="flex-1 min-w-0">
             <h4 class="text-lg sm:text-xl font-bold text-[#031716] truncate">{{ selectedPatient.user?.name }}</h4>

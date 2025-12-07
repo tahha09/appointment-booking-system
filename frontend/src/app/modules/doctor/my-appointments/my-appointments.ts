@@ -1,8 +1,10 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Auth } from '../../../core/services/auth';
+import { Notification } from '../../../core/services/notification';
+import { environment } from '../../../../environments/environment';
 
 interface Appointment {
   id: number;
@@ -20,7 +22,8 @@ interface Appointment {
       name: string;
       email: string;
       phone: string;
-      profile_image: string | null;
+      profile_image: string | 'assets/default-avatar.png' | null;
+      profile_image_url?: string |'assets/default-avatar.png' | null;
     } | null;
   } | null;
 }
@@ -32,6 +35,19 @@ interface Pagination {
   total: number;
 }
 
+type PrescriptionStatus = 'active' | 'completed' | 'cancelled';
+
+interface PrescriptionForm {
+  medication_name: string;
+  dosage: string;
+  frequency: string;
+  duration: string;
+  instructions: string;
+  notes: string;
+  prescribed_date: string;
+  status: PrescriptionStatus;
+}
+
 @Component({
   selector: 'app-my-appointments',
   standalone: true,
@@ -41,6 +57,8 @@ interface Pagination {
 })
 export class MyAppointments implements OnInit {
   private readonly apiBase = 'http://localhost:8000/api';
+  private readonly backendBaseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
+  private readonly notification = inject(Notification);
   appointments: Appointment[] = [];
   loading = true;
   error = '';
@@ -55,6 +73,12 @@ export class MyAppointments implements OnInit {
   updatingStatus: number | null = null;
   selectedPatient: any = null;
   showPatientModal = false;
+  showPrescriptionModal = false;
+  prescriptionForm: PrescriptionForm = this.createDefaultPrescriptionForm();
+  prescriptionStatuses: PrescriptionStatus[] = ['active', 'completed', 'cancelled'];
+  selectedAppointmentForPrescription: Appointment | null = null;
+  savingPrescription = false;
+  prescriptionError = '';
 
   constructor(
     private http: HttpClient,
@@ -152,8 +176,8 @@ export class MyAppointments implements OnInit {
     this.updateStatus(appointmentId, 'confirmed');
   }
 
-  completeAppointment(appointmentId: number): void {
-    this.updateStatus(appointmentId, 'completed');
+  completeAppointment(appointment: Appointment): void {
+    this.openPrescriptionModal(appointment);
   }
 
   cancelAppointment(appointmentId: number): void {
@@ -176,6 +200,126 @@ export class MyAppointments implements OnInit {
   closePatientModal(): void {
     this.showPatientModal = false;
     this.selectedPatient = null;
+  }
+
+  openPrescriptionModal(appointment: Appointment): void {
+    const defaultForm = this.createDefaultPrescriptionForm();
+    defaultForm.notes = appointment.notes || '';
+    this.prescriptionForm = defaultForm;
+    this.selectedAppointmentForPrescription = appointment;
+    this.prescriptionError = '';
+    this.showPrescriptionModal = true;
+  }
+
+  closePrescriptionModal(): void {
+    this.showPrescriptionModal = false;
+    this.selectedAppointmentForPrescription = null;
+    this.prescriptionForm = this.createDefaultPrescriptionForm();
+    this.savingPrescription = false;
+    this.prescriptionError = '';
+  }
+
+  submitPrescription(): void {
+    if (!this.selectedAppointmentForPrescription) {
+      this.prescriptionError = 'No appointment selected.';
+      return;
+    }
+
+    if (!this.isPrescriptionFormValid()) {
+      this.prescriptionError = 'Please fill in all required fields to save the prescription.';
+      return;
+    }
+
+    this.savingPrescription = true;
+    this.prescriptionError = '';
+
+    const appointmentId = this.selectedAppointmentForPrescription.id;
+    const token = this.auth.getToken();
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
+
+    const payload = {
+      medication_name: this.prescriptionForm.medication_name.trim(),
+      dosage: this.prescriptionForm.dosage.trim(),
+      frequency: this.prescriptionForm.frequency.trim(),
+      duration: this.prescriptionForm.duration.trim(),
+      instructions: this.prescriptionForm.instructions?.trim() || null,
+      notes: this.prescriptionForm.notes?.trim() || null,
+      prescribed_date: this.prescriptionForm.prescribed_date,
+      status: this.prescriptionForm.status,
+    };
+
+    this.http
+      .post<{ success: boolean; data: any; message: string }>(
+        `${this.apiBase}/doctor/appointments/${appointmentId}/prescriptions`,
+        payload,
+        { headers }
+      )
+      .subscribe({
+        next: () => {
+          this.notification.success('Prescription Saved', 'Prescription recorded and appointment marked as completed.');
+          const currentPage = this.pagination?.current_page || 1;
+          this.closePrescriptionModal();
+          this.fetchAppointments(currentPage);
+          this.savingPrescription = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.prescriptionError = err?.error?.message || 'Failed to save prescription.';
+          this.savingPrescription = false;
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  private isPrescriptionFormValid(): boolean {
+    return Boolean(
+      this.prescriptionForm.medication_name.trim() &&
+      this.prescriptionForm.dosage.trim() &&
+      this.prescriptionForm.frequency.trim() &&
+      this.prescriptionForm.duration.trim()
+    );
+  }
+
+  getUserImage(user?: { profile_image?: string | null; profile_image_url?: string | null } | null): string {
+    const fallback = 'assets/default-avatar.png';
+    if (!user) {
+      return fallback;
+    }
+
+    const source = user.profile_image_url || user.profile_image;
+    if (!source) {
+      return fallback;
+    }
+
+    if (/^(https?:)?\/\//.test(source) || source.startsWith('data:')) {
+      return source;
+    }
+
+    if (source.startsWith('/')) {
+      return `${this.backendBaseUrl}${source}`;
+    }
+
+    const normalized = source.startsWith('storage/') ? source : `storage/${source}`;
+    return `${this.backendBaseUrl}/${normalized}`;
+  }
+
+  private createDefaultPrescriptionForm(): PrescriptionForm {
+    return {
+      medication_name: '',
+      dosage: '',
+      frequency: '',
+      duration: '',
+      instructions: '',
+      notes: '',
+      prescribed_date: this.getTodayDateString(),
+      status: 'active',
+    };
+  }
+
+  private getTodayDateString(): string {
+    const now = new Date();
+    const timezoneOffset = now.getTimezoneOffset() * 60000;
+    return new Date(now.getTime() - timezoneOffset).toISOString().split('T')[0];
   }
 
   getStatusColor(status: string): string {

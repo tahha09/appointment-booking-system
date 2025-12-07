@@ -81,7 +81,7 @@
           <div class="flex items-start gap-4">
             <div class="w-16 h-16 rounded-full bg-[#0c969c]/15 border-2 border-[#0c969c]/40 overflow-hidden flex-shrink-0">
               <img
-                [src]="appointment.patient?.user?.profile_image || 'assets/default-avatar.png'"
+                [src]="getUserImage(appointment.patient?.user || null)"
                 [alt]="appointment.patient?.user?.name"
                 class="w-full h-full object-cover"
               />
@@ -147,11 +147,11 @@
 
             <button
               *ngIf="appointment.status === 'confirmed'"
-              (click)="updateStatus(appointment.id, 'completed')"
+              (click)="completeAppointment(appointment)"
               [disabled]="updatingStatus === appointment.id"
               class="px-4 py-2 rounded-xl border border-blue-400/50 text-blue-500 bg-blue-400/10 hover:bg-blue-400/20 font-semibold transition text-sm tracking-wide shadow-sm shadow-black/20 disabled:opacity-50"
             >
-              {{ updatingStatus === appointment.id ? 'Updating...' : 'Complete' }}
+              Complete
             </button>
           </div>
         </div>
@@ -206,7 +206,7 @@ x
         <div class="flex items-center gap-4">
           <div class="w-24 h-24 rounded-full bg-[#0c969c]/10 border-2 border-[#0c969c]/40 overflow-hidden">
             <img
-              [src]="selectedPatient?.user?.profile_image || 'assets/default-avatar.png'"
+              [src]="getUserImage(selectedPatient?.user || null)"
               [alt]="selectedPatient?.user?.name"
               class="w-full h-full object-cover"
             />
@@ -228,6 +228,175 @@ x
             <p>{{ selectedPatient?.user?.address || 'N/A' }}</p>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prescription Modal -->
+  <div
+    *ngIf="showPrescriptionModal"
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+    (click)="closePrescriptionModal()"
+  >
+    <div
+      class="bg-white text-[#032f30] rounded-2xl border border-[#d7ebef] p-6 max-w-3xl w-full max-h-[95vh] overflow-y-auto shadow-2xl"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h3 class="text-2xl font-bold text-[#031716]">Save Prescription</h3>
+          <p class="text-sm text-[#6ba3be] mt-1">Completing this form will mark the appointment as completed.</p>
+        </div>
+        <button
+          (click)="closePrescriptionModal()"
+          class="w-8 h-8 rounded-full bg-red-500/10 text-red-500 hover:bg-red-500/20 transition flex items-center justify-center"
+          aria-label="Close prescription form"
+        >
+          &times;
+        </button>
+      </div>
+
+      <div class="space-y-6">
+        <div class="rounded-2xl border border-[#d7ebef] bg-[#f5fbfc] p-4 flex flex-col gap-1">
+          <p class="text-sm text-[#6ba3be]">Patient</p>
+          <p class="text-lg font-semibold text-[#031716]">
+            {{ selectedAppointmentForPrescription?.patient?.user?.name || 'Unknown Patient' }}
+          </p>
+          <p class="text-sm text-[#6ba3be]">
+            {{ selectedAppointmentForPrescription?.patient?.user?.email }}
+          </p>
+          <div class="text-sm text-[#6ba3be] mt-2">
+            <span class="font-semibold text-[#031716]">Appointment:</span>
+            {{
+              selectedAppointmentForPrescription
+                ? formatDate(selectedAppointmentForPrescription.appointment_date)
+                : 'N/A'
+            }}
+            •
+            {{
+              selectedAppointmentForPrescription
+                ? formatTime(selectedAppointmentForPrescription.start_time)
+                : 'N/A'
+            }}
+          </div>
+        </div>
+
+        <form (submit)="submitPrescription(); $event.preventDefault()" class="space-y-5">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-semibold text-[#0a7075] mb-2">Medication Name<span class="text-red-500">*</span></label>
+              <input
+                type="text"
+                name="medication_name"
+                [(ngModel)]="prescriptionForm.medication_name"
+                required
+                class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/50 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+                placeholder="e.g., Amoxicillin"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-[#0a7075] mb-2">Dosage<span class="text-red-500">*</span></label>
+              <input
+                type="text"
+                name="dosage"
+                [(ngModel)]="prescriptionForm.dosage"
+                required
+                class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/50 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+                placeholder="e.g., 500 mg"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-semibold text-[#0a7075] mb-2">Frequency<span class="text-red-500">*</span></label>
+              <input
+                type="text"
+                name="frequency"
+                [(ngModel)]="prescriptionForm.frequency"
+                required
+                class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/50 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+                placeholder="e.g., Twice daily"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-[#0a7075] mb-2">Duration<span class="text-red-500">*</span></label>
+              <input
+                type="text"
+                name="duration"
+                [(ngModel)]="prescriptionForm.duration"
+                required
+                class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/50 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+                placeholder="e.g., 7 days"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-semibold text-[#0a7075] mb-2">Prescribed Date</label>
+              <input
+                type="date"
+                name="prescribed_date"
+                [(ngModel)]="prescriptionForm.prescribed_date"
+                class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/50 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-[#0a7075] mb-2">Status</label>
+              <select
+                name="status"
+                [(ngModel)]="prescriptionForm.status"
+                class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/50 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+              >
+                <option *ngFor="let status of prescriptionStatuses" [value]="status">{{ status | titlecase }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-[#0a7075] mb-2">Instructions</label>
+            <textarea
+              name="instructions"
+              [(ngModel)]="prescriptionForm.instructions"
+              rows="3"
+              class="w-full px-4 py-3 rounded-xl bg-white border border-[#6ba3be]/50 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+              placeholder="Provide instructions for the patient..."
+            ></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-[#0a7075] mb-2">Notes</label>
+            <textarea
+              name="notes"
+              [(ngModel)]="prescriptionForm.notes"
+              rows="3"
+              class="w-full px-4 py-3 rounded-xl bg-white border border-[#6ba3be]/50 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
+              placeholder="Any additional notes about the visit..."
+            ></textarea>
+          </div>
+
+          <div *ngIf="prescriptionError" class="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-red-500 text-sm">
+            {{ prescriptionError }}
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-2">
+            <button
+              type="button"
+              (click)="closePrescriptionModal()"
+              class="px-4 py-2 rounded-xl border border-[#6ba3be]/40 text-[#6ba3be] hover:bg-white/5 transition"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              [disabled]="savingPrescription"
+              class="px-6 py-2 rounded-xl bg-[#0c969c] text-white font-semibold hover:bg-[#0a7075] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {{ savingPrescription ? 'Saving...' : 'Save & Complete' }}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
