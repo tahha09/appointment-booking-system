@@ -133,11 +133,25 @@ export class AuthCallback implements OnInit {
     }).subscribe({
       next: (response: any) => {
         if (response.success) {
+          // Update session storage with the new role
+          const updatedUser = response.data.user;
+          sessionStorage.setItem('user_role', updatedUser.role);
+          sessionStorage.setItem('user_id', String(updatedUser.id));
+          sessionStorage.setItem('user_name', updatedUser.name);
+          sessionStorage.setItem('user_email', updatedUser.email);
+          if (updatedUser.profile_image) {
+            sessionStorage.setItem('profile_image', updatedUser.profile_image);
+          }
+
+          // Update auth service with new role
+          this.auth.setRole(updatedUser.role);
+
           this.notification.success('Registration completed', 'Welcome to our platform! Redirecting to home page...', {
             timer: 2000,
             timerProgressBar: true,
             showConfirmButton: false,
           }).then(() => {
+            // Redirect based on the new role
             this.router.navigateByUrl('/');
           });
         } else {
