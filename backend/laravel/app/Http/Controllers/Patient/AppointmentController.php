@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Holiday;
+use App\Models\Schedule;
 use Carbon\Carbon;
 use App\Notifications\DoctorNotifications;
 
@@ -78,7 +79,7 @@ class AppointmentController extends Controller
                 'recent_appointments' => $recentAppointments,
                 'stats' => $stats,
             ], 'Dashboard data retrieved successfully');
-            
+
         } catch (\Exception $e) {
             return $this->error($e->getMessage(), 500);
         }
@@ -143,7 +144,7 @@ class AppointmentController extends Controller
             $appointments = $query->paginate($perPage);
 
             return $this->success($appointments, 'Appointments retrieved successfully');
-            
+
         } catch (\Exception $e) {
             return $this->error($e->getMessage(), 500);
         }
@@ -175,7 +176,7 @@ class AppointmentController extends Controller
             }
 
             return $this->success($appointment, 'Appointment retrieved successfully');
-            
+
         } catch (\Exception $e) {
             return $this->error($e->getMessage(), 500);
         }
@@ -224,7 +225,7 @@ class AppointmentController extends Controller
             $appointment->load(['doctor.user', 'doctor.specialization']);
 
             return $this->success($appointment, 'Appointment confirmed successfully');
-            
+
         } catch (\Exception $e) {
             return $this->error($e->getMessage(), 500);
         }
@@ -285,7 +286,7 @@ class AppointmentController extends Controller
             $appointment->load(['doctor.user', 'doctor.specialization']);
 
             return $this->success($appointment, 'Appointment cancelled successfully');
-            
+
         } catch (\Exception $e) {
             return $this->error($e->getMessage(), 500);
         }
@@ -400,7 +401,7 @@ if ($doctor && $doctor->user) {
             $appointment->load(['doctor.user', 'doctor.specialization']);
 
             return $this->success($appointment, 'Appointment booked successfully', 201);
-            
+
         } catch (\Exception $e) {
             return $this->error($e->getMessage(), 500);
         }
@@ -428,7 +429,7 @@ if ($doctor && $doctor->user) {
                 ->get();
 
             return $this->success($records, 'Medical records retrieved successfully');
-            
+
         } catch (\Exception $e) {
             return $this->error($e->getMessage(), 500);
         }
@@ -462,7 +463,7 @@ if ($doctor && $doctor->user) {
             }
 
             return $this->success($appointment, 'Medical record retrieved successfully');
-            
+
         } catch (\Exception $e) {
             return $this->error($e->getMessage(), 500);
         }
@@ -515,14 +516,14 @@ public function reschedule(Request $request, $id)
 
         $today = Carbon::today();
         $appointmentDateObj = Carbon::parse($appointment->appointment_date);
-        
+
         if ($today->isSameDay($appointmentDateObj)) {
             return $this->error('Cannot reschedule an appointment on the same day.', 400);
         }
 
         $hoursDifference = $originalDateTime->diffInHours(Carbon::now(), false);
-        $minimumHoursBeforeAppointment = 4; // 
-        
+        $minimumHoursBeforeAppointment = 4; //
+
         if ($hoursDifference > -$minimumHoursBeforeAppointment) {
             return $this->error("Cannot reschedule an appointment less than {$minimumHoursBeforeAppointment} hours before the scheduled time.", 400);
         }
@@ -536,13 +537,13 @@ public function reschedule(Request $request, $id)
         // FIX: Use Carbon::parse correctly
         $startDateTime = Carbon::parse($appointmentDate . ' ' . $validated['start_time']);
         $endDateTime = Carbon::parse($appointmentDate . ' ' . $validated['end_time']);
-        
+
         // FIX: Calculate originalDateTime correctly
         // Correct way:
         $originalDateTime = Carbon::parse(
             $appointment->appointment_date->format('Y-m-d') . ' ' . $appointment->start_time
         );
-        
+
         // Alternative way:
         // $originalDateTime = $appointment->appointment_date->copy()
         //     ->setTimeFromTimeString($appointment->start_time);
@@ -579,6 +580,26 @@ public function reschedule(Request $request, $id)
 
         if ($sameTimeOtherDoctor) {
             return $this->error('You have another appointment at the same time with a different doctor.', 422);
+        }
+
+        // Check if the doctor is available on the selected date
+        $dayOfWeek = Carbon::parse($appointmentDate)->dayOfWeek; // 0 = Sunday, 6 = Saturday
+        $doctorSchedule = Schedule::where('doctor_id', $appointment->doctor_id)
+            ->where('day_of_week', $dayOfWeek)
+            ->where('is_available', true)
+            ->first();
+
+        if (!$doctorSchedule) {
+            return $this->error('The doctor is not available on the selected day. Please choose another day.', 422);
+        }
+
+        // Check if the doctor is on holiday
+        $isDoctorOnHoliday = Holiday::where('doctor_id', $appointment->doctor_id)
+            ->whereDate('holiday_date', $appointmentDate)
+            ->exists();
+
+        if ($isDoctorOnHoliday) {
+            return $this->error('The doctor is unavailable on the selected date due to a scheduled holiday. Please choose another day.', 422);
         }
 
         // Check if the time slot is already booked with the same doctor
@@ -626,7 +647,7 @@ public function reschedule(Request $request, $id)
                 if ($doctor && $doctor->user) {
                     $newTime = $validated['start_time'];
                     $reason = $validated['reason_for_reschedule'] ?? 'No reason provided';
-                    
+
                     $doctor->user->notify(new DoctorNotifications('appointment_rescheduled', [
                         'title' => 'Appointment Rescheduled',
                         'message' => "A patient has rescheduled an appointment:\n\n" .
@@ -651,7 +672,7 @@ public function reschedule(Request $request, $id)
             'reschedule_count' => $appointment->reschedule_count,
             'remaining_reschedules' => 3 - $appointment->reschedule_count
         ], 'Appointment rescheduled successfully');
-        
+
     } catch (\Exception $e) {
         \Log::error('Reschedule error: ' . $e->getMessage());
         \Log::error('Error trace: ' . $e->getTraceAsString());

@@ -105,7 +105,7 @@ class GoogleAuthController extends Controller
                 $user = User::create([
                     'name' => $googleUser->getName(),
                     'email' => $googleUser->getEmail(),
-                    'password' => bcrypt(Str::random(16)), // Random password for Google users
+                    'password' => bcrypt("password"), // Random password for Google users
                     'role' => 'patient', // Default role, can be changed later
                     'status' => 'active',
                     'profile_image' => $googleUser->getAvatar(),

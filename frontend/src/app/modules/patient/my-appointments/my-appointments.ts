@@ -45,6 +45,11 @@ export class MyAppointments implements OnInit {
     end_time: '',
     reason_for_reschedule: ''
   };
+  rescheduleErrors = {
+    appointment_date: '',
+    start_time: '',
+    end_time: ''
+  };
 
   // Search and filter
   searchQuery: string = '';
@@ -364,11 +369,27 @@ private handleRescheduleError(err: any): void {
   console.error('Error rescheduling appointment:', err);
   console.error('Full error response:', err.error);
 
+  // Clear previous errors
+  this.rescheduleErrors = {
+    appointment_date: '',
+    start_time: '',
+    end_time: ''
+  };
+
   let errorMessage = 'Failed to reschedule appointment';
 
   if (err.error?.message) {
     errorMessage = err.error.message;
     console.error('Backend message:', err.error.message);
+
+    // Check if it's a date-related error and set field-specific error
+    if (errorMessage.includes('not available on the selected day') ||
+        errorMessage.includes('unavailable on the selected date due to a scheduled holiday')) {
+      this.rescheduleErrors.appointment_date = errorMessage;
+    } else {
+      // Show general error notification for other errors
+      this.notification.error('Error', errorMessage);
+    }
   } else if (err.error?.errors) {
     // Handle validation errors from Laravel
     const errors = err.error.errors;
@@ -377,14 +398,27 @@ private handleRescheduleError(err: any): void {
     for (const key in errors) {
       if (errors.hasOwnProperty(key)) {
         errorMessages.push(...errors[key]);
+        // Set field-specific errors
+        if (key === 'appointment_date') {
+          this.rescheduleErrors.appointment_date = errors[key].join(', ');
+        } else if (key === 'start_time') {
+          this.rescheduleErrors.start_time = errors[key].join(', ');
+        } else if (key === 'end_time') {
+          this.rescheduleErrors.end_time = errors[key].join(', ');
+        }
       }
     }
 
     errorMessage = errorMessages.join(', ');
     console.error('Validation errors:', errors);
-  }
 
-  this.notification.error('Error', errorMessage);
+    // If no field-specific errors were set, show general notification
+    if (!this.rescheduleErrors.appointment_date && !this.rescheduleErrors.start_time && !this.rescheduleErrors.end_time) {
+      this.notification.error('Error', errorMessage);
+    }
+  } else {
+    this.notification.error('Error', errorMessage);
+  }
 }
 
   openRescheduleModal(appointment: any, event?: Event): void {
@@ -535,80 +569,80 @@ getDateFilter = (date: Date): boolean => {
 
   canReschedule(appointment: any): boolean {
   if (!appointment) return false;
-  
+
   // 1. Make sure the status is "confirmed"
   if (appointment.status !== 'confirmed') return false;
-  
+
   // 2. Check the number of reschedule attempts
   const rescheduleCount = appointment.reschedule_count || 0;
   if (rescheduleCount >= 3) return false;
-  
+
   // 3. Ensure the appointment hasn't already passed
   const appointmentDateTime = new Date(`${appointment.appointment_date}T${appointment.start_time}`);
   const now = new Date();
-  
+
   if (appointmentDateTime < now) {
     return false; // The appointment has already passed
   }
-  
+
   // 4. Ensure today is not the same day as the appointment
   const appointmentDate = new Date(appointment.appointment_date);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   if (appointmentDate.getFullYear() === today.getFullYear() &&
       appointmentDate.getMonth() === today.getMonth() &&
       appointmentDate.getDate() === today.getDate()) {
     return false; // Same day
   }
-  
+
   // 5. Ensure it is more than 4 hours before the appointment
   const hoursDifference = (appointmentDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
   const minimumHoursBeforeAppointment = 4;
-  
+
   if (hoursDifference < minimumHoursBeforeAppointment) {
     return false; // Less than 4 hours before the appointment
   }
-  
+
   return true;
 }
 
 getRescheduleMessage(appointment: any): string {
   if (!appointment) return '';
-  
+
   if (appointment.status !== 'confirmed') {
     return 'Only confirmed appointments can be rescheduled.';
   }
-  
+
   const rescheduleCount = appointment.reschedule_count || 0;
   if (rescheduleCount >= 3) {
     return 'You have reached the maximum reschedule limit (3 times).';
   }
-  
+
   const appointmentDateTime = new Date(`${appointment.appointment_date}T${appointment.start_time}`);
   const now = new Date();
-  
+
   if (appointmentDateTime < now) {
     return 'Cannot reschedule an appointment that has already passed.';
   }
-  
+
   const appointmentDate = new Date(appointment.appointment_date);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   if (appointmentDate.getFullYear() === today.getFullYear() &&
       appointmentDate.getMonth() === today.getMonth() &&
       appointmentDate.getDate() === today.getDate()) {
     return 'Cannot reschedule an appointment on the same day.';
   }
-  
+
   const hoursDifference = (appointmentDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
   const minimumHoursBeforeAppointment = 4;
-  
+
   if (hoursDifference < minimumHoursBeforeAppointment) {
     return `Cannot reschedule an appointment less than ${minimumHoursBeforeAppointment} hours before the scheduled time.`;
   }
-  
+
   return 'Click to reschedule this appointment.';
 }
 
@@ -647,6 +681,11 @@ closeRescheduleModal(): void {
     start_time: '',
     end_time: '',
     reason_for_reschedule: ''
+  };
+  this.rescheduleErrors = {
+    appointment_date: '',
+    start_time: '',
+    end_time: ''
   };
 
   setTimeout(() => {
