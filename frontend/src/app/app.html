@@ -193,4 +193,28 @@
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 <router-outlet />
 
+<button
+  type="button"
+  class="fixed bottom-6 right-6 z-50"
+  *ngIf="showScrollTop"
+  (click)="scrollToTop()"
+  aria-label="Scroll to top"
+>
+  <div
+    class="h-11 w-11 rounded-full flex items-center justify-center border border-white/60 shadow-xl backdrop-blur-md"
+    [ngStyle]="{
+      'background-image':
+        'conic-gradient(#0C969C ' + scrollProgress + '%, rgba(15,23,42,0.9) 0)'
+    }"
+  >
+    <div
+      class="h-8 w-8 rounded-full flex items-center justify-center bg-white text-brand-teal shadow-[0_0_14px_rgba(255,255,255,0.9)]"
+    >
+      <svg class="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 5L5 12h4v7h6v-7h4z" fill="currentColor" />
+      </svg>
+    </div>
+  </div>
+</button>
+
 
