@@ -147,8 +147,69 @@ class Appointment extends Model
 
     public function getCanBeRescheduledAttribute()
     {
-        return $this->status === 'confirmed' && $this->reschedule_count < 3;
+        if ($this->status !== 'confirmed') {
+        return false;
     }
+    
+    if ($this->reschedule_count >= 3) {
+        return false;
+    }
+    
+    $originalDateTime = Carbon::parse(
+        $this->appointment_date->format('Y-m-d') . ' ' . $this->start_time
+    );
+    $now = Carbon::now();
+
+    if ($originalDateTime->lt($now)) {
+        return false;
+    }
+
+    if ($originalDateTime->isSameDay($now)) {
+        return false;
+    }
+
+    $hoursDifference = $originalDateTime->diffInHours($now, false);
+    $minimumHoursBeforeAppointment = 4;
+    
+    if ($hoursDifference > -$minimumHoursBeforeAppointment) {
+        return false;
+    }
+    
+    return true;
+    }
+
+    public function getRescheduleRestrictionMessageAttribute()
+{
+    if ($this->status !== 'confirmed') {
+        return 'Only confirmed appointments can be rescheduled.';
+    }
+    
+    if ($this->reschedule_count >= 3) {
+        return 'You have reached the maximum reschedule limit (3 times).';
+    }
+    
+    $originalDateTime = Carbon::parse(
+        $this->appointment_date->format('Y-m-d') . ' ' . $this->start_time
+    );
+    $now = Carbon::now();
+    
+    if ($originalDateTime->lt($now)) {
+        return 'Cannot reschedule an appointment that has already passed.';
+    }
+    
+    if ($originalDateTime->isSameDay($now)) {
+        return 'Cannot reschedule an appointment on the same day.';
+    }
+    
+    $hoursDifference = $originalDateTime->diffInHours($now, false);
+    $minimumHoursBeforeAppointment = 4;
+    
+    if ($hoursDifference > -$minimumHoursBeforeAppointment) {
+        return "Cannot reschedule an appointment less than {$minimumHoursBeforeAppointment} hours before the scheduled time.";
+    }
+    
+    return 'Rescheduling is allowed.';
+}
     
     public function getIsRescheduledAttribute()
     {

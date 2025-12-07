@@ -82,7 +82,7 @@ export class Dashboard implements OnInit {
           today.setHours(0, 0, 0, 0);
           this.upcomingAppointmentsCount = this.allAppointments.filter((app: any) => {
             const appDate = new Date(app.appointment_date);
-            return (app.status === 'confirmed' || app.status === 'pending') && appDate >= today;
+            return app.status === 'confirmed' && appDate >= today;
           }).length;
 
           // Default display: Upcoming Appointments logic (Confirmed/Pending & Future)
@@ -90,7 +90,7 @@ export class Dashboard implements OnInit {
           this.filteredAppointments = this.allAppointments
             .filter((app: any) => {
               const appDate = new Date(app.appointment_date);
-              return (app.status === 'confirmed' || app.status === 'pending') && appDate >= today;
+              return app.status === 'confirmed' && appDate >= today;
             })
             .sort((a: any, b: any) => new Date(a.appointment_date).getTime() - new Date(b.appointment_date).getTime())
             .slice(0, 5);
@@ -263,6 +263,14 @@ export class Dashboard implements OnInit {
       appointment.doctor?.specialization ||
       'General';
   }
+
+  isUpcomingAppointment(appointment: any): boolean {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const appDate = new Date(appointment.appointment_date);
+  return appointment.status === 'confirmed' && appDate >= today;
+}
 
   /* Scroll logic removed */
 

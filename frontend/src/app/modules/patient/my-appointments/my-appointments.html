@@ -158,19 +158,20 @@
           <span class="status-badge" [ngClass]="getStatusClass(appointment.status)">
             {{ getStatusLabel(appointment.status) }}
           </span>
-          <button *ngIf="canCancel(appointment.status)"
-            (click)="cancelAppointment(appointment.id, $event)"
-            class="cancel-action-btn"
-            title="Cancel Appointment">
-            <i class="fas fa-ban"></i> Cancel
-          </button>
+          <button *ngIf="canCancel(appointment.status)" 
+        (click)="cancelAppointment(appointment.id, $event)"
+        class="cancel-action-btn"
+        title="Cancel Appointment">
+  <i class="fas fa-ban"></i> Cancel
+</button>
 
-          <button *ngIf="canReschedule(appointment.status)"
-          (click)="openRescheduleModal(appointment, $event)"
-          class="reschedule-action-btn"
-          title="Reschedule Appointment">
-    <i class="fas fa-calendar-alt"></i> Reschedule
-  </button>
+<button *ngIf="canReschedule(appointment)" 
+        (click)="openRescheduleModal(appointment, $event)"
+        class="reschedule-action-btn"
+        [title]="getRescheduleMessage(appointment)"
+        [disabled]="!canReschedule(appointment)">
+  <i class="fas fa-calendar-alt"></i> Reschedule
+</button>
           <i class="fas fa-chevron-right chevron-icon"></i>
         </div>
       </div>

@@ -505,6 +505,28 @@ public function reschedule(Request $request, $id)
             return $this->error('This appointment has reached the maximum reschedule limit (3 times).', 400);
         }
 
+        $originalDateTime = Carbon::parse(
+            $appointment->appointment_date->format('Y-m-d') . ' ' . $appointment->start_time
+        );
+
+        if ($originalDateTime->lt(Carbon::now())) {
+            return $this->error('Cannot reschedule an appointment that has already passed.', 400);
+        }
+
+        $today = Carbon::today();
+        $appointmentDateObj = Carbon::parse($appointment->appointment_date);
+        
+        if ($today->isSameDay($appointmentDateObj)) {
+            return $this->error('Cannot reschedule an appointment on the same day.', 400);
+        }
+
+        $hoursDifference = $originalDateTime->diffInHours(Carbon::now(), false);
+        $minimumHoursBeforeAppointment = 4; // 
+        
+        if ($hoursDifference > -$minimumHoursBeforeAppointment) {
+            return $this->error("Cannot reschedule an appointment less than {$minimumHoursBeforeAppointment} hours before the scheduled time.", 400);
+        }
+
         // Clean the date
         $appointmentDate = $validated['appointment_date'];
         if (str_contains($appointmentDate, 'T')) {
