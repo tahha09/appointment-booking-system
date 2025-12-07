@@ -26,7 +26,7 @@ export class AppointmentDetails  implements OnInit {
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
-      console.log('Route Parameters:', params);
+      
       
       const idParam = params['id'];
       
@@ -43,7 +43,7 @@ export class AppointmentDetails  implements OnInit {
       }
       
       this.appointmentId = id;
-      console.log('Fetching appointment with ID:', this.appointmentId);
+      
       this.fetchAppointmentDetails();
     });
   }
@@ -54,13 +54,13 @@ export class AppointmentDetails  implements OnInit {
 
     this.appointmentService.getAppointmentById(this.appointmentId).subscribe({
       next: (res: AppointmentResponse) => {
-        console.log('Appointment Details Response:', res.data);
+        
         this.appointment = res.data;
         this.loading = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('API Error Details:', err);
+        
         this.error = err?.error?.message || 'Failed to load appointment details';
         this.loading = false;
         this.cdr.detectChanges();
