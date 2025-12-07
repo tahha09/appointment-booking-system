@@ -340,6 +340,7 @@ private executeReschedule(formattedData: any): void {
 }
 
 private handleRescheduleSuccess(response: any): void {
+  this.closeRescheduleModal();
   if (response.success) {
     this.notification.success(
       'Success', 
@@ -349,7 +350,7 @@ private handleRescheduleSuccess(response: any): void {
     
     // Update appointment data
     this.fetchAppointments(this.currentPage);
-    this.closeRescheduleModal();
+    
     
     if (this.showDetailsModal) {
       this.closeDetailsModal();
@@ -557,6 +558,14 @@ closeRescheduleModal(): void {
     end_time: '',
     reason_for_reschedule: ''
   };
+
+  setTimeout(() => {
+    const activeElement = document.activeElement as HTMLElement;
+    if (activeElement) {
+      activeElement.blur();
+    }
+  }, 100);
+  
 }
 
 // This function converts a date from ISO format to YYYY-MM-DD
