@@ -3,7 +3,7 @@ import Swal, { SweetAlertIcon, SweetAlertOptions, SweetAlertResult } from 'sweet
 
 type ActionOptions = Pick<
   SweetAlertOptions,
-  'confirmButtonText' | 'cancelButtonText' | 'showCancelButton'
+  'confirmButtonText' | 'cancelButtonText' | 'showCancelButton' | 'timer' | 'timerProgressBar' | 'showConfirmButton'
 >;
 
 @Injectable({

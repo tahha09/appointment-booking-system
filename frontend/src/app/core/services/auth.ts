@@ -12,6 +12,7 @@ interface RegisterPayload {
   email: string;
   password: string;
   role: string;
+  specializationId?: string;
   profileImage?: string | null;
 }
 
@@ -186,6 +187,7 @@ export class Auth {
         email: payload.email,
         password: payload.password,
         role: payload.role,
+        specializationId: payload.specializationId,
         profileImage: payload.profileImage,
       })
       .pipe(
@@ -264,6 +266,11 @@ export class Auth {
 
   setRole(role: string): void {
     this.role = role;
+  }
+
+  setToken(token: string): void {
+    this.token = token;
+    sessionStorage.setItem(this.TOKEN_KEY, token);
   }
 
   getRole(): string | null {

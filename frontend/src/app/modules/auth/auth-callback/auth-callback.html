@@ -1,0 +1,115 @@
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-deep via-brand-teal to-brand-slate">
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 text-center">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="space-y-4">
+      <div class="w-16 h-16 border-4 border-brand-teal border-t-transparent rounded-full animate-spin mx-auto"></div>
+      <h2 class="text-xl font-semibold text-gray-800">Completing authentication...</h2>
+      <p class="text-gray-600">Please wait while we set up your account.</p>
+    </div>
+
+    <!-- Role Selection for New Google Users -->
+    <div *ngIf="showRoleSelection" class="space-y-6">
+      <div>
+        <h2 class="text-2xl font-semibold text-gray-800 mb-2">Welcome to our platform!</h2>
+        <p class="text-gray-600">Please select your role to complete registration.</p>
+      </div>
+
+      <form [formGroup]="roleForm" (ngSubmit)="submitRoleSelection()" class="space-y-4">
+        <div class="space-y-3">
+          <p class="text-sm font-medium text-gray-700">Register as</p>
+          <div class="grid grid-cols-1 gap-3">
+            <button
+              type="button"
+              class="flex flex-col items-start gap-2 rounded-xl border px-4 py-3 text-left text-sm transition cursor-pointer"
+              [ngClass]="
+                roleForm.get('role')?.value === 'patient'
+                  ? 'border-brand-teal bg-brand-teal/5 text-brand-teal shadow-sm'
+                  : 'border-gray-200 bg-white text-gray-700 hover:border-brand-teal/50'
+              "
+              (click)="roleForm.get('role')?.setValue('patient')"
+            >
+              <span class="text-sm font-semibold">Patient</span>
+              <span class="text-xs text-gray-600">
+                Book appointments and track your medical visits.
+              </span>
+            </button>
+
+            <button
+              type="button"
+              class="flex flex-col items-start gap-2 rounded-xl border px-4 py-3 text-left text-sm transition cursor-pointer"
+              [ngClass]="
+                roleForm.get('role')?.value === 'doctor'
+                  ? 'border-brand-teal bg-brand-teal/5 text-brand-teal shadow-sm'
+                  : 'border-gray-200 bg-white text-gray-700 hover:border-brand-teal/50'
+              "
+              (click)="roleForm.get('role')?.setValue('doctor')"
+            >
+              <span class="text-sm font-semibold">Doctor</span>
+              <span class="text-xs text-gray-600">
+                Manage your patients, schedule and appointments.
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Specialization Selection for Doctors -->
+        <div *ngIf="roleForm.get('role')?.value === 'doctor'" class="space-y-2">
+          <label for="specializationId" class="block text-sm font-medium text-gray-700">Medical Specialization</label>
+          <select
+            id="specializationId"
+            formControlName="specializationId"
+            class="block w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20"
+          >
+            <option value="" disabled selected>Select your specialization</option>
+            <option
+              *ngFor="let specialization of specializations"
+              [value]="specialization.id"
+            >
+              {{ specialization.name }}
+            </option>
+          </select>
+          <div class="min-h-[1.25rem]">
+            <p
+              *ngIf="roleForm.get('specializationId')?.touched && roleForm.get('specializationId')?.invalid"
+              class="text-xs text-red-600"
+            >
+              Please select a medical specialization.
+            </p>
+          </div>
+        </div>
+
+        <div *ngIf="roleError" class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+          {{ roleError }}
+        </div>
+
+        <button
+          type="submit"
+          [disabled]="isSubmittingRole"
+          class="inline-flex w-full items-center justify-center rounded-xl bg-brand-teal px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-teal-dark disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          <span *ngIf="!isSubmittingRole">Complete Registration</span>
+          <span *ngIf="isSubmittingRole">Setting up...</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="space-y-4">
+      <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto">
+        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+        </svg>
+      </div>
+      <h2 class="text-xl font-semibold text-gray-800">Authentication Failed</h2>
+      <p class="text-gray-600">{{ error }}</p>
+      <div class="flex gap-3 justify-center">
+        <a routerLink="/login" class="inline-flex items-center rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 transition">
+          Back to Login
+        </a>
+        <button (click)="retryAuth()" class="inline-flex items-center rounded-lg bg-brand-teal px-4 py-2 text-sm font-medium text-white hover:bg-brand-teal-dark transition">
+          Try Again
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

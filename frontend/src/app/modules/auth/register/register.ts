@@ -1,4 +1,4 @@
-import { Component, HostListener, inject } from '@angular/core';
+import { Component, HostListener, inject, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -10,19 +10,20 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
 import { Notification } from '../../../core/services/notification';
+import { Api } from '../../../core/services/api';
 
 @Component({
   selector: 'app-register',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './register.html',
-  styleUrl: './register.scss',
 })
-export class Register {
+export class Register implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(Auth);
   private readonly router = inject(Router);
   private readonly notification = inject(Notification);
+  private readonly api = inject(Api);
 
   isSubmitting = false;
   apiError = '';
@@ -31,6 +32,7 @@ export class Register {
   showPassword = false;
   showConfirmPassword = false;
   selectedImagePreview: string | null = null;
+  specializations: any[] = [];
 
   form = this.fb.group(
     {
@@ -39,9 +41,27 @@ export class Register {
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
       role: ['patient', [Validators.required]],
+      specializationId: [''],
     },
     { validators: Register.passwordsMatchValidator },
   );
+
+  ngOnInit(): void {
+    this.loadSpecializations();
+  }
+
+  loadSpecializations(): void {
+    this.api.get('/specializations/filter-list').subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          this.specializations = response.data;
+        }
+      },
+      error: (error) => {
+        console.error('Failed to load specializations:', error);
+      },
+    });
+  }
 
   static passwordsMatchValidator(control: AbstractControl): ValidationErrors | null {
     const password = control.get('password')?.value;
@@ -63,6 +83,10 @@ export class Register {
     const height = doc.scrollHeight - doc.clientHeight;
     this.showScrollTop = height > 0 && scrollTop > 80;
     this.scrollProgress = height > 0 ? Math.min(100, Math.round((scrollTop / height) * 100)) : 0;
+  }
+
+  registerWithGoogle(): void {
+    window.location.href = 'http://localhost:8000/auth/google';
   }
 
   scrollToTop(): void {
@@ -117,8 +141,16 @@ export class Register {
       return;
     }
 
-    const { fullName, email, password, role } = this.form.value;
+    const { fullName, email, password, role, specializationId } = this.form.value;
+    const specializationIdValue = specializationId || undefined;
     if (!fullName || !email || !password || !role) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    // Check if specialization is required for doctors
+    if (role === 'doctor' && !specializationIdValue) {
+      this.form.get('specializationId')?.setErrors({ required: true });
       this.form.markAllAsTouched();
       return;
     }
@@ -132,17 +164,20 @@ export class Register {
         email,
         password,
         role,
+        specializationId: role === 'doctor' ? specializationIdValue : undefined,
         profileImage: this.selectedImagePreview ?? null,
       })
       .subscribe({
         next: () => {
           this.isSubmitting = false;
           this.notification
-            .success('Account created', 'You are now logged in.', {
-              confirmButtonText: 'Continue',
+            .success('Account created', 'Welcome to our platform! Redirecting to home page...', {
+              timer: 2000,
+              timerProgressBar: true,
+              showConfirmButton: false,
             })
             .then(() => {
-              this.router.navigateByUrl('/login');
+              this.router.navigateByUrl('/');
             });
         },
         error: (error) => {
