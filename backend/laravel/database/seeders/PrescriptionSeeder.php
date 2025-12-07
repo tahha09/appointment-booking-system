@@ -223,6 +223,203 @@ class PrescriptionSeeder extends Seeder
                 'status' => 'active',
             ],
 
+            // Additional prescriptions for expanded dataset
+            // Patient 10 - Anxiety medication
+            [
+                'patient_index' => 10,
+                'doctor_index' => 7, // Psychiatry
+                'medication_name' => 'Sertraline',
+                'dosage' => '50mg',
+                'frequency' => 'Once daily',
+                'duration' => '90 days',
+                'instructions' => 'Take in the morning with food. May take 2-4 weeks to notice improvement.',
+                'notes' => 'For generalized anxiety disorder. Monitor for side effects.',
+                'prescribed_date' => now()->subMonths(4),
+                'status' => 'active',
+            ],
+
+            // Patient 11 - Back pain medication
+            [
+                'patient_index' => 11,
+                'doctor_index' => 4, // Orthopedics
+                'medication_name' => 'Ibuprofen',
+                'dosage' => '400mg',
+                'frequency' => 'Three times daily',
+                'duration' => '14 days',
+                'instructions' => 'Take with food. Do not exceed recommended dose.',
+                'notes' => 'For lower back pain. Physical therapy recommended.',
+                'prescribed_date' => now()->subMonths(2),
+                'status' => 'active',
+            ],
+
+            // Patient 12 - Depression medication
+            [
+                'patient_index' => 12,
+                'doctor_index' => 7, // Psychiatry
+                'medication_name' => 'Fluoxetine',
+                'dosage' => '20mg',
+                'frequency' => 'Once daily',
+                'duration' => '90 days',
+                'instructions' => 'Take in the morning. Full effect may take 4-6 weeks.',
+                'notes' => 'For major depressive disorder. Regular follow-up required.',
+                'prescribed_date' => now()->subMonths(6),
+                'status' => 'active',
+            ],
+
+            // Patient 13 - Arthritis medication
+            [
+                'patient_index' => 13,
+                'doctor_index' => 4, // Orthopedics
+                'medication_name' => 'Methotrexate',
+                'dosage' => '15mg',
+                'frequency' => 'Once weekly',
+                'duration' => '90 days',
+                'instructions' => 'Take on the same day each week. Blood tests required for monitoring.',
+                'notes' => 'Disease-modifying agent for rheumatoid arthritis. Liver function monitoring required.',
+                'prescribed_date' => now()->subMonths(3),
+                'status' => 'active',
+            ],
+
+            // Patient 14 - Eye medication
+            [
+                'patient_index' => 14,
+                'doctor_index' => 8, // Ophthalmology
+                'medication_name' => 'Latanoprost Eye Drops',
+                'dosage' => '0.005%',
+                'frequency' => 'Once daily at bedtime',
+                'duration' => '30 days',
+                'instructions' => 'Apply one drop to affected eye(s). Keep refrigerated.',
+                'notes' => 'For glaucoma management. Regular eye pressure checks required.',
+                'prescribed_date' => now()->subMonths(1),
+                'status' => 'active',
+            ],
+
+            // Patient 15 - GERD medication
+            [
+                'patient_index' => 15,
+                'doctor_index' => 9, // General Practice
+                'medication_name' => 'Omeprazole',
+                'dosage' => '20mg',
+                'frequency' => 'Once daily',
+                'duration' => '60 days',
+                'instructions' => 'Take before breakfast. May take up to 4 weeks for full effect.',
+                'notes' => 'Proton pump inhibitor for GERD. Lifestyle modifications recommended.',
+                'prescribed_date' => now()->subMonths(5),
+                'status' => 'active',
+            ],
+
+            // Patient 16 - Osteoporosis supplements
+            [
+                'patient_index' => 16,
+                'doctor_index' => 4, // Orthopedics
+                'medication_name' => 'Calcium Carbonate + Vitamin D',
+                'dosage' => '500mg/200IU',
+                'frequency' => 'Twice daily',
+                'duration' => '180 days',
+                'instructions' => 'Take with meals. Adequate calcium intake essential.',
+                'notes' => 'Calcium and vitamin D supplementation for osteoporosis prevention.',
+                'prescribed_date' => now()->subMonths(7),
+                'status' => 'active',
+            ],
+
+            // Patient 17 - COPD medication
+            [
+                'patient_index' => 17,
+                'doctor_index' => 0, // Cardiology (respiratory)
+                'medication_name' => 'Salbutamol Inhaler',
+                'dosage' => '100mcg',
+                'frequency' => 'As needed',
+                'duration' => '60 days',
+                'instructions' => 'Use 1-2 puffs when breathless. Maximum 8 puffs per day.',
+                'notes' => 'Short-acting bronchodilator for COPD symptom relief.',
+                'prescribed_date' => now()->subMonths(4),
+                'status' => 'active',
+            ],
+
+            // Patient 18 - Endometriosis medication
+            [
+                'patient_index' => 18,
+                'doctor_index' => 5, // Gynecology
+                'medication_name' => 'Naproxen',
+                'dosage' => '500mg',
+                'frequency' => 'As needed',
+                'duration' => '30 days',
+                'instructions' => 'Take with food for menstrual pain. Maximum 2 tablets per day.',
+                'notes' => 'NSAID for endometriosis-related pain management.',
+                'prescribed_date' => now()->subMonths(2),
+                'status' => 'active',
+            ],
+
+            // Patient 21 - Sleep apnea equipment
+            [
+                'patient_index' => 21,
+                'doctor_index' => 2, // Neurology
+                'medication_name' => 'CPAP Machine',
+                'dosage' => 'Auto-adjusting',
+                'frequency' => 'Every night',
+                'duration' => 'Ongoing',
+                'instructions' => 'Use every night during sleep. Clean mask and tubing daily.',
+                'notes' => 'Continuous positive airway pressure for obstructive sleep apnea.',
+                'prescribed_date' => now()->subMonths(2),
+                'status' => 'active',
+            ],
+
+            // Patient 22 - Atrial fibrillation medication
+            [
+                'patient_index' => 22,
+                'doctor_index' => 0, // Cardiology
+                'medication_name' => 'Warfarin',
+                'dosage' => '5mg',
+                'frequency' => 'Once daily',
+                'duration' => '90 days',
+                'instructions' => 'Take at the same time each day. Regular INR monitoring required.',
+                'notes' => 'Anticoagulant for atrial fibrillation stroke prevention.',
+                'prescribed_date' => now()->subMonths(1),
+                'status' => 'active',
+            ],
+
+            // Patient 23 - Psoriasis treatment
+            [
+                'patient_index' => 23,
+                'doctor_index' => 1, // Dermatology
+                'medication_name' => 'Calcipotriene Cream',
+                'dosage' => '0.005%',
+                'frequency' => 'Twice daily',
+                'duration' => '60 days',
+                'instructions' => 'Apply thin layer to affected areas. Avoid sun exposure.',
+                'notes' => 'Vitamin D analog for plaque psoriasis treatment.',
+                'prescribed_date' => now()->subMonths(3),
+                'status' => 'active',
+            ],
+
+            // Patient 24 - Epilepsy medication
+            [
+                'patient_index' => 24,
+                'doctor_index' => 2, // Neurology
+                'medication_name' => 'Levetiracetam',
+                'dosage' => '1000mg',
+                'frequency' => 'Twice daily',
+                'duration' => '90 days',
+                'instructions' => 'Take with or without food. Do not stop abruptly.',
+                'notes' => 'Antiepileptic medication for temporal lobe epilepsy.',
+                'prescribed_date' => now()->subMonths(5),
+                'status' => 'active',
+            ],
+
+            // Patient 25 - Hepatitis C treatment
+            [
+                'patient_index' => 25,
+                'doctor_index' => 9, // General Practice
+                'medication_name' => 'Sofosbuvir/Velpatasvir',
+                'dosage' => '400mg/100mg',
+                'frequency' => 'Once daily',
+                'duration' => '84 days',
+                'instructions' => 'Take with food. Complete the full 12-week course.',
+                'notes' => 'Direct-acting antiviral therapy for chronic hepatitis C.',
+                'prescribed_date' => now()->subMonths(1),
+                'status' => 'active',
+            ],
+
             // Completed prescriptions (antibiotics, short-term)
             [
                 'patient_index' => 0,
@@ -246,6 +443,30 @@ class PrescriptionSeeder extends Seeder
                 'instructions' => 'Take for pain or fever. Maximum 4 times per day.',
                 'notes' => 'Post-operative pain management. Completed.',
                 'prescribed_date' => now()->subYears(6),
+                'status' => 'completed',
+            ],
+            [
+                'patient_index' => 5,
+                'doctor_index' => 1,
+                'medication_name' => 'Doxycycline',
+                'dosage' => '100mg',
+                'frequency' => 'Twice daily',
+                'duration' => '7 days',
+                'instructions' => 'Take with plenty of water. Avoid dairy products.',
+                'notes' => 'Antibiotic for skin infection. Course completed.',
+                'prescribed_date' => now()->subMonths(3),
+                'status' => 'completed',
+            ],
+            [
+                'patient_index' => 7,
+                'doctor_index' => 5,
+                'medication_name' => 'Medroxyprogesterone',
+                'dosage' => '10mg',
+                'frequency' => 'Once daily',
+                'duration' => '10 days',
+                'instructions' => 'Take for 10 days to induce withdrawal bleeding.',
+                'notes' => 'Progestin for abnormal uterine bleeding. Completed.',
+                'prescribed_date' => now()->subMonths(2),
                 'status' => 'completed',
             ],
         ];
