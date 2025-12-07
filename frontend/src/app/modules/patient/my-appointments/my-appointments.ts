@@ -207,7 +207,7 @@ export class MyAppointments implements OnInit {
   submitReschedule(): void {
   if (!this.rescheduleAppointment) return;
 
-  console.log('Before processing:', this.rescheduleForm);
+
 
   // Step 1: Clean the data
   this.prepareRescheduleData();
@@ -220,7 +220,7 @@ export class MyAppointments implements OnInit {
   // Step 3: Prepare data for submission
   const formattedData = this.formatRescheduleData();
 
-  console.log('Sending to backend:', formattedData);
+
 
   // Step 4: Get confirmation from the user
   this.confirmReschedule(formattedData);
@@ -249,7 +249,7 @@ private prepareRescheduleData(): void {
     this.rescheduleForm.end_time = this.rescheduleForm.end_time.substring(0, 5);
   }
 
-  console.log('After processing:', this.rescheduleForm);
+
 }
 
 
@@ -340,6 +340,7 @@ private executeReschedule(formattedData: any): void {
 }
 
 private handleRescheduleSuccess(response: any): void {
+  this.closeRescheduleModal();
   if (response.success) {
     this.notification.success(
       'Success',
@@ -349,7 +350,7 @@ private handleRescheduleSuccess(response: any): void {
 
     // Update appointment data
     this.fetchAppointments(this.currentPage);
-    this.closeRescheduleModal();
+
 
     if (this.showDetailsModal) {
       this.closeDetailsModal();
@@ -407,7 +408,7 @@ private handleRescheduleError(err: any): void {
     reason_for_reschedule: ''
   };
 
-  console.log('Opening modal with:', this.rescheduleForm);
+
 
   this.showRescheduleModal = true;
 }
@@ -532,9 +533,85 @@ getDateFilter = (date: Date): boolean => {
     return status === 'pending' || status === 'confirmed';
   }
 
-  canReschedule(status: string): boolean {
-  return status === 'confirmed';
+  canReschedule(appointment: any): boolean {
+  if (!appointment) return false;
+  
+  // 1. Make sure the status is "confirmed"
+  if (appointment.status !== 'confirmed') return false;
+  
+  // 2. Check the number of reschedule attempts
+  const rescheduleCount = appointment.reschedule_count || 0;
+  if (rescheduleCount >= 3) return false;
+  
+  // 3. Ensure the appointment hasn't already passed
+  const appointmentDateTime = new Date(`${appointment.appointment_date}T${appointment.start_time}`);
+  const now = new Date();
+  
+  if (appointmentDateTime < now) {
+    return false; // The appointment has already passed
   }
+  
+  // 4. Ensure today is not the same day as the appointment
+  const appointmentDate = new Date(appointment.appointment_date);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  if (appointmentDate.getFullYear() === today.getFullYear() &&
+      appointmentDate.getMonth() === today.getMonth() &&
+      appointmentDate.getDate() === today.getDate()) {
+    return false; // Same day
+  }
+  
+  // 5. Ensure it is more than 4 hours before the appointment
+  const hoursDifference = (appointmentDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+  const minimumHoursBeforeAppointment = 4;
+  
+  if (hoursDifference < minimumHoursBeforeAppointment) {
+    return false; // Less than 4 hours before the appointment
+  }
+  
+  return true;
+}
+
+getRescheduleMessage(appointment: any): string {
+  if (!appointment) return '';
+  
+  if (appointment.status !== 'confirmed') {
+    return 'Only confirmed appointments can be rescheduled.';
+  }
+  
+  const rescheduleCount = appointment.reschedule_count || 0;
+  if (rescheduleCount >= 3) {
+    return 'You have reached the maximum reschedule limit (3 times).';
+  }
+  
+  const appointmentDateTime = new Date(`${appointment.appointment_date}T${appointment.start_time}`);
+  const now = new Date();
+  
+  if (appointmentDateTime < now) {
+    return 'Cannot reschedule an appointment that has already passed.';
+  }
+  
+  const appointmentDate = new Date(appointment.appointment_date);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  if (appointmentDate.getFullYear() === today.getFullYear() &&
+      appointmentDate.getMonth() === today.getMonth() &&
+      appointmentDate.getDate() === today.getDate()) {
+    return 'Cannot reschedule an appointment on the same day.';
+  }
+  
+  const hoursDifference = (appointmentDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+  const minimumHoursBeforeAppointment = 4;
+  
+  if (hoursDifference < minimumHoursBeforeAppointment) {
+    return `Cannot reschedule an appointment less than ${minimumHoursBeforeAppointment} hours before the scheduled time.`;
+  }
+  
+  return 'Click to reschedule this appointment.';
+}
+
 
   get hasActiveFilters(): boolean {
     return !!(this.searchQuery || this.dateFrom || this.dateTo || this.selectedDoctor || this.selectedStatus !== 'all');
@@ -571,6 +648,14 @@ closeRescheduleModal(): void {
     end_time: '',
     reason_for_reschedule: ''
   };
+
+  setTimeout(() => {
+    const activeElement = document.activeElement as HTMLElement;
+    if (activeElement) {
+      activeElement.blur();
+    }
+  }, 100);
+
 }
 
 // This function converts a date from ISO format to YYYY-MM-DD
