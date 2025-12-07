@@ -3,14 +3,12 @@
     <section class="user-profile__header">
       <div class="user-profile__avatar-container">
         <div class="user-profile__avatar">
-          <ng-container *ngIf="profileImage && !avatarLoadError; else initialsAvatar">
+          <ng-container *ngIf="profileImage && !avatarLoadError; else defaultAvatar">
             <img [src]="profileImage" alt="User avatar" class="user-profile__avatar-img"
               (error)="handleAvatarError()" />
           </ng-container>
-          <ng-template #initialsAvatar>
-            <span class="user-profile__avatar-initials">
-              {{ getInitials(displayName || 'U') }}
-            </span>
+          <ng-template #defaultAvatar>
+            <img [src]="'assets/default-avatar.png'" alt="Default avatar" class="user-profile__avatar-img" />
           </ng-template>
           <div class="user-profile__avatar-overlay">
             <label class="user-profile__avatar-upload">
@@ -286,67 +284,7 @@
           </div>
         </div>
 
-        <!-- Admin Card -->
-        <div class="user-profile__card user-profile__card--admin" *ngIf="userRole === 'admin'">
-          <div class="user-profile__card-header">
-            <h2 class="user-profile__card-title">
-              <svg class="user-profile__card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2">
-                <path
-                  d="M12 15v2m-6 4h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2zm10-10V7a4 4 0 0 0-8 0v4h8z" />
-              </svg>
-              Administrative Information
-            </h2>
-          </div>
-          <div class="user-profile__grid" [formGroup]="adminForm">
-            <!-- Admin fields remain the same -->
-            <div class="user-profile__field">
-              <label class="user-profile__label">
-                Department
-                <div class="user-profile__input-container">
-                  <input type="text" formControlName="department" class="user-profile__input"
-                    placeholder="Your department" />
-                  <div class="user-profile__input-border"></div>
-                </div>
-              </label>
-            </div>
-            <div class="user-profile__field">
-              <label class="user-profile__label">
-                Admin Level
-                <div class="user-profile__input-container">
-                  <select formControlName="adminLevel" class="user-profile__select">
-                    <option value="">Select level</option>
-                    <option value="super_admin">Super Admin</option>
-                    <option value="admin">Admin</option>
-                    <option value="moderator">Moderator</option>
-                  </select>
-                  <div class="user-profile__select-arrow">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M6 9l6 6 6-6" />
-                    </svg>
-                  </div>
-                  <div class="user-profile__input-border"></div>
-                </div>
-              </label>
-            </div>
-            <div class="user-profile__field user-profile__field--full">
-              <label class="user-profile__label">
-                Permissions
-                <textarea formControlName="permissions" class="user-profile__textarea user-profile__textarea--code"
-                  placeholder='["permission1", "permission2"]' rows="3"></textarea>
-                <small class="user-profile__hint">
-                  <svg class="user-profile__hint-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2">
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M12 16v-4" />
-                    <path d="M12 8h.01" />
-                  </svg>
-                  Enter permissions as a JSON array
-                </small>
-              </label>
-            </div>
-          </div>
-        </div>
+
 
         <!-- Security Card -->
         <div class="user-profile__card user-profile__card--security">

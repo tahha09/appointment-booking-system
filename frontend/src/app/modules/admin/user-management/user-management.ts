@@ -31,8 +31,8 @@ export class UserManagement implements OnInit {
     private cdn: ChangeDetectorRef
   ) {}
 
-  // Fallback avatar image served from Laravel storage
-  readonly defaultAvatarUrl = 'http://localhost:8000/storage/default-avatar.png';
+  // Fallback avatar image served from frontend assets
+  readonly defaultAvatarUrl = 'assets/default-avatar.png';
   // Users loaded from backend (already filtered and paginated)
   users: AdminUser[] = [];
 

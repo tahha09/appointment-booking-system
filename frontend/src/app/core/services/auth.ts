@@ -306,7 +306,10 @@ export class Auth {
     if (!profileImage) {
       return null;
     }
-    if (profileImage.startsWith('http')) {
+    if (profileImage === 'assets/default-avatar.png' || profileImage.includes('/assets/default-avatar.png')) {
+      return null;
+    }
+    if (profileImage.startsWith('http://') || profileImage.startsWith('https://')) {
       return profileImage;
     } else {
       return `http://localhost:8000/storage/${profileImage}`;
