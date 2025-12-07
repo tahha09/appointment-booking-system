@@ -1,5 +1,6 @@
 import { AdminService } from './../../../core/services/admin';
 import { Auth } from '../../../core/services/auth';
+import { Notification } from '../../../core/services/notification';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -16,6 +17,7 @@ import { of } from 'rxjs'; // Added missing import
 export class SystemOverview implements OnInit {
   private adminService = inject(AdminService);
   private auth = inject(Auth);
+  private notification = inject(Notification);
 
   // Statistics
   stats = signal<DashboardStats>({
@@ -303,53 +305,73 @@ export class SystemOverview implements OnInit {
 
   // Doctor approval actions - Fixed ID type
   approveDoctor(doctorId: number): void {
-    if (!confirm('Are you sure you want to approve this doctor?')) {
-      return;
-    }
+    this.notification.confirm(
+      'Approve Doctor',
+      'Are you sure you want to approve this doctor? They will be able to provide medical services to patients.',
+      {
+        confirmButtonText: 'Yes, Approve',
+        cancelButtonText: 'Cancel'
+      }
+    ).then((result) => {
+      if (result.isConfirmed) {
+        this.processingDoctor.set(doctorId);
+        this.adminService.approveDoctor(doctorId).subscribe({
+          next: () => {
+            console.log('Doctor approved:', doctorId);
+            // Remove from pending list
+            const currentPending = this.pendingDoctors();
+            const updatedPending = currentPending.filter(d => d.id !== doctorId);
+            this.pendingDoctors.set(updatedPending);
 
-    this.processingDoctor.set(doctorId);
-    this.adminService.approveDoctor(doctorId).subscribe({
-      next: () => {
-        console.log('Doctor approved:', doctorId);
-        // Remove from pending list
-        const currentPending = this.pendingDoctors();
-        const updatedPending = currentPending.filter(d => d.id !== doctorId);
-        this.pendingDoctors.set(updatedPending);
+            // Reload stats to get accurate counts
+            this.loadDashboardStats();
+            this.processingDoctor.set(null);
 
-        // Reload stats to get accurate counts
-        this.loadDashboardStats();
-        this.processingDoctor.set(null);
-      },
-      error: (error) => {
-        console.error('Error approving doctor:', error);
-        alert('Failed to approve doctor. Please try again.');
-        this.processingDoctor.set(null);
+            // Show success message
+            this.notification.success('Doctor Approved', 'The doctor has been successfully approved and can now provide services.');
+          },
+          error: (error) => {
+            console.error('Error approving doctor:', error);
+            this.notification.error('Approval Failed', 'Failed to approve doctor. Please try again.');
+            this.processingDoctor.set(null);
+          }
+        });
       }
     });
   }
 
   rejectDoctor(doctorId: number): void {
-    if (!confirm('Are you sure you want to reject this doctor application? This action cannot be undone.')) {
-      return;
-    }
+    this.notification.confirm(
+      'Reject Doctor Application',
+      'Are you sure you want to reject this doctor application? This action cannot be undone and the doctor will need to reapply.',
+      {
+        confirmButtonText: 'Yes, Reject',
+        cancelButtonText: 'Cancel'
+      }
+    ).then((result) => {
+      if (result.isConfirmed) {
+        this.processingDoctor.set(doctorId);
+        this.adminService.rejectDoctor(doctorId).subscribe({
+          next: () => {
+            console.log('Doctor rejected:', doctorId);
+            // Remove from pending list
+            const currentPending = this.pendingDoctors();
+            const updatedPending = currentPending.filter(d => d.id !== doctorId);
+            this.pendingDoctors.set(updatedPending);
 
-    this.processingDoctor.set(doctorId);
-    this.adminService.rejectDoctor(doctorId).subscribe({
-      next: () => {
-        console.log('Doctor rejected:', doctorId);
-        // Remove from pending list
-        const currentPending = this.pendingDoctors();
-        const updatedPending = currentPending.filter(d => d.id !== doctorId);
-        this.pendingDoctors.set(updatedPending);
+            // Reload stats to get accurate counts
+            this.loadDashboardStats();
+            this.processingDoctor.set(null);
 
-        // Reload stats to get accurate counts
-        this.loadDashboardStats();
-        this.processingDoctor.set(null);
-      },
-      error: (error) => {
-        console.error('Error rejecting doctor:', error);
-        alert('Failed to reject doctor. Please try again.');
-        this.processingDoctor.set(null);
+            // Show success message
+            this.notification.success('Doctor Rejected', 'The doctor application has been rejected.');
+          },
+          error: (error) => {
+            console.error('Error rejecting doctor:', error);
+            this.notification.error('Rejection Failed', 'Failed to reject doctor application. Please try again.');
+            this.processingDoctor.set(null);
+          }
+        });
       }
     });
   }
@@ -368,7 +390,7 @@ export class SystemOverview implements OnInit {
       },
       error: (error) => {
         console.error('Error updating appointment:', error);
-        alert('Failed to update appointment status. Please try again.');
+        this.notification.error('Update Failed', 'Failed to update appointment status. Please try again.');
       }
     });
   }

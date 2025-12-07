@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DoctorController as AdminDoctorController;
 use App\Http\Controllers\Admin\AppointmentController as AdminAppointmentController;
@@ -78,6 +79,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('/logout', [LoginController::class, 'logout']);
 
+    // Google Auth Role Update
+    Route::post('/auth/google/update-role', [GoogleAuthController::class, 'updateRoleAfterGoogleAuth']);
+
     // General Profile Routes (for all users - patients, doctors, admins)
     Route::middleware('auth:sanctum')->prefix('profile')->group(function () {
         Route::get('/', [ProfileController::class, 'show']);
@@ -103,12 +107,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/doctors/{id}/availability', [PatientDoctorController::class, 'availability']);
 
         // Appointments
-        Route::get('/appointments', [PatientAppointmentController::class, 'index']); 
-        Route::get('/appointments/{id}', [PatientAppointmentController::class, 'show']); 
-        Route::post('/appointments', [PatientAppointmentController::class, 'store']); 
-        Route::put('/appointments/{id}/accept', [PatientAppointmentController::class, 'accept']); 
-        Route::put('/appointments/{id}/cancel', [PatientAppointmentController::class, 'cancel']); 
-        Route::put('/appointments/{id}/reschedule', [PatientAppointmentController::class, 'reschedule']); 
+        Route::get('/appointments', [PatientAppointmentController::class, 'index']);
+        Route::get('/appointments/{id}', [PatientAppointmentController::class, 'show']);
+        Route::post('/appointments', [PatientAppointmentController::class, 'store']);
+        Route::put('/appointments/{id}/accept', [PatientAppointmentController::class, 'accept']);
+        Route::put('/appointments/{id}/cancel', [PatientAppointmentController::class, 'cancel']);
+        Route::put('/appointments/{id}/reschedule', [PatientAppointmentController::class, 'reschedule']);
 
         // Medical Records
         Route::get('/medical-records', [PatientAppointmentController::class, 'medicalRecords']);

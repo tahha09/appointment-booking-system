@@ -10,7 +10,6 @@ import { Notification } from '../../../core/services/notification';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './login.html',
-  styleUrl: './login.scss',
 })
 export class Login {
   private readonly fb = inject(FormBuilder);
@@ -65,6 +64,10 @@ export class Login {
     requestAnimationFrame(animate);
   }
 
+  loginWithGoogle(): void {
+    window.location.href = 'http://localhost:8000/auth/google';
+  }
+
   onSubmit(): void {
     if (this.form.invalid || this.isSubmitting) {
       this.form.markAllAsTouched();
@@ -83,21 +86,17 @@ export class Login {
     this.auth.login({ email, password }).subscribe({
       next: () => {
         this.isSubmitting = false;
+
+        // Show success message and auto-redirect to home page
         this.notification
-          .success('Login successful', 'You are now logged in.', {
-            confirmButtonText: 'Go to dashboard',
+          .success('Login successful', 'Welcome back! Redirecting to home page...', {
+            timer: 2000, // Auto-close after 2 seconds
+            timerProgressBar: true,
+            showConfirmButton: false, // Hide the confirm button
           })
           .then(() => {
-            const role = this.auth.getRole();
-            if (role === 'patient') {
-              this.router.navigateByUrl('/patient');
-            } else if (role === 'doctor') {
-              this.router.navigateByUrl('/doctor');
-            } else if (role === 'admin') {
-              this.router.navigateByUrl('/admin');
-            } else {
-              this.router.navigateByUrl('/');
-            }
+            // Navigate to home page after alert closes
+            this.router.navigateByUrl('/');
           });
       },
       error: (error) => {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\User;
 use App\Traits\ApiResponse;
@@ -52,6 +53,17 @@ class RegisterController extends Controller
                 if ($user->role === 'patient') {
                     Patient::create([
                         'user_id' => $user->id,
+                    ]);
+                } elseif ($user->role === 'doctor') {
+                    Doctor::create([
+                        'user_id' => $user->id,
+                        'specialization_id' => $data['specializationId'],
+                        'license_number' => 'TEMP-' . $user->id . '-' . time(), // Temporary license number
+                        'experience_years' => 0,
+                        'consultation_fee' => 50.00, // Default fee
+                        'biography' => 'New doctor profile',
+                        'rating' => 0,
+                        'is_approved' => false, // Doctors need admin approval
                     ]);
                 }
 
