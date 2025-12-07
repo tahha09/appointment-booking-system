@@ -174,6 +174,15 @@ x
         </button>
       </div>
 
+      <div *ngIf="patientDetailsLoading" class="rounded-2xl border border-[#0c969c]/30 bg-[#0c969c]/5 px-4 py-3 flex items-center gap-3 text-sm text-[#0a7075] mb-4">
+        <span class="w-5 h-5 border-2 border-[#0c969c] border-t-transparent rounded-full animate-spin inline-block"></span>
+        Loading patient details...
+      </div>
+
+      <div *ngIf="patientDetailsError" class="rounded-2xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-500 mb-4">
+        {{ patientDetailsError }}
+      </div>
+
       <div *ngIf="selectedPatient" class="space-y-4">
         <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <div class="w-20 h-20 rounded-full bg-[#0c969c]/10 border-2 border-[#0c969c]/40 overflow-hidden flex-shrink-0">
@@ -222,6 +231,47 @@ x
         <div *ngIf="selectedPatient.medical_history" class="pt-4 border-t border-[#6ba3be]/30">
           <span class="text-xs sm:text-sm text-[#6ba3be]">Medical History:</span>
           <p class="text-sm mt-1">{{ selectedPatient.medical_history }}</p>
+        </div>
+
+        <div *ngIf="!patientDetailsLoading" class="pt-4 border-t border-[#6ba3be]/30">
+          <ng-container *ngIf="selectedPatient?.medical_images as medicalImages; else noMedicalImages">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs sm:text-sm text-[#6ba3be] uppercase tracking-wide">Medical Images</span>
+              <span class="text-xs text-[#6ba3be]">
+                {{ medicalImages.length }} record{{ medicalImages.length === 1 ? '' : 's' }}
+              </span>
+            </div>
+
+            <div class="space-y-3">
+              <div *ngFor="let record of medicalImages" class="rounded-2xl border border-[#d3e6eb] bg-[#f8feff] p-3 sm:p-4">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div>
+                    <p class="text-sm sm:text-base font-semibold text-[#031716]">
+                      {{ record.title || 'Untitled Record' }}
+                    </p>
+                    <p class="text-xs text-[#6ba3be] capitalize">{{ record.image_type || 'unknown' }}</p>
+                  </div>
+                  <div class="text-xs text-[#6ba3be]">
+                    {{ formatDate(record.created_at) }}
+                  </div>
+                </div>
+
+                <p class="text-sm text-[#032f30] mt-2" *ngIf="record.description">{{ record.description }}</p>
+
+                <div *ngIf="record.images?.length; else recordNoImages" class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
+                  <div *ngFor="let photo of record.images" class="relative rounded-xl border border-[#d7ebef] overflow-hidden bg-white">
+                    <img [src]="getMediaImageUrl(photo)" alt="Medical image" class="w-full h-32 object-cover" />
+                  </div>
+                </div>
+                <ng-template #recordNoImages>
+                  <p class="text-xs text-[#6ba3be] mt-3">No files attached to this record.</p>
+                </ng-template>
+              </div>
+            </div>
+          </ng-container>
+          <ng-template #noMedicalImages>
+            <p class="text-sm text-[#6ba3be]">No medical images available for this patient.</p>
+          </ng-template>
         </div>
       </div>
     </div>

@@ -11,10 +11,10 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('doctor_id')->constrained()->onDelete('cascade');
             $table->string('title');
-            $table->text('description')->nullable();
-            $table->string('issuing_organization')->nullable();
-            $table->date('issue_date')->nullable();
-            $table->date('expiry_date')->nullable();
+            $table->text('description');
+            $table->string('issuing_organization');
+            $table->date('issue_date');
+            $table->date('expiry_date');
             $table->json('images')->nullable(); // Store array of image paths
             $table->timestamps();
         });

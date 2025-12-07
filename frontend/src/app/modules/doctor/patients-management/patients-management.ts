@@ -5,6 +5,15 @@ import { FormsModule } from '@angular/forms';
 import { Auth } from '../../../core/services/auth';
 import { environment } from '../../../../environments/environment';
 
+interface MedicalImageRecord {
+  id: number;
+  title: string;
+  description?: string | null;
+  image_type: string;
+  images: string[];
+  created_at: string;
+}
+
 interface Patient {
   id: number;
   user_id: number;
@@ -22,9 +31,10 @@ interface Patient {
     phone: string;
     date_of_birth: string;
     address: string;
-    profile_image: string |'assets/default-avatar.png' | null;
-    profile_image_url?: string | 'assets/default-avatar.png' | null;
+    profile_image: string | null;
+    profile_image_url?: string | null;
   } | null;
+  medical_images?: MedicalImageRecord[];
 }
 
 interface Pagination {
@@ -59,6 +69,8 @@ export class PatientsManagement implements OnInit {
   showPatientModal = false;
   showMedicalHistoryModal = false;
   medicalHistory: any[] = [];
+  patientDetailsLoading = false;
+  patientDetailsError = '';
 
   constructor(
     private http: HttpClient,
@@ -181,6 +193,29 @@ export class PatientsManagement implements OnInit {
   viewPatientDetails(patient: Patient): void {
     this.selectedPatient = patient;
     this.showPatientModal = true;
+    this.patientDetailsLoading = true;
+    this.patientDetailsError = '';
+
+    const token = this.auth.getToken();
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
+
+    this.http
+      .get<{ success: boolean; data: Patient; message: string }>(
+        `${this.apiBase}/doctor/patients/${patient.id}`,
+        { headers }
+      )
+      .subscribe({
+        next: (res) => {
+          this.selectedPatient = res.data;
+          this.patientDetailsLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.patientDetailsError = err?.error?.message || 'Failed to load patient details.';
+          this.patientDetailsLoading = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   viewMedicalHistory(patient: Patient): void {
@@ -209,6 +244,8 @@ export class PatientsManagement implements OnInit {
   closePatientModal(): void {
     this.showPatientModal = false;
     this.selectedPatient = null;
+    this.patientDetailsLoading = false;
+    this.patientDetailsError = '';
   }
 
   closeMedicalHistoryModal(): void {
@@ -249,6 +286,23 @@ export class PatientsManagement implements OnInit {
     }
 
     const normalized = source.startsWith('storage/') ? source : `storage/${source}`;
+    return `${this.backendBaseUrl}/${normalized}`;
+  }
+
+  getMediaImageUrl(path: string): string {
+    if (!path) {
+      return 'assets/default-avatar.png';
+    }
+
+    if (/^(https?:)?\/\//.test(path) || path.startsWith('data:')) {
+      return path;
+    }
+
+    if (path.startsWith('/')) {
+      return `${this.backendBaseUrl}${path}`;
+    }
+
+    const normalized = path.startsWith('storage/') ? path : `storage/${path}`;
     return `${this.backendBaseUrl}/${normalized}`;
   }
 }

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use App\Models\MedicalImage;
 
 class Patient extends Model
 {
@@ -46,6 +47,11 @@ class Patient extends Model
     public function prescriptions()
     {
         return $this->hasMany(Prescription::class);
+    }
+
+    public function medicalImages()
+    {
+        return $this->hasMany(MedicalImage::class);
     }
 
     // Accessors

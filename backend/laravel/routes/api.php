@@ -14,6 +14,7 @@ use App\Http\Controllers\Doctor\ScheduleController;
 use App\Http\Controllers\Doctor\PatientController as DoctorPatientController;
 use App\Http\Controllers\Doctor\OverviewController;
 use App\Http\Controllers\Doctor\CertificateController;
+use App\Http\Controllers\Doctor\PrescriptionController as DoctorPrescriptionController;
 use App\Http\Controllers\Patient\AppointmentController as PatientAppointmentController;
 use App\Http\Controllers\Patient\DoctorController as PatientDoctorController;
 use App\Http\Controllers\Patient\ProfileController as PatientProfileController;
@@ -92,7 +93,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     // Keep legacy patient profile routes for backward compatibility
-    Route::prefix('patient')->middleware('role:patient')->group(function () {
+    Route::middleware(['auth:sanctum','role:patient'])->prefix('patient')->group(function () {
         // Dashboard
         Route::get('/dashboard', [PatientAppointmentController::class, 'dashboard']);
 
@@ -133,7 +134,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     // Doctor Routes
-    Route::middleware('auth:sanctum')->prefix('doctor')->group(function () {
+    Route::middleware(['auth:sanctum','role:doctor'])->prefix('doctor')->group(function () {
         // Dashboard
         Route::get('/dashboard', [DoctorAppointmentController::class, 'dashboard']);
 
@@ -145,6 +146,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/appointments/{id}', [DoctorAppointmentController::class, 'show']);
         Route::put('/appointments/{id}/status', [DoctorAppointmentController::class, 'updateStatus']);
         Route::post('/appointments/{id}/medical-notes', [DoctorAppointmentController::class, 'addMedicalNotes']);
+        Route::post('/appointments/{id}/prescriptions', [DoctorPrescriptionController::class, 'store']);
 
         // Schedule Management
         Route::get('/schedule', [ScheduleController::class, 'index']);
@@ -178,7 +180,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     // Admin Routes - temporarily without authentication for testing
-    Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
+    Route::middleware(['auth:sanctum','role:admin'])->prefix('admin')->group(function () {
         // Stats/Dashboard
         Route::get('/stats', [UserController::class, 'stats']);
 

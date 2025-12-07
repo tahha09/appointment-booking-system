@@ -44,10 +44,10 @@ class CertificateController extends Controller
 
             $validated = $request->validate([
                 'title' => 'required|string|max:255',
-                'description' => 'nullable|string',
-                'issuing_organization' => 'nullable|string|max:255',
-                'issue_date' => 'nullable|date',
-                'expiry_date' => 'nullable|date|after_or_equal:issue_date',
+                'description' => 'string',
+                'issuing_organization' => 'string|max:255',
+                'issue_date' => 'date',
+                'expiry_date' => 'date|after_or_equal:issue_date',
                 'images' => 'nullable|array',
                 'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
@@ -123,10 +123,10 @@ class CertificateController extends Controller
 
             $validated = $request->validate([
                 'title' => 'sometimes|required|string|max:255',
-                'description' => 'nullable|string',
-                'issuing_organization' => 'nullable|string|max:255',
-                'issue_date' => 'nullable|date',
-                'expiry_date' => 'nullable|date|after_or_equal:issue_date',
+                'description' => 'string',
+                'issuing_organization' => 'string|max:255',
+                'issue_date' => 'date',
+                'expiry_date' => 'date|after_or_equal:issue_date',
                 'images' => 'nullable|array',
                 'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
                 'remove_images' => 'nullable|array', // Array of image paths to remove

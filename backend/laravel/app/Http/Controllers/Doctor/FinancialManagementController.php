@@ -68,8 +68,8 @@ class FinancialManagementController extends Controller
                 ->count();
 
             // Calculate percentage change
-            $revenueChange = $lastMonthRevenue > 0 
-                ? (($thisMonthRevenue - $lastMonthRevenue) / $lastMonthRevenue) * 100 
+            $revenueChange = $lastMonthRevenue > 0
+                ? (($thisMonthRevenue - $lastMonthRevenue) / $lastMonthRevenue) * 100
                 : ($thisMonthRevenue > 0 ? 100 : 0);
 
             return $this->success([
@@ -109,7 +109,7 @@ class FinancialManagementController extends Controller
             for ($i = 5; $i >= 0; $i--) {
                 $date = $now->copy()->subMonths($i);
                 $monthKey = $date->format('Y-m');
-                
+
                 $revenue = Payment::whereIn('appointment_id', $appointmentIds)
                     ->where('status', 'completed')
                     ->whereYear('paid_at', $date->year)
@@ -175,7 +175,7 @@ class FinancialManagementController extends Controller
             $query->orderBy('paid_at', 'desc');
 
             // Pagination
-            $perPage = $request->get('per_page', 15);
+            $perPage = $request->get('per_page', 5);
             $payments = $query->paginate($perPage);
 
             return $this->success([

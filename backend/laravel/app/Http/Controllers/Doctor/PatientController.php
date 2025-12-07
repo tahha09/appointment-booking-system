@@ -8,6 +8,7 @@ use App\Models\Patient;
 use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\DB;
 use App\Notifications\PatientBlockNotifications;
+use Illuminate\Support\Facades\Storage;
 
 class PatientController extends Controller
 {
@@ -54,7 +55,7 @@ class PatientController extends Controller
             $query->orderByDesc('id');
 
             // Pagination
-            $perPage = $request->get('per_page', 15);
+            $perPage = $request->get('per_page', 5);
             $patients = $query->paginate($perPage);
 
             // Get blocked status for each patient
@@ -95,7 +96,13 @@ class PatientController extends Controller
 
             $doctorId = $user->doctor->id;
 
-            $patient = Patient::with(['user', 'appointments.medicalNote'])
+            $patient = Patient::with([
+                    'user',
+                    'appointments.medicalNote',
+                    'medicalImages' => function ($query) {
+                        $query->orderBy('created_at', 'desc');
+                    }
+                ])
                 ->whereHas('appointments', function ($query) use ($doctorId) {
                     $query->where('doctor_id', $doctorId);
                 })
@@ -113,6 +120,19 @@ class PatientController extends Controller
 
             $patientData = $patient->toArray();
             $patientData['is_blocked'] = $isBlocked;
+            $patientData['medical_images'] = $patient->medicalImages->map(function ($image) {
+                return [
+                    'id' => $image->id,
+                    'title' => $image->title,
+                    'description' => $image->description,
+                    'image_type' => $image->image_type,
+                    'images' => collect($image->images ?? [])->map(function ($path) {
+                        return Storage::url($path);
+                    })->toArray(),
+                    'created_at' => $image->created_at,
+                    'updated_at' => $image->updated_at,
+                ];
+            })->toArray();
 
             return $this->success($patientData, 'Patient retrieved successfully');
 

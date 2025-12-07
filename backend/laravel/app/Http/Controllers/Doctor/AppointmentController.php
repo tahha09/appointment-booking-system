@@ -42,11 +42,11 @@ class AppointmentController extends Controller
             }
 
             // Order by date and time
-            $query->orderBy('appointment_date', 'desc')
-                ->orderBy('start_time', 'desc');
+            $query->orderBy('created_at', 'desc');
+                // ->orderBy('start_time', 'desc');
 
             // Pagination
-            $perPage = $request->get('per_page', 15);
+            $perPage = $request->get('per_page', 5);
             $appointments = $query->paginate($perPage);
 
             return $this->success([
