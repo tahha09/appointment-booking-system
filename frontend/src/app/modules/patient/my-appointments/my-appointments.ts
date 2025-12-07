@@ -207,7 +207,7 @@ export class MyAppointments implements OnInit {
   submitReschedule(): void {
   if (!this.rescheduleAppointment) return;
 
-  console.log('Before processing:', this.rescheduleForm);
+
 
   // Step 1: Clean the data
   this.prepareRescheduleData();
@@ -220,7 +220,7 @@ export class MyAppointments implements OnInit {
   // Step 3: Prepare data for submission
   const formattedData = this.formatRescheduleData();
 
-  console.log('Sending to backend:', formattedData);
+
 
   // Step 4: Get confirmation from the user
   this.confirmReschedule(formattedData);
@@ -249,7 +249,7 @@ private prepareRescheduleData(): void {
     this.rescheduleForm.end_time = this.rescheduleForm.end_time.substring(0, 5);
   }
 
-  console.log('After processing:', this.rescheduleForm);
+
 }
 
 
@@ -408,7 +408,7 @@ private handleRescheduleError(err: any): void {
     reason_for_reschedule: ''
   };
 
-  console.log('Opening modal with:', this.rescheduleForm);
+
 
   this.showRescheduleModal = true;
 }
