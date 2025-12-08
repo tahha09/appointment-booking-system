@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Doctor;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Prescription;
+use App\Models\MedicalHistory;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -67,6 +68,29 @@ class PrescriptionController extends Controller
             if ($appointment->status !== 'completed') {
                 $appointment->update(['status' => 'completed']);
             }
+
+            // Create medical history record for the completed appointment
+            $medicalNote = $appointment->medicalNote;
+            $condition = $medicalNote ? $medicalNote->diagnosis : 'Appointment completed with prescription';
+            $diagnosis = $medicalNote ? $medicalNote->diagnosis : 'Consultation and prescription provided';
+            $treatment = $medicalNote ? $medicalNote->treatment : 'Prescribed: ' . $validated['medication_name'];
+            $notes = 'Prescription: ' . $validated['medication_name'] . ' (' . $validated['dosage'] . ')';
+            if ($validated['notes']) {
+                $notes .= ' - ' . $validated['notes'];
+            }
+            if ($medicalNote && $medicalNote->notes) {
+                $notes .= ' - ' . $medicalNote->notes;
+            }
+
+            MedicalHistory::create([
+                'patient_id' => $appointment->patient_id,
+                'doctor_id' => $doctor->id,
+                'condition' => $condition,
+                'diagnosis' => $diagnosis,
+                'treatment' => $treatment,
+                'notes' => $notes,
+                'visit_date' => $appointment->appointment_date,
+            ]);
 
             $prescription->load(['patient.user', 'doctor.user', 'doctor.specialization', 'appointment']);
 

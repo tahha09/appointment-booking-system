@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Appointment;
 use App\Models\MedicalNote;
+use App\Models\MedicalHistory;
 use App\Traits\ApiResponse;
 use App\Notifications\PatientNotifications;
 
@@ -107,6 +108,37 @@ class AppointmentController extends Controller
             }
 
             $appointment->update(['status' => $validated['status']]);
+
+            // Create medical history record if appointment is completed
+            if ($validated['status'] === 'completed') {
+                $medicalNote = $appointment->medicalNote;
+
+                // Check if medical history already exists for this appointment
+                $existingHistory = MedicalHistory::where('patient_id', $appointment->patient_id)
+                    ->where('doctor_id', $appointment->doctor_id)
+                    ->where('visit_date', $appointment->appointment_date)
+                    ->first();
+
+                if (!$existingHistory) {
+                    $condition = $medicalNote ? $medicalNote->diagnosis : 'Appointment completed';
+                    $diagnosis = $medicalNote ? $medicalNote->diagnosis : 'Consultation completed';
+                    $treatment = $medicalNote ? $medicalNote->treatment : 'Consultation completed';
+                    $notes = $appointment->notes ?: '';
+                    if ($medicalNote && $medicalNote->notes) {
+                        $notes .= ($notes ? ' - ' : '') . $medicalNote->notes;
+                    }
+
+                    MedicalHistory::create([
+                        'patient_id' => $appointment->patient_id,
+                        'doctor_id' => $appointment->doctor_id,
+                        'condition' => $condition,
+                        'diagnosis' => $diagnosis,
+                        'treatment' => $treatment,
+                        'notes' => $notes ?: null,
+                        'visit_date' => $appointment->appointment_date,
+                    ]);
+                }
+            }
 
             // Send notification to patient
            $patientUser = $appointment->patient->user;
