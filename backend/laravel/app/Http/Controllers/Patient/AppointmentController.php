@@ -340,12 +340,36 @@ class AppointmentController extends Controller
                 return $this->error('This doctor has restricted new appointments with your account.', 403);
             }
 
+            // Check if doctor is on holiday
             $isDoctorOnHoliday = Holiday::where('doctor_id', $doctorId)
                 ->whereDate('holiday_date', $appointmentDate->format('Y-m-d'))
                 ->exists();
 
             if ($isDoctorOnHoliday) {
-                return $this->error('The doctor is unavailable on the selected date due to a scheduled holiday.', 422);
+                return $this->error('The doctor is unavailable on the selected date due to a scheduled holiday. Please choose another day.', 422);
+            }
+
+            // Check if doctor has schedule for the selected day
+            $dayOfWeek = $appointmentDate->dayOfWeek; // 0 = Sunday, 6 = Saturday
+            $doctorSchedule = Schedule::where('doctor_id', $doctorId)
+                ->where('day_of_week', $dayOfWeek)
+                ->where('is_available', true)
+                ->first();
+
+            if (!$doctorSchedule) {
+                return $this->error('The doctor is not available on the selected day. Please choose another day.', 422);
+            }
+
+            // Check if the selected time is within doctor's schedule
+            $isTimeInSchedule = Schedule::where('doctor_id', $doctorId)
+                ->where('day_of_week', $dayOfWeek)
+                ->where('is_available', true)
+                ->where('start_time', '<=', $startTime)
+                ->where('end_time', '>=', $startTime)
+                ->exists();
+
+            if (!$isTimeInSchedule) {
+                return $this->error('The selected time is not within the doctor\'s available hours. Please choose a different time.', 422);
             }
 
             $overlappingAppointment = Appointment::where('patient_id', $patientId)
@@ -582,6 +606,15 @@ public function reschedule(Request $request, $id)
             return $this->error('You have another appointment at the same time with a different doctor.', 422);
         }
 
+        // Check if the doctor is on holiday (check this first before schedule)
+        $isDoctorOnHoliday = Holiday::where('doctor_id', $appointment->doctor_id)
+            ->whereDate('holiday_date', $appointmentDate)
+            ->exists();
+
+        if ($isDoctorOnHoliday) {
+            return $this->error('The doctor is unavailable on the selected date due to a scheduled holiday. Please choose another day.', 422);
+        }
+
         // Check if the doctor is available on the selected date
         $dayOfWeek = Carbon::parse($appointmentDate)->dayOfWeek; // 0 = Sunday, 6 = Saturday
         $doctorSchedule = Schedule::where('doctor_id', $appointment->doctor_id)
@@ -593,13 +626,16 @@ public function reschedule(Request $request, $id)
             return $this->error('The doctor is not available on the selected day. Please choose another day.', 422);
         }
 
-        // Check if the doctor is on holiday
-        $isDoctorOnHoliday = Holiday::where('doctor_id', $appointment->doctor_id)
-            ->whereDate('holiday_date', $appointmentDate)
+        // Check if the selected time is within doctor's schedule
+        $isTimeInSchedule = Schedule::where('doctor_id', $appointment->doctor_id)
+            ->where('day_of_week', $dayOfWeek)
+            ->where('is_available', true)
+            ->where('start_time', '<=', $validated['start_time'])
+            ->where('end_time', '>=', $validated['start_time'])
             ->exists();
 
-        if ($isDoctorOnHoliday) {
-            return $this->error('The doctor is unavailable on the selected date due to a scheduled holiday. Please choose another day.', 422);
+        if (!$isTimeInSchedule) {
+            return $this->error('The selected time is not within the doctor\'s available hours. Please choose a different time.', 422);
         }
 
         // Check if the time slot is already booked with the same doctor

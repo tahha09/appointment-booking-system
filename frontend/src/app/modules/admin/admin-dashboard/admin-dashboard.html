@@ -9,11 +9,12 @@
   <aside [class.sidebar-collapsed]="isSidebarCollapsed" [class.translate-x-0]="isMobileMenuOpen"
     class="sidebar fixed lg:relative flex flex-col w-64 lg:w-72 xl:w-80 h-screen bg-gradient-to-b from-[#031716] to-[#032F30] text-white shadow-2xl z-50 border-r border-[#0A7075] transition-all duration-300 ease-in-out">
     <!-- Logo Section -->
-    <div class="logo px-6 py-8 border-b border-[#0A7075] bg-[#032F30]/80 flex-shrink-0">
-      <h2 class="text-xl font-bold text-[#6BA3BE] flex items-center gap-3 whitespace-nowrap m-0">
-        <span>⚕️</span>
-        <span [class.hidden]="isSidebarCollapsed">MedAdmin</span>
-      </h2>
+    <div class="flex items-center gap-4 border-b border-[#0a7075] bg-[#021718]/90 px-6 py-6 text-white">
+      <img src="assets/logo.png" alt="CarePulse Logo" class="h-20 w-20 object-contain drop-shadow-lg" />
+      <div class="space-y-1">
+        <p class="text-[0.65rem] uppercase tracking-[0.35em] text-[#86d7df]">Admin Portal</p>
+        <p class="text-2xl font-semibold text-white">MedCare</p>
+      </div>
     </div>
 
     <!-- Navigation -->

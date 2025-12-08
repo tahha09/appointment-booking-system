@@ -2135,6 +2135,40 @@
   }
 }
 
+// Rating Modal Styles
+.star-rating {
+  font-size: 2.5rem;
+  color: #d1d5db;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  
+  &:hover,
+  &.hover {
+    color: #fbbf24;
+    transform: scale(1.1);
+  }
+  
+  &.active {
+    color: #fbbf24;
+    text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.reschedule-error {
+  animation: shake 0.3s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
 .reschedule-action-btn {
   padding: 0.4rem 1rem;
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.25));

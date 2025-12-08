@@ -4,16 +4,14 @@
   <aside
     class="fixed inset-y-0 left-0 z-30 flex w-72 -translate-x-full transform flex-col bg-gradient-to-b from-[#031716] via-[#042628] to-[#052f2f] text-slate-50 shadow-2xl transition duration-300 peer-checked:translate-x-0 md:sticky md:translate-x-0 h-screen"
     [class.w-72]="!isSidebarCollapsed" [class.w-20]="isSidebarCollapsed" [class.md:translate-x-0]="true">
-    <div class="flex items-center gap-4 border-b border-[#0a7075] bg-[#021718]/90 px-6 py-6 text-white h-24">
-      <div
-        class="h-10 w-10 bg-gradient-to-br from-[#0A7075] to-[#0D9488] rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-md flex-shrink-0">
-        M
-      </div>
-      <div class="space-y-1" [class.hidden]="isSidebarCollapsed">
+    <div class="flex items-center gap-4 border-b border-[#0a7075] bg-[#021718]/90 px-6 py-6 text-white">
+      <img src="assets/logo.png" alt="CarePulse Logo" class="h-20 w-20 object-contain drop-shadow-lg" />
+      <div class="space-y-1">
         <p class="text-[0.65rem] uppercase tracking-[0.35em] text-[#86d7df]">Patient Portal</p>
-        <p class="text-xl font-semibold text-white">MedBook</p>
+        <p class="text-2xl font-semibold text-white">MedCare</p>
       </div>
     </div>
+
 
     <nav class="flex flex-1 flex-col gap-2 overflow-y-auto px-4 py-6 text-sm font-semibold text-[#cfe5e7]">
       <span class="px-3 text-xs uppercase tracking-[0.4em] text-[#8fd0d9]"
@@ -142,15 +140,15 @@
         </div>
 
         <div class="flex items-center space-x-2 sm:space-x-4">
-          
+
           <!-- Book Appointment Button -->
-          <button type="button" (click)="bookNewAppointment()" class="hidden sm:flex text-white px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium" 
+          <button type="button" (click)="bookNewAppointment()" class="hidden sm:flex text-white px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium"
                   style="background-color: #167277"
-                  onmouseover="this.style.backgroundColor='#0c969c'; this.style.transform='translateY(-2px)'" 
+                  onmouseover="this.style.backgroundColor='#0c969c'; this.style.transform='translateY(-2px)'"
                   onmouseout="this.style.backgroundColor='#167277'; this.style.transform='translateY(0)'">
             Book New Appointment
           </button>
-          
+
           <!-- Mobile Book Button (Icon Only) -->
           <button type="button" (click)="bookNewAppointment()" class="sm:hidden p-2 rounded-lg transition-colors duration-200" style="color: #0A7075; background: rgba(10, 112, 117, 0.1)">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
