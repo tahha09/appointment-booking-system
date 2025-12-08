@@ -1,11 +1,41 @@
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, Validators, FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators, FormsModule, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
 import { Notification } from '../../../core/services/notification';
 
 type UserRole = 'patient' | 'doctor' | 'admin' | 'staff';
+
+// Custom validators
+export function phoneValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) {
+      return null; // Optional field
+    }
+    const phoneRegex = /^01\d{9}$/;
+    return phoneRegex.test(control.value) ? null : { invalidPhone: true };
+  };
+}
+
+export function dateOfBirthValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) {
+      return null; // Optional field
+    }
+    const selectedDate = new Date(control.value);
+    const today = new Date();
+    const minAgeDate = new Date(today.getFullYear() - 14, today.getMonth(), today.getDate());
+
+    if (selectedDate > today) {
+      return { futureDate: true };
+    }
+    if (selectedDate > minAgeDate) {
+      return { underage: true };
+    }
+    return null;
+  };
+}
 
 // Renamed from UserProfile to UserProfileData to avoid conflict
 interface UserProfileData {
@@ -80,8 +110,12 @@ export class UserProfile implements OnInit {
       nonNullable: true,
       validators: [Validators.required, Validators.email],
     }),
-    phone: this.fb.control(''),
-    dateOfBirth: this.fb.control(''),
+    phone: this.fb.control('', {
+      validators: [phoneValidator()],
+    }),
+    dateOfBirth: this.fb.control('', {
+      validators: [dateOfBirthValidator()],
+    }),
     address: this.fb.control(''),
   });
 

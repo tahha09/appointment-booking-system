@@ -19,11 +19,10 @@ use App\Http\Controllers\Patient\AppointmentController as PatientAppointmentCont
 use App\Http\Controllers\Patient\DoctorController as PatientDoctorController;
 use App\Http\Controllers\Patient\ProfileController as PatientProfileController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\AI\RecommendationController;
+use App\Http\Controllers\AI\MedicalAssistantController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Patient\SpecializationController;
 use App\Http\Controllers\ContactController;
-use App\Http\Controllers\AI\MedicalAssistantController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -223,9 +222,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // AI Routes (accessible by doctors and patients)
     Route::prefix('ai')->group(function () {
-        Route::middleware('role:patient')->post('/doctor-recommendation', [RecommendationController::class, 'recommendDoctors']);
-        Route::middleware('role:doctor')->post('/generate-medical-notes', [RecommendationController::class, 'generateMedicalNotes']);
-        Route::middleware('role:doctor')->get('/patient-summary/{patientId}', [RecommendationController::class, 'patientSummary']);
+        // RecommendationController import already removed. No other unused API controllers found in the routes/api.php file. No further changes needed.
     });
 
     // Shared Routes (accessible by multiple roles)
