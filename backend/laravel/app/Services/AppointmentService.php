@@ -132,4 +132,41 @@ class AppointmentService
 
         return $appointment;
     }
+
+    public function confirmAppointment($appointmentId)
+    {
+        return DB::transaction(function () use ($appointmentId) {
+            $appointment = Appointment::with(['payment', 'patient.user', 'doctor.user'])->findOrFail($appointmentId);
+
+            // Update appointment status to confirmed
+            $appointment->status = 'confirmed';
+            $appointment->save();
+
+            // Mark payment as completed if exists
+            if ($appointment->payment && $appointment->payment->status !== 'completed') {
+                $appointment->payment->markAsCompleted();
+
+                // Create notification for doctor about payment
+                $doctorUserId = $appointment->doctor->user_id;
+                Notification::create([
+                    'user_id' => $doctorUserId,
+                    'title' => 'Payment Received',
+                    'message' => "Payment of {$appointment->payment->formatted_amount} has been added to your account for the confirmed appointment with {$appointment->patient->user->name}.",
+                    'type' => 'success',
+                    'related_appointment_id' => $appointment->id,
+                ]);
+            }
+
+            // Create notification for patient
+            Notification::create([
+                'user_id' => $appointment->patient->user_id,
+                'title' => 'Appointment Confirmed',
+                'message' => "Your appointment with {$appointment->doctor->user->name} on {$appointment->appointment_date} has been confirmed.",
+                'type' => 'success',
+                'related_appointment_id' => $appointment->id,
+            ]);
+
+            return $appointment;
+        });
+    }
 }

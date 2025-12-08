@@ -15,7 +15,7 @@ return new class extends Migration
             $table->decimal('amount', 8, 2);
             $table->string('currency', 3)->default('USD');
             $table->enum('payment_method', ['credit_card', 'online_wallet', 'bank_transfer','cash'])->default('credit_card');
-            $table->enum('status', ['pending', 'completed', 'failed', 'refunded'])->default('pending');
+            $table->enum('status', ['pending', 'held', 'authorized', 'completed', 'failed', 'cancelled', 'refunded'])->default('pending');
             $table->string('transaction_id')->nullable();
             $table->json('payment_details')->nullable();
             $table->timestamp('paid_at')->nullable();

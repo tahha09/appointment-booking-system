@@ -9,11 +9,19 @@ use App\Models\MedicalNote;
 use App\Models\MedicalHistory;
 use App\Traits\ApiResponse;
 use App\Notifications\PatientNotifications;
+use App\Services\AppointmentService;
 
 
 class AppointmentController extends Controller
 {
     use ApiResponse;
+
+    protected $appointmentService;
+
+    public function __construct(AppointmentService $appointmentService)
+    {
+        $this->appointmentService = $appointmentService;
+    }
 
     public function index(Request $request)
     {
@@ -25,7 +33,9 @@ class AppointmentController extends Controller
             }
 
             $doctorId = $user->doctor->id;
-            $query = Appointment::with(['patient.user', 'doctor.user', 'payment'])
+            $query = Appointment::with(['patient.user', 'doctor.user', 'payment' => function ($query) {
+                $query->where('status', 'completed');
+            }])
                 ->forDoctor($doctorId);
 
             // Filter by status
@@ -108,6 +118,11 @@ class AppointmentController extends Controller
             }
 
             $appointment->update(['status' => $validated['status']]);
+
+            // Mark payment as completed if appointment is confirmed or completed
+            if (in_array($validated['status'], ['confirmed', 'completed']) && $appointment->payment && $appointment->payment->status !== 'completed') {
+                $appointment->payment->markAsCompleted();
+            }
 
             // Create medical history record if appointment is completed
             if ($validated['status'] === 'completed') {

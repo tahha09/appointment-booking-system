@@ -165,6 +165,9 @@ export class Payment implements OnInit {
     this.paymentForm.get('startTime')?.valueChanges.subscribe((slot) => {
       this.updateEndTime(slot);
     });
+    this.paymentForm.get('cardNumber')?.valueChanges.subscribe((value) => {
+      this.formatCardNumber(value);
+    });
 
     this.populatePatientDetails();
   }
@@ -254,6 +257,18 @@ export class Payment implements OnInit {
     Object.keys(this.paymentForm.controls).forEach((key) => {
       this.paymentForm.get(key)?.updateValueAndValidity({ emitEvent: false });
     });
+  }
+
+  private formatCardNumber(value: string | null): void {
+    if (!value) return;
+    // Remove all spaces and non-digit characters
+    const raw = value.replace(/\s+/g, '').replace(/\D/g, '');
+    // Limit to 16 digits
+    const limited = raw.substring(0, 16);
+    // Add spaces after every 4 digits
+    const formatted = limited.replace(/(\d{4})(?=\d)/g, '$1 ');
+    // Update the form control without emitting event to avoid infinite loop
+    this.paymentForm.get('cardNumber')?.setValue(formatted, { emitEvent: false });
   }
 
   private cardNumberValidator(control: AbstractControl): ValidationErrors | null {

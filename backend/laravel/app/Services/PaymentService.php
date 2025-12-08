@@ -32,6 +32,9 @@ class PaymentService
             // Calculate amount (use doctor's consultation fee)
             $amount = $appointment->doctor->consultation_fee;
 
+            // Determine initial status based on payment method
+            $initialStatus = ($paymentMethod === 'credit_card') ? 'held' : 'pending';
+
             // Create payment record
             $payment = Payment::create([
                 'appointment_id' => $appointmentId,
@@ -39,7 +42,7 @@ class PaymentService
                 'amount' => $amount,
                 'currency' => '$',
                 'payment_method' => $paymentMethod,
-                'status' => 'pending',
+                'status' => $initialStatus,
             ]);
 
             // For demo purposes, simulate payment gateway response
@@ -138,15 +141,7 @@ class PaymentService
             'related_appointment_id' => $payment->appointment_id,
         ]);
 
-        // Notification for doctor
-        $doctorUserId = $payment->appointment->doctor->user_id;
-        Notification::create([
-            'user_id' => $doctorUserId,
-            'title' => 'New Paid Appointment',
-            'message' => "You have a new paid appointment. Payment of {$payment->formatted_amount} received.",
-            'type' => 'info',
-            'related_appointment_id' => $payment->appointment_id,
-        ]);
+        // Doctor notification will be sent when appointment is confirmed
     }
 
     public function getPaymentStats($patientId = null)
