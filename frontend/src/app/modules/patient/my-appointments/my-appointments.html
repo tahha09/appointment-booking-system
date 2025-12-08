@@ -321,6 +321,32 @@
             </p>
           </div>
         </div>
+
+        <!-- Rating Section (for completed appointments) -->
+        <div *ngIf="selectedAppointment.status === 'completed'" class="detail-section detail-section--rating">
+          <div class="detail-label-wrapper">
+            <div class="detail-icon-box">
+              <i class="fas fa-star"></i>
+            </div>
+            <h3>Rate Your Experience</h3>
+          </div>
+          <div class="rating-wrapper">
+            <div *ngIf="existingRating" class="existing-rating">
+              <div class="stars-display">
+                <span *ngFor="let i of [1,2,3,4,5]" class="star" [class.filled]="i <= existingRating.rating">
+                  ★
+                </span>
+              </div>
+              <p *ngIf="existingRating.comment" class="rating-comment">{{ existingRating.comment }}</p>
+              <button (click)="openRatingModal(selectedAppointment)" class="edit-rating-btn">
+                <i class="fas fa-edit"></i> Edit Rating
+              </button>
+            </div>
+            <button *ngIf="!existingRating" (click)="openRatingModal(selectedAppointment)" class="rate-btn">
+              <i class="fas fa-star"></i> Rate Doctor
+            </button>
+          </div>
+        </div>
       </div>
 
       <div class="modal-footer">
@@ -563,4 +589,60 @@
     </div>
   </div>
 </div>
+
+  <!-- Rating Modal -->
+  <div *ngIf="showRatingModal && ratingAppointment" class="modal-overlay" (click)="closeRatingModal()">
+    <div class="modal-content rating-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-header-content">
+          <div class="modal-icon-wrapper">
+            <i class="fas fa-star"></i>
+          </div>
+          <div>
+            <h2>Rate Your Experience</h2>
+            <p class="modal-subtitle">Share your feedback about Dr. {{ ratingAppointment.doctor?.user?.name }}</p>
+          </div>
+        </div>
+        <button (click)="closeRatingModal()" class="close-btn" aria-label="Close modal">
+          ×
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="rating-section">
+          <label class="rating-label">Your Rating</label>
+          <div class="stars-input">
+            <span
+              *ngFor="let i of [1,2,3,4,5]"
+              class="star-input"
+              [class.active]="i <= rating"
+              (click)="setRating(i)">
+              ★
+            </span>
+          </div>
+          <p class="rating-hint">{{ rating === 0 ? 'Click to rate' : rating === 1 ? 'Poor' : rating === 2 ? 'Fair' : rating === 3 ? 'Good' : rating === 4 ? 'Very Good' : 'Excellent' }}</p>
+        </div>
+
+        <div class="comment-section">
+          <label class="comment-label">
+            <i class="fas fa-comment"></i> Comment (Optional)
+          </label>
+          <textarea
+            [(ngModel)]="ratingComment"
+            class="comment-input"
+            placeholder="Share your experience with this doctor..."
+            rows="4"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeRatingModal()" class="close-modal-btn">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+        <button (click)="submitRating()" [disabled]="rating === 0 || submittingRating" class="submit-rating-btn">
+          <i class="fas fa-check"></i> {{ submittingRating ? 'Submitting...' : (existingRating ? 'Update Rating' : 'Submit Rating') }}
+        </button>
+      </div>
+    </div>
+  </div>
 </main>

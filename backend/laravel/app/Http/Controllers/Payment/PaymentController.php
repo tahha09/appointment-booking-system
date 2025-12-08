@@ -123,24 +123,28 @@ class PaymentController extends Controller
                 return $this->error('Authenticated patient not found.', 404);
             }
 
-            $validated = $request->validate([
-                'doctor_id' => 'required|exists:doctors,id',
-                'doctor_name' => 'required|string|max:255',
-                'doctor_department' => 'nullable|string|max:255',
-                'fee' => 'required|numeric|min:0',
-                'amount' => 'required|numeric|min:0.01',
-                'currency' => 'nullable|string|size:3',
-                'payment_method' => 'required|in:credit_card,online_wallet,bank_transfer,cash',
-                'patient_name' => 'required|string|max:255',
-                'patient_email' => 'nullable|email|max:255',
-                'payment_details' => 'nullable|array',
-                'appointment_id' => 'nullable|exists:appointments,id',
-            ]);
+                $validated = $request->validate([
+                    'doctor_id' => 'required|exists:doctors,id',
+                    'doctor_name' => 'required|string|max:255',
+                    'doctor_department' => 'nullable|string|max:255',
+                    'fee' => 'required|numeric|min:0',
+                    // amount is required unless payment_method is cash
+                    'amount' => 'required_unless:payment_method,cash|numeric|min:0',
+                    'currency' => 'nullable|string|size:3',
+                    'payment_method' => 'required|in:credit_card,cash',
+                    'patient_name' => 'required|string|max:255',
+                    'patient_email' => 'nullable|email|max:255',
+                    'payment_details' => 'nullable|array',
+                    'appointment_id' => 'nullable|exists:appointments,id',
+                ]);
 
             $minimumDeposit = $validated['fee'] * 0.5;
-            if ($validated['amount'] < $minimumDeposit) {
-                return $this->error('Deposit must be at least 50% of the doctor fee.', 422);
-            }
+                // Only enforce minimum deposit for non-cash payments
+                if (($validated['payment_method'] ?? '') !== 'cash') {
+                    if (!isset($validated['amount']) || $validated['amount'] < $minimumDeposit) {
+                        return $this->error('Deposit must be at least 50% of the doctor fee.', 422);
+                    }
+                }
 
             $currency = strtoupper($validated['currency'] ?? 'USD');
             if (strlen($currency) !== 3) {
@@ -150,7 +154,8 @@ class PaymentController extends Controller
             $payment = Payment::create([
                 'appointment_id' => $validated['appointment_id'] ?? null,
                 'patient_id' => $patient->id,
-                'amount' => $validated['amount'],
+                    // store 0 when amount is not provided (e.g. cash on visit)
+                    'amount' => $validated['amount'] ?? 0,
                 'currency' => $currency,
                 'payment_method' => $validated['payment_method'],
                 'status' => 'completed',

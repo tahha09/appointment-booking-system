@@ -26,6 +26,15 @@ interface Appointment {
       profile_image_url?: string |'assets/default-avatar.png' | null;
     } | null;
   } | null;
+  // optional payment info (may be returned at top-level or nested)
+  amount?: number;
+  payment_method?: string;
+  payment_details?: any;
+  payment?: {
+    amount?: number;
+    payment_method?: string;
+    payment_details?: any;
+  } | null;
 }
 
 interface Pagination {
@@ -79,6 +88,13 @@ export class MyAppointments implements OnInit {
   selectedAppointmentForPrescription: Appointment | null = null;
   savingPrescription = false;
   prescriptionError = '';
+  // Patient details UI state used by the template
+  patientDetailsLoading = false;
+  patientDetailsError = '';
+
+  // Image modal state for medical images
+  showImageModal = false;
+  selectedImageForModal: string | null = null;
 
   constructor(
     private http: HttpClient,
@@ -339,6 +355,30 @@ export class MyAppointments implements OnInit {
 
   formatTime(timeString: string): string {
     return timeString || 'N/A';
+  }
+
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'EGP'
+    }).format(amount);
+  }
+
+  getMediaImageUrl(pathOrUrl: string | null | undefined): string {
+    if (!pathOrUrl) return '';
+    if (/^(https?:)?\/\//.test(pathOrUrl) || pathOrUrl.startsWith('data:')) return pathOrUrl;
+    const normalized = pathOrUrl.startsWith('storage/') ? pathOrUrl : `storage/${pathOrUrl}`;
+    return `${this.backendBaseUrl}/${normalized}`;
+  }
+
+  openImageModal(photo: string | null | undefined): void {
+    this.selectedImageForModal = this.getMediaImageUrl(photo ?? '');
+    this.showImageModal = true;
+  }
+
+  closeImageModal(): void {
+    this.showImageModal = false;
+    this.selectedImageForModal = null;
   }
 
   goToPage(page: number): void {

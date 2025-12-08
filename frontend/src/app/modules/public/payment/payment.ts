@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { HttpClient, HttpClientModule, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Auth } from '../../../core/services/auth';
 import { Appointment as AppointmentService } from '../../../core/services/appointment';
@@ -53,10 +53,9 @@ export class Payment implements OnInit {
     };
   }
 
+  // Only two options: credit card and cash on visit
   paymentMethods = [
-    { value: 'credit_card', label: 'Credit Card', description: 'Visa, Mastercard, Amex' },
-    { value: 'online_wallet', label: 'Online Wallet', description: 'PayPal, Apple Pay, etc.' },
-    { value: 'bank_transfer', label: 'Bank Transfer', description: 'Wire or local transfer' },
+    { value: 'credit_card', label: 'Credit Card', description: 'Pay deposit with card' },
     { value: 'cash', label: 'Cash on Visit', description: 'Pay remaining balance in clinic' },
   ];
   readonly currencyCode = 'USD';
@@ -90,8 +89,7 @@ export class Payment implements OnInit {
       cardNumber: [''],
       cardExpiry: [''],
       cardCvc: [''],
-      walletProvider: [''],
-      walletEmail: ['', Validators.email],
+
       bankAccountName: [''],
       bankAccountNumber: [''],
       bankReference: [''],
@@ -209,28 +207,110 @@ export class Payment implements OnInit {
       case 'credit_card':
         this.f['cardNumber'].setValidators([
           Validators.required,
+          Validators.pattern(/^[0-9 ]+$/),
           Validators.minLength(13),
           Validators.maxLength(19),
+          this.cardNumberValidator.bind(this),
         ]);
-        this.f['cardExpiry'].setValidators([Validators.required]);
-        this.f['cardCvc'].setValidators([Validators.required, Validators.minLength(3), Validators.maxLength(4)]);
-        break;
-      case 'online_wallet':
-        this.f['walletProvider'].setValidators([Validators.required]);
-        this.f['walletEmail'].setValidators([Validators.required, Validators.email]);
-        break;
-      case 'bank_transfer':
-        this.f['bankAccountName'].setValidators([Validators.required]);
-        this.f['bankAccountNumber'].setValidators([Validators.required]);
-        this.f['bankReference'].setValidators([Validators.required]);
+        this.f['cardExpiry'].setValidators([Validators.required, this.cardExpiryValidator.bind(this)]);
+        this.f['cardCvc'].setValidators([Validators.required, Validators.pattern(/^[0-9]{3,4}$/)]);
+        // Enable card and amount controls for credit card flow
+        const amountControl = this.paymentForm.get('amount');
+        if (amountControl) {
+          amountControl.enable({ emitEvent: false });
+          this.setAmountValidator(this.minimumDeposit);
+        }
+        ['cardNumber', 'cardExpiry', 'cardCvc'].forEach((name) => {
+          const c = this.paymentForm.get(name);
+          if (c) {
+            c.enable({ emitEvent: false });
+          }
+        });
         break;
       case 'cash':
-        this.f['cashNotes'].setValidators([Validators.required]);
+        // no extra validators for cash; nothing to display
+        // For cash on visit allow skipping deposit/amount and card details
+        // Disable and clear card + amount controls so they are ignored server-side
+        const amtCtrl = this.paymentForm.get('amount');
+        if (amtCtrl) {
+          amtCtrl.clearValidators();
+          amtCtrl.setValue(null, { emitEvent: false });
+          amtCtrl.updateValueAndValidity({ emitEvent: false });
+          amtCtrl.disable({ emitEvent: false });
+        }
+        ['cardNumber', 'cardExpiry', 'cardCvc'].forEach((name) => {
+          const c = this.paymentForm.get(name);
+          if (c) {
+            c.clearValidators();
+            c.setValue(null, { emitEvent: false });
+            c.updateValueAndValidity({ emitEvent: false });
+            c.disable({ emitEvent: false });
+          }
+        });
+        break;
+      default:
         break;
     }
     Object.keys(this.paymentForm.controls).forEach((key) => {
       this.paymentForm.get(key)?.updateValueAndValidity({ emitEvent: false });
     });
+  }
+
+  private cardNumberValidator(control: AbstractControl): ValidationErrors | null {
+    const raw = (control.value || '').toString().replace(/\s+/g, '');
+    if (!raw) {
+      return null;
+    }
+    if (!/^[0-9]+$/.test(raw)) {
+      return { pattern: true };
+    }
+    if (raw.length < 13 || raw.length > 19) {
+      return { length: true };
+    }
+    if (!this.luhnCheck(raw)) {
+      return { luhn: true };
+    }
+    return null;
+  }
+
+  private luhnCheck(num: string): boolean {
+    let sum = 0;
+    let shouldDouble = false;
+    for (let i = num.length - 1; i >= 0; i--) {
+      let digit = parseInt(num.charAt(i), 10);
+      if (shouldDouble) {
+        digit *= 2;
+        if (digit > 9) digit -= 9;
+      }
+      sum += digit;
+      shouldDouble = !shouldDouble;
+    }
+    return sum % 10 === 0;
+  }
+
+  private cardExpiryValidator(control: AbstractControl): ValidationErrors | null {
+    const val = control.value;
+    if (!val) return null;
+    // Expecting input type="month" which yields 'YYYY-MM'
+    let year: number | null = null;
+    let month: number | null = null;
+    if (typeof val === 'string' && /^\d{4}-\d{2}$/.test(val)) {
+      const parts = val.split('-');
+      year = Number(parts[0]);
+      month = Number(parts[1]);
+    } else if (typeof val === 'string' && /^\d{2}\/\d{2}$/.test(val)) {
+      // allow MM/YY
+      const parts = val.split('/');
+      month = Number(parts[0]);
+      const yy = Number(parts[1]);
+      year = 2000 + yy;
+    }
+    if (!year || !month || month < 1 || month > 12) return { invalid: true };
+    const expiry = new Date(year, month - 1 + 1, 1); // first day of month after expiry
+    const now = new Date();
+    const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    if (expiry <= thisMonthStart) return { expired: true };
+    return null;
   }
 
   private setAmountValidator(minValue: number): void {
@@ -628,10 +708,14 @@ export class Payment implements OnInit {
       this.errorMessage = 'Doctor information is missing.';
       return;
     }
-    const amount = Number(this.paymentForm.value.amount);
-    if (this.minimumDeposit > 0 && amount < this.minimumDeposit) {
-      this.errorMessage = `Please pay at least ${this.minimumDeposit.toFixed(2)} to secure the appointment.`;
-      return;
+    const amountRaw = this.paymentForm.value.amount;
+    const amount = amountRaw === null || amountRaw === '' ? NaN : Number(amountRaw);
+    // Only enforce minimum deposit when not paying cash on visit
+    if (this.selectedMethod !== 'cash') {
+      if (this.minimumDeposit > 0 && (isNaN(amount) || amount < this.minimumDeposit)) {
+        this.errorMessage = `Please pay at least ${this.minimumDeposit.toFixed(2)} to secure the appointment.`;
+        return;
+      }
     }
 
     const appointmentDate = this.paymentForm.value.appointmentDate;
@@ -647,12 +731,14 @@ export class Payment implements OnInit {
       return;
     }
 
+    const amountForPayload = this.selectedMethod === 'cash' && (isNaN(amount) || amount <= 0) ? 0 : amount;
+
     const payload = {
       doctor_id: this.doctorInfo.id,
       doctor_name: this.doctorInfo.name,
       doctor_department: this.doctorInfo.department,
       fee: this.doctorInfo.fee,
-      amount,
+      amount: amountForPayload,
       currency: this.currencyCode,
       payment_method: this.selectedMethod,
       patient_name: this.paymentForm.value.patientName,

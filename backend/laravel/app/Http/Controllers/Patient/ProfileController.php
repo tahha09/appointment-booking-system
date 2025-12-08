@@ -35,6 +35,7 @@ class ProfileController extends Controller
                 : null,
             'address' => $user->address,
             'profileImage' => $user->profile_image_url,
+            'bloodType' => $patient->blood_type ?? null,
         ], 'Profile retrieved successfully');
     }
 
@@ -90,6 +91,12 @@ class ProfileController extends Controller
 
         $user->save();
 
+        // Update patient-specific fields
+        if (isset($data['bloodType'])) {
+            $patient->blood_type = $data['bloodType'];
+            $patient->save();
+        }
+
         return $this->success([
             'fullName' => $user->name,
             'email' => $user->email,
@@ -99,6 +106,7 @@ class ProfileController extends Controller
                 : null,
             'address' => $user->address,
             'profileImage' => $user->profile_image_url,
+            'bloodType' => $patient->blood_type ?? null,
         ], 'Profile updated successfully');
     }
 

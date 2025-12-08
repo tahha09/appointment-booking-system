@@ -142,6 +142,25 @@
             <!-- Patient fields remain the same -->
             <div class="user-profile__field">
               <label class="user-profile__label">
+                Blood Type
+                <div class="user-profile__input-container">
+                  <select formControlName="bloodType" class="user-profile__input">
+                    <option value="">Select Blood Type</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                  </select>
+                  <div class="user-profile__input-border"></div>
+                </div>
+              </label>
+            </div>
+            <div class="user-profile__field">
+              <label class="user-profile__label">
                 Medical History
                 <textarea formControlName="medicalHistory" class="user-profile__textarea"
                   placeholder="Your medical history" rows="3"></textarea>

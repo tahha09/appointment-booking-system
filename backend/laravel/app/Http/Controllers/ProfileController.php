@@ -78,6 +78,7 @@ class ProfileController extends Controller
         $responseData['emergencyContact'] = $patient->emergency_contact ?? null;
         $responseData['insuranceProvider'] = $patient->insurance_provider ?? null;
         $responseData['insurancePolicyNumber'] = $patient->insurance_policy_number ?? null;
+        $responseData['bloodType'] = $patient->blood_type ?? null;
     }
 
     private function addDoctorData(User $user, array &$responseData): void
@@ -214,6 +215,7 @@ class ProfileController extends Controller
         $patient->emergency_contact = $data['emergencyContact'] ?? $patient->emergency_contact;
         $patient->insurance_provider = $data['insuranceProvider'] ?? $patient->insurance_provider;
         $patient->insurance_policy_number = $data['insurancePolicyNumber'] ?? $patient->insurance_policy_number;
+        $patient->blood_type = $data['bloodType'] ?? $patient->blood_type;
 
         $patient->save();
     }
