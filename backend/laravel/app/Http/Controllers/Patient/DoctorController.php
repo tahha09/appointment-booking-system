@@ -27,7 +27,8 @@ class DoctorController extends Controller
 
             // Filter by specialization
             if ($request->has('specialization_id')) {
-                $query->where('specialization_id', $request->specialization_id);
+                $specializationIds = explode(',', $request->specialization_id);
+                $query->whereIn('specialization_id', $specializationIds);
             }
 
             // Search by name
@@ -38,7 +39,8 @@ class DoctorController extends Controller
                 });
             }
 
-            $doctors = $query->orderBy('rating', 'desc')->paginate(12);
+            $perPage = (int) $request->get('per_page', 6);
+            $doctors = $query->orderBy('rating', 'desc')->paginate($perPage);
 
             return response()->json([
                 'success' => true,

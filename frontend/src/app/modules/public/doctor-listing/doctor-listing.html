@@ -62,105 +62,246 @@
       </div>
     </div>
 
-    <!-- Doctors Grid - Simplified Cards -->
-    <div *ngIf="!loading && !error && doctors.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      <div *ngFor="let doctor of doctors"
-        class="group bg-gradient-to-br from-[#032F30] to-[#1a3d4d] rounded-2xl shadow-2xl overflow-hidden border border-[#0A7075] hover:border-[#0C969C] transition-all duration-500 hover:shadow-3xl hover:shadow-[#0A7075]/30 transform hover:-translate-y-2">
+    <!-- Main Content -->
+    <div *ngIf="!loading && !error" class="flex flex-col lg:flex-row gap-8">
 
-        <!-- Card Header -->
-        <div class="p-6 border-b border-[#0A7075] bg-gradient-to-r from-[#0A7075]/10 to-[#0C969C]/5">
-          <div class="flex items-start justify-between">
-            <div class="flex-1">
-              <h3 class="text-xl font-bold text-[#6BA3BE] mb-2">{{ doctor.user.name }}</h3>
-              <p class="text-[#0C969C] font-semibold text-sm">{{ doctor.specialization.name }}</p>
-            </div>
-            <div class="bg-gradient-to-br from-[#0A7075] to-[#0C969C] text-white rounded-xl w-12 h-12 flex items-center justify-center shadow-lg">
-              <span class="text-sm font-bold">MD</span>
+      <!-- Sidebar - Filters -->
+      <div class="lg:w-1/4">
+        <div
+          class="bg-gradient-to-br from-[#032F30] to-[#1a3d4d] rounded-2xl shadow-2xl border border-[#0A7075] p-6 sticky top-8">
+
+          <!-- Search Box -->
+          <div class="mb-6">
+            <label for="search" class="block text-sm font-medium text-[#6BA3BE] mb-2">Search Doctors</label>
+            <div class="relative">
+              <input id="search" type="text" [(ngModel)]="searchTerm" (input)="onSearchChange()"
+                placeholder="Search by name..."
+                class="w-full bg-[#031716] border border-[#274D60] rounded-xl pl-10 pr-4 py-3 text-[#0C969C] placeholder-[#0C969C]/50 focus:outline-none focus:border-[#0A7075] focus:ring-1 focus:ring-[#0A7075] transition-colors duration-300">
+              <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#0C969C]" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 018 0z" />
+              </svg>
             </div>
           </div>
-        </div>
 
-        <!-- Card Content -->
-        <div class="p-6 space-y-4">
-          <!-- Rating -->
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <div class="flex items-center space-x-1">
-                <span *ngFor="let star of getStarRating(doctor.rating)" class="text-lg">
-                  <span *ngIf="star === 1" class="text-yellow-400">★</span>
-                  <span *ngIf="star === 0.5" class="text-yellow-400">½</span>
-                  <span *ngIf="star === 0" class="text-gray-600">☆</span>
-                </span>
+          <!-- Specializations Filter -->
+          <div class="mb-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-bold text-[#6BA3BE]">Specializations</h3>
+              <button *ngIf="selectedSpecializations.length > 0" (click)="clearFilters()"
+                class="text-sm text-[#0C969C] hover:text-[#6BA3BE] transition-colors duration-300">
+                Clear All
+              </button>
+            </div>
+
+            <div class="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
+              <div *ngFor="let spec of allSpecializations"
+                class="flex items-center space-x-3 p-3 rounded-lg border border-[#274D60] hover:border-[#0C969C] transition-colors duration-300 cursor-pointer group"
+                [class.bg-[#0A7075]/20]="isSelected(spec.id)" (click)="onSpecializationToggle(spec.id, $event)">
+
+                <div class="flex items-center" (click)="$event.stopPropagation()">
+                  <input type="checkbox" [checked]="isSelected(spec.id)"
+                    (change)="onSpecializationToggle(spec.id, $event)"
+                    class="w-4 h-4 text-[#0A7075] bg-[#031716] border-[#274D60] rounded focus:ring-[#0A7075] focus:ring-2 cursor-pointer">
+                </div>
+
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-[#6BA3BE] truncate">{{ spec.name }}</p>
+                  <p class="text-xs text-[#0C969C] truncate">{{ spec.doctors_count }} doctors</p>
+                </div>
+
+                <div class="w-2 h-2 rounded-full bg-[#0A7075] group-hover:bg-[#0C969C] transition-colors duration-300"
+                  [class.bg-[#0C969C]]="isSelected(spec.id)"></div>
               </div>
-              <span class="text-[#6BA3BE] font-bold">{{ doctor.rating }}</span>
-            </div>
-            <span class="bg-[#274D60] text-[#6BA3BE] px-3 py-1 rounded-full text-xs font-medium">
-              {{ doctor.experience_years }}+ years
-            </span>
-          </div>
-
-          <!-- Quick Info -->
-          <div class="space-y-2">
-            <div class="flex items-center text-[#0C969C] text-sm">
-              <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
-              </svg>
-              <span>{{ doctor.user.phone }}</span>
-            </div>
-            <div class="flex items-center text-[#0C969C] text-sm">
-              <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-              </svg>
-              <span class="truncate">{{ doctor.user.address }}</span>
             </div>
           </div>
 
-          <!-- Consultation Fee -->
-          <div class="bg-[#031716] rounded-lg p-3 border border-[#274D60]">
-            <div class="flex justify-between items-center">
-              <span class="text-[#0C969C] text-sm">Consultation Fee</span>
-              <span class="text-[#6BA3BE] font-bold text-lg">${{ doctor.consultation_fee }}</span>
+          <!-- Results Count -->
+          <div class="bg-[#031716] rounded-xl p-4 border border-[#274D60]">
+            <div class="text-center">
+              <p class="text-sm text-[#0C969C]">Showing</p>
+              <p class="text-2xl font-bold text-[#6BA3BE]">{{ doctors.length }}</p>
+              <p class="text-sm text-[#0C969C]">of {{ totalItems }} doctors</p>
             </div>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="flex space-x-3 pt-2">
-            <button
-              (click)="bookAppointment(doctor)"
-              class="flex-1 bg-gradient-to-r from-[#0A7075] to-[#0C969C] hover:from-[#0C969C] hover:to-[#0A7075] text-white py-3 px-4 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-              </svg>
-              <span class="text-sm">Book Now</span>
-            </button>
-            <button
-              (click)="viewDoctorDetails(doctor)"
-              class="bg-gradient-to-r from-[#274D60] to-[#032F30] hover:from-[#2a5a70] hover:to-[#274D60] text-[#6BA3BE] p-3 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-            </button>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Empty State -->
-    <div *ngIf="!loading && !error && doctors.length === 0" class="flex items-center justify-center py-20">
-      <div class="bg-gradient-to-br from-[#032F30] to-[#274D60] rounded-2xl p-12 max-w-2xl text-center border border-[#0A7075] shadow-2xl">
-        <div class="w-24 h-24 bg-gradient-to-br from-[#0A7075] to-[#0C969C] rounded-full flex items-center justify-center mx-auto mb-6">
-          <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
+      <!-- Main Content - Doctors Grid -->
+      <div class="lg:w-3/4">
+
+        <!-- Results Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
+          <div>
+            <h2 class="text-2xl font-bold text-[#6BA3BE]">Available Doctors</h2>
+            <p class="text-[#0C969C] mt-1">
+              Page {{ currentPage }} of {{ totalPages }} •
+              Showing {{ doctors.length }} of {{ totalItems }} results
+            </p>
+          </div>
+
+          <!-- Active Filters -->
+          <div *ngIf="selectedSpecializations.length > 0" class="flex items-center space-x-2 mt-2 sm:mt-0">
+            <span class="text-sm text-[#0C969C]">Active filters:</span>
+            <div class="flex flex-wrap gap-2">
+              <span *ngFor="let specId of selectedSpecializations"
+                class="bg-[#0A7075] text-white px-3 py-1 rounded-full text-xs flex items-center space-x-1">
+                <span>{{ getSpecializationName(specId) }}</span>
+                <button (click)="removeSpecializationFilter(specId)" class="hover:text-red-200 ml-1 transition-colors duration-200">
+                  ×
+                </button>
+              </span>
+            </div>
+          </div>
         </div>
-        <h3 class="text-2xl font-bold text-[#6BA3BE] mb-4">No Specialists Available</h3>
-        <p class="text-[#0C969C] text-lg mb-8 leading-relaxed">
-          We're currently updating our specialist listings to bring you the best healthcare professionals. Please check back soon for available appointments.
-        </p>
-        <button (click)="loadDoctors()"
-          class="bg-gradient-to-r from-[#0A7075] to-[#0C969C] hover:from-[#0C969C] hover:to-[#0A7075] text-white px-8 py-3 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 shadow-lg">
-          Refresh List
-        </button>
+
+        <!-- Doctors Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div *ngFor="let doctor of doctors"
+            class="group bg-gradient-to-br from-[#032F30] to-[#1a3d4d] rounded-2xl shadow-2xl overflow-hidden border border-[#0A7075] hover:border-[#0C969C] transition-all duration-500 hover:shadow-3xl hover:shadow-[#0A7075]/30 transform hover:-translate-y-2">
+
+            <!-- Card Header -->
+            <div class="p-6 border-b border-[#0A7075] bg-gradient-to-r from-[#0A7075]/10 to-[#0C969C]/5">
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <h3 class="text-xl font-bold text-[#6BA3BE] mb-2">{{ doctor.user.name }}</h3>
+                  <p class="text-[#0C969C] font-semibold text-sm">{{ doctor.specialization.name }}</p>
+                </div>
+                <div class="bg-gradient-to-br from-[#0A7075] to-[#0C969C] text-white rounded-xl w-12 h-12 flex items-center justify-center shadow-lg">
+                  <span class="text-sm font-bold">MD</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card Content -->
+            <div class="p-6 space-y-4">
+              <!-- Rating -->
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                  <div class="flex items-center space-x-1">
+                    <span *ngFor="let star of getStarRating(doctor.rating)" class="text-lg">
+                      <span *ngIf="star === 1" class="text-yellow-400">★</span>
+                      <span *ngIf="star === 0.5" class="text-yellow-400">½</span>
+                      <span *ngIf="star === 0" class="text-gray-600">☆</span>
+                    </span>
+                  </div>
+                  <span class="text-[#6BA3BE] font-bold">{{ doctor.rating }}</span>
+                </div>
+                <span class="bg-[#274D60] text-[#6BA3BE] px-3 py-1 rounded-full text-xs font-medium">
+                  {{ doctor.experience_years }}+ years
+                </span>
+              </div>
+
+              <!-- Quick Info -->
+              <div class="space-y-2">
+                <div class="flex items-center text-[#0C969C] text-sm">
+                  <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                  </svg>
+                  <span>{{ doctor.user.phone }}</span>
+                </div>
+                <div class="flex items-center text-[#0C969C] text-sm">
+                  <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                  </svg>
+                  <span class="truncate">{{ doctor.user.address }}</span>
+                </div>
+              </div>
+
+              <!-- Consultation Fee -->
+              <div class="bg-[#031716] rounded-lg p-3 border border-[#274D60]">
+                <div class="flex justify-between items-center">
+                  <span class="text-[#0C969C] text-sm">Consultation Fee</span>
+                  <span class="text-[#6BA3BE] font-bold text-lg">${{ doctor.consultation_fee }}</span>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex space-x-3 pt-2">
+                <button
+                  (click)="bookAppointment(doctor)"
+                  class="flex-1 bg-gradient-to-r from-[#0A7075] to-[#0C969C] hover:from-[#0C969C] hover:to-[#0A7075] text-white py-3 px-4 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  <span class="text-sm">Book Now</span>
+                </button>
+                <button
+                  (click)="viewDoctorDetails(doctor)"
+                  class="bg-gradient-to-r from-[#274D60] to-[#032F30] hover:from-[#2a5a70] hover:to-[#274D60] text-[#6BA3BE] p-3 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div *ngIf="totalPages > 1" class="flex flex-col sm:flex-row items-center justify-between mt-8 space-y-4 sm:space-y-0">
+          <div class="text-sm text-[#0C969C]">
+            <p>
+              Page {{ currentPage }} of {{ totalPages }} •
+              Showing {{ doctors.length }} of {{ totalItems }} results
+            </p>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <!-- Previous Button -->
+            <button (click)="previousPage()" [disabled]="currentPage === 1"
+              [class]="currentPage === 1 ? 'opacity-50 cursor-not-allowed bg-[#032F30] border border-[#274D60] text-[#6BA3BE] px-4 py-2 rounded-xl' : 'bg-[#032F30] border border-[#274D60] text-[#6BA3BE] px-4 py-2 rounded-xl hover:bg-[#0A7075] hover:text-white transition-all duration-300'"
+              class="flex items-center space-x-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+              <span>Previous</span>
+            </button>
+
+            <!-- Page Numbers -->
+            <div class="flex space-x-1">
+              <button *ngFor="let page of getPageNumbers()" (click)="goToPage(page)"
+                [class]="page === currentPage ? 'bg-[#0A7075] text-white' : 'bg-[#032F30] text-[#6BA3BE] hover:bg-[#0A7075] hover:text-white'"
+                class="w-10 h-10 rounded-xl border border-[#274D60] transition-all duration-300 font-medium">
+                {{ page }}
+              </button>
+            </div>
+
+            <!-- Next Button -->
+            <button (click)="nextPage()" [disabled]="currentPage === totalPages"
+              [class]="currentPage === totalPages ? 'opacity-50 cursor-not-allowed bg-[#032F30] border border-[#274D60] text-[#6BA3BE] px-4 py-2 rounded-xl' : 'bg-[#032F30] border border-[#274D60] text-[#6BA3BE] px-4 py-2 rounded-xl hover:bg-[#0A7075] hover:text-white transition-all duration-300'"
+              class="flex items-center space-x-2">
+              <span>Next</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="doctors.length === 0 && !loading" class="text-center py-12">
+          <div
+            class="bg-gradient-to-br from-[#032F30] to-[#274D60] rounded-2xl p-12 max-w-2xl mx-auto border border-[#0A7075] shadow-2xl">
+            <div
+              class="w-24 h-24 bg-gradient-to-br from-[#0A7075] to-[#0C969C] rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-[#6BA3BE] mb-4">No Doctors Found</h3>
+            <p class="text-[#0C969C] text-lg mb-8 leading-relaxed">
+              No doctors match your current filters. Try adjusting your search criteria or clear filters to see
+              all available doctors.
+            </p>
+            <button (click)="clearFilters()"
+              class="bg-gradient-to-r from-[#0A7075] to-[#0C969C] hover:from-[#0C969C] hover:to-[#0A7075] text-white px-8 py-3 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 shadow-lg">
+              Clear Filters
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
