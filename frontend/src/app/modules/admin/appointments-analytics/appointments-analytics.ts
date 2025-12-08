@@ -11,6 +11,7 @@ interface AnalyticsOverview {
   last_month_appointments: number;
   appointment_change_percent: number;
   total_revenue: number;
+  hospital_revenue?: number;
   this_month_revenue: number;
   last_month_revenue: number;
   revenue_change_percent: number;
@@ -79,6 +80,7 @@ interface PatientAnalytics {
     name: string;
     email: string;
     appointment_count: number;
+    created_at: string;
   }>;
   current_page: number;
   per_page: number;
@@ -165,6 +167,10 @@ export class AppointmentsAnalytics implements OnInit {
       .subscribe({
         next: (res) => {
           this.overview = res.data;
+          // Calculate hospital revenue as 5% of total revenue
+          if (this.overview) {
+            this.overview.hospital_revenue = this.overview.total_revenue * 0.2;
+          }
           this.loading.overview = false;
           this.cdr.detectChanges();
         },
@@ -454,5 +460,13 @@ export class AppointmentsAnalytics implements OnInit {
 
   getPatientPages(): number[] {
     return Array.from({ length: this.totalPatientPages }, (_, i) => i + 1);
+  }
+
+  // Check if patient is new (created within last 3 months)
+  isNewPatient(createdAt: string): boolean {
+    const createdDate = new Date(createdAt);
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+    return createdDate >= threeMonthsAgo;
   }
 }

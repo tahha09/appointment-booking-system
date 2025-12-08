@@ -33,7 +33,7 @@ class FinancialManagementController extends Controller
                 ->where('appointments.doctor_id', $doctorId)
                 ->whereIn('appointments.status', ['confirmed', 'completed'])
                 ->where('payments.status', 'completed')
-                ->sum('payments.amount');
+                ->sum('payments.amount') * 0.80; // Deduct 5% hospital cut
 
             // This month revenue
             $thisMonthRevenue = Payment::join('appointments', 'payments.appointment_id', '=', 'appointments.id')
@@ -42,7 +42,7 @@ class FinancialManagementController extends Controller
                 ->where('payments.status', 'completed')
                 ->whereMonth('payments.paid_at', Carbon::now()->month)
                 ->whereYear('payments.paid_at', Carbon::now()->year)
-                ->sum('payments.amount');
+                ->sum('payments.amount') * 0.80; // Deduct 5% hospital cut
 
             // Last month revenue
             $lastMonthRevenue = Payment::join('appointments', 'payments.appointment_id', '=', 'appointments.id')
@@ -51,7 +51,7 @@ class FinancialManagementController extends Controller
                 ->where('payments.status', 'completed')
                 ->whereMonth('payments.paid_at', Carbon::now()->subMonth()->month)
                 ->whereYear('payments.paid_at', Carbon::now()->subMonth()->year)
-                ->sum('payments.amount');
+                ->sum('payments.amount') * 0.80; // Deduct 5% hospital cut
 
             // Total completed payments
             $totalPayments = Payment::join('appointments', 'payments.appointment_id', '=', 'appointments.id')
@@ -124,7 +124,7 @@ class FinancialManagementController extends Controller
                     ->where('payments.status', 'completed')
                     ->whereYear('payments.paid_at', $date->year)
                     ->whereMonth('payments.paid_at', $date->month)
-                    ->sum('payments.amount');
+                    ->sum('payments.amount') * 0.80; // Deduct 5% hospital cut
 
                 $count = Payment::join('appointments', 'payments.appointment_id', '=', 'appointments.id')
                     ->where('appointments.doctor_id', $doctorId)
@@ -226,7 +226,7 @@ class FinancialManagementController extends Controller
                 ->whereIn('appointments.status', ['confirmed', 'completed'])
                 ->where('payments.status', 'completed')
                 ->whereDate('payments.paid_at', Carbon::today())
-                ->sum('payments.amount');
+                ->sum('payments.amount') * 0.80; // Deduct 5% hospital cut
 
             // This week's revenue
             $thisWeekRevenue = Payment::join('appointments', 'payments.appointment_id', '=', 'appointments.id')
@@ -234,21 +234,21 @@ class FinancialManagementController extends Controller
                 ->whereIn('appointments.status', ['confirmed', 'completed'])
                 ->where('payments.status', 'completed')
                 ->whereBetween('payments.paid_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-                ->sum('payments.amount');
+                ->sum('payments.amount') * 0.80; // Deduct 5% hospital cut
 
             // Average payment amount
             $avgPayment = Payment::join('appointments', 'payments.appointment_id', '=', 'appointments.id')
                 ->where('appointments.doctor_id', $doctorId)
                 ->whereIn('appointments.status', ['confirmed', 'completed'])
                 ->where('payments.status', 'completed')
-                ->avg('payments.amount');
+                ->avg(DB::raw('payments.amount * 0.80')); // Deduct 5% hospital cut
 
             // Payment methods breakdown
             $paymentMethods = Payment::join('appointments', 'payments.appointment_id', '=', 'appointments.id')
                 ->where('appointments.doctor_id', $doctorId)
                 ->whereIn('appointments.status', ['confirmed', 'completed'])
                 ->where('payments.status', 'completed')
-                ->select('payments.payment_method', DB::raw('SUM(payments.amount) as total'), DB::raw('COUNT(*) as count'))
+                ->select('payments.payment_method', DB::raw('SUM(payments.amount * 0.80) as total'), DB::raw('COUNT(*) as count'))
                 ->groupBy('payments.payment_method')
                 ->get();
 

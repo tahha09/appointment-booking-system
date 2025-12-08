@@ -377,17 +377,19 @@ class AppointmentAnalyticsController extends Controller
                 ? round(Appointment::count() / $totalPatients, 2)
                 : 0;
 
-            // Top patients by appointment count (last 3 months)
-            $baseQuery = DB::table('appointments')
-                ->join('patients', 'appointments.patient_id', '=', 'patients.id')
-                ->join('users', 'patients.user_id', '=', 'users.id')
-                ->select('users.name', 'users.email', DB::raw('COUNT(appointments.id) as appointment_count'))
-                ->whereBetween('appointment_date', [Carbon::now()->subMonths(3), Carbon::now()])
-                ->groupBy('patients.id', 'users.name', 'users.email');
+            // All patients with their appointment counts
+            $allPatientsQuery = DB::table('users')
+                ->join('patients', 'users.id', '=', 'patients.user_id')
+                ->leftJoin('appointments', 'patients.id', '=', 'appointments.patient_id')
+                ->select('users.name', 'users.email', 'users.created_at', DB::raw('COUNT(appointments.id) as appointment_count'), DB::raw('MAX(appointments.created_at) as last_appointment'))
+                ->where('users.role', 'patient')
+                ->groupBy('users.id', 'users.name', 'users.email', 'users.created_at')
+                ->orderBy('appointment_count', 'desc')
+                ->orderBy('users.created_at', 'desc');
 
-            $allTopPatients = $baseQuery->get()->sortByDesc('appointment_count');
-            $totalTopPatients = $allTopPatients->count();
-            $topPatients = $allTopPatients->skip($offset)->take($limit)->values()->toArray();
+            $allPatients = $allPatientsQuery->get();
+            $totalTopPatients = $allPatients->count();
+            $topPatients = $allPatients->skip($offset)->take($limit)->values()->toArray();
             $totalPages = ceil($totalTopPatients / $limit);
 
             return $this->success([
