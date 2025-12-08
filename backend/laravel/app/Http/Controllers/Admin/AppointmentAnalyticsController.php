@@ -269,6 +269,10 @@ class AppointmentAnalyticsController extends Controller
     public function doctorPerformance(Request $request)
     {
         try {
+            $page = $request->get('page', 1);
+            $limit = $request->get('limit', 5);
+            $offset = ($page - 1) * $limit;
+
             $doctors = Doctor::with('user')->whereHas('user', function($query) {
                 $query->where('status', 'active');
             })->get();
@@ -326,9 +330,16 @@ class AppointmentAnalyticsController extends Controller
                 return $b['total_appointments'] <=> $a['total_appointments'];
             });
 
+            $totalDoctors = count($doctorStats);
+            $paginatedDoctors = array_slice($doctorStats, $offset, $limit);
+            $totalPages = ceil($totalDoctors / $limit);
+
             return $this->success([
-                'doctors' => $doctorStats,
-                'total_doctors' => count($doctorStats),
+                'doctors' => $paginatedDoctors,
+                'total_doctors' => $totalDoctors,
+                'current_page' => $page,
+                'per_page' => $limit,
+                'total_pages' => $totalPages,
             ], 'Doctor performance analytics retrieved successfully');
 
         } catch (\Exception $e) {
@@ -342,6 +353,10 @@ class AppointmentAnalyticsController extends Controller
     public function patientAnalytics(Request $request)
     {
         try {
+            $page = $request->get('page', 1);
+            $limit = $request->get('limit', 5);
+            $offset = ($page - 1) * $limit;
+
             // New patients this month
             $newPatientsThisMonth = User::where('role', 'patient')
                 ->whereMonth('created_at', Carbon::now()->month)
@@ -363,15 +378,17 @@ class AppointmentAnalyticsController extends Controller
                 : 0;
 
             // Top patients by appointment count (last 3 months)
-            $topPatients = DB::table('appointments')
+            $baseQuery = DB::table('appointments')
                 ->join('patients', 'appointments.patient_id', '=', 'patients.id')
                 ->join('users', 'patients.user_id', '=', 'users.id')
                 ->select('users.name', 'users.email', DB::raw('COUNT(appointments.id) as appointment_count'))
                 ->whereBetween('appointment_date', [Carbon::now()->subMonths(3), Carbon::now()])
-                ->groupBy('patients.id', 'users.name', 'users.email')
-                ->orderBy('appointment_count', 'desc')
-                ->limit(10)
-                ->get();
+                ->groupBy('patients.id', 'users.name', 'users.email');
+
+            $allTopPatients = $baseQuery->get()->sortByDesc('appointment_count');
+            $totalTopPatients = $allTopPatients->count();
+            $topPatients = $allTopPatients->skip($offset)->take($limit)->values()->toArray();
+            $totalPages = ceil($totalTopPatients / $limit);
 
             return $this->success([
                 'total_patients' => $totalPatients,
@@ -379,6 +396,9 @@ class AppointmentAnalyticsController extends Controller
                 'active_patients_this_month' => $activePatientsThisMonth,
                 'avg_appointments_per_patient' => $avgAppointmentsPerPatient,
                 'top_patients' => $topPatients,
+                'current_page' => $page,
+                'per_page' => $limit,
+                'total_pages' => $totalPages,
             ], 'Patient analytics retrieved successfully');
 
         } catch (\Exception $e) {

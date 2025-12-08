@@ -62,6 +62,14 @@ interface DoctorPerformance {
   profile_image?: string;
 }
 
+interface DoctorAnalyticsResponse {
+  doctors: DoctorPerformance[];
+  total_doctors: number;
+  current_page: number;
+  per_page: number;
+  total_pages: number;
+}
+
 interface PatientAnalytics {
   total_patients: number;
   new_patients_this_month: number;
@@ -72,6 +80,9 @@ interface PatientAnalytics {
     email: string;
     appointment_count: number;
   }>;
+  current_page: number;
+  per_page: number;
+  total_pages: number;
 }
 
 @Component({
@@ -119,6 +130,13 @@ export class AppointmentsAnalytics implements OnInit {
   // Filters
   trendPeriod: 'day' | 'month' = 'month';
   trendLimit = 12;
+
+  // Pagination
+  doctorPage = 1;
+  doctorLimit = 5;
+  totalDoctors = 0;
+  patientPage = 1;
+  patientLimit = 5;
 
   constructor(
     private http: HttpClient,
@@ -214,14 +232,17 @@ export class AppointmentsAnalytics implements OnInit {
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
 
     this.loading.doctors = true;
+    const params = `page=${this.doctorPage}&limit=${this.doctorLimit}`;
+
     this.http
-      .get<{ success: boolean; data: { doctors: DoctorPerformance[]; total_doctors: number }; message: string }>(
-        `${this.apiBase}/admin/analytics/doctors`,
+      .get<{ success: boolean; data: DoctorAnalyticsResponse; message: string }>(
+        `${this.apiBase}/admin/analytics/doctors?${params}`,
         { headers }
       )
       .subscribe({
         next: (res) => {
           this.doctorPerformance = res.data.doctors;
+          this.totalDoctors = res.data.total_doctors;
           this.loading.doctors = false;
           this.cdr.detectChanges();
         },
@@ -238,9 +259,11 @@ export class AppointmentsAnalytics implements OnInit {
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
 
     this.loading.patients = true;
+    const params = `page=${this.patientPage}&limit=${this.patientLimit}`;
+
     this.http
       .get<{ success: boolean; data: PatientAnalytics; message: string }>(
-        `${this.apiBase}/admin/analytics/patients`,
+        `${this.apiBase}/admin/analytics/patients?${params}`,
         { headers }
       )
       .subscribe({
@@ -404,5 +427,32 @@ export class AppointmentsAnalytics implements OnInit {
     } else {
       return `http://localhost:8000/storage/${profileImage}`;
     }
+  }
+
+  // Pagination methods
+  onDoctorPageChange(page: number): void {
+    this.doctorPage = page;
+    this.loadDoctorPerformance();
+  }
+
+  onPatientPageChange(page: number): void {
+    this.patientPage = page;
+    this.loadPatientAnalytics();
+  }
+
+  get totalDoctorPages(): number {
+    return Math.ceil(this.totalDoctors / this.doctorLimit) || 1;
+  }
+
+  get totalPatientPages(): number {
+    return this.patientAnalytics?.total_pages || 1;
+  }
+
+  getDoctorPages(): number[] {
+    return Array.from({ length: this.totalDoctorPages }, (_, i) => i + 1);
+  }
+
+  getPatientPages(): number[] {
+    return Array.from({ length: this.totalPatientPages }, (_, i) => i + 1);
   }
 }

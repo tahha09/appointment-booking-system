@@ -297,6 +297,26 @@
           No doctor performance data available
         </div>
       </div>
+
+      <!-- Pagination for Doctors -->
+      <div *ngIf="doctorPerformance.length > 0" class="flex items-center justify-center gap-2 mt-6">
+        <button (click)="onDoctorPageChange(doctorPage - 1)"
+          [disabled]="doctorPage <= 1"
+          class="px-3 py-2 rounded-lg border border-[#d3e6eb] bg-white text-[#032f30] hover:bg-[#f1f9ff] disabled:opacity-50 disabled:cursor-not-allowed transition">
+          Previous
+        </button>
+        <span *ngFor="let page of getDoctorPages()" class="px-3 py-2">
+          <button (click)="onDoctorPageChange(page)"
+            [class]="'px-3 py-2 rounded-lg border transition ' + (page === doctorPage ? 'bg-[#0c969c] text-white border-[#0c969c]' : 'border-[#d3e6eb] bg-white text-[#032f30] hover:bg-[#f1f9ff]')">
+            {{ page }}
+          </button>
+        </span>
+        <button (click)="onDoctorPageChange(doctorPage + 1)"
+          [disabled]="doctorPage >= totalDoctorPages"
+          class="px-3 py-2 rounded-lg border border-[#d3e6eb] bg-white text-[#032f30] hover:bg-[#f1f9ff] disabled:opacity-50 disabled:cursor-not-allowed transition">
+          Next
+        </button>
+      </div>
     </div>
   </div>
 
@@ -351,6 +371,26 @@
         <div *ngIf="!patientAnalytics?.top_patients?.length" class="text-sm text-[#6ba3be] italic text-center py-4">
           No patient data available
         </div>
+      </div>
+
+      <!-- Pagination for Patients -->
+      <div *ngIf="patientAnalytics?.top_patients?.length" class="flex items-center justify-center gap-2 mt-6">
+        <button (click)="onPatientPageChange(patientPage - 1)"
+          [disabled]="patientPage <= 1"
+          class="px-3 py-2 rounded-lg border border-[#d3e6eb] bg-white text-[#032f30] hover:bg-[#f1f9ff] disabled:opacity-50 disabled:cursor-not-allowed transition">
+          Previous
+        </button>
+        <span *ngFor="let page of getPatientPages()" class="px-3 py-2">
+          <button (click)="onPatientPageChange(page)"
+            [class]="'px-3 py-2 rounded-lg border transition ' + (page === patientPage ? 'bg-[#0c969c] text-white border-[#0c969c]' : 'border-[#d3e6eb] bg-white text-[#032f30] hover:bg-[#f1f9ff]')">
+            {{ page }}
+          </button>
+        </span>
+        <button (click)="onPatientPageChange(patientPage + 1)"
+          [disabled]="patientPage >= totalPatientPages"
+          class="px-3 py-2 rounded-lg border border-[#d3e6eb] bg-white text-[#032f30] hover:bg-[#f1f9ff] disabled:opacity-50 disabled:cursor-not-allowed transition">
+          Next
+        </button>
       </div>
     </div>
   </div>
