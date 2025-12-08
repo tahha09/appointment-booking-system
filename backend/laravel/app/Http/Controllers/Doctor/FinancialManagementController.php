@@ -28,43 +28,52 @@ class FinancialManagementController extends Controller
 
             $doctorId = $user->doctor->id;
 
-            // Get all appointments for this doctor
-            $appointmentIds = Appointment::where('doctor_id', $doctorId)->pluck('id');
-
-            // Total revenue (all time)
-            $totalRevenue = Payment::whereIn('appointment_id', $appointmentIds)
-                ->where('status', 'completed')
-                ->sum('amount');
+            // Total revenue (all time) - only for confirmed/completed appointments
+            $totalRevenue = Payment::join('appointments', 'payments.appointment_id', '=', 'appointments.id')
+                ->where('appointments.doctor_id', $doctorId)
+                ->whereIn('appointments.status', ['confirmed', 'completed'])
+                ->where('payments.status', 'completed')
+                ->sum('payments.amount');
 
             // This month revenue
-            $thisMonthRevenue = Payment::whereIn('appointment_id', $appointmentIds)
-                ->where('status', 'completed')
-                ->whereMonth('paid_at', Carbon::now()->month)
-                ->whereYear('paid_at', Carbon::now()->year)
-                ->sum('amount');
+            $thisMonthRevenue = Payment::join('appointments', 'payments.appointment_id', '=', 'appointments.id')
+                ->where('appointments.doctor_id', $doctorId)
+                ->whereIn('appointments.status', ['confirmed', 'completed'])
+                ->where('payments.status', 'completed')
+                ->whereMonth('payments.paid_at', Carbon::now()->month)
+                ->whereYear('payments.paid_at', Carbon::now()->year)
+                ->sum('payments.amount');
 
             // Last month revenue
-            $lastMonthRevenue = Payment::whereIn('appointment_id', $appointmentIds)
-                ->where('status', 'completed')
-                ->whereMonth('paid_at', Carbon::now()->subMonth()->month)
-                ->whereYear('paid_at', Carbon::now()->subMonth()->year)
-                ->sum('amount');
+            $lastMonthRevenue = Payment::join('appointments', 'payments.appointment_id', '=', 'appointments.id')
+                ->where('appointments.doctor_id', $doctorId)
+                ->whereIn('appointments.status', ['confirmed', 'completed'])
+                ->where('payments.status', 'completed')
+                ->whereMonth('payments.paid_at', Carbon::now()->subMonth()->month)
+                ->whereYear('payments.paid_at', Carbon::now()->subMonth()->year)
+                ->sum('payments.amount');
 
             // Total completed payments
-            $totalPayments = Payment::whereIn('appointment_id', $appointmentIds)
-                ->where('status', 'completed')
+            $totalPayments = Payment::join('appointments', 'payments.appointment_id', '=', 'appointments.id')
+                ->where('appointments.doctor_id', $doctorId)
+                ->whereIn('appointments.status', ['confirmed', 'completed'])
+                ->where('payments.status', 'completed')
                 ->count();
 
-            // Pending payments
-            $pendingPayments = Payment::whereIn('appointment_id', $appointmentIds)
-                ->where('status', 'pending')
+            // Pending payments - payments that are completed but appointment is still pending
+            $pendingPayments = Payment::join('appointments', 'payments.appointment_id', '=', 'appointments.id')
+                ->where('appointments.doctor_id', $doctorId)
+                ->where('appointments.status', 'pending')
+                ->where('payments.status', 'completed')
                 ->count();
 
             // This month payments count
-            $thisMonthPayments = Payment::whereIn('appointment_id', $appointmentIds)
-                ->where('status', 'completed')
-                ->whereMonth('paid_at', Carbon::now()->month)
-                ->whereYear('paid_at', Carbon::now()->year)
+            $thisMonthPayments = Payment::join('appointments', 'payments.appointment_id', '=', 'appointments.id')
+                ->where('appointments.doctor_id', $doctorId)
+                ->whereIn('appointments.status', ['confirmed', 'completed'])
+                ->where('payments.status', 'completed')
+                ->whereMonth('payments.paid_at', Carbon::now()->month)
+                ->whereYear('payments.paid_at', Carbon::now()->year)
                 ->count();
 
             // Calculate percentage change
@@ -100,7 +109,6 @@ class FinancialManagementController extends Controller
             }
 
             $doctorId = $user->doctor->id;
-            $appointmentIds = Appointment::where('doctor_id', $doctorId)->pluck('id');
 
             $months = [];
             $now = Carbon::now();
@@ -110,16 +118,20 @@ class FinancialManagementController extends Controller
                 $date = $now->copy()->subMonths($i);
                 $monthKey = $date->format('Y-m');
 
-                $revenue = Payment::whereIn('appointment_id', $appointmentIds)
-                    ->where('status', 'completed')
-                    ->whereYear('paid_at', $date->year)
-                    ->whereMonth('paid_at', $date->month)
-                    ->sum('amount');
+                $revenue = Payment::join('appointments', 'payments.appointment_id', '=', 'appointments.id')
+                    ->where('appointments.doctor_id', $doctorId)
+                    ->whereIn('appointments.status', ['confirmed', 'completed'])
+                    ->where('payments.status', 'completed')
+                    ->whereYear('payments.paid_at', $date->year)
+                    ->whereMonth('payments.paid_at', $date->month)
+                    ->sum('payments.amount');
 
-                $count = Payment::whereIn('appointment_id', $appointmentIds)
-                    ->where('status', 'completed')
-                    ->whereYear('paid_at', $date->year)
-                    ->whereMonth('paid_at', $date->month)
+                $count = Payment::join('appointments', 'payments.appointment_id', '=', 'appointments.id')
+                    ->where('appointments.doctor_id', $doctorId)
+                    ->whereIn('appointments.status', ['confirmed', 'completed'])
+                    ->where('payments.status', 'completed')
+                    ->whereYear('payments.paid_at', $date->year)
+                    ->whereMonth('payments.paid_at', $date->month)
                     ->count();
 
                 $months[] = [
@@ -152,10 +164,11 @@ class FinancialManagementController extends Controller
             }
 
             $doctorId = $user->doctor->id;
-            $appointmentIds = Appointment::where('doctor_id', $doctorId)->pluck('id');
 
             $query = Payment::with(['appointment.patient.user', 'patient.user'])
-                ->whereIn('appointment_id', $appointmentIds);
+                ->join('appointments', 'payments.appointment_id', '=', 'appointments.id')
+                ->where('appointments.doctor_id', $doctorId)
+                ->whereIn('appointments.status', ['confirmed', 'completed']);
 
             // Filter by status
             if ($request->has('status') && $request->status !== 'all') {
@@ -206,30 +219,37 @@ class FinancialManagementController extends Controller
             }
 
             $doctorId = $user->doctor->id;
-            $appointmentIds = Appointment::where('doctor_id', $doctorId)->pluck('id');
 
             // Today's revenue
-            $todayRevenue = Payment::whereIn('appointment_id', $appointmentIds)
-                ->where('status', 'completed')
-                ->whereDate('paid_at', Carbon::today())
-                ->sum('amount');
+            $todayRevenue = Payment::join('appointments', 'payments.appointment_id', '=', 'appointments.id')
+                ->where('appointments.doctor_id', $doctorId)
+                ->whereIn('appointments.status', ['confirmed', 'completed'])
+                ->where('payments.status', 'completed')
+                ->whereDate('payments.paid_at', Carbon::today())
+                ->sum('payments.amount');
 
             // This week's revenue
-            $thisWeekRevenue = Payment::whereIn('appointment_id', $appointmentIds)
-                ->where('status', 'completed')
-                ->whereBetween('paid_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-                ->sum('amount');
+            $thisWeekRevenue = Payment::join('appointments', 'payments.appointment_id', '=', 'appointments.id')
+                ->where('appointments.doctor_id', $doctorId)
+                ->whereIn('appointments.status', ['confirmed', 'completed'])
+                ->where('payments.status', 'completed')
+                ->whereBetween('payments.paid_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+                ->sum('payments.amount');
 
             // Average payment amount
-            $avgPayment = Payment::whereIn('appointment_id', $appointmentIds)
-                ->where('status', 'completed')
-                ->avg('amount');
+            $avgPayment = Payment::join('appointments', 'payments.appointment_id', '=', 'appointments.id')
+                ->where('appointments.doctor_id', $doctorId)
+                ->whereIn('appointments.status', ['confirmed', 'completed'])
+                ->where('payments.status', 'completed')
+                ->avg('payments.amount');
 
             // Payment methods breakdown
-            $paymentMethods = Payment::whereIn('appointment_id', $appointmentIds)
-                ->where('status', 'completed')
-                ->select('payment_method', DB::raw('SUM(amount) as total'), DB::raw('COUNT(*) as count'))
-                ->groupBy('payment_method')
+            $paymentMethods = Payment::join('appointments', 'payments.appointment_id', '=', 'appointments.id')
+                ->where('appointments.doctor_id', $doctorId)
+                ->whereIn('appointments.status', ['confirmed', 'completed'])
+                ->where('payments.status', 'completed')
+                ->select('payments.payment_method', DB::raw('SUM(payments.amount) as total'), DB::raw('COUNT(*) as count'))
+                ->groupBy('payments.payment_method')
                 ->get();
 
             return $this->success([
