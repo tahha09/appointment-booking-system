@@ -49,6 +49,16 @@ class Appointment extends Model
         return $this->hasOne(MedicalNote::class);
     }
 
+    public function payment()
+    {
+        return $this->hasOne(Payment::class);
+    }
+
+    public function rating()
+    {
+        return $this->hasOne(Rating::class);
+    }
+
     public function notifications()
     {
         return $this->hasMany(Notification::class, 'related_appointment_id');
@@ -150,11 +160,11 @@ class Appointment extends Model
         if ($this->status !== 'confirmed') {
         return false;
     }
-    
+
     if ($this->reschedule_count >= 3) {
         return false;
     }
-    
+
     $originalDateTime = Carbon::parse(
         $this->appointment_date->format('Y-m-d') . ' ' . $this->start_time
     );
@@ -170,11 +180,11 @@ class Appointment extends Model
 
     $hoursDifference = $originalDateTime->diffInHours($now, false);
     $minimumHoursBeforeAppointment = 4;
-    
+
     if ($hoursDifference > -$minimumHoursBeforeAppointment) {
         return false;
     }
-    
+
     return true;
     }
 
@@ -183,39 +193,39 @@ class Appointment extends Model
     if ($this->status !== 'confirmed') {
         return 'Only confirmed appointments can be rescheduled.';
     }
-    
+
     if ($this->reschedule_count >= 3) {
         return 'You have reached the maximum reschedule limit (3 times).';
     }
-    
+
     $originalDateTime = Carbon::parse(
         $this->appointment_date->format('Y-m-d') . ' ' . $this->start_time
     );
     $now = Carbon::now();
-    
+
     if ($originalDateTime->lt($now)) {
         return 'Cannot reschedule an appointment that has already passed.';
     }
-    
+
     if ($originalDateTime->isSameDay($now)) {
         return 'Cannot reschedule an appointment on the same day.';
     }
-    
+
     $hoursDifference = $originalDateTime->diffInHours($now, false);
     $minimumHoursBeforeAppointment = 4;
-    
+
     if ($hoursDifference > -$minimumHoursBeforeAppointment) {
         return "Cannot reschedule an appointment less than {$minimumHoursBeforeAppointment} hours before the scheduled time.";
     }
-    
+
     return 'Rescheduling is allowed.';
 }
-    
+
     public function getIsRescheduledAttribute()
     {
         return !is_null($this->rescheduled_at);
     }
-    
+
     public function getRemainingReschedulesAttribute()
     {
         return 3 - $this->reschedule_count;

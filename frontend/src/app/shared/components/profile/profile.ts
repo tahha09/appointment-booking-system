@@ -23,6 +23,7 @@ interface UserProfileData {
   emergencyContact?: string;
   insuranceProvider?: string;
   insurancePolicyNumber?: string;
+  bloodType?: string;
 
   // Doctor specific
   specialty?: string;
@@ -91,6 +92,7 @@ export class UserProfile implements OnInit {
     emergencyContact: this.fb.control(''),
     insuranceProvider: this.fb.control(''),
     insurancePolicyNumber: this.fb.control(''),
+    bloodType: this.fb.control(''),
   });
 
   doctorForm = this.fb.group({
@@ -181,6 +183,7 @@ export class UserProfile implements OnInit {
           emergencyContact: profile.emergencyContact || '',
           insuranceProvider: profile.insuranceProvider || '',
           insurancePolicyNumber: profile.insurancePolicyNumber || '',
+          bloodType: profile.bloodType || '',
         });
         break;
       case 'doctor':
@@ -339,6 +342,7 @@ export class UserProfile implements OnInit {
           emergencyContact: this.patientForm.get('emergencyContact')?.value || '',
           insuranceProvider: this.patientForm.get('insuranceProvider')?.value || '',
           insurancePolicyNumber: this.patientForm.get('insurancePolicyNumber')?.value || '',
+          bloodType: this.patientForm.get('bloodType')?.value || '',
         });
         break;
       case 'doctor':

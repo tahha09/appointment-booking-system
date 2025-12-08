@@ -117,6 +117,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // Medical Records
         Route::get('/medical-records', [PatientAppointmentController::class, 'medicalRecords']);
+
+        // Ratings
+        Route::post('/ratings', [\App\Http\Controllers\Patient\RatingController::class, 'store']);
+        Route::put('/ratings/{id}', [\App\Http\Controllers\Patient\RatingController::class, 'update']);
+        Route::get('/appointments/{appointmentId}/rating', [\App\Http\Controllers\Patient\RatingController::class, 'show']);
         Route::get('/medical-records/{id}', [PatientAppointmentController::class, 'medicalRecord']);
 
         // Medical History

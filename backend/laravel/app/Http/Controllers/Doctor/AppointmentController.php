@@ -25,7 +25,7 @@ class AppointmentController extends Controller
             }
 
             $doctorId = $user->doctor->id;
-            $query = Appointment::with(['patient.user', 'doctor.user'])
+            $query = Appointment::with(['patient.user', 'doctor.user', 'payment'])
                 ->forDoctor($doctorId);
 
             // Filter by status

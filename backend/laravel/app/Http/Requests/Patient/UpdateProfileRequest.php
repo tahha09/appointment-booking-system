@@ -22,6 +22,7 @@ class UpdateProfileRequest extends FormRequest
             'newPassword' => 'nullable|string|min:6',
             'confirmNewPassword' => 'nullable|string|same:newPassword',
             'profileImage' => 'nullable|string',
+            'bloodType' => 'nullable|string|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
         ];
     }
 }

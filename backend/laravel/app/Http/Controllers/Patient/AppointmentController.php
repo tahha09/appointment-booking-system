@@ -98,7 +98,7 @@ class AppointmentController extends Controller
             }
 
             $patientId = $user->patient->id;
-            $query = Appointment::with(['doctor.user', 'doctor.specialization'])
+            $query = Appointment::with(['doctor.user', 'doctor.specialization', 'rating', 'payment'])
                 ->where('patient_id', $patientId);
 
             // Search filter

@@ -1,9 +1,12 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { PatientService } from '../../../core/services/patient.service';
 import { Notification } from '../../../core/services/notification';
 import { Appointment as AppointmentService, AppointmentModel } from '../../../core/services/appointment';
+import { Auth } from '../../../core/services/auth';
+import { environment } from '../../../../environments/environment';
 
 interface Appointment {
   id: number;
@@ -63,6 +66,15 @@ export class MyAppointments implements OnInit {
   selectedAppointment: Appointment | null = null;
   showDetailsModal = false;
 
+  // Rating
+  showRatingModal = false;
+  ratingAppointment: Appointment | null = null;
+  rating = 0;
+  ratingComment = '';
+  existingRating: any = null;
+  submittingRating = false;
+  hoveredStar = 0;
+
   // Backend Pagination
   currentPage: number = 1;
   totalItems: number = 0;
@@ -70,11 +82,15 @@ export class MyAppointments implements OnInit {
   hasPreviousPage: boolean = false;
   itemsPerPage: number = 8;
 
+  private readonly apiBase = environment.apiUrl;
+
   constructor(
     private patientService: PatientService,
     private appointmentService: AppointmentService,
     private cdr: ChangeDetectorRef,
-    private notification: Notification
+    private auth: Auth,
+    private notification: Notification,
+    private http: HttpClient
   ) { }
 
   ngOnInit(): void {
@@ -154,11 +170,103 @@ export class MyAppointments implements OnInit {
   viewDetails(appointment: Appointment): void {
     this.selectedAppointment = appointment;
     this.showDetailsModal = true;
+    // Load existing rating if appointment is completed
+    if (appointment.status === 'completed') {
+      this.loadExistingRating(appointment.id);
+    }
   }
 
   closeDetailsModal(): void {
     this.showDetailsModal = false;
     this.selectedAppointment = null;
+    this.existingRating = null;
+  }
+
+  loadExistingRating(appointmentId: number): void {
+    const token = this.auth.getToken();
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
+
+    this.http
+      .get<{ success: boolean; data: any; message: string }>(
+        `${this.apiBase}/patient/appointments/${appointmentId}/rating`,
+        { headers }
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.data) {
+            this.existingRating = res.data;
+          }
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          // No rating exists yet, which is fine
+          this.existingRating = null;
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  openRatingModal(appointment: Appointment): void {
+    this.ratingAppointment = appointment;
+    this.rating = this.existingRating?.rating || 0;
+    this.ratingComment = this.existingRating?.comment || '';
+    this.showRatingModal = true;
+  }
+
+  closeRatingModal(): void {
+    this.showRatingModal = false;
+    this.ratingAppointment = null;
+    this.rating = 0;
+    this.ratingComment = '';
+  }
+
+  setRating(value: number): void {
+    this.rating = value;
+  }
+
+  submitRating(): void {
+    if (!this.ratingAppointment || this.rating === 0) {
+      this.notification.error('Error', 'Please select a rating');
+      return;
+    }
+
+    this.submittingRating = true;
+    const token = this.auth.getToken();
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
+
+    const payload: any = {
+      appointment_id: this.ratingAppointment.id,
+      rating: this.rating,
+    };
+
+    if (this.ratingComment.trim()) {
+      payload.comment = this.ratingComment.trim();
+    }
+
+    const url = this.existingRating
+      ? `${this.apiBase}/patient/ratings/${this.existingRating.id}`
+      : `${this.apiBase}/patient/ratings`;
+
+    const request = this.existingRating
+      ? this.http.put<{ success: boolean; data: any; message: string }>(url, payload, { headers })
+      : this.http.post<{ success: boolean; data: any; message: string }>(url, payload, { headers });
+
+    request.subscribe({
+      next: (res) => {
+        this.notification.success('Success', 'Rating submitted successfully');
+        this.closeRatingModal();
+        if (this.selectedAppointment) {
+          this.loadExistingRating(this.selectedAppointment.id);
+        }
+        this.submittingRating = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.notification.error('Error', err?.error?.message || 'Failed to submit rating');
+        this.submittingRating = false;
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   cancelAppointment(id: number, event?: Event): void {

@@ -110,6 +110,16 @@
               {{ appointment.status | titlecase }}
             </span>
           </div>
+          <div *ngIf="appointment.payment?.amount || appointment.payment?.payment_method || appointment.amount || appointment.payment_method" class="flex flex-col gap-2 mt-2 pt-2 border-t border-[#6ba3be]/20">
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-[#6ba3be]">Payment Amount:</span>
+              <span class="text-[#031716] font-semibold">{{ formatCurrency(appointment.payment?.amount || appointment.amount || 0) }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-[#6ba3be]">Payment Method:</span>
+              <span class="text-[#031716] font-semibold">{{ (appointment.payment?.payment_method || appointment.payment_method || 'N/A') | titlecase }}</span>
+            </div>
+          </div>
           <div *ngIf="appointment.reason" class="mt-2">
             <span class="text-sm text-[#6ba3be]">Reason:</span>
             <p class="text-sm text-[#032f30] mt-1">{{ appointment.reason }}</p>
@@ -202,7 +212,16 @@ x
         </button>
       </div>
 
-      <div *ngIf="selectedPatient" class="space-y-4">
+        <div *ngIf="patientDetailsLoading" class="rounded-2xl border border-[#0c969c]/30 bg-[#0c969c]/5 px-4 py-3 flex items-center gap-3 text-sm text-[#0a7075] mb-4">
+        <span class="w-5 h-5 border-2 border-[#0c969c] border-t-transparent rounded-full animate-spin inline-block"></span>
+        Loading patient details...
+      </div>
+
+      <div *ngIf="patientDetailsError" class="rounded-2xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-500 mb-4">
+        {{ patientDetailsError }}
+      </div>
+
+      <div *ngIf="selectedPatient && !patientDetailsLoading" class="space-y-4">
         <div class="flex items-center gap-4">
           <div class="w-24 h-24 rounded-full bg-[#0c969c]/10 border-2 border-[#0c969c]/40 overflow-hidden">
             <img
@@ -221,11 +240,65 @@ x
         <div class="grid grid-cols-2 gap-4 pt-4 border-t border-[#6ba3be]/30">
           <div>
             <span class="text-sm text-[#6ba3be]">Date of Birth:</span>
-            <p>{{ selectedPatient?.user?.date_of_birth || 'N/A' }}</p>
+            <p>{{ formatDate(selectedPatient?.user?.date_of_birth) }}</p>
           </div>
           <div>
             <span class="text-sm text-[#6ba3be]">Address:</span>
             <p>{{ selectedPatient?.user?.address || 'N/A' }}</p>
+          </div>
+          <div>
+            <span class="text-sm text-[#6ba3be]">Blood Type:</span>
+            <p>{{ selectedPatient?.blood_type || 'N/A' }}</p>
+          </div>
+          <div *ngIf="selectedPatient?.allergies">
+            <span class="text-sm text-[#6ba3be]">Allergies:</span>
+            <p>{{ selectedPatient.allergies }}</p>
+          </div>
+        </div>
+
+        <div *ngIf="selectedPatient?.medical_history" class="pt-4 border-t border-[#6ba3be]/30">
+          <span class="text-sm text-[#6ba3be]">Medical History:</span>
+          <p class="text-sm mt-1">{{ selectedPatient.medical_history }}</p>
+        </div>
+
+        <div *ngIf="selectedPatient?.chronic_conditions" class="pt-4 border-t border-[#6ba3be]/30">
+          <span class="text-sm text-[#6ba3be]">Chronic Conditions:</span>
+          <p class="text-sm mt-1">{{ selectedPatient.chronic_conditions }}</p>
+        </div>
+
+        <div *ngIf="selectedPatient?.medical_images && selectedPatient.medical_images.length > 0" class="pt-4 border-t border-[#6ba3be]/30">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm text-[#6ba3be] uppercase tracking-wide">Medical Images</span>
+            <span class="text-xs text-[#6ba3be]">
+              {{ selectedPatient.medical_images.length }} record{{ selectedPatient.medical_images.length === 1 ? '' : 's' }}
+            </span>
+          </div>
+
+          <div class="space-y-3">
+            <div *ngFor="let record of selectedPatient.medical_images" class="rounded-xl border border-[#d3e6eb] bg-[#f8feff] p-4">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                <div>
+                  <p class="text-sm font-semibold text-[#031716]">
+                    {{ record.title || 'Untitled Record' }}
+                  </p>
+                  <p class="text-xs text-[#6ba3be] capitalize">{{ record.image_type || 'unknown' }}</p>
+                </div>
+                <div class="text-xs text-[#6ba3be]">
+                  {{ formatDate(record.created_at) }}
+                </div>
+              </div>
+
+              <p class="text-sm text-[#032f30] mb-2" *ngIf="record.description">{{ record.description }}</p>
+
+              <div *ngIf="record.images?.length; else recordNoImages" class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
+                <div *ngFor="let photo of record.images" class="relative rounded-xl border border-[#d7ebef] overflow-hidden bg-white">
+                  <img [src]="getMediaImageUrl(photo)" alt="Medical image" class="w-full h-32 object-cover cursor-pointer" (click)="openImageModal(photo)" />
+                </div>
+              </div>
+              <ng-template #recordNoImages>
+                <p class="text-xs text-[#6ba3be] mt-2">No files attached to this record.</p>
+              </ng-template>
+            </div>
           </div>
         </div>
       </div>
@@ -398,6 +471,23 @@ x
           </div>
         </form>
       </div>
+    </div>
+  </div>
+
+  <!-- Image Modal -->
+  <div
+    *ngIf="showImageModal && selectedImageForModal"
+    class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+    (click)="closeImageModal()"
+  >
+    <div class="relative max-w-4xl max-h-[90vh] w-full h-full flex items-center justify-center" (click)="$event.stopPropagation()">
+      <button
+        (click)="closeImageModal()"
+        class="absolute top-4 right-4 w-10 h-10 rounded-full bg-red-500/20 text-red-500 hover:bg-red-500/30 transition flex items-center justify-center z-10"
+      >
+        ×
+      </button>
+      <img [src]="selectedImageForModal" alt="Medical image" class="max-w-full max-h-full object-contain rounded-lg" />
     </div>
   </div>
 </div>
