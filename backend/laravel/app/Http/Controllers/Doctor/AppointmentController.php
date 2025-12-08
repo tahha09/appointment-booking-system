@@ -117,11 +117,16 @@ class AppointmentController extends Controller
                 return $this->error('Appointment not found.', 404);
             }
 
-            $appointment->update(['status' => $validated['status']]);
+            // Use service method for confirmation to handle notifications
+            if ($validated['status'] === 'confirmed') {
+                $appointment = $this->appointmentService->confirmAppointment($id);
+            } else {
+                $appointment->update(['status' => $validated['status']]);
 
-            // Mark payment as completed if appointment is confirmed or completed
-            if (in_array($validated['status'], ['confirmed', 'completed']) && $appointment->payment && $appointment->payment->status !== 'completed') {
-                $appointment->payment->markAsCompleted();
+                // Mark payment as completed if appointment is completed
+                if ($validated['status'] === 'completed' && $appointment->payment && $appointment->payment->status !== 'completed') {
+                    $appointment->payment->markAsCompleted();
+                }
             }
 
             // Create medical history record if appointment is completed
