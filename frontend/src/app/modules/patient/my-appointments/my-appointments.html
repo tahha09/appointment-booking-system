@@ -436,7 +436,7 @@
         </div>
 
         <!-- Reschedule Form -->
-        <div class="space-y-6">
+        <form [formGroup]="rescheduleForm" class="space-y-6">
 
           <!-- New Date -->
           <div>
@@ -458,7 +458,8 @@
               </div>
               <input type="date"
                      id="reschedule-date"
-                     [(ngModel)]="rescheduleForm.appointment_date"
+                     formControlName="appointment_date"
+                     (change)="rescheduleErrors.appointment_date = ''"
                      [min]="getMinDate()"
                      class="w-full pl-12 pr-4 py-3.5 border-2 border-teal-200 rounded-2xl
                             focus:border-[#0A7075] focus:ring-3 focus:ring-teal-100 focus:outline-none
@@ -494,14 +495,17 @@
                   </div>
                   <input type="time"
                          id="start_time"
-                         name="start_time"
-                         [(ngModel)]="rescheduleForm.start_time"
-                         (change)="updateEndTimeBasedOnStartTime()"
+                         formControlName="start_time"
+                         (change)="updateEndTimeBasedOnStartTime(); rescheduleErrors.start_time = ''"
                          class="w-full pl-12 pr-4 py-3.5 border-2 border-teal-200 rounded-2xl
                                 focus:border-[#0A7075] focus:ring-3 focus:ring-teal-100 focus:outline-none
                                 transition duration-200 text-gray-700 bg-white
                                 hover:border-[#0C969C]"
                          required>
+                </div>
+                <div *ngIf="rescheduleErrors.start_time" class="mt-2 text-red-600 text-sm flex items-center gap-2">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  {{ rescheduleErrors.start_time }}
                 </div>
               </div>
 
@@ -515,13 +519,16 @@
                   <input
                     type="time"
                     id="end_time"
-                    name="end_time"
-                    [(ngModel)]="rescheduleForm.end_time"
+                    formControlName="end_time"
                     readonly
                     class="w-full pl-12 pr-4 py-3.5 border-2 border-teal-200 rounded-2xl
                            bg-teal-50 text-gray-600 font-medium cursor-not-allowed
                            border-dashed"
                   />
+                </div>
+                <div *ngIf="rescheduleErrors.end_time" class="mt-2 text-red-600 text-sm flex items-center gap-2">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  {{ rescheduleErrors.end_time }}
                 </div>
               </div>
             </div>
@@ -545,20 +552,10 @@
               <div class="absolute top-4 left-4 pointer-events-none">
                 <i class="fas fa-comment-medical text-[#0A7075]"></i>
               </div>
-              <textarea
-                id="reschedule-reason"
-                [(ngModel)]="rescheduleForm.reason_for_reschedule"
-                rows="4"
-                placeholder="Please provide a reason for rescheduling..."
-                class="w-full pl-12 pr-4 py-4 border-2 border-teal-200 rounded-2xl
-                       focus:border-[#0A7075] focus:ring-3 focus:ring-teal-100 focus:outline-none
-                       transition duration-200 text-gray-700 bg-white resize-none
-                       hover:border-[#0C969C]"
-                style="min-height: 120px;">
-              </textarea>
+              <textarea id="reschedule-reason" formControlName="reason_for_reschedule" rows="4" placeholder="Please provide a reason for rescheduling..." class="w-full pl-12 pr-4 py-4 border-2 border-teal-200 rounded-2xl focus:border-[#0A7075] focus:ring-3 focus:ring-teal-100 focus:outline-none transition duration-200 text-gray-700 bg-white resize-none hover:border-[#0C969C]" style="min-height: 120px;"></textarea>
             </div>
           </div>
-        </div>
+        </form>
       </div>
     </div>
 
@@ -577,7 +574,7 @@
 
       <!-- زر Confirm Reschedule -->
       <button (click)="submitReschedule()"
-              [disabled]="!rescheduleForm.appointment_date || !rescheduleForm.start_time"
+              [disabled]="!isRescheduleFormValidForUI()"
               class="px-6 py-3 bg-gradient-to-r from-[#0A7075] to-[#0C969C] hover:from-[#0C969C] hover:to-[#0A7075]
                      text-white font-semibold rounded-xl transition-all duration-200 flex items-center gap-2
                      hover:shadow-lg transform hover:-translate-y-0.5 active:translate-y-0

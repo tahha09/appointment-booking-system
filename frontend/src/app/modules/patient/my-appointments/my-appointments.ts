@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { PatientService } from '../../../core/services/patient.service';
 import { Notification } from '../../../core/services/notification';
@@ -32,7 +32,7 @@ interface Appointment {
 @Component({
   selector: 'app-my-appointments',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './my-appointments.html',
   styleUrl: './my-appointments.scss'
 })
@@ -42,12 +42,12 @@ export class MyAppointments implements OnInit {
   error: string | null = null;
   showRescheduleModal = false;
   rescheduleAppointment: AppointmentModel | null = null;
-  rescheduleForm = {
-    appointment_date: '',
-    start_time: '',
-    end_time: '',
-    reason_for_reschedule: ''
-  };
+  rescheduleForm: FormGroup;
+  availability: any[] = [];
+  slots: any[] = [];
+  loadingAvailability = false;
+  selectedDate: string = '';
+  selectedTime: string = '';
   rescheduleErrors = {
     appointment_date: '',
     start_time: '',
@@ -90,8 +90,16 @@ export class MyAppointments implements OnInit {
     private cdr: ChangeDetectorRef,
     private auth: Auth,
     private notification: Notification,
-    private http: HttpClient
-  ) { }
+    private http: HttpClient,
+    private fb: FormBuilder
+  ) {
+    this.rescheduleForm = this.fb.group({
+      appointment_date: ['', Validators.required],
+      start_time: ['', Validators.required],
+      end_time: [''],
+      reason_for_reschedule: ['']
+    });
+  }
 
   ngOnInit(): void {
     this.fetchAppointments(1);
@@ -341,25 +349,29 @@ export class MyAppointments implements OnInit {
 
 private prepareRescheduleData(): void {
   // 1. Clean the time
-  if (this.rescheduleForm.start_time) {
+  if (this.rescheduleForm.get('start_time')?.value) {
     // Ensure the time is HH:mm only
-    this.rescheduleForm.start_time = this.rescheduleForm.start_time.substring(0, 5);
+    const startTime = this.rescheduleForm.get('start_time')?.value.substring(0, 5);
+    this.rescheduleForm.get('start_time')?.setValue(startTime);
 
     // 2. Update end_time if necessary
     this.updateEndTimeBasedOnStartTime();
   }
 
   // 3. Clean the date
-  this.rescheduleForm.appointment_date = this.formatDateForBackend(this.rescheduleForm.appointment_date);
+  const appointmentDate = this.formatDateForBackend(this.rescheduleForm.get('appointment_date')?.value);
+  this.rescheduleForm.get('appointment_date')?.setValue(appointmentDate);
 
   // 4. Calculate end_time if it doesn't exist
-  if (!this.rescheduleForm.end_time && this.rescheduleForm.start_time) {
-    this.rescheduleForm.end_time = this.calculateEndTime(this.rescheduleForm.start_time);
+  if (!this.rescheduleForm.get('end_time')?.value && this.rescheduleForm.get('start_time')?.value) {
+    const endTime = this.calculateEndTime(this.rescheduleForm.get('start_time')?.value);
+    this.rescheduleForm.get('end_time')?.setValue(endTime);
   }
 
   // 5. Clean end_time as well
-  if (this.rescheduleForm.end_time) {
-    this.rescheduleForm.end_time = this.rescheduleForm.end_time.substring(0, 5);
+  if (this.rescheduleForm.get('end_time')?.value) {
+    const endTime = this.rescheduleForm.get('end_time')?.value.substring(0, 5);
+    this.rescheduleForm.get('end_time')?.setValue(endTime);
   }
 
 
@@ -368,40 +380,59 @@ private prepareRescheduleData(): void {
 
 private validateRescheduleForm(): boolean {
   // 1. Check required fields
-  if (!this.rescheduleForm.appointment_date) {
-    this.notification.error('Error', 'Please select a date');
+  if (!this.rescheduleForm.get('appointment_date')?.value) {
+      this.rescheduleErrors.appointment_date = 'Please select a date';
     return false;
   }
 
-  if (!this.rescheduleForm.start_time) {
-    this.notification.error('Error', 'Please select a time');
+  if (!this.rescheduleForm.get('start_time')?.value) {
+      this.rescheduleErrors.start_time = 'Please select a time';
     return false;
   }
 
   // 2. Check time format
-  const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
-  if (!timeRegex.test(this.rescheduleForm.start_time)) {
-    this.notification.error('Error', 'Invalid time format. Please use HH:mm (e.g., 14:00)');
-    return false;
-  }
+    const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!timeRegex.test(this.rescheduleForm.get('start_time')?.value)) {
+      this.rescheduleErrors.start_time = 'Invalid time format. Please use HH:mm (e.g., 14:00)';
+      return false;
+    }
 
   // 3. Check that the date is not in the past
-  const selectedDate = new Date(this.rescheduleForm.appointment_date);
+  const selectedDate = new Date(this.rescheduleForm.get('appointment_date')?.value);
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Remove time to compare only the date
 
   if (selectedDate < today) {
-    this.notification.error('Error', 'Cannot reschedule to a past date');
+    this.rescheduleErrors.appointment_date = 'Cannot reschedule to a past date';
     return false;
   }
 
   // 4. Check that end_time is after start_time
-  if (this.rescheduleForm.end_time) {
-    const start = new Date(`1970-01-01T${this.rescheduleForm.start_time}`);
-    const end = new Date(`1970-01-01T${this.rescheduleForm.end_time}`);
+  if (this.rescheduleForm.get('end_time')?.value) {
+    const start = new Date(`1970-01-01T${this.rescheduleForm.get('start_time')?.value}`);
+    const end = new Date(`1970-01-01T${this.rescheduleForm.get('end_time')?.value}`);
 
     if (end <= start) {
-      this.notification.error('Error', 'End time must be after start time');
+      this.rescheduleErrors.end_time = 'End time must be after start time';
+      return false;
+    }
+  }
+
+  // 5. Validate against doctor's availability (if present on the appointment object)
+  const avail = this.getDoctorAvailabilityForDate(this.rescheduleForm.get('appointment_date')?.value);
+  if (this.rescheduleAppointment && avail === null) {
+    this.rescheduleErrors.appointment_date = 'The selected doctor is not available on this date';
+    return false;
+  }
+
+  if (this.rescheduleForm.get('start_time')?.value && this.rescheduleForm.get('end_time')?.value && avail) {
+    const startMin = this.timeToMinutes(this.rescheduleForm.get('start_time')?.value);
+    const endMin = this.timeToMinutes(this.rescheduleForm.get('end_time')?.value);
+    const availStart = this.timeToMinutes(avail.start);
+    const availEnd = this.timeToMinutes(avail.end);
+
+    if (startMin < availStart || endMin > availEnd) {
+      this.rescheduleErrors.start_time = `Selected time is outside doctor's working hours (${avail.start} - ${avail.end})`;
       return false;
     }
   }
@@ -411,12 +442,81 @@ private validateRescheduleForm(): boolean {
 
 private formatRescheduleData() {
   return {
-    appointment_date: this.rescheduleForm.appointment_date, // Selected appointment date
-    start_time: this.rescheduleForm.start_time,             // Selected start time
-    end_time: this.rescheduleForm.end_time,                 // Calculated or selected end time
-    reason_for_reschedule: this.rescheduleForm.reason_for_reschedule.trim() || undefined // Optional reason
+    appointment_date: this.rescheduleForm.get('appointment_date')?.value, // Selected appointment date
+    start_time: this.rescheduleForm.get('start_time')?.value,             // Selected start time
+    end_time: this.rescheduleForm.get('end_time')?.value,                 // Calculated or selected end time
+    reason_for_reschedule: this.rescheduleForm.get('reason_for_reschedule')?.value?.trim() || undefined // Optional reason
   };
 }
+
+   // Lightweight UI validator used by the template to enable/disable the confirm button
+   isRescheduleFormValidForUI(): boolean {
+     // reset field errors
+     this.rescheduleErrors.appointment_date = '';
+     this.rescheduleErrors.start_time = '';
+     this.rescheduleErrors.end_time = '';
+
+     const appointmentDate = this.rescheduleForm.get('appointment_date')?.value;
+     const startTime = this.rescheduleForm.get('start_time')?.value;
+     const endTime = this.rescheduleForm.get('end_time')?.value;
+
+     // required checks
+     if (!appointmentDate) {
+       this.rescheduleErrors.appointment_date = 'Please select a date.';
+       return false;
+     }
+
+     if (!startTime) {
+       this.rescheduleErrors.start_time = 'Please select a start time.';
+       return false;
+     }
+
+     // time format
+     const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+     if (!timeRegex.test(startTime)) {
+       this.rescheduleErrors.start_time = 'Invalid time format. Use HH:mm.';
+       return false;
+     }
+
+     // ensure date is today or later
+     const selectedDate = new Date(appointmentDate);
+     const today = new Date();
+     today.setHours(0, 0, 0, 0);
+     if (selectedDate < today) {
+       this.rescheduleErrors.appointment_date = 'Cannot select a past date.';
+       return false;
+     }
+
+     // if end_time present ensure it's after start_time
+     if (endTime) {
+       const start = new Date(`1970-01-01T${startTime}`);
+       const end = new Date(`1970-01-01T${endTime}`);
+       if (end <= start) {
+         this.rescheduleErrors.end_time = 'End time must be after start time.';
+         return false;
+       }
+     }
+
+    // Validate against doctor's availability if set on the appointment
+    const avail = this.getDoctorAvailabilityForDate(appointmentDate);
+    if (this.rescheduleAppointment && avail === null) {
+      this.rescheduleErrors.appointment_date = 'The selected doctor is not available on this date.';
+      return false;
+    }
+
+    if (endTime && avail) {
+      const startMin = this.timeToMinutes(startTime);
+      const endMin = this.timeToMinutes(endTime);
+      const availStart = this.timeToMinutes(avail.start);
+      const availEnd = this.timeToMinutes(avail.end);
+      if (startMin < availStart || endMin > availEnd) {
+        this.rescheduleErrors.start_time = `Selected time is outside doctor's working hours (${avail.start} - ${avail.end}).`;
+        return false;
+      }
+    }
+
+     return true;
+   }
 
 private confirmReschedule(formattedData: any): void {
   // Show a confirmation dialog to the user before rescheduling
@@ -543,22 +643,23 @@ private handleRescheduleError(err: any): void {
   // Calculate new end time based on start time
   const cleanEndTime = this.calculateEndTime(cleanStartTime);
 
-  this.rescheduleForm = {
+  // Set form values using FormGroup methods
+  this.rescheduleForm.patchValue({
     appointment_date: cleanDate,
     start_time: cleanStartTime,
     end_time: cleanEndTime, // Use the calculated end_time
     reason_for_reschedule: ''
-  };
-
-
+  });
 
   this.showRescheduleModal = true;
 }
 
 updateEndTimeBasedOnStartTime(): void {
-  if (this.rescheduleForm.start_time && this.rescheduleAppointment) {
+  const startTime = this.rescheduleForm.get('start_time')?.value;
+  if (startTime && this.rescheduleAppointment) {
     // Calculate the new end_time based on the start_time
-    this.rescheduleForm.end_time = this.calculateEndTime(this.rescheduleForm.start_time);
+    const endTime = this.calculateEndTime(startTime);
+    this.rescheduleForm.get('end_time')?.setValue(endTime);
   }
 }
 
@@ -586,6 +687,73 @@ calculateEndTime(startTime: string): string {
 
   // Format the result
   return `${newHours.toString().padStart(2, '0')}:${newMinutes.toString().padStart(2, '0')}`;
+}
+
+/**
+ * Helper: convert a time string HH:mm to minutes since midnight
+ */
+timeToMinutes(time: string | undefined): number {
+  if (!time) return 0;
+  const parts = time.split(':');
+  const h = parseInt(parts[0], 10) || 0;
+  const m = parseInt(parts[1], 10) || 0;
+  return h * 60 + m;
+}
+
+/**
+ * Helper: Attempt to resolve the doctor's availability for a given date.
+ * Tries several common shapes returned from the API:
+ * - doctor.availability: [{ date: 'YYYY-MM-DD', start: '09:00', end: '17:00' }, ...]
+ * - doctor.schedules: [{ day_of_week: 1, start_time: '09:00', end_time: '17:00' }, ...]
+ * - doctor.working_hours: { monday: { start: '09:00', end: '17:00' }, ... }
+ * Returns { start, end } or null when not available / unknown.
+ */
+getDoctorAvailabilityForDate(dateStr: string | undefined): { start: string; end: string } | null {
+  if (!this.rescheduleAppointment || !dateStr) return null;
+
+  const doc: any = (this.rescheduleAppointment as any).doctor;
+  if (!doc) return null;
+
+  const targetDate = new Date(dateStr);
+  const year = targetDate.getFullYear();
+  const month = (targetDate.getMonth() + 1).toString().padStart(2, '0');
+  const day = targetDate.getDate().toString().padStart(2, '0');
+  const isoDate = `${year}-${month}-${day}`;
+
+  // 1) Check explicit availability entries by exact date
+  const availability = doc.availability || doc.availabilities || doc.available_dates;
+  if (Array.isArray(availability)) {
+    const byDate = availability.find((a: any) => a.date === isoDate || a.day === isoDate);
+    if (byDate) {
+      return { start: byDate.start || byDate.from || byDate.start_time, end: byDate.end || byDate.to || byDate.end_time } as any;
+    }
+  }
+
+  // 2) Check schedules by weekday
+  const schedules = doc.schedules || doc.schedule || doc.working_days || doc.working_hours;
+  const weekday = targetDate.getDay(); // 0 Sunday .. 6 Saturday
+
+  if (Array.isArray(schedules)) {
+    // schedules might have day_of_week numeric or name
+    const byDay = schedules.find((s: any) => s.day_of_week === weekday || s.day === weekday || String(s.day_of_week) === String(weekday));
+    if (byDay) {
+      return { start: byDay.start_time || byDay.start || byDay.from, end: byDay.end_time || byDay.end || byDay.to } as any;
+    }
+  }
+
+  // 3) If schedules is an object keyed by day names
+  if (schedules && typeof schedules === 'object' && !Array.isArray(schedules)) {
+    // map JS getDay to name
+    const names = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+    const name = names[weekday];
+    const dayCfg = schedules[name] || schedules[name.charAt(0).toUpperCase() + name.slice(1)];
+    if (dayCfg) {
+      return { start: dayCfg.start || dayCfg.start_time || dayCfg.from, end: dayCfg.end || dayCfg.end_time || dayCfg.to } as any;
+    }
+  }
+
+  // No explicit availability found; return null to indicate unknown/unavailable
+  return null;
 }
 
 formatTimeForDisplay(time: string): string {
@@ -768,28 +936,32 @@ getRescheduleMessage(appointment: any): string {
 }
 
 formatTimeInput(): void {
-  if (this.rescheduleForm.start_time) {
+  const startTimeControl = this.rescheduleForm.get('start_time');
+  if (startTimeControl?.value) {
     // Ensure the time is in HH:mm format only (without seconds)
-    this.rescheduleForm.start_time = this.rescheduleForm.start_time.substring(0, 5);
+    const cleanedTime = startTimeControl.value.substring(0, 5);
+    startTimeControl.setValue(cleanedTime);
 
     // Update end_time when start_time changes
     this.updateEndTimeBasedOnStartTime();
   }
 
-  if (this.rescheduleForm.end_time) {
-    this.rescheduleForm.end_time = this.rescheduleForm.end_time.substring(0, 5);
+  const endTimeControl = this.rescheduleForm.get('end_time');
+  if (endTimeControl?.value) {
+    const cleanedTime = endTimeControl.value.substring(0, 5);
+    endTimeControl.setValue(cleanedTime);
   }
 }
 
 closeRescheduleModal(): void {
   this.showRescheduleModal = false;
   this.rescheduleAppointment = null;
-  this.rescheduleForm = {
+  this.rescheduleForm.reset({
     appointment_date: '',
     start_time: '',
     end_time: '',
     reason_for_reschedule: ''
-  };
+  });
   this.rescheduleErrors = {
     appointment_date: '',
     start_time: '',
