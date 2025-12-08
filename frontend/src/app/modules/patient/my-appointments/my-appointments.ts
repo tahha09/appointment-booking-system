@@ -65,7 +65,7 @@ export class MyAppointments implements OnInit {
   // View details
   selectedAppointment: Appointment | null = null;
   showDetailsModal = false;
-  
+
   // Rating
   showRatingModal = false;
   ratingAppointment: Appointment | null = null;
