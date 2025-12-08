@@ -9,6 +9,9 @@ use App\Models\MedicalHistory;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use App\Notifications\PatientPrescriptionNotification;
+use App\Models\User;
+use App\Models\Patient;
 
 class PrescriptionController extends Controller
 {
@@ -91,6 +94,32 @@ class PrescriptionController extends Controller
                 'notes' => $notes,
                 'visit_date' => $appointment->appointment_date,
             ]);
+
+            if ($appointment->patient) {
+                $patientUser = User::find($appointment->patient->user_id);
+                
+                if ($patientUser) {
+                    $doctor->load(['user', 'specialization']);
+                    $doctorName = $doctor->user->name ?? 'Dr. ' . ($doctor->full_name ?? 'Unknown');
+                    $specializationName = $doctor->specialization->name ?? 'General Medicine';
+                    
+                    $patientUser->notify(new PatientPrescriptionNotification('prescription_created', [
+                        'title' => 'New Medical Prescription',
+                        'message' => "Dr. {$doctorName} ({$specializationName}) has prescribed you: {$validated['medication_name']}",
+                        'type' => 'info',
+                        'prescription_id' => $prescription->id,
+                        'doctor_name' => $doctorName,
+                        'specialization' => $specializationName,
+                        'medication_name' => $validated['medication_name'],
+                        'dosage' => $validated['dosage'],
+                        'frequency' => $validated['frequency'],
+                        'duration' => $validated['duration'],
+                        'subject' => 'New Medical Prescription',
+                    ]));
+                }
+            }            
+            
+            
 
             $prescription->load(['patient.user', 'doctor.user', 'doctor.specialization', 'appointment']);
 
