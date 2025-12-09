@@ -456,16 +456,17 @@
               <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <i class="fas fa-calendar-alt text-[#0A7075]"></i>
               </div>
-              <input type="date"
-                     id="reschedule-date"
-                     formControlName="appointment_date"
-                     (change)="rescheduleErrors.appointment_date = ''"
-                     [min]="getMinDate()"
-                     class="w-full pl-12 pr-4 py-3.5 border-2 border-teal-200 rounded-2xl
-                            focus:border-[#0A7075] focus:ring-3 focus:ring-teal-100 focus:outline-none
-                            transition duration-200 text-gray-700 bg-white
-                            hover:border-[#0C969C]"
-                     required>
+              <select id="reschedule-date" #rescheduleDate
+                 formControlName="appointment_date"
+                 (change)="onRescheduleDateChange(rescheduleDate.value); rescheduleErrors.appointment_date = ''"
+                 class="w-full pl-12 pr-4 py-3.5 border-2 border-teal-200 rounded-2xl
+                   focus:border-[#0A7075] focus:ring-3 focus:ring-teal-100 focus:outline-none
+                   transition duration-200 text-gray-700 bg-white hover:border-[#0C969C]">
+                <option value="" disabled *ngIf="!availableDates.length">Select a date</option>
+                <option *ngFor="let d of availableDates" [value]="d">{{ formatDate(d) }}</option>
+              </select>
+              <div *ngIf="!availableDates.length && loadingAvailability" class="text-sm text-gray-500 mt-2">Loading available dates...</div>
+              <div *ngIf="!availableDates.length && !loadingAvailability" class="text-sm text-red-600 mt-2">No available dates for this doctor.</div>
             </div>
             <div *ngIf="rescheduleErrors.appointment_date" class="mt-2 text-red-600 text-sm flex items-center gap-2">
               <i class="fas fa-exclamation-triangle"></i>
@@ -493,15 +494,19 @@
                   <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <i class="fas fa-play-circle text-[#0A7075]"></i>
                   </div>
-                  <input type="time"
-                         id="start_time"
+                      <select id="start_time" #rescheduleTime
                          formControlName="start_time"
-                         (change)="updateEndTimeBasedOnStartTime(); rescheduleErrors.start_time = ''"
+                         (change)="onRescheduleTimeChange(rescheduleTime.value); rescheduleErrors.start_time = ''"
                          class="w-full pl-12 pr-4 py-3.5 border-2 border-teal-200 rounded-2xl
-                                focus:border-[#0A7075] focus:ring-3 focus:ring-teal-100 focus:outline-none
-                                transition duration-200 text-gray-700 bg-white
-                                hover:border-[#0C969C]"
-                         required>
+                           focus:border-[#0A7075] focus:ring-3 focus:ring-teal-100 focus:outline-none
+                           transition duration-200 text-gray-700 bg-white hover:border-[#0C969C]">
+                        <option value="" disabled *ngIf="!availableTimes.length">Select a time</option>
+                        <option *ngFor="let slot of availableTimes" [value]="slot">{{ slot }}{{ calculateEndTime(slot) ? ' - ' + calculateEndTime(slot) : '' }}</option>
+                      </select>
+                      <div *ngIf="!availableTimes.length && !loadingAvailability" class="mt-2 text-sm text-red-600 flex items-center gap-2">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        No available time slots for the selected date.
+                      </div>
                 </div>
                 <div *ngIf="rescheduleErrors.start_time" class="mt-2 text-red-600 text-sm flex items-center gap-2">
                   <i class="fas fa-exclamation-triangle"></i>
@@ -574,7 +579,6 @@
 
       <!-- زر Confirm Reschedule -->
       <button (click)="submitReschedule()"
-              [disabled]="!isRescheduleFormValidForUI()"
               class="px-6 py-3 bg-gradient-to-r from-[#0A7075] to-[#0C969C] hover:from-[#0C969C] hover:to-[#0A7075]
                      text-white font-semibold rounded-xl transition-all duration-200 flex items-center gap-2
                      hover:shadow-lg transform hover:-translate-y-0.5 active:translate-y-0

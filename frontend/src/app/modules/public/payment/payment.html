@@ -158,15 +158,14 @@
             <div class="mt-4 grid gap-4 md:grid-cols-3">
               <label class="flex flex-col gap-2 font-semibold">
                 date
-                <input type="date" formControlName="appointmentDate" [attr.min]="minAppointmentDate"
-                  class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none" />
-                <span class="text-xs text-red-500" *ngIf="f['appointmentDate'].touched && f['appointmentDate'].invalid">
-                  Please select a valid date.
-                </span>
-                <span class="text-xs text-red-500"
-                  *ngIf="!availabilityLoading && f['appointmentDate'].errors?.['noSlots']">
-                  {{ availabilityMessage }}
-                </span>
+                <select formControlName="appointmentDate" #payDate
+                  (change)="paymentForm.get('startTime')?.setValue(''); availableSlots = slotsByDate[payDate.value] || [];"
+                  class="rounded-2xl border border-[#e0eff2] px-4 py-3 text-sm text-[#031716] focus:border-[#0c969c] focus:outline-none">
+                  <option value="" *ngIf="!availableDates.length">Select a date</option>
+                  <option *ngFor="let d of availableDates" [value]="d">{{ d | date: 'longDate' }}</option>
+                </select>
+                <div *ngIf="!availableDates.length && availabilityLoading" class="text-xs text-gray-500">Loading available dates...</div>
+                <div *ngIf="!availableDates.length && !availabilityLoading" class="text-xs text-red-500">No available dates for selected doctor.</div>
               </label>
               <label class="flex flex-col gap-2 font-semibold">
                 Available slots
