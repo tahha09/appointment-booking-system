@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { HttpClient, HttpClientModule, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Auth } from '../../../core/services/auth';
+import { lastValueFrom } from 'rxjs';
 import { Appointment as AppointmentService } from '../../../core/services/appointment';
 import { finalize, switchMap, tap } from 'rxjs/operators';
 import { Header } from '../../../shared/components/header/header';
@@ -13,6 +14,7 @@ import { SpecializationService } from '../../../core/services/specialization';
 import { Doctor, DoctorResponse } from '../../../models/doctor';
 import { Specialization } from '../../../models/specialization.model';
 import { Notification } from '../../../core/services/notification';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-payment',
@@ -34,7 +36,11 @@ export class Payment implements OnInit {
   availableSlots: string[] = [];
   availabilityLoading = false;
   availabilityMessage = '';
+  // date dropdown state for payment rescheduling
+  availableDates: string[] = [];
+  slotsByDate: Record<string, string[]> = {};
   private pendingAvailabilityDate: string | null = null;
+  private readonly apiBase = environment.apiUrl;
   manualSelectionMode = false;
   private manualSelectionInitialized = false;
   specializations: Specialization[] = [];
@@ -82,9 +88,9 @@ export class Payment implements OnInit {
       amount: [null, Validators.required],
       appointmentDate: [this.minAppointmentDate, Validators.required],
       startTime: ['', Validators.required],
-      endTime: ['', Validators.required],
-      reason: ['', [Validators.required, Validators.minLength(5)]],
-      notes: [''],
+      endTime: [null, Validators.required],
+      reason: [null, [Validators.required, Validators.minLength(5)]],
+      notes: [null],
       paymentMethod: ['credit_card', Validators.required],
       cardNumber: [''],
       cardExpiry: [''],
@@ -160,7 +166,17 @@ export class Payment implements OnInit {
       this.configureMethodValidators(method);
     });
     this.paymentForm.get('appointmentDate')?.valueChanges.subscribe((date) => {
-      this.loadAvailability(date);
+      // prefer cached slots if we've prefetched dates, otherwise load
+      if (date && this.slotsByDate[date]) {
+        this.availableSlots = this.slotsByDate[date] || [];
+        if (!this.availableSlots.length) {
+          this.updateControlError('appointmentDate', 'noSlots', true);
+        } else {
+          this.updateControlError('appointmentDate', 'noSlots', false);
+        }
+      } else {
+        this.loadAvailability(date);
+      }
     });
     this.paymentForm.get('startTime')?.valueChanges.subscribe((slot) => {
       this.updateEndTime(slot);
@@ -169,7 +185,49 @@ export class Payment implements OnInit {
       this.formatCardNumber(value);
     });
 
+    // When manually selecting a doctor, load details and prefetch availability
+    this.paymentForm.get('doctorId')?.valueChanges.subscribe((val) => {
+      // call the helper that handles manual doctor selection
+      this.onManualDoctorSelected(val);
+    });
+
     this.populatePatientDetails();
+    // prefetch is called in loadDoctorDetails after doctor details are loaded
+  }
+
+  private async prefetchAvailableDatesForDoctor(days: number = 14): Promise<void> {
+    this.availableDates = [];
+    this.slotsByDate = {};
+    if (!this.doctorInfo.id) return;
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const seenDates = new Set<string>(); // track seen dates to avoid duplicates
+    for (let i = 0; i < days; i++) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      const y = d.getFullYear();
+      const m = (d.getMonth() + 1).toString().padStart(2, '0');
+      const day = d.getDate().toString().padStart(2, '0');
+      const dateStr = `${y}-${m}-${day}`;
+      try {
+        const res: any = await lastValueFrom(this.http.get(`${this.apiBase}/doctors/${this.doctorInfo.id}/availability`, { params: { date: dateStr } }));
+        const slots = res?.data?.available_slots ?? [];
+        if (Array.isArray(slots) && slots.length) {
+          if (!seenDates.has(dateStr)) {
+            this.availableDates.push(dateStr);
+            seenDates.add(dateStr);
+          }
+          this.slotsByDate[dateStr] = slots;
+        }
+      } catch (e) {
+        // ignore failures for individual dates
+      }
+    }
+    // if we found dates, pick the first to initialize
+    if (this.availableDates.length) {
+      this.paymentForm.get('appointmentDate')?.setValue(this.availableDates[0]);
+      this.availableSlots = this.slotsByDate[this.availableDates[0]] || [];
+    }
   }
 
   get f() {
@@ -580,6 +638,8 @@ export class Payment implements OnInit {
           if (dateToCheck) {
             this.loadAvailability(dateToCheck);
           }
+          // Prefetch multiple available dates for this doctor to populate dropdown
+          void this.prefetchAvailableDatesForDoctor();
         } else {
           this.doctorError = 'Doctor information could not be loaded.';
         }
@@ -732,19 +792,10 @@ export class Payment implements OnInit {
         return;
       }
     }
-
     const appointmentDate = this.paymentForm.value.appointmentDate;
     const startTime = this.paymentForm.value.startTime;
     const endTime = this.paymentForm.value.endTime;
-    if (!appointmentDate || !startTime || !endTime) {
-      this.paymentForm.markAllAsTouched();
-      this.errorMessage = 'Please complete the appointment details.';
-      return;
-    }
-    if (startTime >= endTime) {
-      this.errorMessage = 'End time must be after the start time.';
-      return;
-    }
+    // client-side validation removed per request — server will enforce correctness
 
     const amountForPayload = this.selectedMethod === 'cash' && (isNaN(amount) || amount <= 0) ? 0 : amount;
 

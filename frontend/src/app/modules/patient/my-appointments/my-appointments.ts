@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { lastValueFrom } from 'rxjs';
 import { PatientService } from '../../../core/services/patient.service';
 import { Notification } from '../../../core/services/notification';
 import { Appointment as AppointmentService, AppointmentModel } from '../../../core/services/appointment';
@@ -48,6 +49,10 @@ export class MyAppointments implements OnInit {
   loadingAvailability = false;
   selectedDate: string = '';
   selectedTime: string = '';
+  // For reschedule dropdowns
+  availableDates: string[] = [];
+  availableTimes: string[] = [];
+  private slotsByDate: Record<string, string[]> = {};
   rescheduleErrors = {
     appointment_date: '',
     start_time: '',
@@ -94,8 +99,9 @@ export class MyAppointments implements OnInit {
     private fb: FormBuilder
   ) {
     this.rescheduleForm = this.fb.group({
-      appointment_date: ['', Validators.required],
-      start_time: ['', Validators.required],
+      // Use optional controls; we will show only available options in UI
+      appointment_date: [''],
+      start_time: [''],
       end_time: [''],
       reason_for_reschedule: ['']
     });
@@ -333,12 +339,7 @@ export class MyAppointments implements OnInit {
   // Step 1: Clean the data
   this.prepareRescheduleData();
 
-  // Step 2: Validate the data
-  if (!this.validateRescheduleForm()) {
-    return;
-  }
-
-  // Step 3: Prepare data for submission
+  // Step 2: Prepare data for submission (no client-side validation enforced)
   const formattedData = this.formatRescheduleData();
 
 
@@ -379,62 +380,20 @@ private prepareRescheduleData(): void {
 
 
 private validateRescheduleForm(): boolean {
-  // 1. Check required fields
-  if (!this.rescheduleForm.get('appointment_date')?.value) {
-      this.rescheduleErrors.appointment_date = 'Please select a date';
+  // Validation intentionally relaxed: UI only shows available dates/times,
+  // so server-side will enforce correctness. Here we simply ensure values exist.
+  this.rescheduleErrors.appointment_date = '';
+  this.rescheduleErrors.start_time = '';
+  this.rescheduleErrors.end_time = '';
+
+  const appointmentDate = this.rescheduleForm.get('appointment_date')?.value;
+  const startTime = this.rescheduleForm.get('start_time')?.value;
+
+  if (!appointmentDate || !startTime) {
+    // mark missing fields but allow submission if user confirms (optional)
+    if (!appointmentDate) this.rescheduleErrors.appointment_date = 'Please select a date.';
+    if (!startTime) this.rescheduleErrors.start_time = 'Please select a time.';
     return false;
-  }
-
-  if (!this.rescheduleForm.get('start_time')?.value) {
-      this.rescheduleErrors.start_time = 'Please select a time';
-    return false;
-  }
-
-  // 2. Check time format
-    const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
-    if (!timeRegex.test(this.rescheduleForm.get('start_time')?.value)) {
-      this.rescheduleErrors.start_time = 'Invalid time format. Please use HH:mm (e.g., 14:00)';
-      return false;
-    }
-
-  // 3. Check that the date is not in the past
-  const selectedDate = new Date(this.rescheduleForm.get('appointment_date')?.value);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // Remove time to compare only the date
-
-  if (selectedDate < today) {
-    this.rescheduleErrors.appointment_date = 'Cannot reschedule to a past date';
-    return false;
-  }
-
-  // 4. Check that end_time is after start_time
-  if (this.rescheduleForm.get('end_time')?.value) {
-    const start = new Date(`1970-01-01T${this.rescheduleForm.get('start_time')?.value}`);
-    const end = new Date(`1970-01-01T${this.rescheduleForm.get('end_time')?.value}`);
-
-    if (end <= start) {
-      this.rescheduleErrors.end_time = 'End time must be after start time';
-      return false;
-    }
-  }
-
-  // 5. Validate against doctor's availability (if present on the appointment object)
-  const avail = this.getDoctorAvailabilityForDate(this.rescheduleForm.get('appointment_date')?.value);
-  if (this.rescheduleAppointment && avail === null) {
-    this.rescheduleErrors.appointment_date = 'The selected doctor is not available on this date';
-    return false;
-  }
-
-  if (this.rescheduleForm.get('start_time')?.value && this.rescheduleForm.get('end_time')?.value && avail) {
-    const startMin = this.timeToMinutes(this.rescheduleForm.get('start_time')?.value);
-    const endMin = this.timeToMinutes(this.rescheduleForm.get('end_time')?.value);
-    const availStart = this.timeToMinutes(avail.start);
-    const availEnd = this.timeToMinutes(avail.end);
-
-    if (startMin < availStart || endMin > availEnd) {
-      this.rescheduleErrors.start_time = `Selected time is outside doctor's working hours (${avail.start} - ${avail.end})`;
-      return false;
-    }
   }
 
   return true;
@@ -652,6 +611,72 @@ private handleRescheduleError(err: any): void {
   });
 
   this.showRescheduleModal = true;
+  // Load availability for this doctor (next 14 days)
+  void this.loadAvailableDatesForDoctor();
+}
+
+/**
+ * Populate availableDates and slotsByDate by querying the doctor's availability endpoint
+ */
+async loadAvailableDatesForDoctor(days: number = 14): Promise<void> {
+  this.availableDates = [];
+  this.availableTimes = [];
+  this.slotsByDate = {};
+  if (!this.rescheduleAppointment || !this.rescheduleAppointment.doctor || !this.rescheduleAppointment.doctor.id) {
+    return;
+  }
+
+  const doctorId = this.rescheduleAppointment.doctor.id;
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  this.loadingAvailability = true;
+  try {
+    for (let i = 0; i < days; i++) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      const y = d.getFullYear();
+      const m = (d.getMonth() + 1).toString().padStart(2, '0');
+      const day = d.getDate().toString().padStart(2, '0');
+      const dateStr = `${y}-${m}-${day}`;
+      try {
+        const res: any = await lastValueFrom(this.http.get(`${this.apiBase}/doctors/${doctorId}/availability`, { params: { date: dateStr } }));
+        const slots = res?.data?.available_slots ?? [];
+        if (Array.isArray(slots) && slots.length) {
+          this.availableDates.push(dateStr);
+          this.slotsByDate[dateStr] = slots;
+        }
+      } catch (e) {
+        // ignore per-date errors
+      }
+    }
+
+    if (this.availableDates.length) {
+      const current = this.rescheduleForm.get('appointment_date')?.value;
+      const pick = current && this.availableDates.includes(current) ? current : this.availableDates[0];
+      this.rescheduleForm.get('appointment_date')?.setValue(pick);
+      this.onRescheduleDateChange(pick);
+    }
+  } finally {
+    this.loadingAvailability = false;
+    this.cdr.detectChanges();
+  }
+}
+
+onRescheduleDateChange(date: string): void {
+  this.availableTimes = this.slotsByDate[date] ?? [];
+  // preselect the first available time when switching date
+  if (this.availableTimes.length) {
+    this.rescheduleForm.get('start_time')?.setValue(this.availableTimes[0]);
+    this.updateEndTimeBasedOnStartTime();
+  } else {
+    this.rescheduleForm.get('start_time')?.setValue('');
+    this.rescheduleForm.get('end_time')?.setValue('');
+  }
+}
+
+onRescheduleTimeChange(slot: string): void {
+  this.rescheduleForm.get('start_time')?.setValue(slot);
+  this.updateEndTimeBasedOnStartTime();
 }
 
 updateEndTimeBasedOnStartTime(): void {

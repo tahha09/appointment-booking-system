@@ -4,6 +4,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Auth } from '../../../core/services/auth';
 import { environment } from '../../../../environments/environment';
+import { confirmDialog } from '../../../utils/confirmation';
 
 interface MedicalImageRecord {
   id: number;
@@ -132,12 +133,17 @@ export class PatientsManagement implements OnInit {
     this.fetchPatients(1);
   }
 
-  blockPatient(patientId: number): void {
+  async blockPatient(patientId: number): Promise<void> {
     if (this.blockingPatient === patientId) return;
 
-    if (!confirm('Are you sure you want to block this patient? They will not be able to book appointments with you.')) {
-      return;
-    }
+    const confirmed = await confirmDialog({
+      title: 'Block patient',
+      message: 'Are you sure you want to block this patient? They will not be able to book appointments with you.',
+      okText: 'Block',
+      cancelText: 'Cancel',
+    });
+
+    if (!confirmed) return;
 
     this.blockingPatient = patientId;
     const token = this.auth.getToken();

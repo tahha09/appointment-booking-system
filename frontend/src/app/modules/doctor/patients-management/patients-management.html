@@ -234,7 +234,7 @@ x
         </div>
 
         <div *ngIf="!patientDetailsLoading" class="pt-4 border-t border-[#6ba3be]/30">
-          <ng-container *ngIf="selectedPatient?.medical_images as medicalImages; else noMedicalImages">
+          <ng-container *ngIf="selectedPatient.medical_images as medicalImages; else noMedicalImages">
             <div class="flex items-center justify-between mb-3">
               <span class="text-xs sm:text-sm text-[#6ba3be] uppercase tracking-wide">Medical Images</span>
               <span class="text-xs text-[#6ba3be]">
@@ -258,7 +258,7 @@ x
 
                 <p class="text-sm text-[#032f30] mt-2" *ngIf="record.description">{{ record.description }}</p>
 
-                <div *ngIf="record.images?.length; else recordNoImages" class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
+                <div *ngIf="record.images.length; else recordNoImages" class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
                   <div *ngFor="let photo of record.images" class="relative rounded-xl border border-[#d7ebef] overflow-hidden bg-white">
                     <img [src]="getMediaImageUrl(photo)" alt="Medical image" class="w-full h-32 object-cover" />
                   </div>
