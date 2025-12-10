@@ -4,8 +4,8 @@
   </div>
 
   <!-- Filters -->
-  <div class="rounded-2xl border border-[#d3e6eb] bg-white p-5 shadow-lg">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+  <div class="filter rounded-2xl border border-[#d3e6eb] bg-white p-5 shadow-lg">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-3 sm:gap">
       <div>
         <label class="block text-sm font-semibold text-[#0a7075] mb-2">Status</label>
         <select
@@ -38,16 +38,16 @@
         />
       </div>
 
-      <div class="flex items-end gap-2">
+      <div class="actions flex flex-col gap-2 lg:flex-row lg:items-end">
         <button
           (click)="applyFilters()"
-          class="flex-1 px-4 py-2 rounded-xl bg-[#0c969c] text-white font-semibold hover:bg-[#0a7075] transition"
+          class="w-full lg:flex-1 px-4 py-2 rounded-xl bg-[#0c969c] text-white font-semibold hover:bg-[#0a7075] transition"
         >
           Apply
         </button>
         <button
           (click)="resetFilters()"
-          class="px-4 py-2 rounded-xl border border-[#6ba3be]/40 text-[#6ba3be] hover:bg-white/5 transition"
+          class="w-full lg:w-auto px-4 py-2 rounded-xl border border-[#6ba3be]/40 text-[#6ba3be] hover:bg-white/5 transition"
         >
           Reset
         </button>
@@ -74,12 +74,12 @@
       <p class="text-[#6ba3be] text-lg">No appointments found.</p>
     </div>
 
-    <div *ngFor="let appointment of appointments" class="rounded-2xl border border-[#d7ebef] bg-white p-6 shadow-lg hover:border-[#0c969c]/50 transition">
-      <div class="flex flex-col lg:flex-row gap-6">
+    <div *ngFor="let appointment of appointments" class="appointment-card rounded-2xl border border-[#d7ebef] bg-white p-4 sm:p-6 shadow-lg hover:border-[#0c969c]/50 transition">
+      <div class="flex flex-col lg:flex-row gap-4 lg:gap-6">
         <!-- Patient Info -->
         <div class="flex-1">
           <div class="flex items-start gap-4">
-            <div class="w-16 h-16 rounded-full bg-[#0c969c]/15 border-2 border-[#0c969c]/40 overflow-hidden flex-shrink-0">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#0c969c]/15 border-2 border-[#0c969c]/40 overflow-hidden flex-shrink-0">
               <img
                 [src]="getUserImage(appointment.patient?.user || null)"
                 [alt]="appointment.patient?.user?.name"
@@ -87,15 +87,15 @@
               />
             </div>
             <div class="flex-1">
-              <h3 class="text-xl font-bold text-[#031716] mb-1">{{ appointment.patient?.user?.name || 'Unknown Patient' }}</h3>
-              <p class="text-sm text-[#6ba3be] mb-2">{{ appointment.patient?.user?.email }}</p>
-              <p class="text-sm text-[#6ba3be]">{{ appointment.patient?.user?.phone }}</p>
+              <h3 class="text-lg sm:text-xl font-bold text-[#031716] mb-1 truncate">{{ appointment.patient?.user?.name || 'Unknown Patient' }}</h3>
+              <p class="text-xs sm:text-sm text-[#6ba3be] mb-1 truncate">{{ appointment.patient?.user?.email }}</p>
+              <p class="text-xs sm:text-sm text-[#6ba3be]">{{ appointment.patient?.user?.phone }}</p>
             </div>
           </div>
         </div>
 
         <!-- Appointment Details -->
-        <div class="flex-1 space-y-2">
+        <div class="flex-1 space-y-2 text-sm">
           <div class="flex items-center gap-2">
             <span class="text-sm text-[#6ba3be]">Date:</span>
             <span class="text-[#031716] font-semibold">{{ formatDate(appointment.appointment_date) }}</span>
@@ -127,20 +127,20 @@
         </div>
 
         <!-- Actions -->
-        <div class="flex flex-col gap-3">
+        <div class="flex flex-col gap-3 items-stretch sm:items-end">
           <button
             (click)="viewPatientDetails(appointment.patient)"
-            class="px-4 py-2 rounded-xl border border-[#0c969c]/50 text-[#0c969c] bg-[#0c969c]/10 font-semibold hover:bg-[#0c969c]/20 transition text-sm"
+            class="w-full sm:w-auto px-4 py-2 rounded-xl border border-[#0c969c]/50 text-[#0c969c] bg-[#0c969c]/10 font-semibold hover:bg-[#0c969c]/20 transition text-sm"
           >
             View Patient
           </button>
 
-          <div class="flex flex-col gap-2">
+          <div class="flex flex-col gap-2 w-full sm:w-auto">
             <button
               *ngIf="appointment.status === 'pending'"
               (click)="updateStatus(appointment.id, 'confirmed')"
               [disabled]="updatingStatus === appointment.id"
-              class="px-4 py-2 rounded-xl border border-emerald-400/50 text-emerald-500 bg-emerald-400/10 hover:bg-emerald-400/20 font-semibold transition text-sm tracking-wide shadow-sm shadow-black/20 disabled:opacity-50"
+              class="w-full sm:w-auto px-4 py-2 rounded-xl border border-emerald-400/50 text-emerald-500 bg-emerald-400/10 hover:bg-emerald-400/20 font-semibold transition text-sm tracking-wide shadow-sm shadow-black/20 disabled:opacity-50"
             >
               {{ updatingStatus === appointment.id ? 'Updating...' : 'Accept' }}
             </button>
@@ -150,7 +150,7 @@
               *ngIf="appointment.status === 'confirmed' || appointment.status === 'pending'"
               (click)="updateStatus(appointment.id, 'cancelled')"
               [disabled]="updatingStatus === appointment.id"
-              class="px-4 py-2 rounded-xl border border-orange-400/50 text-orange-500 bg-orange-400/10 hover:bg-orange-400/20 font-semibold transition text-sm tracking-wide shadow-sm shadow-black/20 disabled:opacity-50"
+              class="w-full sm:w-auto px-4 py-2 rounded-xl border border-orange-400/50 text-orange-500 bg-orange-400/10 hover:bg-orange-400/20 font-semibold transition text-sm tracking-wide shadow-sm shadow-black/20 disabled:opacity-50"
             >
               {{ updatingStatus === appointment.id ? 'Updating...' : 'Cancel' }}
             </button>
@@ -159,7 +159,7 @@
               *ngIf="appointment.status === 'confirmed'"
               (click)="completeAppointment(appointment)"
               [disabled]="updatingStatus === appointment.id"
-              class="px-4 py-2 rounded-xl border border-blue-400/50 text-blue-500 bg-blue-400/10 hover:bg-blue-400/20 font-semibold transition text-sm tracking-wide shadow-sm shadow-black/20 disabled:opacity-50"
+              class="w-full sm:w-auto px-4 py-2 rounded-xl border border-blue-400/50 text-blue-500 bg-blue-400/10 hover:bg-blue-400/20 font-semibold transition text-sm tracking-wide shadow-sm shadow-black/20 disabled:opacity-50"
             >
               Complete
             </button>
