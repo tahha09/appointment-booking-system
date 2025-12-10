@@ -2,266 +2,256 @@
   <input id="patient-menu" type="checkbox" class="peer hidden" [(ngModel)]="isSidebarCollapsed" />
 
   <aside
-    class="fixed inset-y-0 left-0 z-30 flex w-72 -translate-x-full transform flex-col bg-gradient-to-b from-[#031716] via-[#042628] to-[#052f2f] text-slate-50 shadow-2xl transition duration-300 peer-checked:translate-x-0 md:sticky md:translate-x-0 h-screen"
-    [class.w-72]="!isSidebarCollapsed" [class.w-20]="isSidebarCollapsed" [class.md:translate-x-0]="true">
-    <div class="flex items-center gap-4 border-b border-[#0a7075] bg-[#021718]/90 px-6 py-6 text-white">
-      <img src="assets/logo.png" alt="CarePulse Logo" class="h-20 w-20 object-contain drop-shadow-lg" />
-      <div class="space-y-1">
-        <p class="text-[0.65rem] uppercase tracking-[0.35em] text-[#86d7df]">Patient Portal</p>
-        <p class="text-2xl font-semibold text-white">MedCare</p>
+    class="fixed inset-y-0 left-0 z-50 flex flex-col bg-gradient-to-b from-[#031716] via-[#042628] to-[#052f2f] text-slate-50 shadow-2xl transition-all duration-300 h-screen w-72 -translate-x-full peer-checked:translate-x-0 md:sticky md:translate-x-0"
+    [class.md:w-72]="!isSidebarCollapsed" 
+    [class.md:w-20]="isSidebarCollapsed"
+  >
+    <div class="flex items-center gap-4 border-b border-[#0a7075] bg-[#021718]/90 px-6 py-6 text-white overflow-hidden">
+      <img src="assets/logo.png" alt="CarePulse Logo" class="h-20 w-20 object-contain drop-shadow-lg flex-shrink-0" />
+      <div class="space-y-1 min-w-0" [class.md:hidden]="isSidebarCollapsed">
+        <p class="text-[0.65rem] uppercase tracking-[0.35em] text-[#86d7df] truncate">Patient Portal</p>
+        <p class="text-2xl font-semibold text-white truncate">MedCare</p>
       </div>
     </div>
 
-
     <nav class="flex flex-1 flex-col gap-2 overflow-y-auto px-4 py-6 text-sm font-semibold text-[#cfe5e7]">
-      <span class="px-3 text-xs uppercase tracking-[0.4em] text-[#8fd0d9]"
-        [class.hidden]="isSidebarCollapsed">Menu</span>
+      <span class="px-3 text-xs uppercase tracking-[0.4em] text-[#8fd0d9] whitespace-nowrap" [class.md:hidden]="isSidebarCollapsed">Menu</span>
 
-      <!-- Dashboard -->
-      <a class="group relative flex items-center gap-3 rounded-xl border-l-4 border-transparent px-4 py-3 text-[#dfeff1] transition hover:border-white/10 hover:bg-white/5 hover:text-white"
+      <a
+        class="group relative flex items-center gap-3 rounded-xl border-l-4 border-transparent px-4 py-3 text-[#dfeff1] transition hover:border-white/10 hover:bg-white/5 hover:text-white"
         routerLink="/patient/dashboard"
         routerLinkActive="active bg-gradient-to-r from-[#0a7075] to-[#0c969c] text-white shadow-lg"
-        [routerLinkActiveOptions]="{ exact: true }">
-        <span class="text-[#7fdae6] transition group-[.active]:text-white">
+        [routerLinkActiveOptions]="{ exact: true }"
+        [title]="isSidebarCollapsed ? 'Dashboard' : ''"
+      >
+        <span class="text-[#7fdae6] transition group-[.active]:text-white flex-shrink-0">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
           </svg>
         </span>
-        <span [class.hidden]="isSidebarCollapsed">Dashboard</span>
+        <span class="whitespace-nowrap transition-all duration-200" [class.md:hidden]="isSidebarCollapsed">Dashboard</span>
       </a>
 
-      <!-- My Appointments -->
-      <a class="group relative flex items-center gap-3 rounded-xl border-l-4 border-transparent px-4 py-3 text-[#dfeff1] transition hover:border-white/10 hover:bg-white/5 hover:text-white"
+      <a
+        class="group relative flex items-center gap-3 rounded-xl border-l-4 border-transparent px-4 py-3 text-[#dfeff1] transition hover:border-white/10 hover:bg-white/5 hover:text-white"
         routerLink="/patient/my-appointments"
-        routerLinkActive="active bg-gradient-to-r from-[#0a7075] to-[#0c969c] text-white shadow-lg">
-        <span class="text-[#7fdae6] transition group-[.active]:text-white">
+        routerLinkActive="active bg-gradient-to-r from-[#0a7075] to-[#0c969c] text-white shadow-lg"
+        [title]="isSidebarCollapsed ? 'Appointments' : ''"
+      >
+        <span class="text-[#7fdae6] transition group-[.active]:text-white flex-shrink-0">
           <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
         </span>
-        <span [class.hidden]="isSidebarCollapsed">Appointments</span>
+        <span class="whitespace-nowrap transition-all duration-200" [class.md:hidden]="isSidebarCollapsed">Appointments</span>
       </a>
 
-      <!-- Medical History -->
-      <a class="group relative flex items-center gap-3 rounded-xl border-l-4 border-transparent px-4 py-3 text-[#dfeff1] transition hover:border-white/10 hover:bg-white/5 hover:text-white"
+      <a
+        class="group relative flex items-center gap-3 rounded-xl border-l-4 border-transparent px-4 py-3 text-[#dfeff1] transition hover:border-white/10 hover:bg-white/5 hover:text-white"
         routerLink="/patient/medical-history"
-        routerLinkActive="active bg-gradient-to-r from-[#0a7075] to-[#0c969c] text-white shadow-lg">
-        <span class="text-[#7fdae6] transition group-[.active]:text-white">
+        routerLinkActive="active bg-gradient-to-r from-[#0a7075] to-[#0c969c] text-white shadow-lg"
+        [title]="isSidebarCollapsed ? 'Medical History' : ''"
+      >
+        <span class="text-[#7fdae6] transition group-[.active]:text-white flex-shrink-0">
           <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
           </svg>
         </span>
-        <span [class.hidden]="isSidebarCollapsed">Medical History</span>
+        <span class="whitespace-nowrap transition-all duration-200" [class.md:hidden]="isSidebarCollapsed">Medical History</span>
       </a>
 
-      <!-- Prescriptions -->
-      <a class="group relative flex items-center gap-3 rounded-xl border-l-4 border-transparent px-4 py-3 text-[#dfeff1] transition hover:border-white/10 hover:bg-white/5 hover:text-white"
+      <a
+        class="group relative flex items-center gap-3 rounded-xl border-l-4 border-transparent px-4 py-3 text-[#dfeff1] transition hover:border-white/10 hover:bg-white/5 hover:text-white"
         routerLink="/patient/prescriptions"
-        routerLinkActive="active bg-gradient-to-r from-[#0a7075] to-[#0c969c] text-white shadow-lg">
-        <span class="text-[#7fdae6] transition group-[.active]:text-white">
+        routerLinkActive="active bg-gradient-to-r from-[#0a7075] to-[#0c969c] text-white shadow-lg"
+        [title]="isSidebarCollapsed ? 'Prescriptions' : ''"
+      >
+        <span class="text-[#7fdae6] transition group-[.active]:text-white flex-shrink-0">
           <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
           </svg>
         </span>
-        <span [class.hidden]="isSidebarCollapsed">Prescriptions</span>
+        <span class="whitespace-nowrap transition-all duration-200" [class.md:hidden]="isSidebarCollapsed">Prescriptions</span>
       </a>
 
-      <!-- Medical Images -->
-      <a class="group relative flex items-center gap-3 rounded-xl border-l-4 border-transparent px-4 py-3 text-[#dfeff1] transition hover:border-white/10 hover:bg-white/5 hover:text-white"
+      <a
+        class="group relative flex items-center gap-3 rounded-xl border-l-4 border-transparent px-4 py-3 text-[#dfeff1] transition hover:border-white/10 hover:bg-white/5 hover:text-white"
         routerLink="/patient/medical-images"
-        routerLinkActive="active bg-gradient-to-r from-[#0a7075] to-[#0c969c] text-white shadow-lg">
-        <span class="text-[#7fdae6] transition group-[.active]:text-white">
+        routerLinkActive="active bg-gradient-to-r from-[#0a7075] to-[#0c969c] text-white shadow-lg"
+        [title]="isSidebarCollapsed ? 'Medical Images' : ''"
+      >
+        <span class="text-[#7fdae6] transition group-[.active]:text-white flex-shrink-0">
           <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
         </span>
-        <span [class.hidden]="isSidebarCollapsed">Medical Images</span>
+        <span class="whitespace-nowrap transition-all duration-200" [class.md:hidden]="isSidebarCollapsed">Medical Images</span>
       </a>
 
-      <!-- Profile Link -->
-      <a class="group relative flex items-center gap-3 rounded-xl border-l-4 border-transparent px-4 py-3 text-[#dfeff1] transition hover:border-white/10 hover:bg-white/5 hover:text-white"
+      <a
+        class="group relative flex items-center gap-3 rounded-xl border-l-4 border-transparent px-4 py-3 text-[#dfeff1] transition hover:border-white/10 hover:bg-white/5 hover:text-white cursor-pointer"
         (click)="goToProfile()"
-        class="group relative flex items-center gap-3 rounded-xl border-l-4 border-transparent px-4 py-3 text-[#dfeff1] transition hover:border-white/10 hover:bg-white/5 hover:text-white cursor-pointer">
-        <span class="text-[#7fdae6] transition group-[.active]:text-white">
+        [title]="isSidebarCollapsed ? 'Profile' : ''"
+      >
+        <span class="text-[#7fdae6] transition group-[.active]:text-white flex-shrink-0">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
         </span>
-        <span [class.hidden]="isSidebarCollapsed">Profile</span>
+        <span class="whitespace-nowrap transition-all duration-200" [class.md:hidden]="isSidebarCollapsed">Profile</span>
       </a>
     </nav>
 
     <div class="border-t border-white/10 px-4 py-6">
-      <button type="button" (click)="logout()"
-        class="group flex w-full items-center gap-3 rounded-xl border border-white/5 bg-white/5 px-4 py-3 text-sm font-semibold text-red-200 transition hover:border-red-400/40 hover:bg-red-600/20 hover:text-white"
-        [title]="isSidebarCollapsed ? 'Logout' : ''">
-        <span
-          class="rounded-lg bg-red-500/20 p-2 text-red-200 transition group-hover:bg-white/20 group-hover:text-white">
-          <svg class="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor"
-            stroke-width="2">
+      <button
+        type="button"
+        (click)="logout()"
+        class="group flex w-full items-center gap-3 rounded-xl border border-white/5 bg-white/5 px-4 py-3 text-sm font-semibold text-red-200 transition hover:border-red-400/40 hover:bg-red-600/20 hover:text-white overflow-hidden"
+        [title]="isSidebarCollapsed ? 'Logout' : ''"
+      >
+        <span class="rounded-lg bg-red-500/20 p-2 text-red-200 transition group-hover:bg-white/20 group-hover:text-white flex-shrink-0">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round"
               d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
         </span>
-        <span [class.hidden]="isSidebarCollapsed">Logout</span>
+        <span class="whitespace-nowrap transition-all duration-200" [class.md:hidden]="isSidebarCollapsed">Logout</span>
       </button>
     </div>
   </aside>
 
-  <label for="patient-menu" class="fixed inset-0 z-20 hidden bg-black/40 peer-checked:block md:hidden"></label>
+  <label for="patient-menu" class="fixed inset-0 z-40 hidden bg-black/40 peer-checked:block md:hidden"></label>
 
   <div class="flex min-h-screen flex-1 flex-col bg-[#f8fafc] text-[#15282b] transition-all duration-300">
     <header
-      class="bg-gradient-to-r from-white to-[#f1f9ff] px-4 py-4 text-[#15282b] shadow-md sm:px-6 md:px-10 md:py-6 sticky top-0 z-40">
+      class="bg-gradient-to-r from-white to-[#f1f9ff] px-4 py-4 text-[#15282b] shadow-md sm:px-6 md:px-10 md:py-6 sticky top-0 z-30">
       <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div class="flex items-center gap-3 text-[#163437]">
-          <button (click)="toggleSidebar()"
-            class="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[#0a7075]/30 bg-white text-[#0f2b2e] shadow-md transition hover:border-[#0c969c] md:flex"
-            aria-label="Toggle Sidebar">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
+          <!-- Mobile Toggle Button Only -->
+          <label
+            for="patient-menu"
+            class="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[#0a7075]/30 bg-white text-[#0f2b2e] shadow-md transition hover:border-[#0c969c] md:hidden"
+            aria-label="Toggle Sidebar"
+          >
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12h18M3 6h18M3 18h18" />
             </svg>
-          </button>
+          </label>
 
           <div>
             <p class="text-[0.65rem] uppercase tracking-[0.4em] text-[#0a7075]">Welcome back</p>
-            <h1
-              class="bg-gradient-to-r from-[#0f3033] to-[#0b7070] bg-clip-text text-2xl font-bold text-transparent md:text-3xl">
-              {{ userName }}
+            <h1 class="bg-gradient-to-r from-[#0f3033] to-[#0b7070] bg-clip-text text-2xl font-bold text-transparent md:text-3xl">
+              {{ userName || '...' }}
             </h1>
             <span class="text-sm text-[#5a717d]">{{ currentDate | date: 'fullDate' }}</span>
           </div>
         </div>
 
-        <div class="flex items-center space-x-2 sm:space-x-4">
-
-          <!-- Book Appointment Button -->
-          <button type="button" (click)="bookNewAppointment()" class="hidden sm:flex text-white px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium"
-                  style="background-color: #167277"
-                  onmouseover="this.style.backgroundColor='#0c969c'; this.style.transform='translateY(-2px)'"
-                  onmouseout="this.style.backgroundColor='#167277'; this.style.transform='translateY(0)'">
-            Book New Appointment
-          </button>
-
-          <!-- Mobile Book Button (Icon Only) -->
-          <button type="button" (click)="bookNewAppointment()" class="sm:hidden p-2 rounded-lg transition-colors duration-200" style="color: #0A7075; background: rgba(10, 112, 117, 0.1)">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            <span>Book Appointment</span>
-          </button>
-
-          <!-- Notifications -->
+        <div class="flex items-center gap-3">
           <div class="relative">
-            <button type="button" (click)="toggleNotifications()"
+            <div class="h-12 w-12 rounded-xl overflow-hidden border-2 border-[#0a7075]/30 shadow-lg">
+              <img *ngIf="userAvatar && !avatarLoadError; else initialTpl" [src]="userAvatar" alt="User Avatar" class="h-full w-full object-cover" (error)="handleAvatarError()" />
+              <ng-template #initialTpl>
+                <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-[#0a7075] to-[#0c969c] border-2 border-[#0a7075]/30 shadow-lg flex items-center justify-center">
+                  <span class="text-white font-bold text-lg">{{ userInitial }}</span>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+
+          <div class="relative">
+            <button
+              type="button"
+              (click)="toggleNotifications()"
               class="relative flex h-12 w-12 items-center justify-center rounded-xl border border-[#0a7075]/30 bg-white text-[#143235] shadow-lg transition hover:-translate-y-0.5 hover:border-[#0c969c]"
-              aria-label="Notifications">
+              aria-label="Notifications"
+            >
               <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round"
                   d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
 
-              <!-- unread count -->
-              <span *ngIf="unreadCount > 0"
-                class="absolute -top-1 -right-1 rounded-full bg-red-500 text-white text-xs px-1.5 py-0.5 min-w-[20px] text-center">
+              <span
+                *ngIf="unreadCount > 0"
+                class="absolute -top-1 -right-1 rounded-full bg-red-500 text-white text-xs px-1.5 py-0.5 min-w-[20px] text-center"
+              >
                 {{ unreadCount }}
               </span>
             </button>
 
-            <!-- Dropdown -->
-            <div *ngIf="showNotifications"
-              class="absolute right-0 top-full mt-2 w-80 rounded-xl bg-white shadow-xl ring-1 ring-black/10 z-50 animation-slide-down">
-              <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+            <div
+              *ngIf="showNotifications"
+              class="absolute right-0 top-full mt-2 w-80 rounded-xl bg-white shadow-xl ring-1 ring-black/10 z-50"
+             >
+              <div class="flex items-center justify-between px-4 py-2 border-b">
                 <h3 class="font-semibold text-[#123]">Notifications</h3>
-                <button (click)="markAllAsRead()" class="text-sm text-[#0a7075] hover:underline font-medium"
-                  *ngIf="unreadCount > 0">
+                <button (click)="markAllAsRead()" class="text-sm text-blue-600 hover:underline" *ngIf="unreadCount > 0">
                   Mark all as read
                 </button>
               </div>
 
-              <div class="max-h-80 overflow-y-auto custom-scrollbar">
-                <div *ngFor="let n of notifications; trackBy: trackById" (click)="markOneAsRead(n.id)"
-                  class="px-4 py-3 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors"
-                  [class.bg-[#f0f9fa]]="!n.read_at">
-                  <div class="flex gap-3">
-                    <span class="mt-1.5 h-2 w-2 rounded-full flex-shrink-0" [class.bg-[#0a7075]]="!n.read_at"
-                      [class.bg-gray-300]="n.read_at"></span>
-                    <div>
-                      <p class="font-medium text-sm text-[#0f2b2e]">{{ n.data?.title || 'New Notification' }}</p>
-                      <p class="text-xs text-gray-500 mt-1 line-clamp-2">{{ n.data?.message }}</p>
-                      <span class="text-[10px] text-gray-400 mt-1 block">{{ n.created_at | date:'short' }}</span>
-                    </div>
-                  </div>
+              <div class="max-h-80 overflow-y-auto">
+                <div
+                  *ngFor="let n of notifications; trackBy: trackById"
+                  (click)="markOneAsRead(n.id)"
+                  class="px-4 py-3 border-b hover:bg-gray-50 cursor-pointer"
+                  [class.opacity-50]="n.read_at"
+                >
+                  <p class="font-medium">{{ n.data?.title || 'New Notification' }}</p>
+                  <p class="text-sm text-gray-500">{{ n.data?.message }}</p>
+                  <span class="text-xs text-gray-400">{{ n.created_at | date:'short' }}</span>
                 </div>
-
-                <div *ngIf="notifications.length === 0" class="px-4 py-8 text-center bg-gray-50/50">
-                  <p class="text-gray-500 text-sm">No new notifications</p>
+                <div *ngIf="notifications.length === 0" class="px-4 py-8 text-center">
+                  <p class="text-gray-500">No notifications</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- User Profile -->
-          <div class="relative">
-            <button (click)="toggleUserDropdown()"
-              class="flex items-center gap-2 h-12 px-2 pl-2 pr-4 rounded-xl border border-[#0a7075]/30 bg-white text-[#143235] shadow-lg transition hover:-translate-y-0.5 hover:border-[#0c969c]">
-              <div
-                class="h-8 w-8 rounded-lg bg-[#0a7075] flex items-center justify-center text-white text-sm font-semibold overflow-hidden">
-                <img *ngIf="userAvatar && !avatarLoadError; else initialTpl" [src]="userAvatar" [alt]="userName"
-                  class="w-full h-full object-cover" (error)="handleAvatarError()" />
-                <ng-template #initialTpl>
-                  {{ userInitial }}
-                </ng-template>
-              </div>
-              <span class="hidden md:block text-sm font-semibold truncate max-w-[100px]">{{ userName }}</span>
-              <svg class="hidden md:block w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
+          <a
+            routerLink="/"
+            class="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[#0a7075]/30 bg-white text-black-500 shadow-md transition hover:-translate-y-0.5 hover:border-[#0c969c]"
+            aria-label="Go to home"
+          >
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-5H10v5H5a1 1 0 0 1-1-1z" stroke-linejoin="round" />
+            </svg>
+          </a>
 
-            <div *ngIf="isUserDropdownOpen"
-              class="absolute right-0 top-full mt-2 w-48 rounded-xl bg-white shadow-xl ring-1 ring-black/10 z-50 animation-slide-down overflow-hidden">
-              <button (click)="goToProfile()"
-                class="flex items-center gap-3 px-4 py-3 text-sm text-[#15282b] hover:bg-[#e8f4f8] transition-colors w-full text-left">
-                <svg class="w-4 h-4 text-[#0a7075]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                Profile
-              </button>
-              <button (click)="goToHome()"
-                class="flex items-center gap-3 px-4 py-3 text-sm text-[#15282b] hover:bg-[#e8f4f8] transition-colors w-full text-left">
-                <svg class="w-4 h-4 text-[#0a7075]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-                Home
-              </button>
-              <div class="h-px bg-gray-100"></div>
-              <button (click)="logout()"
-                class="flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-                Logout
-              </button>
-            </div>
-          </div>
+          <button
+            type="button"
+            (click)="bookNewAppointment()"
+            class="hidden sm:flex text-white px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium"
+            style="background-color: #167277"
+            onmouseover="this.style.backgroundColor='#0c969c'; this.style.transform='translateY(-2px)'"
+            onmouseout="this.style.backgroundColor='#167277'; this.style.transform='translateY(0)'"
+          >
+            Book New Appointment
+          </button>
+
+          <button
+            type="button"
+            (click)="bookNewAppointment()"
+            class="sm:hidden p-2 rounded-lg transition-colors duration-200"
+            style="color: #0A7075; background: rgba(10, 112, 117, 0.1)"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            <span class="text-sm">Book Appointment</span>
+          </button>
         </div>
       </div>
     </header>
 
-    <section
-      class="flex-1 overflow-y-auto bg-gradient-to-br from-[#f8fafc] via-[#f1f9ff] to-[#e8f4f8] px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
-      <div
-        class="relative min-h-[400px] rounded-3xl border-t-4 border-[#0a7075] bg-gradient-to-b from-white to-[#f7fdff] p-4 text-[#15282b] shadow-xl sm:p-6 md:p-10">
+    <section class="flex-1 overflow-y-auto bg-gradient-to-br from-[#f8fafc] via-[#f1f9ff] to-[#e8f4f8] px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
+      <div class="relative min-h-[400px] rounded-3xl border-t-4 border-[#0a7075] bg-gradient-to-b from-white to-[#f7fdff] p-4 text-[#15282b] shadow-xl sm:p-6 md:p-10">
         <router-outlet></router-outlet>
       </div>
     </section>
