@@ -201,4 +201,55 @@ export class AppointmentsAdmin implements OnInit {
     const displayHour = hour % 12 || 12;
     return `${displayHour}:${minutes} ${ampm}`;
   }
+
+  getVisiblePages(): (number | string)[] {
+    const totalPages = this.pagination.last_page;
+    const currentPage = this.pagination.current_page;
+    const pages: (number | string)[] = [];
+
+    if (totalPages <= 5) {
+      // Show all pages if 5 or less
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Always show first page
+      pages.push(1);
+
+      // Calculate range around current page
+      let start = Math.max(2, currentPage - 1);
+      let end = Math.min(totalPages - 1, currentPage + 1);
+
+      // Adjust if at boundaries
+      if (currentPage <= 3) {
+        start = 2;
+        end = 4;
+      } else if (currentPage >= totalPages - 2) {
+        start = totalPages - 3;
+        end = totalPages - 1;
+      }
+
+      // Add ellipsis after first if needed
+      if (start > 2) {
+        pages.push('...');
+      }
+
+      // Add middle pages
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+
+      // Add ellipsis before last if needed
+      if (end < totalPages - 1) {
+        pages.push('...');
+      }
+
+      // Always show last page if more than 1 page
+      if (totalPages > 1) {
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
+  }
 }

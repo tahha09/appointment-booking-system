@@ -244,14 +244,17 @@
             Previous
           </button>
           <div class="flex items-center gap-1">
-            <button *ngFor="let page of [].constructor(pagination.last_page); let i = index"
-              (click)="onPageChange(i + 1)"
-              [class.bg-[#0c969c]]="pagination.current_page === i + 1"
-              [class.text-white]="pagination.current_page === i + 1"
-              [class.border-[#0c969c]]="pagination.current_page === i + 1"
-              [class.text-gray-700]="pagination.current_page !== i + 1"
-              class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium min-w-[40px]">
-              {{ i + 1 }}
+            <button *ngFor="let page of getVisiblePages()"
+              (click)="typeof page === 'number' ? onPageChange(page) : null"
+              [class.bg-[#0c969c]]="pagination.current_page === page"
+              [class.text-white]="pagination.current_page === page"
+              [class.border-[#0c969c]]="pagination.current_page === page"
+              [class.text-gray-700]="pagination.current_page !== page"
+              [class.cursor-pointer]="typeof page === 'number'"
+              [class.cursor-default]="typeof page !== 'number'"
+              [class.hover:bg-gray-50]="typeof page === 'number'"
+              class="px-3 py-2 border border-gray-300 rounded-lg transition-colors text-sm font-medium min-w-[40px]">
+              {{ page }}
             </button>
           </div>
           <button (click)="onPageChange(pagination.current_page + 1)"
