@@ -1,1 +1,37 @@
-/* Tailwind utilities handle most styling; keep empty for overrides if needed. */
+/* Tailwind utilities handle most styling; add overrides for 1050px breakpoint */
+
+@media (max-width: 1050px) {
+	.financial-overview {
+		/* reduce spacing around overview blocks */
+		gap: 0.75rem;
+	}
+
+	/* Make financial cards more compact and 2 columns at this breakpoint */
+	.financial-overview .grid.grid-cols-1.sm\:grid-cols-2.lg\:grid-cols-4,
+	.financial-overview .grid.grid-cols-1.sm\:grid-cols-2 {
+		grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+		gap: 0.75rem !important;
+	}
+
+	.financial-overview .rounded-2xl.border.bg-white.p-4,
+	.financial-overview .rounded-2xl.border.bg-white.p-4.sm\:p-5 {
+		padding: 0.75rem !important;
+	}
+
+	/* Chart adjustments: allow svg to scale down and remove large min-width requirement */
+	.financial-overview svg.min-w-\[520px\] {
+		min-width: 360px !important;
+	}
+
+	/* Reduce the height of the chart on medium screens */
+	.financial-overview svg.w-full.h-48 {
+		height: 220px !important;
+	}
+
+	/* Revenue month tiles: 3 columns instead of 6 */
+	.financial-overview .grid.grid-cols-2.sm\:grid-cols-3.lg\:grid-cols-6 {
+		grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+		gap: 0.5rem !important;
+	}
+}
+

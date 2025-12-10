@@ -1,1 +1,28 @@
-/* Tailwind utilities handle most styling; keep empty for overrides if needed. */
+/* Tailwind utilities handle most styling; add component overrides for 1050px breakpoint */
+
+
+/* Responsive adjustments for filters at <=1050px */
+@media (max-width: 1050px) {
+	.filter {
+		padding: 0.75rem !important;
+	}
+
+	.filter .grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+		gap: 0.75rem !important;
+	}
+
+	/* make the actions (Apply/Reset) span full width below breakpoint */
+	.filter .grid .actions {
+		grid-column: 1 / -1;
+		display: flex;
+		gap: 0.5rem;
+		justify-content: flex-end;
+	}
+
+	/* make the primary Apply button expand on small widths */
+	.filter .grid .actions .flex-1 {
+		flex: 1 1 auto;
+	}
+}
+

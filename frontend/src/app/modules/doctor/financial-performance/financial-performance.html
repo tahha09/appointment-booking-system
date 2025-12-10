@@ -39,41 +39,41 @@
   </div>
 
   <!-- Overview Tab -->
-  <div *ngIf="activeTab === 'overview' && !loading" class="space-y-6">
+  <div *ngIf="activeTab === 'overview' && !loading" class="space-y-4 sm:space-y-6 md:space-y-8 financial-overview">
     <!-- Financial Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 shadow-lg">
-        <p class="text-xs sm:text-sm text-[#6ba3be] mb-1">Total Revenue</p>
-        <p class="text-xl sm:text-2xl font-bold text-[#031716]">{{ overview ? formatCurrency(overview.total_revenue) : '$0.00' }}</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
+      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 md:p-6 shadow-lg">
+        <p class="text-xs sm:text-sm md:text-sm lg:text-base text-[#6ba3be] mb-1">Total Revenue</p>
+        <p class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-[#031716]">{{ overview ? formatCurrency(overview.total_revenue) : '$0.00' }}</p>
       </div>
-      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 shadow-lg">
-        <p class="text-xs sm:text-sm text-[#6ba3be] mb-1">This Month</p>
-        <p class="text-xl sm:text-2xl font-bold text-[#031716]">{{ overview ? formatCurrency(overview.this_month_revenue) : '$0.00' }}</p>
-        <p *ngIf="overview" [class]="'text-xs mt-1 ' + (overview.revenue_change_percent >= 0 ? 'text-green-600' : 'text-red-600')">
+      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 md:p-6 shadow-lg">
+        <p class="text-xs sm:text-sm md:text-sm lg:text-base text-[#6ba3be] mb-1">This Month</p>
+        <p class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-[#031716]">{{ overview ? formatCurrency(overview.this_month_revenue) : '$0.00' }}</p>
+        <p *ngIf="overview" [class]="'text-xs sm:text-sm mt-1 ' + (overview.revenue_change_percent >= 0 ? 'text-green-600' : 'text-red-600')">
           {{ overview.revenue_change_percent >= 0 ? '+' : '' }}{{ overview.revenue_change_percent.toFixed(1) }} from last month
         </p>
       </div>
-      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 shadow-lg">
-        <p class="text-xs sm:text-sm text-[#6ba3be] mb-1">Total Payments</p>
-        <p class="text-xl sm:text-2xl font-bold text-[#031716]">{{ overview ? overview.total_payments : 0 }}</p>
-        <p class="text-xs text-[#6ba3be] mt-1">{{ overview ? overview.this_month_payments : 0 }} this month</p>
+      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 md:p-6 shadow-lg">
+        <p class="text-xs sm:text-sm md:text-sm lg:text-base text-[#6ba3be] mb-1">Total Payments</p>
+        <p class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-[#031716]">{{ overview ? overview.total_payments : 0 }}</p>
+        <p class="text-xs sm:text-sm text-[#6ba3be] mt-1">{{ overview ? overview.this_month_payments : 0 }} this month</p>
       </div>
-      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 shadow-lg">
-        <p class="text-xs sm:text-sm text-[#6ba3be] mb-1">Pending Payments</p>
-        <p class="text-xl sm:text-2xl font-bold text-[#031716]">{{ overview ? overview.pending_payments : 0 }}</p>
+      <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 md:p-6 shadow-lg">
+        <p class="text-xs sm:text-sm md:text-sm lg:text-base text-[#6ba3be] mb-1">Pending Payments</p>
+        <p class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-[#031716]">{{ overview ? overview.pending_payments : 0 }}</p>
       </div>
     </div>
 
     <!-- Revenue Chart -->
-    <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 shadow-lg">
-      <h3 class="text-lg sm:text-xl font-bold text-[#031716] mb-4">Revenue Trend (Last 6 Months)</h3>
+    <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 md:p-6 shadow-lg">
+      <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-[#031716] mb-4 md:mb-6">Revenue Trend (Last 6 Months)</h3>
       <ng-container *ngIf="revenueByMonth.length > 0; else noRevenueData">
         <div class="relative w-full overflow-hidden rounded-2xl bg-[#f8fafc] border border-[#e3eef2]">
           <div class="overflow-x-auto">
             <svg
               [attr.viewBox]="lineChartViewBox"
               preserveAspectRatio="none"
-              class="min-w-[520px] w-full h-48 sm:h-64 text-center mx-auto my-3 sm:my-4"
+              class="min-w-[320px] sm:min-w-[480px] md:min-w-[520px] w-full h-48 sm:h-56 md:h-64 lg:h-72 text-center mx-auto my-3 sm:my-4 md:my-5"
             >
             <defs>
               <linearGradient [attr.id]="gradientId" x1="0" x2="0" y1="0" y2="1">
@@ -172,14 +172,14 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mt-4 sm:mt-6">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-5 mt-4 sm:mt-6 md:mt-8">
           <div
             *ngFor="let month of revenueByMonth"
-            class="rounded-xl border border-[#d7ebef] bg-white p-3 text-center shadow-sm"
+            class="rounded-xl border border-[#d7ebef] bg-white p-3 sm:p-4 md:p-5 text-center shadow-sm"
           >
-            <p class="text-sm text-[#6ba3be] mb-1">{{ month.label }}</p>
-            <p class="text-lg font-bold text-[#031716]">{{ formatCurrency(month.revenue) }}</p>
-            <p class="text-xs text-[#0a7075]">{{ month.payment_count }} payments</p>
+            <p class="text-sm sm:text-base text-[#6ba3be] mb-1">{{ month.label }}</p>
+            <p class="text-lg sm:text-xl font-bold text-[#031716]">{{ formatCurrency(month.revenue) }}</p>
+            <p class="text-xs sm:text-sm text-[#0a7075]">{{ month.payment_count }} payments</p>
           </div>
         </div>
       </ng-container>
