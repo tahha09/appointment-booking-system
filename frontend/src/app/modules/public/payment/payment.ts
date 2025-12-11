@@ -223,6 +223,10 @@ export class Payment implements OnInit {
         // ignore failures for individual dates
       }
     }
+    // Ensure the dropdown never shows duplicate dates even if prefetched twice
+    if (this.availableDates.length) {
+      this.availableDates = Array.from(new Set(this.availableDates));
+    }
     // if we found dates, pick the first to initialize
     if (this.availableDates.length) {
       this.paymentForm.get('appointmentDate')?.setValue(this.availableDates[0]);

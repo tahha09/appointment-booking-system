@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 use Carbon\Carbon;
 use App\Models\AllNotification;
@@ -77,9 +79,17 @@ class User extends Authenticatable
     // Accessors & Mutators
     public function getProfileImageUrlAttribute()
     {
-        return $this->profile_image
-            ? asset('storage/' . $this->profile_image)
-            : asset('assets/default-avatar.png');
+        if (!$this->profile_image) {
+            return asset('assets/default-avatar.png');
+        }
+
+        if (Str::startsWith($this->profile_image, ['http://', 'https://'])) {
+            return $this->profile_image;
+        }
+
+        $path = ltrim($this->profile_image, '/');
+
+        return asset('storage/' . $path);
     }
 
     public function getAgeAttribute()

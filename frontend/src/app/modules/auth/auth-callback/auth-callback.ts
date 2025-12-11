@@ -58,18 +58,20 @@ export class AuthCallback implements OnInit {
         if (userData) {
           try {
             const user = JSON.parse(decodeURIComponent(userData));
+            const profileImage =
+              user.profile_image ||
+              user.profileImage ||
+              user.profile_image_url ||
+              null;
 
-            // Store user data in sessionStorage (matching auth service expectations)
-            sessionStorage.setItem('user_id', String(user.id));
-            sessionStorage.setItem('user_role', user.role);
-            sessionStorage.setItem('user_name', user.name);
-            sessionStorage.setItem('user_email', user.email);
-            if (user.profile_image) {
-              sessionStorage.setItem('profile_image', user.profile_image);
-            }
-
-            // Update auth service with the user data
-            this.auth.setRole(user.role);
+            // Persist user data through auth service for consistent session handling
+            this.auth.setUserSession({
+              id: Number(user.id),
+              role: user.role,
+              name: user.name,
+              email: user.email,
+              profile_image: profileImage,
+            });
           } catch (e) {
             console.error('Failed to parse user data:', e);
           }
@@ -133,18 +135,18 @@ export class AuthCallback implements OnInit {
     }).subscribe({
       next: (response: any) => {
         if (response.success) {
-          // Update session storage with the new role
           const updatedUser = response.data.user;
-          sessionStorage.setItem('user_role', updatedUser.role);
-          sessionStorage.setItem('user_id', String(updatedUser.id));
-          sessionStorage.setItem('user_name', updatedUser.name);
-          sessionStorage.setItem('user_email', updatedUser.email);
-          if (updatedUser.profile_image) {
-            sessionStorage.setItem('profile_image', updatedUser.profile_image);
-          }
-
-          // Update auth service with new role
-          this.auth.setRole(updatedUser.role);
+          this.auth.setUserSession({
+            id: Number(updatedUser.id),
+            role: updatedUser.role,
+            name: updatedUser.name,
+            email: updatedUser.email,
+            profile_image:
+              updatedUser.profile_image ||
+              updatedUser.profileImage ||
+              updatedUser.profile_image_url ||
+              null,
+          });
 
           this.notification.success('Registration completed', 'Welcome to our platform! Redirecting to home page...', {
             timer: 2000,

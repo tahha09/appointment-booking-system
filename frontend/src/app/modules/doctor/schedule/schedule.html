@@ -130,7 +130,8 @@
         <div>
           <label class="block text-sm font-semibold text-[#0a7075] mb-2">Day of Week *</label>
           <select
-            [(ngModel)]="scheduleForm.day_of_week"
+            [ngModel]="scheduleForm.day_of_week"
+            (ngModelChange)="scheduleForm.day_of_week = $event; handleScheduleFieldChange('day_of_week')"
             name="day_of_week"
             required
             class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/40 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
@@ -147,7 +148,8 @@
             <label class="block text-sm font-semibold text-[#0a7075] mb-2">Start Time *</label>
             <input
               type="time"
-              [(ngModel)]="scheduleForm.start_time"
+              [ngModel]="scheduleForm.start_time"
+              (ngModelChange)="scheduleForm.start_time = $event; handleScheduleFieldChange('start_time')"
               name="start_time"
               required
               class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/40 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
@@ -160,7 +162,8 @@
             <label class="block text-sm font-semibold text-[#0a7075] mb-2">End Time *</label>
             <input
               type="time"
-              [(ngModel)]="scheduleForm.end_time"
+              [ngModel]="scheduleForm.end_time"
+              (ngModelChange)="scheduleForm.end_time = $event; handleScheduleFieldChange('end_time')"
               name="end_time"
               required
               class="w-full px-4 py-2 rounded-xl bg-white border border-[#6ba3be]/40 text-[#032f30] focus:outline-none focus:ring-2 focus:ring-[#0c969c]"
