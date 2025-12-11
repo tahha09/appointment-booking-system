@@ -273,6 +273,31 @@ export class Auth {
     sessionStorage.setItem(this.TOKEN_KEY, token);
   }
 
+  setUserSession(user: {
+    id: number;
+    role: string;
+    name: string;
+    email: string;
+    profile_image?: string | null;
+  }): void {
+    this.userId = user.id;
+    this.role = user.role;
+    this.name = user.name;
+    this.email = user.email;
+    this.setProfileImage(user.profile_image);
+
+    sessionStorage.setItem(this.ID_KEY, String(user.id));
+    sessionStorage.setItem(this.ROLE_KEY, user.role);
+    sessionStorage.setItem(this.NAME_KEY, user.name);
+    sessionStorage.setItem(this.EMAIL_KEY, user.email);
+
+    if (user.profile_image) {
+      sessionStorage.setItem(this.PROFILE_IMAGE_KEY, user.profile_image);
+    } else {
+      sessionStorage.removeItem(this.PROFILE_IMAGE_KEY);
+    }
+  }
+
   getRole(): string | null {
     return this.role;
   }
@@ -296,7 +321,7 @@ export class Auth {
     return this.getUserRole() === 'patient';
   }
 
-  setProfileImage(url: string | undefined): void {
+  setProfileImage(url: string | undefined | null): void {
     this.profileImage = url || null;
   }
 

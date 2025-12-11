@@ -30,6 +30,14 @@ interface ScheduleResponse {
   holidays?: Holiday[];
 }
 
+type ScheduleFieldKey = 'day_of_week' | 'start_time' | 'end_time';
+type ScheduleFormErrors = {
+  form?: string;
+  day_of_week?: string;
+  start_time?: string;
+  end_time?: string;
+};
+
 @Component({
   selector: 'app-schedule',
   standalone: true,
@@ -71,12 +79,7 @@ export class Schedule implements OnInit {
     end_time: '',
     is_available: true,
   };
-  scheduleFormErrors: {
-    form?: string;
-    day_of_week?: string;
-    start_time?: string;
-    end_time?: string;
-  } = {};
+  scheduleFormErrors: ScheduleFormErrors = {};
 
   holidayForm = {
     holiday_date: '',
@@ -245,6 +248,17 @@ export class Schedule implements OnInit {
     this.showDeleteConfirm = true;
     this.showScheduleModal = false;
     this.showHolidayModal = false;
+  }
+
+  handleScheduleFieldChange(field: ScheduleFieldKey): void {
+    if (!this.scheduleFormErrors.form && !this.scheduleFormErrors[field]) {
+      return;
+    }
+
+    const updatedErrors: ScheduleFormErrors = { ...this.scheduleFormErrors };
+    delete updatedErrors.form;
+    delete updatedErrors[field];
+    this.scheduleFormErrors = updatedErrors;
   }
 
   confirmDeleteHoliday(holiday: Holiday): void {
@@ -431,11 +445,34 @@ export class Schedule implements OnInit {
   }
 
   private normalizeDay(value: number | string): number {
-    if (typeof value === 'number') {
+    if (typeof value === 'number' && !Number.isNaN(value)) {
       return value;
     }
-    const parsed = parseInt(value, 10);
-    return isNaN(parsed) ? 0 : parsed;
+
+    const stringValue = String(value).trim().toLowerCase();
+    const nameToIndex: Record<string, number> = {
+      sunday: 0,
+      sun: 0,
+      monday: 1,
+      mon: 1,
+      tuesday: 2,
+      tue: 2,
+      wed: 3,
+      wednesday: 3,
+      thu: 4,
+      thursday: 4,
+      fri: 5,
+      friday: 5,
+      saturday: 6,
+      sat: 6,
+    };
+
+    if (stringValue in nameToIndex) {
+      return nameToIndex[stringValue];
+    }
+
+    const parsed = parseInt(stringValue, 10);
+    return Number.isNaN(parsed) ? 0 : parsed;
   }
 
   private normalizeTimePayload(value: string): string {

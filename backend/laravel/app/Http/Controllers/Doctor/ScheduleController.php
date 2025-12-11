@@ -70,17 +70,22 @@ class ScheduleController extends Controller
             $overlapping = Schedule::where('doctor_id', $doctorId)
                 ->where('day_of_week', $validated['day_of_week'])
                 ->where(function ($query) use ($validated) {
-                    $query->whereBetween('start_time', [$validated['start_time'], $validated['end_time']])
-                        ->orWhereBetween('end_time', [$validated['start_time'], $validated['end_time']])
-                        ->orWhere(function ($q) use ($validated) {
-                            $q->where('start_time', '<=', $validated['start_time'])
-                                ->where('end_time', '>=', $validated['end_time']);
-                        });
+                    $query->where('start_time', '<', $validated['end_time'])
+                        ->where('end_time', '>', $validated['start_time']);
                 })
                 ->exists();
 
             if ($overlapping) {
                 return $this->error('This time slot overlaps with an existing schedule.', 422);
+            }
+
+            $duplicateTimeRange = Schedule::where('doctor_id', $doctorId)
+                ->where('start_time', $validated['start_time'])
+                ->where('end_time', $validated['end_time'])
+                ->exists();
+
+            if ($duplicateTimeRange) {
+                return $this->error('This time range is already used in another schedule. Please choose a different start/end time.', 422);
             }
 
             $schedule = Schedule::create([
@@ -135,17 +140,23 @@ class ScheduleController extends Controller
                     ->where('id', '!=', $id)
                     ->where('day_of_week', $dayOfWeek)
                     ->where(function ($query) use ($startTime, $endTime) {
-                        $query->whereBetween('start_time', [$startTime, $endTime])
-                            ->orWhereBetween('end_time', [$startTime, $endTime])
-                            ->orWhere(function ($q) use ($startTime, $endTime) {
-                                $q->where('start_time', '<=', $startTime)
-                                    ->where('end_time', '>=', $endTime);
-                            });
+                        $query->where('start_time', '<', $endTime)
+                            ->where('end_time', '>', $startTime);
                     })
                     ->exists();
 
                 if ($overlapping) {
                     return $this->error('This time slot overlaps with an existing schedule.', 422);
+                }
+
+                $duplicateTimeRange = Schedule::where('doctor_id', $user->doctor->id)
+                    ->where('id', '!=', $id)
+                    ->where('start_time', $startTime)
+                    ->where('end_time', $endTime)
+                    ->exists();
+
+                if ($duplicateTimeRange) {
+                    return $this->error('This time range is already used in another schedule. Please choose a different start/end time.', 422);
                 }
             }
 
