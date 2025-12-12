@@ -198,13 +198,18 @@ class PaymentController extends Controller
 
     private function getAvailableRefundBalance(array $patientIds): float
     {
-        $refunded = Payment::whereIn('patient_id', $patientIds)
-            ->where('status', 'refunded')
-            ->sum('amount');
-        $spent = Payment::whereIn('patient_id', $patientIds)
+        $refundedSpent = Payment::whereIn('patient_id', $patientIds)
             ->where('payment_method', 'refunded_balance')
             ->sum('amount');
-        $available = (float) $refunded - (float) $spent;
+
+        $cancelledAppointmentRefunds = Payment::whereIn('patient_id', $patientIds)
+            ->whereHas('appointment', function ($query) {
+                $query->where('status', 'cancelled');
+            })
+            ->whereIn('status', ['completed', 'refunded', 'held'])
+            ->sum('amount');
+
+        $available = (float) $cancelledAppointmentRefunds - (float) $refundedSpent;
         return $available > 0 ? $available : 0;
     }
 }

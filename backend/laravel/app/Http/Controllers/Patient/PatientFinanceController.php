@@ -50,21 +50,19 @@ class PatientFinanceController extends Controller
             ")
             ->first();
 
-        $rawRefunded = (float) ($summaryStats->total_refunded ?? 0);
         $refundedSpent = (float) ($summaryStats->refunded_spent ?? 0);
-        $availableRefund = max(0, $rawRefunded - $refundedSpent);
-
         $cancelledAppointmentRefunds = Payment::whereIn('patient_id', $patientIds)
             ->whereHas('appointment', function ($query) {
                 $query->where('status', 'cancelled');
             })
             ->whereIn('status', ['completed', 'refunded', 'held'])
             ->sum('amount');
+        $availableRefund = max(0, (float) $cancelledAppointmentRefunds - $refundedSpent);
 
         $summary = [
             'total_transactions' => (int) ($summaryStats->total_transactions ?? 0),
             'total_paid' => (float) ($summaryStats->total_paid ?? 0),
-            'total_refunded' => (float) $cancelledAppointmentRefunds,
+            'total_refunded' => $availableRefund,
             'total_on_hold' => (float) ($summaryStats->total_on_hold ?? 0),
             'last_transaction_at' => $summaryStats?->last_transaction_at
                 ? Carbon::parse($summaryStats->last_transaction_at)->toISOString()
