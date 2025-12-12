@@ -236,9 +236,16 @@
               <label class="user-profile__label">
                 Specialty
                 <div class="user-profile__input-container">
-                  <input type="text" formControlName="specialty" class="user-profile__input"
-                    placeholder="Your specialty" />
+                  <input type="text" formControlName="specialty" class="user-profile__input user-profile__input--readonly"
+                    placeholder="Your specialty" readonly />
                   <div class="user-profile__input-border"></div>
+                  <div class="user-profile__readonly-indicator">
+                    <svg class="user-profile__lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                  </div>
                 </div>
               </label>
             </div>

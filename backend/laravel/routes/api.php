@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DoctorController as AdminDoctorController;
 use App\Http\Controllers\Admin\AppointmentController as AdminAppointmentController;
 use App\Http\Controllers\Admin\AppointmentAnalyticsController;
+use App\Http\Controllers\Admin\AdminSpecializationController;
 use App\Http\Controllers\Doctor\AppointmentController as DoctorAppointmentController;
 use App\Http\Controllers\Doctor\ScheduleController;
 use App\Http\Controllers\Doctor\PatientController as DoctorPatientController;
@@ -97,7 +98,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     // Keep legacy patient profile routes for backward compatibility
-    Route::middleware(['auth:sanctum','role:patient'])->prefix('patient')->group(function () {
+    Route::middleware(['auth:sanctum', 'role:patient'])->prefix('patient')->group(function () {
         // Dashboard
         Route::get('/dashboard', [PatientAppointmentController::class, 'dashboard']);
 
@@ -146,7 +147,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     // Doctor Routes
-    Route::middleware(['auth:sanctum','role:doctor'])->prefix('doctor')->group(function () {
+    Route::middleware(['auth:sanctum', 'role:doctor'])->prefix('doctor')->group(function () {
         // Dashboard
         Route::get('/dashboard', [DoctorAppointmentController::class, 'dashboard']);
 
@@ -192,7 +193,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     // Admin Routes - temporarily without authentication for testing
-    Route::middleware(['auth:sanctum','role:admin'])->prefix('admin')->group(function () {
+    Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
         // Stats/Dashboard
         Route::get('/stats', [UserController::class, 'stats']);
 
@@ -206,6 +207,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/doctors/pending', [AdminDoctorController::class, 'pendingDoctors']);
         Route::put('/doctors/{id}/approve', [AdminDoctorController::class, 'approveDoctor']);
         Route::put('/doctors/{id}/reject', [AdminDoctorController::class, 'rejectDoctor']);
+
+        // Specialization Management
+        // Specialization Management
+        Route::get('specializations', [AdminSpecializationController::class, 'index']);
+        Route::post('specializations', [AdminSpecializationController::class, 'store']);
+        Route::get('specializations/{id}', [AdminSpecializationController::class, 'show']);
+        Route::put('specializations/{id}', [AdminSpecializationController::class, 'update']);
+        Route::delete('specializations/{id}', [AdminSpecializationController::class, 'destroy']);
+        Route::get('specializations/{id}/doctors', [AdminSpecializationController::class, 'getDoctors']);
 
         // Appointment Management
         Route::get('/appointments', [AdminAppointmentController::class, 'index']);
