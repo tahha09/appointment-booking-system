@@ -11,12 +11,22 @@ use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Holiday;
 use App\Models\Schedule;
+use App\Models\Payment;
 use Carbon\Carbon;
 use App\Notifications\DoctorNotifications;
+use App\Services\PaymentService;
+use Illuminate\Support\Facades\Log;
 
 class AppointmentController extends Controller
 {
     use ApiResponse;
+
+    protected PaymentService $paymentService;
+
+    public function __construct(PaymentService $paymentService)
+    {
+        $this->paymentService = $paymentService;
+    }
     /**
      * Get dashboard statistics
      */
@@ -269,6 +279,7 @@ class AppointmentController extends Controller
 
             $appointmentDate = $appointment->appointment_date;
             $appointmentTime = $appointment->start_time;
+            $refundStatus = 'not_applicable';
 
             if ($appointment->doctor) {
                 $doctor = Doctor::with('user')->find($appointment->doctor_id);
@@ -283,7 +294,28 @@ class AppointmentController extends Controller
                 }
             }
 
+            $payment = Payment::where('appointment_id', $appointment->id)
+                ->whereIn('status', ['completed', 'held'])
+                ->latest('id')
+                ->first();
+
+            if ($payment) {
+                try {
+                    if ($payment->status === 'completed') {
+                        $this->paymentService->processRefund($payment);
+                        $refundStatus = 'refunded';
+                    } else {
+                        $payment->markAsRefunded();
+                        $refundStatus = 'released';
+                    }
+                } catch (\Exception $refundException) {
+                    Log::error('Failed to refund payment for appointment '.$appointment->id.': '.$refundException->getMessage());
+                    $refundStatus = 'failed';
+                }
+            }
+
             $appointment->load(['doctor.user', 'doctor.specialization']);
+            $appointment->setAttribute('refund_status', $refundStatus);
 
             return $this->success($appointment, 'Appointment cancelled successfully');
 

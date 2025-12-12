@@ -44,11 +44,11 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
       <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 md:p-6 shadow-lg">
         <p class="text-xs sm:text-sm md:text-sm lg:text-base text-[#6ba3be] mb-1">Total Revenue</p>
-        <p class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-[#031716]">{{ overview ? formatCurrency(overview.total_revenue) : '$0.00' }}</p>
+        <p class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-[#031716]">{{ overview ? formatCurrency(overview.total_revenue) : 'EGP 0.00' }}</p>
       </div>
       <div class="rounded-2xl border border-[#d3e6eb] bg-white p-4 sm:p-5 md:p-6 shadow-lg">
         <p class="text-xs sm:text-sm md:text-sm lg:text-base text-[#6ba3be] mb-1">This Month</p>
-        <p class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-[#031716]">{{ overview ? formatCurrency(overview.this_month_revenue) : '$0.00' }}</p>
+        <p class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-[#031716]">{{ overview ? formatCurrency(overview.this_month_revenue) : 'EGP 0.00' }}</p>
         <p *ngIf="overview" [class]="'text-xs sm:text-sm mt-1 ' + (overview.revenue_change_percent >= 0 ? 'text-green-600' : 'text-red-600')">
           {{ overview.revenue_change_percent >= 0 ? '+' : '' }}{{ overview.revenue_change_percent.toFixed(1) }} from last month
         </p>

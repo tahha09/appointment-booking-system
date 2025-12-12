@@ -369,9 +369,9 @@ export class DoctorOverview implements OnInit {
     if (typeof amount !== 'number') {
       amount = Number(amount) || 0;
     }
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('Egypt', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'EGP',
       maximumFractionDigits: 2,
     }).format(amount);
   }

@@ -26,8 +26,12 @@ class PaymentResource extends JsonResource
             'updated_at' => $this->updated_at->toISOString(),
 
             // Relationships
-            'appointment' => new AppointmentResource($this->whenLoaded('appointment')),
-            'patient' => new PatientResource($this->whenLoaded('patient')),
+            'appointment' => $this->whenLoaded('appointment', function () {
+                return new AppointmentResource($this->appointment);
+            }),
+            'patient' => $this->whenLoaded('patient', function () {
+                return new PatientResource($this->patient);
+            }),
         ];
     }
 }

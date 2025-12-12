@@ -1,0 +1,170 @@
+<main class="space-y-6 text-[#032f30] animate-fade-in p-4 md:p-6 max-w-6xl mx-auto">
+  <section class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between lg:gap-6">
+    <div>
+      <p class="text-xs uppercase tracking-[0.3em] text-[#6ba3be]">Billing</p>
+      <h1 class="mt-2 text-2xl font-bold text-[#031716] md:text-3xl">Financial Overview</h1>
+      <p class="text-sm text-[#5a717d] mt-1">
+        Track deposits, refunds, and pending amounts tied to your appointments.
+      </p>
+    </div>
+    <button
+      type="button"
+      class="px-5 py-2.5 bg-gradient-to-r from-[#0a7075] to-[#0c969c] text-white rounded-xl font-semibold shadow-lg hover:shadow-2xl hover:-translate-y-0.5 transition disabled:opacity-60 inline-flex items-center gap-2 self-start md:self-auto"
+      (click)="refresh()"
+      [disabled]="loading">
+      <i class="fas fa-sync-alt" [class.animate-spin]="loading"></i>
+      {{ loading ? 'Refreshing' : 'Refresh' }}
+    </button>
+  </section>
+
+  <section
+    class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-fr max-[930px]:grid-cols-1 max-[930px]:gap-3">
+    <article
+      class="rounded-2xl border border-[#0c969c]/30 bg-gradient-to-br from-[#0a7075] to-[#0c969c] p-5 shadow-lg text-white">
+      <p class="text-xs uppercase tracking-wide text-[#6ba3be]">Total Paid</p>
+      <h2 class="mt-2 text-3xl font-bold">{{ summary.total_paid | number: '1.2-2' }} EGP</h2>
+      <p class="text-xs text-[#a5e9f0] mt-1">Completed card payments</p>
+    </article>
+    <article
+      class="rounded-2xl border border-[#032f30]/30 bg-gradient-to-br from-[#032f30] to-[#0a7075] p-5 shadow-lg text-white">
+      <p class="text-xs uppercase tracking-wide text-[#6ba3be]">Total Refunded</p>
+      <h2 class="mt-2 text-3xl font-bold">{{ summary.total_refunded | number: '1.2-2' }} EGP</h2>
+      <p class="text-xs text-[#a5e9f0] mt-1">Returned to your balance</p>
+    </article>
+    <article
+      class="rounded-2xl border border-[#0a7075]/40 bg-gradient-to-br from-[#031716] to-[#032f30] p-5 shadow-lg text-white">
+      <p class="text-xs uppercase tracking-wide text-[#6ba3be]">On Hold / Pending</p>
+      <h2 class="mt-2 text-3xl font-bold">{{ summary.total_on_hold | number: '1.2-2' }} EGP</h2>
+      <p class="text-xs text-[#8fd0d9] mt-1">Awaiting release</p>
+    </article>
+    <article
+      class="rounded-2xl border border-[#0c969c]/30 bg-gradient-to-br from-[#124e52] to-[#0a7075] p-5 shadow-lg text-white">
+      <p class="text-xs uppercase tracking-wide text-[#6ba3be]">Total Transactions</p>
+      <h2 class="mt-2 text-3xl font-bold">{{ summary.total_transactions }}</h2>
+      <p class="text-xs text-[#8fd0d9] mt-1">
+        Updated {{ summary.last_transaction_at ? (summary.last_transaction_at | date: 'medium') : 'recently' }}
+      </p>
+    </article>
+  </section>
+
+  <section class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
+    <div *ngIf="loading" class="py-14 flex flex-col items-center gap-3 text-[#5a717d]">
+      <div class="w-12 h-12 border-4 border-teal-100 border-t-[#0A7075] rounded-full animate-spin"></div>
+      <p>Loading your payment history…</p>
+    </div>
+
+    <div *ngIf="!loading && error"
+      class="bg-red-50 border-l-4 border-red-500 rounded-r-xl p-6 shadow-sm flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <div class="p-3 bg-red-100 rounded-full text-red-600">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div>
+          <h3 class="text-red-800 font-semibold">Unable to load transactions</h3>
+          <p class="text-red-600 text-sm">{{ error }}</p>
+        </div>
+      </div>
+      <button
+        class="px-5 py-2.5 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700 hover:shadow-lg transition-all"
+        (click)="refresh()">
+        Retry
+      </button>
+    </div>
+
+    <div *ngIf="!loading && !error && !transactions.length"
+      class="text-center py-12 text-[#5a717d] border border-dashed border-gray-200 m-6 rounded-2xl">
+      <p class="font-semibold text-[#031716]">No transactions yet.</p>
+      <p class="text-sm text-[#5a717d]">Payments and refunds will appear here once recorded.</p>
+    </div>
+
+    <div *ngIf="!loading && !error && transactions.length"
+      class="rounded-2xl m-4 border border-gray-100 overflow-hidden max-[930px]:m-2">
+      <div
+        class="hidden lg:grid gap-3 border-b border-gray-100 bg-gray-50 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[#5a717d] lg:grid-cols-5">
+        <span>Amount</span>
+        <span>Doctor / Appointment</span>
+        <span>Method</span>
+        <span>Status</span>
+        <span>Date</span>
+      </div>
+
+      <div
+        class="flex flex-col border-b border-gray-100 px-4 py-4 text-sm text-[#032f30] transition hover:bg-gray-50 lg:grid lg:grid-cols-5 lg:gap-3"
+        *ngFor="let tx of transactions; trackBy: trackByTransaction">
+        <div class="space-y-1">
+          <p class="text-xs font-semibold uppercase text-[#5a717d] md:hidden">Amount</p>
+          <p class="text-base font-semibold text-[#031716]">
+            {{ tx.formatted_amount || (tx.amount | number: '1.2-2') + ' ' + (tx.currency || 'EGP') }}
+          </p>
+        </div>
+
+        <div class="space-y-1">
+          <p class="text-xs font-semibold uppercase text-[#5a717d] md:hidden">Doctor / Appointment</p>
+          <p class="font-semibold text-[#031716]">{{ getDoctorName(tx) }}</p>
+          <p class="text-xs text-[#5a717d]">
+            {{ getSpecialization(tx) }} ·
+            {{ tx.appointment?.appointment_date | date: 'longDate' }} ·
+            {{ tx.appointment?.start_time || '—' }}
+          </p>
+        </div>
+
+        <div class="space-y-1">
+          <p class="text-xs font-semibold uppercase text-[#5a717d] md:hidden">Method</p>
+          <div class="flex items-center gap-2 text-sm font-medium text-[#0A7075]">
+            <i class="fas" [ngClass]="tx.payment_method === 'cash' ? 'fa-money-bill' : 'fa-credit-card'"></i>
+            {{ getMethodLabel(tx.payment_method) }}
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <p class="text-xs font-semibold uppercase text-[#5a717d] md:hidden">Status</p>
+          <span [ngClass]="getFinancialStatusClass(tx)">
+            {{ getFinancialStatusLabel(tx) }}
+          </span>
+        </div>
+
+        <div class="space-y-1">
+          <p class="text-xs font-semibold uppercase text-[#5a717d] md:hidden">Date</p>
+          <p class="font-medium text-[#031716]">{{ formatDate(tx.paid_at || tx.created_at) }}</p>
+          <p class="text-xs text-[#5a717d]">Appointment: {{ tx.appointment?.status || 'N/A' }}</p>
+        </div>
+      </div>
+
+      <div
+        class="flex flex-col gap-4 border-t border-gray-100 bg-white px-4 py-4 text-sm text-[#5a717d] sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex flex-col items-center text-sm text-[#031716] sm:flex-row sm:gap-2">
+          <span>Rows per page:</span>
+          <span class="rounded-full border border-gray-200 px-3 py-1 font-semibold text-[#031716]">
+            {{ pagination.per_page }}
+          </span>
+        </div>
+        <div class="flex flex-col gap-2 text-center sm:text-right">
+          <!-- <span class="text-sm text-[#031716]">
+            Showing
+            <strong>{{ rangeStart }}-{{ rangeEnd }}</strong>
+            of {{ pagination.total || summary.total_transactions || transactions.length }}
+          </span> -->
+          <div class="flex flex-wrap items-center justify-center gap-2 sm:justify-end">
+            <button
+              type="button"
+              class="rounded-xl border border-gray-200 px-3 py-1.5 text-xs font-semibold text-[#0a7075] transition hover:border-[#0a7075] hover:bg-[#0a7075]/10 disabled:cursor-not-allowed disabled:opacity-40"
+              (click)="previousPage()"
+              [disabled]="pagination.current_page <= 1">
+              Previous
+            </button>
+            <span class="text-sm font-semibold text-[#031716]">
+              Page {{ pagination.current_page }} of {{ pagination.last_page }}
+            </span>
+            <button
+              type="button"
+              class="rounded-xl border border-gray-200 px-3 py-1.5 text-xs font-semibold text-[#0a7075] transition hover:border-[#0a7075] hover:bg-[#0a7075]/10 disabled:cursor-not-allowed disabled:opacity-40"
+              (click)="nextPage()"
+              [disabled]="pagination.current_page >= pagination.last_page">
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>

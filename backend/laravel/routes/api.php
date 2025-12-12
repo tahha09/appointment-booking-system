@@ -23,6 +23,7 @@ use App\Http\Controllers\AI\MedicalAssistantController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Patient\SpecializationController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\Patient\PatientFinanceController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -113,6 +114,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/appointments/{id}/accept', [PatientAppointmentController::class, 'accept']);
         Route::put('/appointments/{id}/cancel', [PatientAppointmentController::class, 'cancel']);
         Route::put('/appointments/{id}/reschedule', [PatientAppointmentController::class, 'reschedule']);
+
+        // Finance
+        Route::get('/finance', [PatientFinanceController::class, 'index']);
 
         // Medical Records
         Route::get('/medical-records', [PatientAppointmentController::class, 'medicalRecords']);
@@ -254,7 +258,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/create-intent', [PaymentController::class, 'createPaymentIntent']);
         Route::post('/confirm', [PaymentController::class, 'confirmPayment']);
         Route::get('/{id}', [PaymentController::class, 'getPayment']);
-        Route::get('/', [PaymentController::class, 'getPatientPayments']);
         Route::post('/{id}/refund', [PaymentController::class, 'refundPayment']);
     });
 });
