@@ -13,36 +13,35 @@ class PaymentSeeder extends Seeder
         // Get all appointments that should have payments (not cancelled)
         $appointments = Appointment::whereNotIn('status', ['cancelled'])->get();
 
-        $paymentMethods = ['credit_card', 'online_wallet', 'bank_transfer', 'cash'];
-        $currencies = ['$', 'EGP'];
+        $paymentMethods = ['credit_card', 'cash']; // Only these two methods
 
-        foreach ($appointments as $index => $appointment) {
+        foreach ($appointments as $appointment) {
             // Determine payment status based on appointment status and date
             $appointmentDate = strtotime($appointment->appointment_date);
             $today = strtotime(now()->format('Y-m-d'));
 
             if ($appointment->status === 'completed') {
-                // Completed appointments should have completed or failed payments
-                $paymentStatus = (rand(1, 10) <= 9) ? 'completed' : 'failed'; // 90% success rate
+                // Completed appointments should have completed payments
+                $paymentStatus = 'completed';
             } elseif ($appointment->status === 'confirmed') {
                 if ($appointmentDate < $today) {
                     // Past confirmed appointments should be completed
-                    $paymentStatus = (rand(1, 10) <= 8) ? 'completed' : 'failed'; // 80% success rate
+                    $paymentStatus = 'completed';
                 } else {
-                    // Future confirmed appointments may be pending or completed
-                    $paymentStatus = (rand(1, 10) <= 7) ? 'completed' : 'pending'; // 70% completed, 30% pending
+                    // Future confirmed appointments may be completed or pending
+                    $paymentStatus = rand(1, 10) <= 8 ? 'completed' : 'pending';
                 }
             } elseif ($appointment->status === 'pending') {
                 // Pending appointments have pending or failed payments
-                $paymentStatus = (rand(1, 10) <= 6) ? 'pending' : 'failed'; // 60% pending, 40% failed
+                $paymentStatus = rand(1, 10) <= 7 ? 'pending' : 'failed';
             } else {
                 continue; // Skip cancelled appointments
             }
 
-            // Use EGP for most payments, $ for some
-            $currency = ($index % 4 == 0) ? '$' : 'EGP'; // 25% in USD
+            // Use EGP for most payments
+            $currency = rand(1, 4) == 1 ? '$' : 'EGP'; // 25% in USD
 
-            // Convert fee to EGP if needed (approximate conversion)
+            // Convert fee to EGP if needed
             $amount = $appointment->doctor->consultation_fee;
             if ($currency === 'EGP') {
                 $amount = $amount * 30; // Approximate conversion rate
@@ -51,14 +50,14 @@ class PaymentSeeder extends Seeder
             $paymentData = [
                 'appointment_id' => $appointment->id,
                 'patient_id' => $appointment->patient_id,
-                'amount' => $amount,
+                'amount' => round($amount, 2),
                 'currency' => $currency,
-                'payment_method' => $paymentMethods[$index % count($paymentMethods)],
+                'payment_method' => $paymentMethods[array_rand($paymentMethods)],
                 'status' => $paymentStatus,
-                'transaction_id' => 'txn_' . strtoupper(uniqid()),
+                'transaction_id' => 'TXN' . strtoupper(uniqid()),
                 'payment_details' => [
-                    'gateway' => 'demo_gateway',
-                    'payment_method' => $paymentMethods[$index % count($paymentMethods)],
+                    'gateway' => 'payment_gateway',
+                    'payment_method' => $paymentMethods[array_rand($paymentMethods)],
                     'processed_at' => $this->getProcessedAtDate($appointment, $paymentStatus),
                 ],
             ];
@@ -80,9 +79,6 @@ class PaymentSeeder extends Seeder
         $this->command->info('Payments seeded successfully! Created payments for ' . $appointments->count() . ' appointments.');
     }
 
-    /**
-     * Get appropriate processed_at date for payment details
-     */
     private function getProcessedAtDate($appointment, $paymentStatus)
     {
         $appointmentDate = strtotime($appointment->appointment_date);
@@ -90,38 +86,38 @@ class PaymentSeeder extends Seeder
 
         if ($appointmentDate < $today) {
             // Past appointment - processed before appointment date
-            return now()->subDays(rand(1, 14))->toISOString();
+            $daysBefore = rand(1, 7);
+            return now()->subDays($daysBefore)->toISOString();
         } elseif ($appointmentDate == $today) {
             // Today - processed recently
-            return now()->subHours(rand(1, 24))->toISOString();
+            $hoursBefore = rand(1, 12);
+            return now()->subHours($hoursBefore)->toISOString();
         } else {
-            // Future appointment - processed recently or scheduled
+            // Future appointment - processed recently
             if ($paymentStatus === 'completed') {
-                return now()->subDays(rand(0, 3))->toISOString();
+                $daysBefore = rand(0, 5);
+                return now()->subDays($daysBefore)->toISOString();
             } else {
-                return now()->subHours(rand(1, 12))->toISOString();
+                $hoursBefore = rand(1, 24);
+                return now()->subHours($hoursBefore)->toISOString();
             }
         }
     }
 
-    /**
-     * Get appropriate paid_at date for completed payments
-     */
     private function getPaidAtDate($appointment)
     {
         $appointmentDate = strtotime($appointment->appointment_date);
         $today = strtotime(now()->format('Y-m-d'));
 
         if ($appointmentDate < $today) {
-            // Past appointment - paid around appointment time
-            $appointmentDateTime = strtotime($appointment->appointment_date . ' ' . $appointment->start_time);
-            $paidTime = $appointmentDateTime - rand(3600, 86400); // 1-24 hours before appointment
-            return date('Y-m-d H:i:s', max($paidTime, strtotime('2024-01-01'))); // Ensure not before 2024
+            // Past appointment - paid 1-7 days before appointment
+            $daysBefore = rand(1, 7);
+            return now()->subDays($daysBefore + rand(0, 14));
         } elseif ($appointmentDate == $today) {
-            // Today - paid recently
+            // Today - paid 1-6 hours ago
             return now()->subHours(rand(1, 6));
         } else {
-            // Future appointment - paid recently
+            // Future appointment - paid 0-2 days ago
             return now()->subDays(rand(0, 2));
         }
     }
