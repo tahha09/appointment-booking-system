@@ -171,13 +171,26 @@ export class Payment implements OnInit {
       this.configureMethodValidators(method);
     });
     this.paymentForm.get('appointmentDate')?.valueChanges.subscribe((date) => {
-      // prefer cached slots if we've prefetched dates, otherwise load
-      if (date && this.slotsByDate[date]) {
-        this.availableSlots = this.slotsByDate[date] || [];
-        if (!this.availableSlots.length) {
-          this.updateControlError('appointmentDate', 'noSlots', true);
+      if (!date) {
+        this.availableSlots = [];
+        this.updateControlError('appointmentDate', 'noSlots', false);
+        this.toggleStartTimeControl(false);
+        return;
+      }
+      const cachedSlots = this.slotsByDate[date];
+      // If we have cached slots with entries, reuse them, otherwise refetch to pick up schedule changes
+      if (Array.isArray(cachedSlots) && cachedSlots.length) {
+        this.availableSlots = cachedSlots;
+        this.availabilityMessage = '';
+        this.updateControlError('appointmentDate', 'noSlots', false);
+        this.updateControlError('startTime', 'noSlots', false);
+        this.toggleStartTimeControl(true);
+        const selectedSlot = this.paymentForm.get('startTime')?.value;
+        if (!selectedSlot || !this.availableSlots.includes(selectedSlot)) {
+          this.paymentForm.get('startTime')?.setValue('', { emitEvent: false });
+          this.paymentForm.patchValue({ endTime: '' }, { emitEvent: false });
         } else {
-          this.updateControlError('appointmentDate', 'noSlots', false);
+          this.updateEndTime(selectedSlot);
         }
       } else {
         this.loadAvailability(date);
@@ -282,8 +295,6 @@ export class Payment implements OnInit {
       'cardNumber',
       'cardExpiry',
       'cardCvc',
-      'walletProvider',
-      'walletEmail',
       'bankAccountName',
       'bankAccountNumber',
       'bankReference',
@@ -768,25 +779,34 @@ export class Payment implements OnInit {
       return;
     }
     this.pendingAvailabilityDate = null;
+    const dateKey = date;
     this.availabilityLoading = true;
     this.availabilityMessage = '';
     this.toggleStartTimeControl(false);
     const params = new HttpParams().set('date', date);
     this.http
       .get<{ success: boolean; data?: { available_slots?: string[]; is_available?: boolean } }>(
-        `http://localhost:8000/api/doctors/${this.doctorInfo.id}/availability`,
+        `${this.apiBase}/doctors/${this.doctorInfo.id}/availability`,
         { params }
       )
       .subscribe({
         next: (res) => {
+          const reason = (res as any)?.data?.reason;
           this.availableSlots = res?.data?.available_slots ?? [];
+          if (dateKey) {
+            this.slotsByDate[dateKey] = [...this.availableSlots];
+          }
           if (!this.availableSlots.length) {
-            this.availabilityMessage = 'No available slots for the selected date.';
+            this.availabilityMessage =
+              reason || 'No available slots for the selected date.';
             clearSlotSelection();
             this.updateControlError('appointmentDate', 'noSlots', true);
             this.updateControlError('startTime', 'noSlots', true);
             startControl?.markAsTouched();
             this.toggleStartTimeControl(false);
+            if (dateKey) {
+              this.removeUnavailableDate(dateKey);
+            }
           } else {
             this.availabilityMessage = '';
             this.updateControlError('appointmentDate', 'noSlots', false);
@@ -804,6 +824,10 @@ export class Payment implements OnInit {
         },
         error: () => {
           this.availableSlots = [];
+          if (dateKey) {
+            delete this.slotsByDate[dateKey];
+            this.removeUnavailableDate(dateKey);
+          }
           this.availabilityMessage =
             'Unable to fetch availability for this doctor. Please pick another date.';
           clearSlotSelection();
@@ -865,6 +889,21 @@ export class Payment implements OnInit {
       delete currentErrors[errorKey];
       const hasOtherErrors = Object.keys(currentErrors).length > 0 ? currentErrors : null;
       control.setErrors(hasOtherErrors);
+    }
+  }
+
+  private removeUnavailableDate(date: string): void {
+    const index = this.availableDates.indexOf(date);
+    if (index !== -1) {
+      this.availableDates.splice(index, 1);
+    }
+    if (this.paymentForm.get('appointmentDate')?.value === date) {
+      const fallbackDate = this.availableDates[0] || '';
+      this.paymentForm.get('appointmentDate')?.setValue(fallbackDate, { emitEvent: true });
+      if (!fallbackDate) {
+        this.availableSlots = [];
+        this.toggleStartTimeControl(false);
+      }
     }
   }
 
