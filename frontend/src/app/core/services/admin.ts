@@ -73,6 +73,15 @@ export interface SystemActivity {
   type: string;
 }
 
+export interface Specialization {
+  id: number;
+  name: string;
+  description: string;
+  doctors_count?: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
 // Pagination interfaces
 export interface PaginatedResponse<T> {
   current_page: number;
@@ -137,9 +146,9 @@ export class AdminService {
   }
 
   // User Management
-  getUsers(params?: { 
-    page?: number; 
-    per_page?: number; 
+  getUsers(params?: {
+    page?: number;
+    per_page?: number;
     exclude_user_id?: number;
     role?: string;
     status?: string;
@@ -343,6 +352,16 @@ export class AdminService {
         return appointments.filter((appointment: any) =>
           appointment.date === today
         );
+      }) 
+    );
+  }
+  getDoctorsBySpecialization(specializationId: number): Observable<any> {
+    const headers = this.getAuthHeaders();
+
+    return this.http.get(`${this.apiUrl}/admin/specializations/${specializationId}/doctors`, { headers }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error(`Error loading doctors for specialization ${specializationId}:`, error);
+        return throwError(() => error);
       })
     );
   }
@@ -506,6 +525,76 @@ export class AdminService {
       case 'days': return value * 1440;
       default: return 0;
     }
+  }
+
+  // Specialization Management
+  getSpecializations(params?: { page?: number; per_page?: number; search?: string }): Observable<{ data: Specialization[], meta: any }> {
+    const headers = this.getAuthHeaders();
+    const queryParams: any = {};
+
+    if (params?.page) {
+      queryParams.page = params.page;
+    }
+    if (params?.per_page) {
+      queryParams.per_page = params.per_page;
+    }
+    if (params?.search) {
+      queryParams.search = params.search;
+    }
+
+    return this.http.get<{ data: Specialization[], meta: any }>(`${this.apiUrl}/admin/specializations`, {
+      headers,
+      params: queryParams
+    }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error loading specializations:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  createSpecialization(data: { name: string; description?: string }): Observable<Specialization> {
+    const headers = this.getAuthHeaders();
+
+    return this.http.post<Specialization>(`${this.apiUrl}/admin/specializations`, data, { headers }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error creating specialization:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  getSpecializationById(id: number): Observable<Specialization> {
+    const headers = this.getAuthHeaders();
+
+    return this.http.get<Specialization>(`${this.apiUrl}/admin/specializations/${id}`, { headers }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error(`Error loading specialization ${id}:`, error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  updateSpecialization(id: number, data: { name: string; description?: string }): Observable<Specialization> {
+    const headers = this.getAuthHeaders();
+
+    return this.http.put<Specialization>(`${this.apiUrl}/admin/specializations/${id}`, data, { headers }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error(`Error updating specialization ${id}:`, error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  deleteSpecialization(id: number): Observable<void> {
+    const headers = this.getAuthHeaders();
+
+    return this.http.delete<void>(`${this.apiUrl}/admin/specializations/${id}`, { headers }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error(`Error deleting specialization ${id}:`, error);
+        return throwError(() => error);
+      })
+    );
   }
 
   // Optional: Test authentication

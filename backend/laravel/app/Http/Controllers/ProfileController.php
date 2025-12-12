@@ -91,7 +91,9 @@ class ProfileController extends Controller
             ]);
         }
 
-        $responseData['specialty'] = $doctor->specialty ?? null;
+        // Load specialization relationship to get the name
+        $doctor->load('specialization');
+        $responseData['specialty'] = $doctor->specialization->name ?? null;
         $responseData['licenseNumber'] = $doctor->license_number ?? null;
         $responseData['qualifications'] = $doctor->qualifications ?? null;
         $responseData['experienceYears'] = $doctor->experience_years ?? null;

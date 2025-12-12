@@ -130,7 +130,7 @@ export class UserProfile implements OnInit {
   });
 
   doctorForm = this.fb.group({
-    specialty: this.fb.control(''),
+    specialty: this.fb.control({value: '', disabled: true}),
     licenseNumber: this.fb.control(''),
     qualifications: this.fb.control(''),
     experienceYears: this.fb.control<number | null>(null),
