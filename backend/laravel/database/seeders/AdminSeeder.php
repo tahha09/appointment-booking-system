@@ -10,27 +10,30 @@ class AdminSeeder extends Seeder
 {
     public function run()
     {
-        $adminUser = User::where('email', 'tasneemgaballah16@gmail.com')->first();
+        $adminEmails = ['system.admin@booking.com', 'ahmed.taha.admin@booking.com'];
 
-        if ($adminUser) {
-            Admin::create([
-                'user_id' => $adminUser->id,
-                'permissions' => [
-                    'manage_users',
-                    'manage_doctors',
-                    'manage_appointments',
-                    'manage_patients',
-                    'view_reports',
-                    'manage_schedules',
-                    'manage_payments',
-                    'manage_specializations',
-                ],
-                'department' => 'Administration',
-                'admin_level' => 'super_admin',
-            ]);
+        foreach ($adminEmails as $email) {
+            $adminUser = User::where('email', $email)->first();
+
+            if ($adminUser) {
+                Admin::create([
+                    'user_id' => $adminUser->id,
+                    'permissions' => [
+                        'manage_users',
+                        'manage_doctors',
+                        'manage_appointments',
+                        'manage_patients',
+                        'view_reports',
+                        'manage_schedules',
+                        'manage_payments',
+                        'manage_specializations',
+                    ],
+                    'department' => 'Administration',
+                    'admin_level' => 'super_admin',
+                ]);
+            }
         }
 
-        $this->command->info('Admin record seeded successfully!');
+        $this->command->info('Admin records seeded successfully!');
     }
 }
-
