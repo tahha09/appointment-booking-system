@@ -68,6 +68,10 @@ export class Login {
     window.location.href = 'http://localhost:8000/auth/google';
   }
 
+  forgotPassword(): void {
+    this.router.navigate(['/forgot-password']);
+  }
+
   onSubmit(): void {
     if (this.form.invalid || this.isSubmitting) {
       this.form.markAllAsTouched();

@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DoctorController as AdminDoctorController;
@@ -37,6 +39,8 @@ use App\Http\Controllers\Patient\PatientFinanceController;
 // Public Routes
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink']);
+Route::post('/reset-password/submit', [ResetPasswordController::class, 'resetPassword']);
 
 Route::get('/doctors', [PatientDoctorController::class, 'indexPublic']);
 Route::get('/doctors/top-rated', [PatientDoctorController::class, 'topRated']);

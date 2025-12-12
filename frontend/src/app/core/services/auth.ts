@@ -532,6 +532,14 @@ export class Auth {
       );
   }
 
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(`${this.apiBaseUrl}/forgot-password`, { email });
+  }
+
+  resetPassword(data: { token: string; email: string; password: string; password_confirmation: string }): Observable<any> {
+    return this.http.post(`${this.apiBaseUrl}/reset-password/submit`, data);
+  }
+
   private getAuthHeaders(): HttpHeaders {
     const token = this.getToken();
 
