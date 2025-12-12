@@ -438,9 +438,13 @@ private formatRescheduleData() {
      }
 
      // ensure date is today or later
-     const selectedDate = new Date(appointmentDate);
-     const today = new Date();
-     today.setHours(0, 0, 0, 0);
+    const selectedDate = this.parseLocalDate(appointmentDate);
+    if (!selectedDate) {
+      this.rescheduleErrors.appointment_date = 'Invalid date. Please select a valid day.';
+      return false;
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
      if (selectedDate < today) {
        this.rescheduleErrors.appointment_date = 'Cannot select a past date.';
        return false;
@@ -793,9 +797,9 @@ getDateFilter = (date: Date): boolean => {
 
 
   formatDate(date: string): string {
-    if (!date) return 'N/A';
-    const d = new Date(date);
-    return d.toLocaleDateString('en-US', {
+    const parsedDate = this.parseLocalDate(date);
+    if (!parsedDate) return 'N/A';
+    return parsedDate.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -826,7 +830,8 @@ getDateFilter = (date: Date): boolean => {
   }
 
   getRecordAge(appointmentDate: string): string {
-    const date = new Date(appointmentDate);
+    const date = this.parseLocalDate(appointmentDate);
+    if (!date) return '';
     const now = new Date();
     const diffTime = now.getTime() - date.getTime();
     const diffDays = Math.floor(Math.abs(diffTime) / (1000 * 60 * 60 * 24));
@@ -856,6 +861,37 @@ getDateFilter = (date: Date): boolean => {
     }
   }
 
+  private parseLocalDate(dateString: string | null | undefined): Date | null {
+    if (!dateString) {
+      return null;
+    }
+    const parts = dateString.split('-').map((part) => parseInt(part, 10));
+    if (parts.length < 3 || parts.some((part) => isNaN(part))) {
+      return null;
+    }
+    const [year, month, day] = parts;
+    const date = new Date(year, month - 1, day);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  }
+
+  private buildDateWithTime(dateString: string, timeString: string): Date | null {
+    const baseDate = this.parseLocalDate(dateString);
+    if (!baseDate) {
+      return null;
+    }
+    if (!timeString) {
+      return baseDate;
+    }
+    const [hours, minutes] = timeString.split(':').map((part) => parseInt(part, 10));
+    if (isNaN(hours) || isNaN(minutes)) {
+      return baseDate;
+    }
+    const dateTime = new Date(baseDate);
+    dateTime.setHours(hours, minutes, 0, 0);
+    return dateTime;
+  }
+
   getStatusClass(status: string): string {
     return `status-${status}`;
   }
@@ -879,7 +915,10 @@ getDateFilter = (date: Date): boolean => {
   if (rescheduleCount >= 3) return false;
 
   // 3. Ensure the appointment hasn't already passed
-  const appointmentDateTime = new Date(`${appointment.appointment_date}T${appointment.start_time}`);
+  const appointmentDateTime = this.buildDateWithTime(appointment.appointment_date, appointment.start_time);
+  if (!appointmentDateTime) {
+    return false;
+  }
   const now = new Date();
 
   if (appointmentDateTime < now) {
@@ -887,7 +926,10 @@ getDateFilter = (date: Date): boolean => {
   }
 
   // 4. Ensure today is not the same day as the appointment
-  const appointmentDate = new Date(appointment.appointment_date);
+  const appointmentDate = this.parseLocalDate(appointment.appointment_date);
+  if (!appointmentDate) {
+    return false;
+  }
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -920,14 +962,20 @@ getRescheduleMessage(appointment: any): string {
     return 'You have reached the maximum reschedule limit (3 times).';
   }
 
-  const appointmentDateTime = new Date(`${appointment.appointment_date}T${appointment.start_time}`);
+  const appointmentDateTime = this.buildDateWithTime(appointment.appointment_date, appointment.start_time);
+  if (!appointmentDateTime) {
+    return 'Appointment date is invalid.';
+  }
   const now = new Date();
 
   if (appointmentDateTime < now) {
     return 'Cannot reschedule an appointment that has already passed.';
   }
 
-  const appointmentDate = new Date(appointment.appointment_date);
+  const appointmentDate = this.parseLocalDate(appointment.appointment_date);
+  if (!appointmentDate) {
+    return 'Appointment date is invalid.';
+  }
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
