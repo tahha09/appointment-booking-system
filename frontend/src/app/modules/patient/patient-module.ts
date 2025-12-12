@@ -10,6 +10,7 @@ import { AppointmentDetails } from './appointment-details/appointment-details';
 import { MedicalImages } from './medical-images/medical-images';
 import { authGuard } from '../../core/guards/auth-guard';
 import { UserProfile } from '../../shared/components/profile/profile';
+import { Finance } from './finance/finance';
 
 const routes: Routes = [
   {
@@ -23,6 +24,7 @@ const routes: Routes = [
       { path: 'prescriptions', component: Prescriptions },
       { path: 'medical-images', component: MedicalImages },
       { path: 'appointment-details/:id', component: AppointmentDetails},
+      { path: 'finance', component: Finance },
       { path: 'profile', component:UserProfile},
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
 
@@ -42,6 +44,7 @@ const routes: Routes = [
     MedicalHistory,
     Prescriptions,
     MedicalImages,
+    Finance,
     AppointmentDetails,
     RouterModule.forChild(routes)
   ],

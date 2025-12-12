@@ -59,14 +59,18 @@ export class Payment implements OnInit {
     };
   }
 
-  // Only two options: credit card and cash on visit
+  // Payment options
   paymentMethods = [
     { value: 'credit_card', label: 'Credit Card', description: 'Pay deposit with card' },
     { value: 'cash', label: 'Cash on Visit', description: 'Pay remaining balance in clinic' },
+    { value: 'refunded_balance', label: 'Refunded Balance', description: 'Use available refunded funds' },
   ];
   readonly currencyCode = 'USD';
   readonly currencySymbol = '$';
   readonly minAppointmentDate = new Date().toISOString().split('T')[0];
+  refundedBalance = 0;
+  refundBalanceLoading = false;
+  refundBalanceError = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -147,6 +151,7 @@ export class Payment implements OnInit {
       this.manualSelectionMode = !hasDoctor;
       this.minimumDeposit = this.doctorInfo.fee > 0 ? Number((this.doctorInfo.fee * 0.5).toFixed(2)) : 0;
       this.setAmountValidator(this.minimumDeposit);
+      this.syncRefundMethodState();
 
       if (hasDoctor && this.doctorInfo.id) {
         this.disableManualSelectionControls();
@@ -192,6 +197,7 @@ export class Payment implements OnInit {
     });
 
     this.populatePatientDetails();
+    this.loadRefundBalance();
     // prefetch is called in loadDoctorDetails after doctor details are loaded
   }
 
@@ -240,6 +246,35 @@ export class Payment implements OnInit {
 
   get selectedMethod(): string {
     return this.paymentForm.get('paymentMethod')?.value;
+  }
+
+  get canUseRefundBalance(): boolean {
+    return this.minimumDeposit > 0 && this.refundedBalance >= this.minimumDeposit;
+  }
+
+  selectPaymentMethod(method: string): void {
+    if (method === 'refunded_balance' && !this.canUseRefundBalance) {
+      this.errorMessage =
+        this.minimumDeposit > 0
+          ? `Refund balance unavailable: you need at least ${this.minimumDeposit.toFixed(2)} ${this.currencySymbol} to cover the deposit.`
+          : 'Refund balance unavailable: select a doctor first to determine the required deposit.';
+      return;
+    }
+    this.paymentForm.get('paymentMethod')?.setValue(method);
+  }
+
+  private syncRefundMethodState(): void {
+    if (this.selectedMethod === 'refunded_balance') {
+      // if (!this.canUseRefundBalance) {
+      //   this.errorMessage =
+      //     'Refund balance unavailable: your refunded funds are no longer enough to cover the deposit.';
+      //   this.paymentForm.get('paymentMethod')?.setValue('credit_card', { emitEvent: true });
+      //   return;
+      // }
+      const amountControl = this.paymentForm.get('amount');
+      amountControl?.setValue(this.minimumDeposit, { emitEvent: false });
+      amountControl?.disable({ emitEvent: false });
+    }
   }
 
   private resetMethodValidators(): void {
@@ -302,6 +337,23 @@ export class Payment implements OnInit {
           amtCtrl.setValue(null, { emitEvent: false });
           amtCtrl.updateValueAndValidity({ emitEvent: false });
           amtCtrl.disable({ emitEvent: false });
+        }
+        ['cardNumber', 'cardExpiry', 'cardCvc'].forEach((name) => {
+          const c = this.paymentForm.get(name);
+          if (c) {
+            c.clearValidators();
+            c.setValue(null, { emitEvent: false });
+            c.updateValueAndValidity({ emitEvent: false });
+            c.disable({ emitEvent: false });
+          }
+        });
+        break;
+      case 'refunded_balance':
+        const refundAmountControl = this.paymentForm.get('amount');
+        if (refundAmountControl) {
+          refundAmountControl.clearValidators();
+          refundAmountControl.setValue(this.minimumDeposit, { emitEvent: false });
+          refundAmountControl.disable({ emitEvent: false });
         }
         ['cardNumber', 'cardExpiry', 'cardCvc'].forEach((name) => {
           const c = this.paymentForm.get(name);
@@ -445,6 +497,11 @@ export class Payment implements OnInit {
           account_number: value.bankAccountNumber,
           reference: value.bankReference,
         };
+      case 'refunded_balance':
+        return {
+          source: 'refunded_balance',
+          available_before: this.refundedBalance,
+        };
       case 'cash':
       default:
         return {
@@ -472,6 +529,36 @@ export class Payment implements OnInit {
         // ignore profile errors and keep cached values
       },
     });
+  }
+
+  private loadRefundBalance(): void {
+    const token = this.auth.getToken();
+    if (!token) {
+      this.refundedBalance = 0;
+      return;
+    }
+    this.refundBalanceLoading = true;
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+    const params = new HttpParams().set('page', '1');
+    this.http
+      .get<{ data?: { summary?: { total_refunded?: number } } }>(`${this.apiBase}/patient/finance`, {
+        headers,
+        params,
+      })
+      .subscribe({
+        next: (response) => {
+          this.refundBalanceLoading = false;
+          this.refundedBalance = Number(response?.data?.summary?.total_refunded ?? 0);
+          this.refundBalanceError = '';
+          this.syncRefundMethodState();
+        },
+        error: () => {
+          this.refundBalanceLoading = false;
+          this.refundBalanceError = 'Unable to load refunded balance.';
+        },
+      });
   }
 
   private initializeManualSelectionControls(): void {
@@ -598,6 +685,7 @@ export class Payment implements OnInit {
     }
     this.setDoctorDependentControlsEnabled(true);
     this.loadDoctorDetails(doctorId);
+    this.syncRefundMethodState();
     this.cdr.detectChanges();
   }
 
@@ -613,6 +701,7 @@ export class Payment implements OnInit {
       { emitEvent: false }
     );
     this.setAmountValidator(0);
+    this.syncRefundMethodState();
     if (this.manualSelectionMode) {
       this.setDoctorDependentControlsEnabled(false);
     }
@@ -636,6 +725,7 @@ export class Payment implements OnInit {
             this.doctorInfo.fee = fee;
             this.minimumDeposit = Number((fee * 0.5).toFixed(2));
             this.setAmountValidator(this.minimumDeposit);
+            this.syncRefundMethodState();
           }
           const dateToCheck =
             this.pendingAvailabilityDate || this.paymentForm.get('appointmentDate')?.value;
@@ -787,21 +877,32 @@ export class Payment implements OnInit {
       this.errorMessage = 'Doctor information is missing.';
       return;
     }
-    const amountRaw = this.paymentForm.value.amount;
+    const amountRaw = this.paymentForm.getRawValue().amount;
     const amount = amountRaw === null || amountRaw === '' ? NaN : Number(amountRaw);
     // Only enforce minimum deposit when not paying cash on visit
-    if (this.selectedMethod !== 'cash') {
+    if (this.selectedMethod !== 'cash' && this.selectedMethod !== 'refunded_balance') {
       if (this.minimumDeposit > 0 && (isNaN(amount) || amount < this.minimumDeposit)) {
         this.errorMessage = `Please pay at least ${this.minimumDeposit.toFixed(2)} to secure the appointment.`;
         return;
       }
+    }
+    if (this.selectedMethod === 'refunded_balance' && !this.canUseRefundBalance) {
+      this.errorMessage = 'Your refunded balance is not enough to cover the required deposit.';
+      return;
     }
     const appointmentDate = this.paymentForm.value.appointmentDate;
     const startTime = this.paymentForm.value.startTime;
     const endTime = this.paymentForm.value.endTime;
     // client-side validation removed per request — server will enforce correctness
 
-    const amountForPayload = this.selectedMethod === 'cash' && (isNaN(amount) || amount <= 0) ? 0 : amount;
+    let amountForPayload: number;
+    if (this.selectedMethod === 'cash') {
+      amountForPayload = 0;
+    } else if (this.selectedMethod === 'refunded_balance') {
+      amountForPayload = this.minimumDeposit;
+    } else {
+      amountForPayload = amount;
+    }
 
     const payload = {
       doctor_id: this.doctorInfo.id,
@@ -864,6 +965,7 @@ export class Payment implements OnInit {
           this.successMessage = 'Payment saved and appointment booked successfully.';
           this.paymentForm.reset({ paymentMethod: 'credit_card' });
           this.configureMethodValidators('credit_card');
+          this.loadRefundBalance();
           void this.router.navigate(['/patient/my-appointments']);
         },
         error: (err) => {

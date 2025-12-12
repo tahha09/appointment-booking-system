@@ -118,13 +118,16 @@ class PaymentService
             $payment->markAsRefunded();
 
             // Create refund notification
-            Notification::create([
-                'user_id' => $payment->patient_id,
-                'title' => 'Payment Refunded',
-                'message' => "Your payment of {$payment->formatted_amount} has been refunded successfully.",
-                'type' => 'success',
-                'related_appointment_id' => $payment->appointment_id,
-            ]);
+            $userId = optional($payment->patient)->user_id ?? $payment->patient_id;
+            if ($userId) {
+                Notification::create([
+                    'user_id' => $userId,
+                    'title' => 'Payment Refunded',
+                    'message' => "Your payment of {$payment->formatted_amount} has been refunded successfully.",
+                    'type' => 'success',
+                    'related_appointment_id' => $payment->appointment_id,
+                ]);
+            }
 
             return $payment;
         });

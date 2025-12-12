@@ -268,9 +268,9 @@ export class FinancialPerformance implements OnInit {
   }
 
   formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('egypt', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'EGP',
     }).format(amount);
   }
 
@@ -374,7 +374,7 @@ export class FinancialPerformance implements OnInit {
 
   getGridLabel(index: number): string {
     if (this.chartGridLines.length <= 1 || this.maxRevenue <= 0) {
-      return '$0.00';
+      return 'EGP 0.00';
     }
 
     const steps = this.chartGridLines.length - 1;

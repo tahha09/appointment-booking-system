@@ -11,7 +11,7 @@ import { DoctorListing } from './doctor-listing/doctor-listing';
 import { DoctorDetails } from './doctor-details/doctor-details';
 import { Specializations } from './specializations/specializations';
 import { MedicalAssistant } from './medical-assistant/medical-assistant';
-import { Payment } from './payment/payment';
+import { Payment } from '../patient/payment/payment';
 
 
 const routes: Routes = [

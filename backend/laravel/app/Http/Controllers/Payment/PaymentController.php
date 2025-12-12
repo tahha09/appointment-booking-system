@@ -7,7 +7,6 @@ use App\Http\Requests\Payment\CreatePaymentRequest;
 use App\Http\Requests\Payment\ConfirmPaymentRequest;
 use App\Http\Resources\PaymentResource;
 use App\Models\Payment;
-use App\Models\Appointment;
 use App\Services\PaymentService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
@@ -28,9 +27,14 @@ class PaymentController extends Controller
     public function createPaymentIntent(CreatePaymentRequest $request)
     {
         try {
+            $patient = auth()->user()?->patient;
+            if (!$patient) {
+                return $this->error('Authenticated patient not found.', 404);
+            }
+
             $payment = $this->paymentService->createPaymentIntent(
                 $request->appointment_id,
-                auth()->id(),
+                $patient->id,
                 $request->payment_method
             );
 
@@ -63,7 +67,16 @@ class PaymentController extends Controller
     public function getPayment($id)
     {
         try {
-            $payment = Payment::where('patient_id', auth()->id())->findOrFail($id);
+            $patient = auth()->user()?->patient;
+            if (!$patient) {
+                return $this->error('Authenticated patient not found.', 404);
+            }
+
+            $patientIds = array_unique(array_filter([$patient->id, $patient->user_id, auth()->id()]));
+
+            $payment = Payment::with(['appointment.doctor.user', 'appointment.doctor.specialization'])
+                ->whereIn('patient_id', $patientIds)
+                ->findOrFail($id);
 
             return $this->success(
                 new PaymentResource($payment),
@@ -74,26 +87,16 @@ class PaymentController extends Controller
         }
     }
 
-    public function getPatientPayments()
-    {
-        try {
-            $payments = Payment::where('patient_id', auth()->id())
-                ->orderBy('created_at', 'desc')
-                ->get();
-
-            return $this->success(
-                PaymentResource::collection($payments),
-                'Payments retrieved successfully'
-            );
-        } catch (\Exception $e) {
-            return $this->error($e->getMessage());
-        }
-    }
-
     public function refundPayment($id)
     {
         try {
-            $payment = Payment::where('patient_id', auth()->id())->findOrFail($id);
+            $patient = auth()->user()?->patient;
+            if (!$patient) {
+                return $this->error('Authenticated patient not found.', 404);
+            }
+
+            $patientIds = array_unique(array_filter([$patient->id, $patient->user_id, auth()->id()]));
+            $payment = Payment::whereIn('patient_id', $patientIds)->findOrFail($id);
 
             if ($payment->status !== 'completed') {
                 return $this->error('Only completed payments can be refunded');
@@ -129,9 +132,9 @@ class PaymentController extends Controller
                     'doctor_department' => 'nullable|string|max:255',
                     'fee' => 'required|numeric|min:0',
                     // amount is required unless payment_method is cash
-                    'amount' => 'required_unless:payment_method,cash|numeric|min:0',
+                    'amount' => 'required_unless:payment_method,cash,refunded_balance|numeric|min:0',
                     'currency' => 'nullable|string|size:3',
-                    'payment_method' => 'required|in:credit_card,cash',
+                    'payment_method' => 'required|in:credit_card,cash,refunded_balance',
                     'patient_name' => 'required|string|max:255',
                     'patient_email' => 'nullable|email|max:255',
                     'payment_details' => 'nullable|array',
@@ -140,11 +143,20 @@ class PaymentController extends Controller
 
             $minimumDeposit = $validated['fee'] * 0.5;
                 // Only enforce minimum deposit for non-cash payments
-                if (($validated['payment_method'] ?? '') !== 'cash') {
+                if (($validated['payment_method'] ?? '') !== 'cash' && $validated['payment_method'] !== 'refunded_balance') {
                     if (!isset($validated['amount']) || $validated['amount'] < $minimumDeposit) {
                         return $this->error('Deposit must be at least 50% of the doctor fee.', 422);
                     }
                 }
+
+            if (($validated['payment_method'] ?? '') === 'refunded_balance') {
+                $patientIds = array_unique(array_filter([$patient->id, $patient->user_id, auth()->id()]));
+                $availableRefund = $this->getAvailableRefundBalance($patientIds);
+                if ($availableRefund < $minimumDeposit) {
+                    return $this->error('Your refunded balance is not enough to cover the required 50% deposit.', 422);
+                }
+                $validated['amount'] = $minimumDeposit;
+            }
 
             $currency = strtoupper($validated['currency'] ?? 'USD');
             if (strlen($currency) !== 3) {
@@ -182,5 +194,17 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             return $this->error($e->getMessage(), 500);
         }
+    }
+
+    private function getAvailableRefundBalance(array $patientIds): float
+    {
+        $refunded = Payment::whereIn('patient_id', $patientIds)
+            ->where('status', 'refunded')
+            ->sum('amount');
+        $spent = Payment::whereIn('patient_id', $patientIds)
+            ->where('payment_method', 'refunded_balance')
+            ->sum('amount');
+        $available = (float) $refunded - (float) $spent;
+        return $available > 0 ? $available : 0;
     }
 }
