@@ -67,26 +67,17 @@ class ScheduleController extends Controller
 
             // Check for overlapping schedules on the same day
             $doctorId = $user->doctor->id;
-            $overlapping = Schedule::where('doctor_id', $doctorId)
-                ->where('day_of_week', $validated['day_of_week'])
-                ->where(function ($query) use ($validated) {
-                    $query->where('start_time', '<', $validated['end_time'])
-                        ->where('end_time', '>', $validated['start_time']);
-                })
-                ->exists();
+            // $overlapping = Schedule::where('doctor_id', $doctorId)
+            //     ->where('day_of_week', $validated['day_of_week'])
+            //     ->where(function ($query) use ($validated) {
+            //         $query->where('start_time', '<', $validated['end_time'])
+            //             ->where('end_time', '>', $validated['start_time']);
+            //     })
+            //     ->exists();
 
-            if ($overlapping) {
-                return $this->error('This time slot overlaps with an existing schedule.', 422);
-            }
-
-            $duplicateTimeRange = Schedule::where('doctor_id', $doctorId)
-                ->where('start_time', $validated['start_time'])
-                ->where('end_time', $validated['end_time'])
-                ->exists();
-
-            if ($duplicateTimeRange) {
-                return $this->error('This time range is already used in another schedule. Please choose a different start/end time.', 422);
-            }
+            // if ($overlapping) {
+            //     return $this->error('This time slot overlaps with an existing schedule.', 422);
+            // }
 
             $schedule = Schedule::create([
                 'doctor_id' => $doctorId,
@@ -131,34 +122,24 @@ class ScheduleController extends Controller
             ]);
 
             // Check for overlapping schedules (excluding current schedule)
-            if (isset($validated['day_of_week']) || isset($validated['start_time']) || isset($validated['end_time'])) {
-                $dayOfWeek = $validated['day_of_week'] ?? $schedule->day_of_week;
-                $startTime = $validated['start_time'] ?? $schedule->start_time;
-                $endTime = $validated['end_time'] ?? $schedule->end_time;
+            // if (isset($validated['day_of_week']) || isset($validated['start_time']) || isset($validated['end_time'])) {
+            //     $dayOfWeek = $validated['day_of_week'] ?? $schedule->day_of_week;
+            //     $startTime = $validated['start_time'] ?? $schedule->start_time;
+            //     $endTime = $validated['end_time'] ?? $schedule->end_time;
 
-                $overlapping = Schedule::where('doctor_id', $user->doctor->id)
-                    ->where('id', '!=', $id)
-                    ->where('day_of_week', $dayOfWeek)
-                    ->where(function ($query) use ($startTime, $endTime) {
-                        $query->where('start_time', '<', $endTime)
-                            ->where('end_time', '>', $startTime);
-                    })
-                    ->exists();
+            //     $overlapping = Schedule::where('doctor_id', $user->doctor->id)
+            //         ->where('id', '!=', $id)
+            //         ->where('day_of_week', $dayOfWeek)
+            //         ->where(function ($query) use ($startTime, $endTime) {
+            //             $query->where('start_time', '<', $endTime)
+            //                 ->where('end_time', '>', $startTime);
+            //         })
+            //         ->exists();
 
-                if ($overlapping) {
-                    return $this->error('This time slot overlaps with an existing schedule.', 422);
-                }
-
-                $duplicateTimeRange = Schedule::where('doctor_id', $user->doctor->id)
-                    ->where('id', '!=', $id)
-                    ->where('start_time', $startTime)
-                    ->where('end_time', $endTime)
-                    ->exists();
-
-                if ($duplicateTimeRange) {
-                    return $this->error('This time range is already used in another schedule. Please choose a different start/end time.', 422);
-                }
-            }
+            //     if ($overlapping) {
+            //         return $this->error('This time slot overlaps with an existing schedule.', 422);
+            //     }
+            // }
 
             $schedule->update($validated);
 
