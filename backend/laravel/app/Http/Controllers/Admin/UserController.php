@@ -18,7 +18,7 @@ class UserController extends Controller
             // Get users with pagination and chunking to prevent memory exhaustion
             $perPage = $request->get('per_page', 6); // Default 6 users per page as requested
             $page = $request->get('page', 1);
-            
+
             // Get filter parameters
             $excludeUserId = $request->get('exclude_user_id', null);
             $role = $request->get('role', null);
@@ -81,14 +81,14 @@ class UserController extends Controller
                 $user->profile_image_url = $user->profile_image
                     ? asset('storage/' . $user->profile_image)
                     : asset('storage/default-avatar.png');
-                
+
                 // For doctors, check if they are approved to determine status
                 if ($user->role === 'doctor' && $user->doctor) {
                     if (!$user->doctor->is_approved) {
                         $user->status = 'pending';
                     }
                 }
-                
+
                 return $user;
             });
 
@@ -145,7 +145,7 @@ class UserController extends Controller
         'title' => 'Status Updated',
         'message' => "Your account status has changed from {$oldStatus} to {$user->status}.",
         'type' => 'status_change',
-        'related_appointment_id' => null, // 
+        'related_appointment_id' => null, //
     ];
 
     //  notification
@@ -155,9 +155,17 @@ class UserController extends Controller
         return response()->json($user);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $user = User::findOrFail($id);
+
+        // Prevent deleting admin accounts
+        if ($user->role === 'admin') {
+            return response()->json([
+                'message' => 'Cannot delete admin accounts.'
+            ], 403);
+        }
+
         $user->delete();
         return response()->json(['message' => 'User deleted successfully']);
     }
